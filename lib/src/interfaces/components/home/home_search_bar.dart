@@ -12,23 +12,25 @@ class HomeSearchBar extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: screenSize.responsivePadding(20),
+        horizontal: screenSize.responsivePadding(16),
       ),
       child: Container(
-        height: screenSize.responsivePadding(50),
-        padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+        height: screenSize.responsivePadding(54),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.responsivePadding(20),
+        ),
         decoration: BoxDecoration(
-          color: kTertiary.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(25),
+          color: kField,
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
           children: [
-            const Icon(Icons.search, color: kSecondaryTextColor, size: 22),
+            const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
             SizedBox(width: screenSize.responsivePadding(12)),
             Expanded(
               child: Text(
                 "Search for 'services'",
-                style: kBodyTitleR.copyWith(color: kSecondaryTextColor),
+                style: kSmallerTitleL.copyWith(color: kBlack.withOpacity(.5)),
               ),
             ),
           ],

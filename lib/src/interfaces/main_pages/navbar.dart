@@ -20,8 +20,8 @@ class NavBar extends ConsumerStatefulWidget {
 class _NavBarState extends ConsumerState<NavBar> {
   late final List<Widget> _widgetOptions;
 
-  // Since you mentioned SVG icons in the first prompt, 
-  // I'm predicting the file names based on the labels in the image! 
+  // Since you mentioned SVG icons in the first prompt,
+  // I'm predicting the file names based on the labels in the image!
   // Make sure these are placed in assets/svg/
   static const List<String> _inactiveIcons = [
     'assets/svg/inactive_home.svg',
@@ -55,8 +55,13 @@ class _NavBarState extends ConsumerState<NavBar> {
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedIndexProvider);
 
-    // As requested from the image reference provided
-    final List<String> labels = ['Home', 'Offers', 'Shops', 'Rewards', 'History'];
+    final List<String> labels = [
+      'Home',
+      'Offers',
+      'Shops',
+      'Rewards',
+      'History',
+    ];
 
     return PopScope(
       canPop: selectedIndex == 0,
@@ -97,7 +102,7 @@ class _NavBarState extends ConsumerState<NavBar> {
           child: SafeArea(
             top: false,
             child: SizedBox(
-              height: 70,
+              height: 75,
               child: Stack(
                 children: [
                   Padding(
@@ -119,9 +124,7 @@ class _NavBarState extends ConsumerState<NavBar> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 AnimatedScale(
-                                  duration: const Duration(
-                                    milliseconds: 200,
-                                  ),
+                                  duration: const Duration(milliseconds: 200),
                                   scale: isSelected ? 1.2 : 1.0,
                                   child: SvgPicture.asset(
                                     isSelected
@@ -129,24 +132,23 @@ class _NavBarState extends ConsumerState<NavBar> {
                                         : _inactiveIcons[index],
                                     colorFilter: ColorFilter.mode(
                                       isSelected
-                                          ? kBlue // Based on the blue color for "Home" in your image
+                                          ? kBlue
                                           : const Color(0xFF99A1AF),
                                       BlendMode.srcIn,
                                     ),
                                     width: 24,
                                     height: 24,
-                                    // Fallback if SVG not present yet matching image layout
-                                    placeholderBuilder: (BuildContext context) =>
-                                        Icon(
+                                    placeholderBuilder:
+                                        (BuildContext context) => Icon(
                                           index == 0
                                               ? Icons.home_filled
                                               : index == 1
-                                                  ? Icons.local_offer_outlined
-                                                  : index == 2
-                                                      ? Icons.storefront
-                                                          : index == 3
-                                                              ? Icons.workspace_premium_outlined
-                                                              : Icons.history,
+                                              ? Icons.local_offer_outlined
+                                              : index == 2
+                                              ? Icons.storefront
+                                              : index == 3
+                                              ? Icons.workspace_premium_outlined
+                                              : Icons.history,
                                           color: isSelected
                                               ? kBlue
                                               : const Color(0xFF99A1AF),
@@ -161,8 +163,10 @@ class _NavBarState extends ConsumerState<NavBar> {
                                     color: isSelected
                                         ? kBlue
                                         : const Color(0xFF99A1AF),
-                                    fontSize: 12, // Increased font size based on image proportion
-                                    fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                                    fontSize: 10,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w500
+                                        : FontWeight.w400,
                                   ),
                                 ),
                               ],

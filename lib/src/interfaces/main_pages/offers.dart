@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../components/offers/offers_filter_chips.dart';
-import '../components/offers/deal_grid_card.dart';
+import '../components/cards/deal_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/providers/screen_size_provider.dart';
 
@@ -46,7 +46,7 @@ class OffersPage extends ConsumerWidget {
                 itemCount: offers.length,
                 itemBuilder: (context, index) {
                   final o = offers[index];
-                  return DealGridCard(
+                  return DealCard(
                     title: o['title'] as String,
                     subtitle: o['subtitle'] as String,
                     shopName: o['shopName'] as String,

@@ -112,7 +112,7 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
     //   transitionDuration = const Duration(milliseconds: 500);
     //   break;
 
-    case '/':
+    case 'navbar':
       page = const NavBar();
       transitionToUse = TransitionType.fadeScale;
       transitionDuration = const Duration(milliseconds: 300);

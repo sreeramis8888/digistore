@@ -21,7 +21,7 @@ class SectionTitle extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: screenSize.responsivePadding(20),
+        horizontal: screenSize.responsivePadding(16),
         vertical: screenSize.responsivePadding(10),
       ),
       child: Row(
@@ -29,7 +29,7 @@ class SectionTitle extends ConsumerWidget {
         children: [
           Text(
             title,
-            style: kHeadTitleB.copyWith(color: titleColor ?? kTextColor),
+            style: kBodyTitleM.copyWith(color: titleColor ?? kTextColor),
           ),
           if (onViewAll != null)
             GestureDetector(
@@ -38,9 +38,13 @@ class SectionTitle extends ConsumerWidget {
                 children: [
                   Text(
                     'View All',
-                    style: kBodyTitleM.copyWith(color: kBlue),
+                    style: kSmallTitleM.copyWith(color: Color(0xFF2563EB)),
                   ),
-                  const Icon(Icons.chevron_right, color: kBlue, size: 20),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Color(0xFF2563EB),
+                    size: 20,
+                  ),
                 ],
               ),
             ),

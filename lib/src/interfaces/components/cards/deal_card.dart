@@ -1,18 +1,20 @@
+import 'package:digistore/src/data/constants/color_constants.dart';
+import 'package:digistore/src/data/constants/style_constants.dart';
+import 'package:digistore/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
-import '../../../data/providers/screen_size_provider.dart';
 
-class DealGridCard extends ConsumerWidget {
+class DealCard extends ConsumerWidget {
   final String title;
   final String subtitle;
   final String shopName;
   final String badgeText;
   final String? dealOfTheHour;
   final Color avatarColor;
+  final EdgeInsetsGeometry? margin;
+  final double? width;
 
-  const DealGridCard({
+  const DealCard({
     super.key,
     required this.title,
     required this.subtitle,
@@ -20,23 +22,21 @@ class DealGridCard extends ConsumerWidget {
     required this.badgeText,
     this.dealOfTheHour,
     required this.avatarColor,
+    this.margin,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+
     return Container(
+      width: width,
+      margin: margin,
       decoration: BoxDecoration(
         color: kWhite,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kBorder.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: Color(0xFFE8E8E8)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,22 +56,22 @@ class DealGridCard extends ConsumerWidget {
               ),
               Positioned(
                 top: 0,
-                right: 12,
+                right: 0,
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: screenSize.responsivePadding(8),
                     vertical: screenSize.responsivePadding(6),
                   ),
                   decoration: const BoxDecoration(
-                    color: kBlue,
+                    color: kPrimaryColor,
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(8),
-                      bottomRight: Radius.circular(8),
+                      bottomLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
                     ),
                   ),
                   child: Text(
                     badgeText,
-                    style: kSmallerTitleB.copyWith(color: kWhite, fontSize: 10),
+                    style: kSmallerTitleM.copyWith(color: kWhite, fontSize: 10),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -94,57 +94,59 @@ class DealGridCard extends ConsumerWidget {
                     ),
                     child: Text(
                       dealOfTheHour!,
-                      style: kSmallerTitleB.copyWith(color: const Color(0xFF8A6B32)),
+                      style: kSmallerTitleB.copyWith(
+                        color: const Color(0xFF8A6B32),
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(screenSize.responsivePadding(12)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: kBodyTitleB,
+          Padding(
+            padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: kBodyTitleB,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: screenSize.responsivePadding(2)),
+                    Text(
+                      subtitle,
+                      style: kSmallerTitleR.copyWith(
+                        color: kSecondaryTextColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+                SizedBox(height: screenSize.responsivePadding(12)),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: screenSize.responsivePadding(10),
+                      backgroundColor: avatarColor,
+                      child: Icon(Icons.store, size: 12, color: kWhite),
+                    ),
+                    SizedBox(width: screenSize.responsivePadding(8)),
+                    Expanded(
+                      child: Text(
+                        shopName,
+                        style: kSmallTitleSB,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: screenSize.responsivePadding(2)),
-                      Text(
-                        subtitle,
-                        style: kSmallerTitleR.copyWith(color: kSecondaryTextColor),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: screenSize.responsivePadding(10),
-                        backgroundColor: avatarColor,
-                        child: Icon(Icons.store, size: 12, color: kWhite),
-                      ),
-                      SizedBox(width: screenSize.responsivePadding(8)),
-                      Expanded(
-                        child: Text(
-                          shopName,
-                          style: kSmallTitleSB,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

@@ -46,10 +46,7 @@ class ScreenSizeData {
 class ScreenSizeScope extends ConsumerWidget {
   final Widget child;
 
-  const ScreenSizeScope({
-    required this.child,
-    super.key,
-  });
+  const ScreenSizeScope({required this.child, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
