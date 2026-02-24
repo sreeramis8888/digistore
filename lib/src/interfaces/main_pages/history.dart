@@ -10,20 +10,71 @@ class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final transactions = [
-      {'isEarned': true, 'title': 'Points Earned', 'subtitle': 'From: Daily Mart', 'points': '300', 'date': 'Today at 2:45 PM'},
-      {'isEarned': true, 'title': 'Points Earned', 'subtitle': 'From: Coffee House', 'points': '1500', 'date': 'Today at 10:30 AM'},
-      {'isEarned': false, 'title': 'Points Used', 'subtitle': 'Purchasing Voucher', 'points': '-200', 'date': 'Today at 2:45 PM'},
-      {'isEarned': true, 'title': 'Points Earned', 'subtitle': 'From: Bookstore', 'points': '2500', 'date': '08-09-2026 at 1:00 PM'},
-      {'isEarned': true, 'title': 'Points Earned', 'subtitle': 'From: Bookstore', 'points': '2500', 'date': '08-09-2026 at 1:00 PM'},
-      {'isEarned': true, 'title': 'Points Earned', 'subtitle': 'From: Bookstore', 'points': '2500', 'date': '08-09-2026 at 1:00 PM'},
-      {'isEarned': true, 'title': 'Points Earned', 'subtitle': 'From: Bookstore', 'points': '2500', 'date': '08-09-2026 at 1:00 PM'},
-      {'isEarned': false, 'title': 'Points Used', 'subtitle': 'Offer Purchase', 'points': '-100', 'date': '08-09-2026 at 1:00 PM'},
+      {
+        'isEarned': true,
+        'title': 'Points Earned',
+        'subtitle': 'From: Daily Mart',
+        'points': '300',
+        'date': 'Today at 2:45 PM',
+      },
+      {
+        'isEarned': true,
+        'title': 'Points Earned',
+        'subtitle': 'From: Coffee House',
+        'points': '1500',
+        'date': 'Today at 10:30 AM',
+      },
+      {
+        'isEarned': false,
+        'title': 'Points Used',
+        'subtitle': 'Purchasing Voucher',
+        'points': '-200',
+        'date': 'Today at 2:45 PM',
+      },
+      {
+        'isEarned': true,
+        'title': 'Points Earned',
+        'subtitle': 'From: Bookstore',
+        'points': '2500',
+        'date': '08-09-2026 at 1:00 PM',
+      },
+      {
+        'isEarned': true,
+        'title': 'Points Earned',
+        'subtitle': 'From: Bookstore',
+        'points': '2500',
+        'date': '08-09-2026 at 1:00 PM',
+      },
+      {
+        'isEarned': true,
+        'title': 'Points Earned',
+        'subtitle': 'From: Bookstore',
+        'points': '2500',
+        'date': '08-09-2026 at 1:00 PM',
+      },
+      {
+        'isEarned': true,
+        'title': 'Points Earned',
+        'subtitle': 'From: Bookstore',
+        'points': '2500',
+        'date': '08-09-2026 at 1:00 PM',
+      },
+      {
+        'isEarned': false,
+        'title': 'Points Used',
+        'subtitle': 'Offer Purchase',
+        'points': '-100',
+        'date': '08-09-2026 at 1:00 PM',
+      },
     ];
 
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
-        title: Text('My Wallet', style: kHeadTitleB),
+        title: Text(
+          'My Wallet',
+          style: kSubHeadingM.copyWith(color: Color(0xFF373737)),
+        ),
         backgroundColor: kWhite,
         elevation: 0,
         scrolledUnderElevation: 0,

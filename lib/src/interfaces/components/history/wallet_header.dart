@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletHeader extends ConsumerWidget {
   const WalletHeader({super.key});
@@ -21,12 +22,15 @@ class WalletHeader extends ConsumerWidget {
               children: [
                 Text(
                   'ABDUL WAHAAB',
-                  style: kHeadTitleB,
+                  style: kHeadTitleM.copyWith(color: Color(0xFF3E3D40)),
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
                   'Your available points:',
-                  style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                  style: kSmallTitleR.copyWith(
+                    color: Color(0xFF6B7276),
+                    letterSpacing: .1,
+                  ),
                 ),
               ],
             ),
@@ -37,17 +41,16 @@ class WalletHeader extends ConsumerWidget {
               vertical: screenSize.responsivePadding(10),
             ),
             decoration: BoxDecoration(
-              color: kBlue,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF709EFF), Color(0xFF3576FF)],
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                const Icon(Icons.monetization_on, color: Color(0xFFFFD700), size: 20),
+                SvgPicture.asset('assets/svg/coin.svg', width: 20, height: 20),
                 SizedBox(width: screenSize.responsivePadding(8)),
-                Text(
-                  '3000',
-                  style: kHeadTitleB.copyWith(color: kWhite),
-                ),
+                Text('3000', style: kHeadTitleB.copyWith(color: kWhite)),
               ],
             ),
           ),

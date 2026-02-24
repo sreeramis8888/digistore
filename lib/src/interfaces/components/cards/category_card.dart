@@ -17,43 +17,58 @@ class CategoryCard extends ConsumerWidget {
     return Container(
       width: screenSize.responsivePadding(80),
       height: screenSize.responsivePadding(118),
-      padding: EdgeInsets.symmetric(
-        vertical: screenSize.responsivePadding(12),
-        horizontal: screenSize.responsivePadding(4),
-      ),
       decoration: BoxDecoration(
-        color: kWhite,
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBorder.withOpacity(0.5)),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFFFFFF), Color(0xFF96D4FB)],
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: screenSize.responsivePadding(55),
-            height: screenSize.responsivePadding(55),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: category['color'] as Color,
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                category['icon'] as String,
-                width: 20,
-                height: 20,
+      padding: const EdgeInsets.all(1),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          vertical: screenSize.responsivePadding(12),
+          horizontal: screenSize.responsivePadding(4),
+        ),
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(15),
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFB0DFF9), Color(0xFFFFFFFF)],
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              width: screenSize.responsivePadding(55),
+              height: screenSize.responsivePadding(55),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFF5F5F5).withOpacity(.55),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  category['icon'] as String,
+                  width: 20,
+                  height: 20,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: screenSize.responsivePadding(8)),
-          Text(
-            category['name'] as String,
-            style: kSmallTitleL.copyWith(fontSize: 11, height: 1.2),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.visible,
-          ),
-        ],
+            SizedBox(height: screenSize.responsivePadding(8)),
+            Text(
+              category['name'] as String,
+              style: kSmallTitleL.copyWith(fontSize: 11, height: 1.2),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.visible,
+            ),
+          ],
+        ),
       ),
     );
   }

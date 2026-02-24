@@ -11,19 +11,74 @@ class ShopsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final itemHeight = screenSize.responsivePadding(230);
+    final aspectRatio = itemWidth / itemHeight;
+
     final shops = [
-      {'category': 'Daily Needs', 'shopName': 'Chill Bite', 'address': 'Chill Nagar, Ernakulam, 4 km', 'distance': '4 km', 'rating': '4.5', 'color': Colors.indigo, 'icon': Icons.icecream},
-      {'category': 'Personal Care', 'shopName': 'Vibe', 'address': 'Chill Nagar, Panampallynagar Ernakulam', 'distance': '4 km', 'rating': '4.5', 'color': Colors.green, 'icon': Icons.self_improvement},
-      {'category': 'Construction', 'shopName': 'Swingin Spoon', 'address': 'Chill Nagar, Panampallynagar Ernakulam', 'distance': '4 km', 'rating': '4.5', 'color': Colors.amber, 'icon': Icons.restaurant},
-      {'category': 'Daily Needs', 'shopName': 'GOOD', 'address': 'Chill Nagar, Panampallynagar Ernakulam', 'distance': '4 km', 'rating': '4.5', 'color': Colors.black, 'icon': Icons.storefront},
-      {'category': 'Medical', 'shopName': 'Good Idea', 'address': 'Chill Nagar, Panampallynagar Ernakulam', 'distance': '4 km', 'rating': '4.5', 'color': Colors.orange, 'icon': Icons.medical_services},
-      {'category': 'Medical', 'shopName': 'Boycot', 'address': 'Chill Nagar, Panampallynagar Ernakulam', 'distance': '4 km', 'rating': '4.5', 'color': Colors.red, 'icon': Icons.local_hospital},
+      {
+        'category': 'Daily Needs',
+        'shopName': 'Chill Bite',
+        'address': 'Chill Nagar, Ernakulam, 4 km',
+        'distance': '4 km',
+        'rating': '4.5',
+        'color': Colors.indigo,
+        'icon': Icons.icecream,
+      },
+      {
+        'category': 'Personal Care',
+        'shopName': 'Vibe',
+        'address': 'Chill Nagar, Panampallynagar Ernakulam',
+        'distance': '4 km',
+        'rating': '4.5',
+        'color': Colors.green,
+        'icon': Icons.self_improvement,
+      },
+      {
+        'category': 'Construction',
+        'shopName': 'Swingin Spoon',
+        'address': 'Chill Nagar, Panampallynagar Ernakulam',
+        'distance': '4 km',
+        'rating': '4.5',
+        'color': Colors.amber,
+        'icon': Icons.restaurant,
+      },
+      {
+        'category': 'Daily Needs',
+        'shopName': 'GOOD',
+        'address': 'Chill Nagar, Panampallynagar Ernakulam',
+        'distance': '4 km',
+        'rating': '4.5',
+        'color': Colors.black,
+        'icon': Icons.storefront,
+      },
+      {
+        'category': 'Medical',
+        'shopName': 'Good Idea',
+        'address': 'Chill Nagar, Panampallynagar Ernakulam',
+        'distance': '4 km',
+        'rating': '4.5',
+        'color': Colors.orange,
+        'icon': Icons.medical_services,
+      },
+      {
+        'category': 'Medical',
+        'shopName': 'Boycot',
+        'address': 'Chill Nagar, Panampallynagar Ernakulam',
+        'distance': '4 km',
+        'rating': '4.5',
+        'color': Colors.red,
+        'icon': Icons.local_hospital,
+      },
     ];
 
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
-        title: Text('Shops', style: kHeadTitleB),
+        title: Text(
+          'Shops',
+          style: kSubHeadingM.copyWith(color: Color(0xFF373737)),
+        ),
         backgroundColor: kWhite,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -35,7 +90,7 @@ class ShopsPage extends ConsumerWidget {
             crossAxisCount: 2,
             mainAxisSpacing: screenSize.responsivePadding(16),
             crossAxisSpacing: screenSize.responsivePadding(16),
-            childAspectRatio: 0.65, 
+            childAspectRatio: aspectRatio,
           ),
           itemCount: shops.length,
           itemBuilder: (context, index) {

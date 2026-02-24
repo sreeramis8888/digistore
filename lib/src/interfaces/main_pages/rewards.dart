@@ -73,7 +73,7 @@ class RewardsPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
-        title: Text('Rewards', style: kHeadTitleB),
+        title: Text('Rewards',  style: kSubHeadingM.copyWith(color: Color(0xFF373737)),),
         backgroundColor: kWhite,
         elevation: 0,
         scrolledUnderElevation: 0,

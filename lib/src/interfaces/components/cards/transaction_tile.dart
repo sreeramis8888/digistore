@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -56,11 +57,14 @@ class TransactionTile extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: kBodyTitleM),
+                Text(
+                  title,
+                  style: kSmallTitleL.copyWith(color: Color(0xFF101828)),
+                ),
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
                   subtitle,
-                  style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -73,18 +77,24 @@ class TransactionTile extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.monetization_on, color: Color(0xFFFFD700), size: 16),
+                  SvgPicture.asset(
+                    'assets/svg/coin.svg',
+                    width: 18,
+                    height: 18,
+                  ),
                   SizedBox(width: screenSize.responsivePadding(4)),
                   Text(
                     '${isEarned ? '+' : ''}$points',
-                    style: kBodyTitleB.copyWith(color: isEarned ? kGreen : kRed),
+                    style: kBodyTitleM.copyWith(
+                      color: isEarned ? kGreen : kRed,
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: screenSize.responsivePadding(4)),
               Text(
                 date,
-                style: kSmallerTitleR.copyWith(color: kSecondaryTextColor),
+                style: kSmallerTitleL.copyWith(color: Color(0xFF99A1AF)),
               ),
             ],
           ),

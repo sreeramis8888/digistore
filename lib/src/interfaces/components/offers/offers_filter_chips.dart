@@ -27,7 +27,9 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
       height: screenSize.responsivePadding(40),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.responsivePadding(16),
+        ),
         itemCount: _filters.length,
         itemBuilder: (context, index) {
           final isSelected = index == _selectedIndex;
@@ -44,11 +46,21 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
                 horizontal: screenSize.responsivePadding(16),
               ),
               decoration: BoxDecoration(
-                color: isSelected ? kBlue : kWhite,
+                color: isSelected ? kPrimaryColor : const Color(0xFFFCFCFC),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isSelected ? kBlue : kBorder.withOpacity(0.5),
+                  color: isSelected ? kPrimaryColor : Colors.transparent,
                 ),
+                boxShadow: isSelected
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: kWhite.withOpacity(0.55),
+                          blurRadius: 5,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 0),
+                        ),
+                      ],
               ),
               child: Row(
                 children: [

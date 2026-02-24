@@ -86,17 +86,17 @@ class DealCard extends ConsumerWidget {
                       vertical: screenSize.responsivePadding(4),
                     ),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF3E5D8),
+                      gradient: LinearGradient(
+                        colors: [Color(0XFFDFEAFF), Color(0xFFFFE5A1)],
+                      ),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         bottomRight: Radius.circular(12),
                       ),
                     ),
                     child: Text(
-                      dealOfTheHour!,
-                      style: kSmallerTitleB.copyWith(
-                        color: const Color(0xFF8A6B32),
-                      ),
+                      dealOfTheHour ?? '',
+                      style: kSmallerTitleM.copyWith(fontSize: 10),
                     ),
                   ),
                 ),

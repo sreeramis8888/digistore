@@ -46,7 +46,7 @@ class ShopGridCard extends ConsumerWidget {
           Stack(
             children: [
               Container(
-                height: screenSize.responsivePadding(100),
+                height: screenSize.responsivePadding(120),
                 decoration: BoxDecoration(
                   color: kGreyLight,
                   borderRadius: const BorderRadius.only(
@@ -61,19 +61,22 @@ class ShopGridCard extends ConsumerWidget {
                 left: 0,
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(10),
+                    horizontal: screenSize.responsivePadding(12),
                     vertical: screenSize.responsivePadding(4),
                   ),
                   decoration: const BoxDecoration(
-                    color: kBlue,
+                    color: kPrimaryColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
+                      bottomRight: Radius.circular(74),
                     ),
                   ),
                   child: Text(
                     category,
-                    style: kSmallerTitleB.copyWith(color: kWhite),
+                    style: kSmallerTitleSB.copyWith(
+                      color: kWhite,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
               ),
@@ -97,7 +100,7 @@ class ShopGridCard extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           shopName,
-                          style: kBodyTitleB,
+                          style: kSmallerTitleM,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -109,13 +112,19 @@ class ShopGridCard extends ConsumerWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Icon(Icons.location_on_outlined, size: 14, color: kSecondaryTextColor),
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          size: 14,
+                          color: kSecondaryTextColor,
+                        ),
                       ),
                       SizedBox(width: screenSize.responsivePadding(4)),
                       Expanded(
                         child: Text(
                           address,
-                          style: kSmallerTitleR.copyWith(color: kSecondaryTextColor),
+                          style: kSmallerTitleL.copyWith(
+                            color: kSecondaryTextColor,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -127,16 +136,24 @@ class ShopGridCard extends ConsumerWidget {
                     children: [
                       Text(
                         distance,
-                        style: kSmallTitleB,
+                        style: kSmallerTitleM.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
                       ),
                       Row(
                         children: [
                           Text(
                             rating,
-                            style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                            style: kSmallerTitleL.copyWith(
+                              color: kSecondaryTextColor,
+                            ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.star, color: Color(0xFFFFD700), size: 14),
+                          const Icon(
+                            Icons.star,
+                            color: Color(0xFFFFD700),
+                            size: 14,
+                          ),
                         ],
                       ),
                     ],
