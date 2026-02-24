@@ -3,7 +3,7 @@ import 'package:digistore/src/data/constants/style_constants.dart';
 import 'package:digistore/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../advanced_network_image.dart';
 class DealCard extends ConsumerWidget {
   final String title;
   final String subtitle;
@@ -13,6 +13,7 @@ class DealCard extends ConsumerWidget {
   final Color avatarColor;
   final EdgeInsetsGeometry? margin;
   final double? width;
+  final String? imageUrl;
 
   const DealCard({
     super.key,
@@ -24,6 +25,7 @@ class DealCard extends ConsumerWidget {
     required this.avatarColor,
     this.margin,
     this.width,
+    this.imageUrl,
   });
 
   @override
@@ -43,16 +45,18 @@ class DealCard extends ConsumerWidget {
         children: [
           Stack(
             children: [
-              Container(
+              SizedBox(
                 height: screenSize.responsivePadding(120),
-                decoration: BoxDecoration(
-                  color: kGreyLight,
+                width: double.infinity,
+                child: AdvancedNetworkImage(
+                  imageUrl: imageUrl ??
+                      'https://images.unsplash.com/photo-1555396273-367dd4bc4b27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                  fit: BoxFit.cover,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
                   ),
                 ),
-                child: Center(child: Icon(Icons.image, color: kGrey, size: 40)),
               ),
               Positioned(
                 top: 0,

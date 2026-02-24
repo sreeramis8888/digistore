@@ -2,13 +2,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../data/constants/color_constants.dart';
-import '../../data/router/nav_router.dart';
-import 'home_page.dart';
-import 'offers.dart';
-import 'shops.dart';
-import 'rewards.dart';
-import 'history.dart';
+import '../data/constants/color_constants.dart';
+import '../data/router/nav_router.dart';
+import 'main_pages/home_page.dart';
+import 'main_pages/offers.dart';
+import 'main_pages/shops.dart';
+import 'main_pages/rewards.dart';
+import 'main_pages/history.dart';
 
 class NavBar extends ConsumerStatefulWidget {
   const NavBar({super.key});

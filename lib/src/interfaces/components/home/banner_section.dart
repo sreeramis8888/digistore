@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../advanced_network_image.dart';
 
 class BannerSection extends ConsumerStatefulWidget {
   const BannerSection({super.key});
@@ -41,19 +42,14 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
               },
               itemCount: 3,
               itemBuilder: (context, index) {
-                return Container(
-                  margin: EdgeInsets.symmetric(
+                return Padding(
+                  padding: EdgeInsets.symmetric(
                     horizontal: screenSize.responsivePadding(4),
                   ),
-                  decoration: BoxDecoration(
-                    color: kGreyLight,
+                  child: AdvancedNetworkImage(
+                    imageUrl: 'https://picsum.photos/seed/${index + 1}/800/400',
                     borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Center(
-                      child: Icon(Icons.image, size: 48, color: kGrey),
-                    ),
+                    fit: BoxFit.cover,
                   ),
                 );
               },

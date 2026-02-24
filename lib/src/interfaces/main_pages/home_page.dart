@@ -4,11 +4,11 @@ import '../../data/constants/color_constants.dart';
 import '../../data/providers/screen_size_provider.dart';
 import '../components/home/home_app_bar.dart';
 import '../components/home/home_search_bar.dart';
-import '../components/cards/loyalty_reward_card.dart';
+import '../components/rewards/loyalty_reward_card.dart';
 import '../components/home/category_list.dart';
 import '../components/home/deals_carousel.dart';
 import '../components/home/banner_section.dart';
-import '../components/cards/deal_card.dart';
+import '../components/offers/deal_card.dart';
 import '../components/home/featured_shops_list.dart';
 import '../components/home/rewards_carousel.dart';
 

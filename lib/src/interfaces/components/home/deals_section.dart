@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../cards/deal_card.dart';
+import '../offers/deal_card.dart';
 
 class DealsSection extends ConsumerStatefulWidget {
   const DealsSection({super.key});

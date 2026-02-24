@@ -3,7 +3,6 @@ import 'package:digistore/src/data/constants/style_constants.dart';
 import 'package:digistore/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../main_pages/shop_detail_page.dart';
 
 class FeaturedShopCard extends ConsumerWidget {
   final Map<String, dynamic> shop;
@@ -16,11 +15,9 @@ class FeaturedShopCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) =>
-                ShopDetailPage(shopName: shop['name'] as String),
-          ),
+        Navigator.of(context).pushNamed(
+          'shopDetail',
+          arguments: shop['name'] as String,
         );
       },
       child: SizedBox(

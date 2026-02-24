@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: 'navbar',
+      initialRoute: 'splash',
       onGenerateRoute: generateRoute,
     );
   }

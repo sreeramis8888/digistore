@@ -1,9 +1,9 @@
+import 'package:digistore/src/interfaces/components/advanced_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../main_pages/shop_detail_page.dart';
 
 class ShopGridCard extends ConsumerWidget {
   final String category;
@@ -13,6 +13,7 @@ class ShopGridCard extends ConsumerWidget {
   final String rating;
   final Color avatarColor;
   final IconData avatarIcon;
+  final String? imageUrl;
 
   const ShopGridCard({
     super.key,
@@ -23,6 +24,7 @@ class ShopGridCard extends ConsumerWidget {
     required this.rating,
     required this.avatarColor,
     required this.avatarIcon,
+    this.imageUrl,
   });
 
   @override
@@ -30,10 +32,9 @@ class ShopGridCard extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ShopDetailPage(shopName: shopName),
-          ),
+        Navigator.of(context).pushNamed(
+          'shopDetail',
+          arguments: shopName,
         );
       },
       child: Container(
@@ -54,17 +55,18 @@ class ShopGridCard extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                Container(
+                SizedBox(
                   height: screenSize.responsivePadding(120),
-                  decoration: BoxDecoration(
-                    color: kGreyLight,
+                  width: double.infinity,
+                  child: AdvancedNetworkImage(
+                    imageUrl:
+                        imageUrl ??
+                        'https://images.unsplash.com/photo-1555396273-367dd4bc4b27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                    fit: BoxFit.cover,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
                     ),
-                  ),
-                  child: Center(
-                    child: Icon(Icons.store, color: kGrey, size: 40),
                   ),
                 ),
                 Positioned(

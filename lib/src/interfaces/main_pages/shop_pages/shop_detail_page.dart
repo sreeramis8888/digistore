@@ -3,16 +3,16 @@ import 'package:digistore/src/data/constants/style_constants.dart';
 import 'package:digistore/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../components/advanced_network_image.dart';
-import '../components/shops/shop_header.dart';
-import '../components/shops/shop_branches.dart';
-import '../components/shops/shop_about.dart';
-import '../components/shops/shop_gallery.dart';
-import '../components/shops/shop_address.dart';
-import '../components/shops/shop_reviews.dart';
-import '../components/shops/shop_socials.dart';
-import '../components/shops/shop_offer_card.dart';
-import '../components/shops/shop_product_card.dart';
+import '../../components/advanced_network_image.dart';
+import '../../components/shops/shop_header.dart';
+import '../../components/shops/shop_branches.dart';
+import '../../components/shops/shop_about.dart';
+import '../../components/shops/shop_gallery.dart';
+import '../../components/shops/shop_address.dart';
+import '../../components/shops/shop_reviews.dart';
+import '../../components/shops/shop_socials.dart';
+import '../../components/offers/deal_card.dart';
+import '../../components/shops/shop_product_card.dart';
 
 class ShopDetailPage extends ConsumerWidget {
   final String shopName;
@@ -22,14 +22,19 @@ class ShopDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(44)) / 2;
+    final offersAspectRatio = itemWidth / screenSize.responsivePadding(230);
+    final productsAspectRatio = itemWidth / screenSize.responsivePadding(220);
+
     return Scaffold(
       backgroundColor: kWhite,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: screenSize.responsivePadding(200),
+            expandedHeight: screenSize.responsivePadding(260),
+            scrolledUnderElevation: 0,
             floating: false,
-            pinned: true,
+            pinned: false,
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back_ios,
@@ -47,7 +52,7 @@ class ShopDetailPage extends ConsumerWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 margin: EdgeInsets.only(
-                  top: kToolbarHeight + screenSize.responsivePadding(20),
+                  top: MediaQuery.paddingOf(context).top + kToolbarHeight,
                 ),
                 child: const AdvancedNetworkImage(
                   imageUrl:
@@ -92,10 +97,17 @@ class ShopDetailPage extends ConsumerWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: screenSize.responsivePadding(12),
                 crossAxisSpacing: screenSize.responsivePadding(12),
-                childAspectRatio: 0.8,
+                childAspectRatio: offersAspectRatio,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => const ShopOfferCard(),
+                (context, index) => DealCard(
+                  title: 'Valentines Day Deal',
+                  subtitle: 'Buy one get one free',
+                  shopName: shopName,
+                  badgeText: '50% OFF',
+                  avatarColor: kPrimaryColor,
+                  dealOfTheHour: 'Deal of the day',
+                ),
                 childCount: 2,
               ),
             ),
@@ -120,7 +132,7 @@ class ShopDetailPage extends ConsumerWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: screenSize.responsivePadding(12),
                 crossAxisSpacing: screenSize.responsivePadding(12),
-                childAspectRatio: 0.75,
+                childAspectRatio: productsAspectRatio,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => const ShopProductCard(),

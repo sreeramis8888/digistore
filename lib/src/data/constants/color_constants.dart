@@ -7,10 +7,11 @@ const Color kCardBackgroundColor = Color(0xFFF6F6F6);
 
 const Color kPrimaryLightColor = Color(0xFFEEF1FF);
 // const Color kStrokeColor = Color(0xFF0D2A4D);
-const kStrokeColor = Color(0xFF1E3C72);
+const kStrokeColor = Color(0xFFE5E5E5);
 
 const Color kTertiary = Color(0xFFE8EAED);
 const Color kField = Color(0xFFF1F4F9);
+const Color kFieldSecondary = Color(0xFFF7F4F4);
 const Color kBorder = Color(0xFFE1DFDE);
 //Common Colors
 const Color kWhite = Color(0xFFFFFFFF);

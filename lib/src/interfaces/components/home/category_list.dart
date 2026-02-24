@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import 'section_title.dart';
-import '../cards/category_card.dart';
+import 'category_card.dart';
 
 class CategoryList extends ConsumerWidget {
   const CategoryList({super.key});

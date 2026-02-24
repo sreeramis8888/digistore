@@ -4,7 +4,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import 'section_title.dart';
-import '../cards/featured_shop_card.dart';
+import '../shops/featured_shop_card.dart';
 
 class FeaturedShopsList extends ConsumerWidget {
   const FeaturedShopsList({super.key});

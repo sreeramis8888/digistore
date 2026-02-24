@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
-import '../components/cards/reward_card.dart';
+import '../components/rewards/reward_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/providers/screen_size_provider.dart';
 
 class RewardsPage extends ConsumerWidget {
   const RewardsPage({super.key});
 
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final itemHeight = screenSize.responsivePadding(200);
+    final aspectRatio = itemWidth / itemHeight;
+
     final rewards = [
       {
         'title': 'Flat ₹200 OFF',
@@ -85,7 +88,7 @@ class RewardsPage extends ConsumerWidget {
             crossAxisCount: 2,
             mainAxisSpacing: screenSize.responsivePadding(16),
             crossAxisSpacing: screenSize.responsivePadding(16),
-            childAspectRatio: 0.82,
+            childAspectRatio: aspectRatio,
           ),
           itemCount: rewards.length,
           itemBuilder: (context, index) {

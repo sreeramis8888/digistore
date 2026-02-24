@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../main_pages/home_pages/profile_page.dart';
 
 class HomeAppBar extends ConsumerWidget {
   const HomeAppBar({super.key});
@@ -18,47 +19,66 @@ class HomeAppBar extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: screenSize.responsivePadding(50),
-            height: screenSize.responsivePadding(50),
-            decoration: BoxDecoration(
-              color: kSecondaryColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            alignment: Alignment.center,
-            child: Text('M', style: kLargeTitleM.copyWith(color: kWhite)),
-          ),
-          SizedBox(width: screenSize.responsivePadding(12)),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Maria Vinaya', style: kSubHeadingM),
-                SizedBox(height: screenSize.responsivePadding(4)),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      color: kSecondaryTextColor,
-                      size: 16,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+              child: Row(
+                children: [
+                  Container(
+                    width: screenSize.responsivePadding(50),
+                    height: screenSize.responsivePadding(50),
+                    decoration: BoxDecoration(
+                      color: kSecondaryColor,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    SizedBox(width: screenSize.responsivePadding(4)),
-                    Text(
-                      'Location 1234',
-                      style: kBodyTitleL.copyWith(color: kSecondaryTextColor),
+                    alignment: Alignment.center,
+                    child: Text('M', style: kLargeTitleM.copyWith(color: kWhite)),
+                  ),
+                  SizedBox(width: screenSize.responsivePadding(12)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Maria Vinaya', style: kSubHeadingM),
+                        SizedBox(height: screenSize.responsivePadding(4)),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on_outlined,
+                              color: kSecondaryTextColor,
+                              size: 16,
+                            ),
+                            SizedBox(width: screenSize.responsivePadding(4)),
+                            Text(
+                              'Location 1234',
+                              style: kBodyTitleL.copyWith(color: kSecondaryTextColor),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(screenSize.responsivePadding(10)),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: kBorder),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, 'notifications');
+            },
+            child: Container(
+              padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: kBorder),
+              ),
+              child: SvgPicture.asset('assets/svg/bell.svg'),
             ),
-            child: SvgPicture.asset('assets/svg/bell.svg'),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
-import '../components/cards/shop_grid_card.dart';
+import '../components/shops/shop_grid_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/providers/screen_size_provider.dart';
 

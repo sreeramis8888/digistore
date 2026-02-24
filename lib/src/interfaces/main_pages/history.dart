@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../components/history/wallet_header.dart';
-import '../components/cards/transaction_tile.dart';
+import '../components/history/transaction_tile.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});

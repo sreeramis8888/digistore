@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../components/offers/offers_filter_chips.dart';
-import '../components/cards/deal_card.dart';
+import '../components/offers/deal_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/providers/screen_size_provider.dart';
 
@@ -12,6 +12,10 @@ class OffersPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final itemHeight = screenSize.responsivePadding(260);
+    final aspectRatio = itemWidth / itemHeight;
+
     final offers = [
       {'title': 'Fresh Bakes Deal', 'subtitle': 'Buy one bun Get one free', 'shopName': 'HomeGoods', 'badge': 'BUY 1\nGET 1', 'deal': 'Deal of the Hour', 'color': Colors.indigo},
       {'title': 'Special Salon Offer', 'subtitle': 'Try any haircut Get 30% off', 'shopName': 'Glow Saloon', 'badge': '30%\nOFF', 'deal': null, 'color': Colors.blueGrey},
@@ -41,7 +45,7 @@ class OffersPage extends ConsumerWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: screenSize.responsivePadding(16),
                   crossAxisSpacing: screenSize.responsivePadding(16),
-                  childAspectRatio: 0.65, 
+                  childAspectRatio: aspectRatio,
                 ),
                 itemCount: offers.length,
                 itemBuilder: (context, index) {

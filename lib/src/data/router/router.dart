@@ -1,6 +1,13 @@
 import 'package:digistore/src/data/models/user_model.dart';
 import 'package:flutter/material.dart';
-import '../../interfaces/main_pages/navbar.dart';
+import '../../interfaces/navbar.dart';
+import '../../interfaces/main_pages/onboarding/splash_screen.dart';
+import '../../interfaces/main_pages/shop_pages/shop_detail_page.dart';
+import '../../interfaces/main_pages/onboarding/login_page.dart';
+import '../../interfaces/main_pages/onboarding/otp_verification_page.dart';
+import '../../interfaces/main_pages/onboarding/profile_setup_page.dart';
+import '../../interfaces/main_pages/home_pages/notifications_page.dart';
+import '../../interfaces/main_pages/offer_detail_page.dart';
 
 /// Usage:
 /// Navigator.of(context).pushNamed(
@@ -106,15 +113,53 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
   }
 
   switch (settings?.name) {
-    // case 'Splash':
-    //   page = SplashScreen();
-    //   transitionToUse = TransitionType.fade;
-    //   transitionDuration = const Duration(milliseconds: 500);
-    //   break;
+    case 'splash':
+      page = const SplashScreen();
+      transitionToUse = TransitionType.fade;
+      transitionDuration = const Duration(milliseconds: 500);
+      break;
+      
+    case 'shopDetail':
+      final shopName = settings?.arguments as String? ?? 'Unknown Shop';
+      page = ShopDetailPage(shopName: shopName);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'offerDetail':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      page = OfferDetailPage(args: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'login':
+      page = const LoginPage();
+      transitionToUse = TransitionType.fade;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'otp':
+      page = const OtpVerificationPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'profileSetup':
+      page = const ProfileSetupPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
 
     case 'navbar':
       page = const NavBar();
       transitionToUse = TransitionType.fadeScale;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'notifications':
+      page = const NotificationsPage();
+      transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
