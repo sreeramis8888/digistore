@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:ui';
+import 'advanced_network_image.dart';
 
 class InAppNotificationOverlay {
   static OverlayEntry? _currentOverlay;
@@ -92,24 +93,23 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
       reverseDuration: const Duration(milliseconds: 400),
     );
 
-    _slide = Tween<Offset>(
-      begin: const Offset(0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const ElasticOutCurve(0.8),
-      reverseCurve: Curves.easeInBack,
-    ));
+    _slide = Tween<Offset>(begin: const Offset(0, -1.0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const ElasticOutCurve(0.8),
+            reverseCurve: Curves.easeInBack,
+          ),
+        );
 
     _fade = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
     );
 
-    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const ElasticOutCurve(0.8),
-    ));
+    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: const ElasticOutCurve(0.8)),
+    );
 
     _controller.forward();
   }
@@ -169,7 +169,12 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 10, 16, 10),
+                              padding: const EdgeInsets.fromLTRB(
+                                10,
+                                10,
+                                16,
+                                10,
+                              ),
                               child: IntrinsicHeight(
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -254,10 +259,6 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
         height: 38,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          image: DecorationImage(
-            image: NetworkImage(widget.imageUrl!),
-            fit: BoxFit.cover,
-          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -265,6 +266,11 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
               offset: const Offset(0, 2),
             ),
           ],
+        ),
+        child: AdvancedNetworkImage(
+          imageUrl: widget.imageUrl!,
+          fit: BoxFit.cover,
+          borderRadius: BorderRadius.circular(19),
         ),
       );
     }

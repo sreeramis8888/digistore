@@ -66,10 +66,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Row(
                           children: [
-                            SvgPicture.asset(
-                              'assets/svg/coin.svg',
-                              height: 24,
-                            ),
+                            SvgPicture.asset('assets/svg/coin.svg', height: 24),
                             SizedBox(width: screenSize.responsivePadding(8)),
                             Text(
                               '8,000 points',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:digistore/src/data/constants/color_constants.dart';
 import 'package:digistore/src/data/utils/download_image.dart';
+import '../../interfaces/components/advanced_network_image.dart';
 
 void showImageViewer(String file, BuildContext context) {
   showDialog(
@@ -15,7 +16,7 @@ void showImageViewer(String file, BuildContext context) {
             InteractiveViewer(
               minScale: 0.5,
               maxScale: 4.0,
-              child: Image.network(file, fit: BoxFit.contain),
+              child: AdvancedNetworkImage(imageUrl: file, fit: BoxFit.contain),
             ),
             Positioned(
               top: 10,
