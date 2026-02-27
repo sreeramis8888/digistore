@@ -68,6 +68,9 @@ class _NavBarState extends ConsumerState<NavBar> {
       onPopInvokedWithResult: (didPop, result) {
         log('inside navbar popscope');
         if (selectedIndex != 0) {
+          if (selectedIndex == 1) {
+            ref.read(selectedOffersCategoryProvider.notifier).state = 0;
+          }
           ref.read(selectedIndexProvider.notifier).updateIndex(0);
         }
       },
@@ -114,6 +117,9 @@ class _NavBarState extends ConsumerState<NavBar> {
                           child: GestureDetector(
                             onTap: () {
                               if (selectedIndex != index) {
+                                if (selectedIndex == 1) {
+                                  ref.read(selectedOffersCategoryProvider.notifier).state = 0;
+                                }
                                 ref
                                     .read(selectedIndexProvider.notifier)
                                     .updateIndex(index);

@@ -13,15 +13,6 @@ import '../../interfaces/main_pages/offer_pages/redemption_verified_page.dart';
 import '../../interfaces/main_pages/home_pages/my_account_page.dart';
 import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
 
-/// Usage:
-/// Navigator.of(context).pushNamed(
-///   'Navbar',
-///   arguments: {'transition': TransitionType.slideFromRight},
-/// );
-///
-/// Or use the helper directly:
-/// Navigator.of(context).push(createRoute(Navbar(), transition: TransitionType.fadeScale));
-
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
 
 PageRouteBuilder<T> createRoute<T>(
