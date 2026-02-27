@@ -11,3 +11,5 @@ class SelectedIndexNotifier extends StateNotifier<int> {
     state = index;
   }
 }
+
+final selectedOffersCategoryProvider = StateProvider<int>((ref) => 0);

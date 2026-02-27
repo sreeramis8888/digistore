@@ -27,14 +27,14 @@ class HomePage extends ConsumerWidget {
           children: [
             SizedBox(height: screenSize.responsivePadding(45)),
             const HomeAppBar(),
-            SizedBox(height: screenSize.responsivePadding(10)),
+            SizedBox(height: screenSize.responsivePadding(16)),
             const HomeSearchBar(),
-            SizedBox(height: screenSize.responsivePadding(10)),
+            SizedBox(height: screenSize.responsivePadding(16)),
             const LoyaltyRewardCard(),
-            SizedBox(height: screenSize.responsivePadding(10)),
+            SizedBox(height: screenSize.responsivePadding(16)),
             const CategoryList(),
-            SizedBox(height: screenSize.responsivePadding(10)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
+
             DealsCarousel(
               title: 'Deal of the Hour',
               deals: [
@@ -61,11 +61,11 @@ class HomePage extends ConsumerWidget {
                 ),
               ],
             ),
-            SizedBox(height: screenSize.responsivePadding(10)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
+
             const FeaturedShopsList(),
-            SizedBox(height: screenSize.responsivePadding(20)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
+
             DealsCarousel(
               title: 'Deal of the Day',
               deals: [
@@ -92,11 +92,11 @@ class HomePage extends ConsumerWidget {
                 ),
               ],
             ),
-            SizedBox(height: screenSize.responsivePadding(20)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
+
             const BannerSection(),
-            SizedBox(height: screenSize.responsivePadding(20)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
+
             DealsCarousel(
               title: 'Deal of the Week',
               deals: [
@@ -123,11 +123,9 @@ class HomePage extends ConsumerWidget {
                 ),
               ],
             ),
-            SizedBox(height: screenSize.responsivePadding(20)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
             const RewardsCarousel(),
-            SizedBox(height: screenSize.responsivePadding(20)),
-            
+            SizedBox(height: screenSize.responsivePadding(16)),
             // Deal of the Month
             DealsCarousel(
               title: 'Deal of the Month',

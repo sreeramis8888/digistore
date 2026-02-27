@@ -35,11 +35,18 @@ class CategoryList extends ConsumerWidget {
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
           child: Row(
-            children: categories.map((cat) => Padding(
+            children: categories.asMap().entries.map((entry) => Padding(
               padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
-              child: CategoryCard(category: cat),
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(selectedOffersCategoryProvider.notifier).state = entry.key + 1;
+                  ref.read(selectedIndexProvider.notifier).updateIndex(1);
+                },
+                child: CategoryCard(category: entry.value),
+              ),
             )).toList(),
           ),
+
         ),
       ],
     );

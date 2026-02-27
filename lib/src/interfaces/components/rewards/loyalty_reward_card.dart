@@ -79,7 +79,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: screenSize.responsivePadding(24)),
+                    SizedBox(height: screenSize.responsivePadding(20)),
                     Container(
                       height: 12,
                       width: double.infinity,
@@ -109,7 +109,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: screenSize.responsivePadding(16)),
+                    SizedBox(height: screenSize.responsivePadding(10)),
                     Text(
                       'Points earned',
                       style: kSmallerTitleM.copyWith(color: kWhite),

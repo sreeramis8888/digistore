@@ -12,10 +12,10 @@ class FeaturedShopsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final shops = [
-      {'name': 'Vibe', 'color': Colors.greenAccent},
-      {'name': 'Swingin\nSpoon', 'color': Colors.orangeAccent.withOpacity(0.2)},
-      {'name': 'GOOD', 'color': Colors.black87},
-      {'name': 'Chill Bite', 'color': Colors.blue},
+      {'name': 'Vibe', 'color': Colors.greenAccent, 'image': 'assets/jpg/vibe_logo.jpg'},
+      {'name': 'Swingin\nSpoon', 'color': Colors.orangeAccent.withOpacity(0.2), 'image': 'assets/jpg/swingin_logo.jpg'},
+      {'name': 'GOOD', 'color': Colors.black87, 'image': 'assets/jpg/good_logo.jpg'},
+      {'name': 'Chill Bite', 'color': Colors.blue, 'image': 'assets/jpg/chillbite_logo.jpg'},
     ];
 
     return Column(
@@ -47,5 +47,5 @@ class FeaturedShopsList extends ConsumerWidget {
         ),
       ],
     );
-  }
+  }           
 }
