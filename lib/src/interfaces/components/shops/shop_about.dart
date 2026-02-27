@@ -14,14 +14,11 @@ class ShopAbout extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('About', style: kBodyTitleM),
+        Text('About', style: kSmallTitleM),
         SizedBox(height: screenSize.responsivePadding(12)),
         RichText(
           text: TextSpan(
-            style: kSmallTitleR.copyWith(
-              color: kSecondaryTextColor,
-              height: 1.5,
-            ),
+            style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
             children: [
               const TextSpan(
                 text:

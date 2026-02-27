@@ -1,4 +1,3 @@
-import 'package:digistore/src/data/models/user_model.dart';
 import 'package:flutter/material.dart';
 import '../../interfaces/navbar.dart';
 import '../../interfaces/main_pages/onboarding/splash_screen.dart';
@@ -7,7 +6,10 @@ import '../../interfaces/main_pages/onboarding/login_page.dart';
 import '../../interfaces/main_pages/onboarding/otp_verification_page.dart';
 import '../../interfaces/main_pages/onboarding/profile_setup_page.dart';
 import '../../interfaces/main_pages/home_pages/notifications_page.dart';
-import '../../interfaces/main_pages/offer_detail_page.dart';
+import '../../interfaces/main_pages/offer_pages/offer_detail_page.dart';
+import '../../interfaces/main_pages/reward_pages/reward_detail_page.dart';
+import '../../interfaces/main_pages/offer_pages/redemption_otp_page.dart';
+import '../../interfaces/main_pages/offer_pages/redemption_verified_page.dart';
 
 /// Usage:
 /// Navigator.of(context).pushNamed(
@@ -133,6 +135,25 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
+    case 'rewardDetail':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      page = RewardDetailPage(args: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'redemptionOtp':
+      page = const RedemptionOtpPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'redemptionVerified':
+      page = const RedemptionVerifiedPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
     case 'login':
       page = const LoginPage();
       transitionToUse = TransitionType.fade;
@@ -168,7 +189,7 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
         return PageRouteBuilder(
           opaque: false,
           settings: settings,
-          pageBuilder: (context, _, __) {
+          pageBuilder: (context, _, _) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
@@ -188,11 +209,8 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
         ),
       );
   }
-  if (transitionToUse == null) {
-    return MaterialPageRoute(settings: settings, builder: (_) => page!);
-  }
   return createRoute(
-    page!,
+    page,
     transition: transitionToUse,
     duration: transitionDuration,
     settings: settings,

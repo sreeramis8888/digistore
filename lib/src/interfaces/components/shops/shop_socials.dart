@@ -27,13 +27,14 @@ class ShopSocials extends ConsumerWidget {
               ),
               label: Text('Instagram', style: kSmallTitleM),
               style: OutlinedButton.styleFrom(
+                backgroundColor: Color(0xFFF9F9F9),
                 padding: EdgeInsets.symmetric(
                   horizontal: screenSize.responsivePadding(12),
                   vertical: screenSize.responsivePadding(8),
                 ),
-                side: const BorderSide(color: kBorder),
+                side: const BorderSide(color: Color(0xFFF9F9F9)),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
@@ -43,13 +44,14 @@ class ShopSocials extends ConsumerWidget {
               icon: const Icon(Icons.facebook, color: Colors.blue, size: 18),
               label: Text('Facebook', style: kSmallTitleM),
               style: OutlinedButton.styleFrom(
+                backgroundColor: Color(0xFFF9F9F9),
                 padding: EdgeInsets.symmetric(
                   horizontal: screenSize.responsivePadding(12),
                   vertical: screenSize.responsivePadding(8),
                 ),
-                side: const BorderSide(color: kBorder),
+                side: const BorderSide(color: Color(0xFFF9F9F9)),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),

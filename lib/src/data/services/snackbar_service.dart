@@ -84,7 +84,7 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> {
       bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       child: AnimatedBuilder(
         animation: widget.animation,
-        builder: (_, __) {
+        builder: (_, _) {
           return Opacity(
             opacity: widget.animation.value,
             child: Transform.translate(

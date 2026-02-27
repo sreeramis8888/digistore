@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
-import 'dart:math' as math;
 
 class AdvancedNetworkImage extends StatelessWidget {
   final String imageUrl;
@@ -35,22 +34,34 @@ class AdvancedNetworkImage extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
-          child: CachedNetworkImage(
-            imageUrl: imageUrl,
-            width: width,
-            height: height,
-            fit: fit,
-            placeholder: (context, url) => SizedBox(
-              width: width,
-              height: height,
-              child: _AdvancedShimmer(width: fallbackW, height: fallbackH),
-            ),
-            errorWidget: (context, url, error) => SizedBox(
-              width: width,
-              height: height,
-              child: _buildErrorPlaceholder(),
-            ),
-          ),
+          child: imageUrl.startsWith('assets/')
+              ? Image.asset(
+                  imageUrl,
+                  width: width,
+                  height: height,
+                  fit: fit,
+                  errorBuilder: (context, error, stackTrace) => SizedBox(
+                    width: width,
+                    height: height,
+                    child: _buildErrorPlaceholder(),
+                  ),
+                )
+              : CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  width: width,
+                  height: height,
+                  fit: fit,
+                  placeholder: (context, url) => SizedBox(
+                    width: width,
+                    height: height,
+                    child: _AdvancedShimmer(width: fallbackW, height: fallbackH),
+                  ),
+                  errorWidget: (context, url, error) => SizedBox(
+                    width: width,
+                    height: height,
+                    child: _buildErrorPlaceholder(),
+                  ),
+                ),
         );
       },
     );

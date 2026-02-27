@@ -27,7 +27,7 @@ class ShopHeader extends ConsumerWidget {
               child: const Icon(Icons.storefront, color: kWhite),
             ),
             SizedBox(width: screenSize.responsivePadding(12)),
-            Text(shopName, style: kBodyTitleB.copyWith(fontSize: 20)),
+            Text(shopName, style: kBodyTitleM.copyWith(fontSize: 24)),
             SizedBox(width: screenSize.responsivePadding(8)),
             Container(
               padding: EdgeInsets.symmetric(
@@ -64,7 +64,7 @@ class ShopHeader extends ConsumerWidget {
             Expanded(
               child: Text(
                 'Chill Nagar, Panampallynagar, Ernakulam, 7.8km',
-                style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                style: kSmallTitleL.copyWith(color: Color(0xFF4E4E4E)),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -77,13 +77,16 @@ class ShopHeader extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Text('4.5', style: kBodyTitleB.copyWith(fontSize: 16)),
+                Text(
+                  '4.5',
+                  style: kBodyTitleM.copyWith(color: Color(0xFF4E4E4E)),
+                ),
                 SizedBox(width: screenSize.responsivePadding(4)),
                 const Icon(Icons.star, color: Color(0xFFFFD700), size: 18),
                 SizedBox(width: screenSize.responsivePadding(4)),
                 Text(
                   'out of 10',
-                  style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
               ],
             ),
@@ -92,16 +95,16 @@ class ShopHeader extends ConsumerWidget {
               icon: const Icon(Icons.call, size: 16, color: kTextColor),
               label: Text(
                 'Call',
-                style: kSmallTitleM.copyWith(color: kTextColor),
+                style: kSmallerTitleL.copyWith(color: kTextColor),
               ),
               style: OutlinedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16),
-                  vertical: screenSize.responsivePadding(8),
+                  horizontal: screenSize.responsivePadding(8),
+                  vertical: screenSize.responsivePadding(2),
                 ),
                 side: const BorderSide(color: kBorder),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),

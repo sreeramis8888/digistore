@@ -39,8 +39,7 @@ String? extractYouTubeVideoId(String url) {
 class YouTubePlayerWidget extends StatefulWidget {
   final String videoId;
 
-  const YouTubePlayerWidget({Key? key, required this.videoId})
-      : super(key: key);
+  const YouTubePlayerWidget({super.key, required this.videoId});
 
   @override
   State<YouTubePlayerWidget> createState() => _YouTubePlayerWidgetState();

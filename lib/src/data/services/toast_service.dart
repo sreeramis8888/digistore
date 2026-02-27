@@ -101,7 +101,7 @@ class _AnimatedToastState extends State<_AnimatedToast> {
       top: topPadding + 12,
       child: AnimatedBuilder(
         animation: widget.animation,
-        builder: (_, __) {
+        builder: (_, _) {
           final progress = widget.animation.value;
 
           final entryOffset = Offset(0, -40 * (1 - progress));

@@ -13,6 +13,9 @@ class PrimaryButton extends StatelessWidget {
   final BorderRadiusGeometry? borderRadius;
   final Color? backgroundColor;
   final Color? textColor;
+  final Widget? icon;
+  final Widget? trailingIcon;
+  final EdgeInsetsGeometry? padding;
 
   const PrimaryButton({
     super.key,
@@ -26,6 +29,9 @@ class PrimaryButton extends StatelessWidget {
     this.borderRadius,
     this.backgroundColor,
     this.textColor,
+    this.icon,
+    this.trailingIcon,
+    this.padding,
   });
 
   @override
@@ -36,10 +42,15 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: (isEnabled && !isLoading) ? onPressed : null,
         style: ElevatedButton.styleFrom(
+          padding:
+              padding ??
+              ((icon != null || trailingIcon != null)
+                  ? const EdgeInsets.symmetric(horizontal: 8)
+                  : null),
           backgroundColor: backgroundColor ?? kPrimaryColor,
           disabledBackgroundColor: kGreyLight,
           shape: RoundedRectangleBorder(
-            borderRadius: borderRadius ?? BorderRadius.circular(12),
+            borderRadius: borderRadius ?? BorderRadius.circular(8),
           ),
           elevation: 0,
         ),
@@ -53,12 +64,33 @@ class PrimaryButton extends StatelessWidget {
                 ),
               )
             : child ??
-                  Text(
-                    text,
-                    style: kSmallTitleR.copyWith(
-                      color: !isEnabled ? kGrey : (textColor ?? kWhite),
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null) ...[icon!, const SizedBox(width: 8)],
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            text,
+                            style: kSmallTitleR.copyWith(
+                              color: !isEnabled ? kGrey : (textColor ?? kWhite),
+                              fontWeight: FontWeight.w600,
+                              fontSize: (icon != null || trailingIcon != null)
+                                  ? 12
+                                  : null,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      if (trailingIcon != null) ...[
+                        const SizedBox(width: 8),
+                        trailingIcon!,
+                      ],
+                    ],
                   ),
       ),
     );

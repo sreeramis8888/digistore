@@ -40,7 +40,7 @@ class RewardCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
-          'offerDetail',
+          'rewardDetail',
           arguments: {
             'title': title,
             'subtitle': subtitle,
@@ -130,7 +130,7 @@ class RewardCard extends ConsumerWidget {
               backgroundColor: kBlue,
               onPressed: () {
                 Navigator.of(context).pushNamed(
-                  'offerDetail',
+                  'rewardDetail',
                   arguments: {
                     'title': title,
                     'subtitle': subtitle,
@@ -143,17 +143,9 @@ class RewardCard extends ConsumerWidget {
                   },
                 );
               },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Get it for $points',
-                    style: kSmallerTitleB.copyWith(color: kWhite),
-                  ),
-                  const SizedBox(width: 4),
-                  SvgPicture.asset('assets/svg/coin.svg', height: 12),
-                ],
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              text: 'Get it for $points',
+              trailingIcon: SvgPicture.asset('assets/svg/coin.svg', height: 12),
             ),
           ],
         ),

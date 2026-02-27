@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import 'section_title.dart';
 import '../rewards/reward_card.dart';
 
 class RewardsCarousel extends ConsumerWidget {

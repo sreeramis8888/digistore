@@ -53,42 +53,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: kFieldSecondary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '🇮🇳',
-                          style: TextStyle(
-                            fontSize: screenSize.responsivePadding(20),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '+91',
-                          style: kBodyTitleM.copyWith(color: kTextColor),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.arrow_drop_down,
-                          color: kTextColor,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
                   Expanded(
                     child: IntlPhoneField(
                       disableLengthCheck: true,
-                      showCountryFlag: false,
-                      showDropdownIcon: false,
                       initialCountryCode: 'IN',
                       flagsButtonMargin: EdgeInsets.zero,
                       flagsButtonPadding: EdgeInsets.zero,

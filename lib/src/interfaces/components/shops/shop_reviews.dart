@@ -63,7 +63,7 @@ class ShopReviews extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: kWhite,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kBorder),
+                  border: Border.all(color: Color(0xFFF9F9F9)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

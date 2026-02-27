@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:digistore/src/data/services/deep_link_service.dart';
 import 'package:digistore/src/data/services/navigation_service.dart';
 import 'package:digistore/src/interfaces/components/in_app_notification_overlay.dart';
-import 'package:digistore/src/data/services/notification_service/notification_controller.dart';
-import 'package:digistore/src/data/router/nav_router.dart';
 import 'package:flutter/material.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {

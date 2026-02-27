@@ -88,9 +88,7 @@ class NotificationPermissionHelper {
               ),
               const SizedBox(height: 20),
               Text(
-                'To proceed, you need to enable the permissions above' +
-                    (channelKey?.isEmpty ?? true ? '' : ' on channel $channelKey') +
-                    ':',
+                'To proceed, you need to enable the permissions above${channelKey?.isEmpty ?? true ? '' : ' on channel $channelKey'}:',
                 maxLines: 3,
                 textAlign: TextAlign.center,
               ),

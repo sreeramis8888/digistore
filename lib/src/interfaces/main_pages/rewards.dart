@@ -8,6 +8,7 @@ import '../../data/providers/screen_size_provider.dart';
 class RewardsPage extends ConsumerWidget {
   const RewardsPage({super.key});
 
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;

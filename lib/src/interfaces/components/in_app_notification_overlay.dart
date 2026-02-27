@@ -21,7 +21,6 @@ class InAppNotificationOverlay {
     dismiss();
 
     final overlay = overlayState ?? Overlay.of(context);
-    if (overlay == null) return;
 
     final overlayEntry = OverlayEntry(
       builder: (_) => _InAppNotificationWidget(

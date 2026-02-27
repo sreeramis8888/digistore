@@ -5,7 +5,6 @@ import 'package:digistore/src/data/router/nav_router.dart';
 import 'package:digistore/src/data/services/navigation_service.dart';
 import 'package:digistore/src/data/services/secure_storage_service.dart';
 import 'package:digistore/src/data/services/snackbar_service.dart';
-import 'package:digistore/src/data/utils/date_formatter.dart';
 
 final deepLinkServiceProvider = Provider<DeepLinkService>((ref) {
   return DeepLinkService(ref);
