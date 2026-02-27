@@ -69,6 +69,7 @@ dependencies:
   shimmer: ^3.0.0
   intl_phone_field: ^3.2.0
   pin_code_fields: ^9.1.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -93,4 +94,12 @@ flutter:
     - assets/png/
     - assets/jpg/
     - .env
-     
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/png/setgo.png"
+  # adaptive_icon_background: "assets/pngs/launcher_bg.png"
+  adaptive_icon_foreground: "assets/png/setgo.png"
+  # background_color_ios: "#1e3a81"
