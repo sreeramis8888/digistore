@@ -30,6 +30,14 @@ class ShopGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final defaultImages = const [
+      'assets/png/swinging_spoon.png',
+      'assets/png/good.png',
+      'assets/png/chill_bite.png',
+      'assets/png/vibe.png',
+    ];
+    final defaultImage = defaultImages[shopName.hashCode.abs() % defaultImages.length];
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
@@ -59,9 +67,7 @@ class ShopGridCard extends ConsumerWidget {
                   height: screenSize.responsivePadding(120),
                   width: double.infinity,
                   child: AdvancedNetworkImage(
-                    imageUrl:
-                        imageUrl ??
-                        'https://images.unsplash.com/photo-1555396273-367dd4bc4b27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                    imageUrl: imageUrl ?? defaultImage,
                     fit: BoxFit.cover,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(12),

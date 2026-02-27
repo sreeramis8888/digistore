@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/user_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletHeader extends ConsumerWidget {
@@ -11,6 +12,9 @@ class WalletHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final user = ref.watch(userProvider);
+    final name = (user?.name != null && user!.name!.isNotEmpty) ? user.name!.toUpperCase() : 'ABDUL WAHAAB';
+
     return Padding(
       padding: EdgeInsets.all(screenSize.responsivePadding(20)),
       child: Row(
@@ -21,7 +25,7 @@ class WalletHeader extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ABDUL WAHAAB',
+                  name,
                   style: kHeadTitleM.copyWith(color: Color(0xFF3E3D40)),
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),

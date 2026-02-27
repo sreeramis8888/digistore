@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/router/nav_router.dart';
 import 'section_title.dart';
 import '../shops/featured_shop_card.dart';
 
@@ -24,7 +25,12 @@ class FeaturedShopsList extends ConsumerWidget {
           padding: EdgeInsets.symmetric(
             horizontal: screenSize.responsivePadding(8),
           ),
-          child: SectionTitle(title: 'Featured Shops', onViewAll: () {}),
+          child: SectionTitle(
+            title: 'Featured Shops',
+            onViewAll: () {
+              ref.read(selectedIndexProvider.notifier).updateIndex(2);
+            },
+          ),
         ),
         SizedBox(height: screenSize.responsivePadding(10)),
         Padding(

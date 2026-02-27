@@ -168,6 +168,7 @@ class RewardDetailPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 32),
                   PrimaryButton(
+                    textSize: 14,
                     text: 'Get it For $points',
                     trailingIcon: Padding(
                       padding: const EdgeInsets.only(left: 4.0),

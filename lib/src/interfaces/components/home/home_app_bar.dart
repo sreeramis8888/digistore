@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/user_provider.dart';
 import '../../main_pages/home_pages/profile_page.dart';
 
 class HomeAppBar extends ConsumerWidget {
@@ -12,6 +13,10 @@ class HomeAppBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final user = ref.watch(userProvider);
+    final name = (user?.name != null && user!.name!.isNotEmpty) ? user.name! : 'Guest User';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
+    final locationName = (user?.district?.name != null && user!.district!.name!.isNotEmpty) ? user.district!.name! : 'Location 1234';
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -37,14 +42,14 @@ class HomeAppBar extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     alignment: Alignment.center,
-                    child: Text('M', style: kLargeTitleM.copyWith(color: kWhite)),
+                    child: Text(initial, style: kLargeTitleM.copyWith(color: kWhite)),
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Maria Vinaya', style: kSubHeadingM),
+                        Text(name, style: kSubHeadingM),
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Row(
                           children: [
@@ -55,7 +60,7 @@ class HomeAppBar extends ConsumerWidget {
                             ),
                             SizedBox(width: screenSize.responsivePadding(4)),
                             Text(
-                              'Location 1234',
+                              locationName,
                               style: kBodyTitleL.copyWith(color: kSecondaryTextColor),
                             ),
                           ],

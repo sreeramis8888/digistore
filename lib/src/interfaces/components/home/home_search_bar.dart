@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/router/nav_router.dart';
 
 class HomeSearchBar extends ConsumerWidget {
   const HomeSearchBar({super.key});
@@ -14,8 +15,12 @@ class HomeSearchBar extends ConsumerWidget {
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
       ),
-      child: Container(
-        height: screenSize.responsivePadding(54),
+      child: GestureDetector(
+        onTap: () {
+          ref.read(selectedIndexProvider.notifier).updateIndex(2);
+        },
+        child: Container(
+          height: screenSize.responsivePadding(54),
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(20),
         ),
@@ -35,6 +40,7 @@ class HomeSearchBar extends ConsumerWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/router/nav_router.dart';
 import 'section_title.dart';
 import 'category_card.dart';
 
@@ -24,7 +25,12 @@ class CategoryList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(title: 'Categories', onViewAll: () {}),
+        SectionTitle(
+          title: 'Categories',
+          onViewAll: () {
+            ref.read(selectedIndexProvider.notifier).updateIndex(1);
+          },
+        ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),

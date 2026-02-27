@@ -4,6 +4,7 @@ import '../../data/constants/style_constants.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
+  final double? textSize;
   final Widget? child;
   final VoidCallback onPressed;
   final bool isLoading;
@@ -20,6 +21,7 @@ class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
     this.text = '',
+    this.textSize = 12,
     this.child,
     required this.onPressed,
     this.isLoading = false,
@@ -78,7 +80,7 @@ class PrimaryButton extends StatelessWidget {
                               color: !isEnabled ? kGrey : (textColor ?? kWhite),
                               fontWeight: FontWeight.w600,
                               fontSize: (icon != null || trailingIcon != null)
-                                  ? 12
+                                  ? textSize
                                   : null,
                             ),
                             maxLines: 1,

@@ -24,6 +24,7 @@ class ShopsPage extends ConsumerWidget {
         'rating': '4.5',
         'color': Colors.indigo,
         'icon': Icons.icecream,
+        'imageUrl': 'assets/png/chill_bite.png',
       },
       {
         'category': 'Personal Care',
@@ -33,6 +34,7 @@ class ShopsPage extends ConsumerWidget {
         'rating': '4.5',
         'color': Colors.green,
         'icon': Icons.self_improvement,
+        'imageUrl': 'assets/png/vibe.png',
       },
       {
         'category': 'Construction',
@@ -42,6 +44,7 @@ class ShopsPage extends ConsumerWidget {
         'rating': '4.5',
         'color': Colors.amber,
         'icon': Icons.restaurant,
+        'imageUrl': 'assets/png/swinging_spoon.png',
       },
       {
         'category': 'Daily Needs',
@@ -51,6 +54,7 @@ class ShopsPage extends ConsumerWidget {
         'rating': '4.5',
         'color': Colors.black,
         'icon': Icons.storefront,
+        'imageUrl': 'assets/png/good.png',
       },
       {
         'category': 'Medical',
@@ -103,6 +107,7 @@ class ShopsPage extends ConsumerWidget {
               rating: shop['rating'] as String,
               avatarColor: shop['color'] as Color,
               avatarIcon: shop['icon'] as IconData,
+              imageUrl: shop['imageUrl'] as String?,
             );
           },
         ),

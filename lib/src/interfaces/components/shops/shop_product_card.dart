@@ -6,17 +6,26 @@ import '../../../../src/data/providers/screen_size_provider.dart';
 import '../advanced_network_image.dart';
 
 class ShopProductCard extends ConsumerWidget {
-  const ShopProductCard({super.key});
+  final int index;
+
+  const ShopProductCard({super.key, required this.index});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final mockProducts = const [
+      {'name': 'Gulabjamun Shake', 'image': 'assets/png/gulabjamun_shake.png', 'price': '₹ 200'},
+      {'name': 'Waffle', 'image': 'assets/png/waffle.png', 'price': '₹ 150'},
+      {'name': 'Italian Fruit Salad', 'image': 'assets/png/italian_fruit_salad.png', 'price': '₹ 250'},
+      {'name': 'Shake', 'image': 'assets/png/shake.png', 'price': '₹ 180'},
+    ];
+    final product = mockProducts[index % mockProducts.length];
+
 
     return Container(
       decoration: BoxDecoration(
-        color: kWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kBorder),
+        color: Color(0xFFF6F6F6),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -29,12 +38,11 @@ class ShopProductCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: const AdvancedNetworkImage(
-              imageUrl:
-                  'https://images.unsplash.com/photo-1555396273-367dd4bc4b27?auto=format&fit=crop&q=80',
+            child: AdvancedNetworkImage(
+              imageUrl: product['image']!,
               fit: BoxFit.cover,
               width: double.infinity,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
@@ -46,14 +54,14 @@ class ShopProductCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Gulabjamun Shake',
+                  product['name']!,
                   style: kSmallTitleB.copyWith(fontWeight: FontWeight.w500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
-                  '₹ 200',
+                  product['price']!,
                   style: kSmallTitleB.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],

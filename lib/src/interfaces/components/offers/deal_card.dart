@@ -37,8 +37,8 @@ class DealCard extends ConsumerWidget {
       'assets/jpg/bakes.jpg',
       'assets/jpg/grocery.png',
     ];
-    final defaultImage = defaultImages[shopName.hashCode.abs() % defaultImages.length];
-
+    final defaultImage =
+        defaultImages[shopName.hashCode.abs() % defaultImages.length];
 
     return GestureDetector(
       onTap: () {
@@ -138,14 +138,14 @@ class DealCard extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        style: kBodyTitleB,
+                        style: kSmallTitleM,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: screenSize.responsivePadding(2)),
                       Text(
                         subtitle,
-                        style: kSmallerTitleR.copyWith(
+                        style: kSmallerTitleL.copyWith(
                           color: kSecondaryTextColor,
                         ),
                         maxLines: 2,
@@ -165,7 +165,7 @@ class DealCard extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           shopName,
-                          style: kSmallTitleSB,
+                          style: kSmallerTitleM,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

@@ -87,7 +87,7 @@ class OfferDetailPage extends ConsumerWidget {
                       ),
               ),
 
-          Padding(
+            Padding(
               padding: EdgeInsets.all(screenSize.responsivePadding(16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,9 +165,13 @@ class OfferDetailPage extends ConsumerWidget {
                     'Support: For queries, contact us via support channel.',
                   ),
                   const SizedBox(height: 32),
-                PrimaryButton(text: 'Redeem Now', onPressed: () {
-                    Navigator.of(context).pushNamed('redemptionOtp');
-                  }),
+                  PrimaryButton(
+                    textSize: 14,
+                    text: 'Redeem Now',
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('redemptionOtp');
+                    },
+                  ),
                   SizedBox(
                     height: MediaQuery.of(context).padding.bottom > 0
                         ? MediaQuery.of(context).padding.bottom

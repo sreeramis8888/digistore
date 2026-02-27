@@ -4,13 +4,20 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/user_provider.dart';
+import '../history.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
-  Widget _buildMenuItem(String title, Widget icon, ScreenSizeData screenSize) {
+  Widget _buildMenuItem(
+    String title,
+    Widget icon,
+    ScreenSizeData screenSize, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(16),
@@ -39,6 +46,18 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final user = ref.watch(userProvider);
+    final name = (user?.name != null && user!.name!.isNotEmpty)
+        ? user.name!
+        : 'Guest User';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
+    final phone = (user?.phone != null && user!.phone!.isNotEmpty)
+        ? user.phone!
+        : '9998877766';
+    final locationName =
+        (user?.district?.name != null && user!.district!.name!.isNotEmpty)
+        ? user.district!.name!
+        : 'Ernakulam';
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -75,7 +94,7 @@ class ProfilePage extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'M',
+                      initial,
                       style: kLargeTitleM.copyWith(color: kWhite),
                     ),
                   ),
@@ -86,10 +105,10 @@ class ProfilePage extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Text('Maria Vinaya', style: kSubHeadingM),
+                            Text(name, style: kBodyTitleM),
                             Text(
-                              ' • 9998877766',
-                              style: kBodyTitleM.copyWith(
+                              ' • $phone',
+                              style: kSmallTitleL.copyWith(
                                 color: kSecondaryTextColor,
                               ),
                             ),
@@ -105,8 +124,8 @@ class ProfilePage extends ConsumerWidget {
                             ),
                             SizedBox(width: screenSize.responsivePadding(4)),
                             Text(
-                              'Ernakulam',
-                              style: kBodyTitleL.copyWith(
+                              locationName,
+                              style: kSmallTitleL.copyWith(
                                 color: kSecondaryTextColor,
                               ),
                             ),
@@ -115,17 +134,15 @@ class ProfilePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.all(screenSize.responsivePadding(8)),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: kBorder),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      color: kTextColor,
-                      size: 20,
-                    ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        'myAccount',
+                        arguments: {'isEditMode': true},
+                      );
+                    },
+                    child: SvgPicture.asset('assets/svg/edit.svg'),
                   ),
                 ],
               ),
@@ -149,6 +166,13 @@ class ProfilePage extends ConsumerWidget {
                         size: 22,
                       ),
                       screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          'myAccount',
+                          arguments: {'isEditMode': false},
+                        );
+                      },
                     ),
                     const Divider(
                       height: 1,
@@ -165,23 +189,11 @@ class ProfilePage extends ConsumerWidget {
                         size: 22,
                       ), // or inventory_2_outlined
                       screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'claimedRewards');
+                      },
                     ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kStrokeColor,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    _buildMenuItem(
-                      'My Points',
-                      SvgPicture.asset(
-                        'assets/svg/coin.svg',
-                        width: 22,
-                        height: 22,
-                      ),
-                      screenSize,
-                    ),
+
                     const Divider(
                       height: 1,
                       thickness: 1,
@@ -197,6 +209,14 @@ class ProfilePage extends ConsumerWidget {
                         size: 22,
                       ),
                       screenSize,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HistoryPage(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

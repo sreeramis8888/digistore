@@ -26,6 +26,20 @@ class ShopDetailPage extends ConsumerWidget {
     final offersAspectRatio = itemWidth / screenSize.responsivePadding(230);
     final productsAspectRatio = itemWidth / screenSize.responsivePadding(220);
 
+    final explicitImages = const {
+      'Chill Bite': 'assets/png/chill_bite.png',
+      'Vibe': 'assets/png/vibe.png',
+      'Swingin Spoon': 'assets/png/swinging_spoon.png',
+      'GOOD': 'assets/png/good.png',
+    };
+    final fallbackImages = const [
+      'assets/png/swinging_spoon.png',
+      'assets/png/good.png',
+      'assets/png/chill_bite.png',
+      'assets/png/vibe.png',
+    ];
+    final heroImage = explicitImages[shopName] ?? fallbackImages[shopName.hashCode.abs() % fallbackImages.length];
+
     return Scaffold(
       backgroundColor: kWhite,
       body: CustomScrollView(
@@ -54,9 +68,8 @@ class ShopDetailPage extends ConsumerWidget {
                 margin: EdgeInsets.only(
                   top: MediaQuery.paddingOf(context).top + kToolbarHeight,
                 ),
-                child: const AdvancedNetworkImage(
-                  imageUrl:
-                      'https://images.unsplash.com/photo-1555396273-367dd4bc4b27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                child: AdvancedNetworkImage(
+                  imageUrl: heroImage,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -135,7 +148,7 @@ class ShopDetailPage extends ConsumerWidget {
                 childAspectRatio: productsAspectRatio,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => const ShopProductCard(),
+                (context, index) => ShopProductCard(index: index),
                 childCount: 16,
               ),
             ),

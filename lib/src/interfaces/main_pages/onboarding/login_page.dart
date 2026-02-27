@@ -6,6 +6,7 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/social_login_button.dart';
+import '../../../data/services/secure_storage_service.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -97,8 +98,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               SizedBox(height: screenSize.responsivePadding(16)),
               PrimaryButton(
                 text: 'Login',
-                onPressed: () {
-                  Navigator.of(context).pushNamed('otp');
+                onPressed: () async {
+                  if (phoneNumber.isNotEmpty) {
+                    final storage = ref.read(secureStorageServiceProvider);
+                    await storage.saveRegistrationData({'phone': phoneNumber});
+                  }
+                  if (context.mounted) {
+                    Navigator.of(context).pushNamed('otp');
+                  }
                 },
               ),
               SizedBox(height: screenSize.responsivePadding(24)),

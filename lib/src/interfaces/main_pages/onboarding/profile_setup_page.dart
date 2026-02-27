@@ -5,6 +5,9 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
+import '../../../data/providers/user_provider.dart';
+import '../../../data/services/secure_storage_service.dart';
+import '../../../data/models/user_model.dart';
 
 class ProfileSetupPage extends ConsumerStatefulWidget {
   const ProfileSetupPage({super.key});
@@ -15,10 +18,27 @@ class ProfileSetupPage extends ConsumerStatefulWidget {
 
 class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _mobileController =
-      TextEditingController(text: '+91 48973749849');
+  final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPhone();
+  }
+
+  Future<void> _loadPhone() async {
+    final storage = ref.read(secureStorageServiceProvider);
+    final data = await storage.getRegistrationData();
+    if (data != null && data['phone'] != null) {
+      if (mounted) {
+        setState(() {
+          _mobileController.text = data['phone'];
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -103,11 +123,20 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
               ),
               PrimaryButton(
                 text: 'Submit',
-                onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    'navbar',
-                    (route) => false,
+                onPressed: () async {
+                  final user = UserModel(
+                    name: _nameController.text,
+                    phone: _mobileController.text,
+                    email: _emailController.text,
+                    district: DistrictDetailModel(name: _locationController.text),
                   );
+                  await ref.read(userProvider.notifier).saveUser(user);
+                  if (context.mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      'navbar',
+                      (route) => false,
+                    );
+                  }
                 },
               ),
             ],
