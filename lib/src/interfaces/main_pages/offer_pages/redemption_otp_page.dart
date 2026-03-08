@@ -70,7 +70,7 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
               PrimaryButton(
                 text: 'Verify',
                 onPressed: () {
-                  Navigator.of(context).pushNamed('redemptionVerified');
+                  Navigator.of(context).pushReplacementNamed('redemptionVerified');
                 },
               ),
               SizedBox(height: screenSize.responsivePadding(24)),

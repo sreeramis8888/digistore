@@ -8,19 +8,38 @@ import '../advanced_network_image.dart';
 class ShopProductCard extends ConsumerWidget {
   final int index;
 
-  const ShopProductCard({super.key, required this.index});
+  final String? name;
+  final String? image;
+  final String? price;
+
+  const ShopProductCard({
+    super.key,
+    required this.index,
+    this.name,
+    this.image,
+    this.price,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final mockProducts = const [
-      {'name': 'Gulabjamun Shake', 'image': 'assets/png/gulabjamun_shake.png', 'price': '₹ 200'},
+      {
+        'name': 'Gulabjamun Shake',
+        'image': 'assets/png/gulabjamun_shake.png',
+        'price': '₹ 200',
+      },
       {'name': 'Waffle', 'image': 'assets/png/waffle.png', 'price': '₹ 150'},
-      {'name': 'Italian Fruit Salad', 'image': 'assets/png/italian_fruit_salad.png', 'price': '₹ 250'},
+      {
+        'name': 'Italian Fruit Salad',
+        'image': 'assets/png/italian_fruit_salad.png',
+        'price': '₹ 250',
+      },
       {'name': 'Shake', 'image': 'assets/png/shake.png', 'price': '₹ 180'},
     ];
-    final product = mockProducts[index % mockProducts.length];
-
+    final product = (name != null && image != null && price != null)
+        ? {'name': name!, 'image': image!, 'price': price!}
+        : mockProducts[index % mockProducts.length];
 
     return Container(
       decoration: BoxDecoration(

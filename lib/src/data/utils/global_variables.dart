@@ -77,6 +77,7 @@ class GlobalVariables {
   }
 
   static bool _isGuest = false;
+  static bool _isMerchant = false;
 
   static void setGuestMode(bool value) {
     _isGuest = value;
@@ -92,4 +93,10 @@ class GlobalVariables {
   static void resetGuestMode() {
     _isGuest = false;
   }
+
+  static void setMerchantMode(bool value) {
+    _isMerchant = value;
+  }
+
+  static bool get isMerchant => _isMerchant;
 }

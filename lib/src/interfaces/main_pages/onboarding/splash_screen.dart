@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/utils/global_variables.dart';
 import 'login_page.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -108,6 +109,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   void _navigateToOnboarding() {
+    GlobalVariables.setMerchantMode(true); // Added for testing merchant pov
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginPage()),

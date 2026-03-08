@@ -9,6 +9,10 @@ import 'main_pages/offers.dart';
 import 'main_pages/shops.dart';
 import 'main_pages/rewards.dart';
 import 'main_pages/history.dart';
+import '../data/utils/global_variables.dart';
+import 'main_pages/merchant/merchant_home.dart';
+import 'main_pages/merchant/merchant_products.dart';
+import 'main_pages/merchant/merchant_history.dart';
 
 class NavBar extends ConsumerStatefulWidget {
   const NavBar({super.key});
@@ -18,8 +22,6 @@ class NavBar extends ConsumerStatefulWidget {
 }
 
 class _NavBarState extends ConsumerState<NavBar> {
-  late final List<Widget> _widgetOptions;
-
   // Since you mentioned SVG icons in the first prompt,
   // I'm predicting the file names based on the labels in the image!
   // Make sure these are placed in assets/svg/
@@ -39,10 +41,16 @@ class _NavBarState extends ConsumerState<NavBar> {
     'assets/svg/active_history.svg',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _widgetOptions = const <Widget>[
+  List<Widget> get _widgetOptions {
+    if (GlobalVariables.isMerchant) {
+      return const <Widget>[
+        MerchantHomePage(),
+        OffersPage(),
+        MerchantProductsPage(),
+        MerchantHistoryPage(),
+      ];
+    }
+    return const <Widget>[
       HomePage(),
       OffersPage(),
       ShopsPage(),
@@ -51,17 +59,62 @@ class _NavBarState extends ConsumerState<NavBar> {
     ];
   }
 
+  List<String> get _currentLabels {
+    if (GlobalVariables.isMerchant) {
+      return ['Home', 'Offers', 'Products', 'History'];
+    }
+    return ['Home', 'Offers', 'Shops', 'Rewards', 'History'];
+  }
+
+  List<String> get _currentInactiveIcons {
+    if (GlobalVariables.isMerchant) {
+      return [
+        'assets/svg/inactive_home.svg',
+        'assets/svg/inactive_offer.svg',
+        'assets/svg/inactive_product.svg',
+        'assets/svg/inactive_history.svg',
+      ];
+    }
+    return _inactiveIcons;
+  }
+
+  List<String> get _currentActiveIcons {
+    if (GlobalVariables.isMerchant) {
+      return [
+        'assets/svg/active_home.svg',
+        'assets/svg/active_offer.svg',
+        'assets/svg/active_products.svg',
+        'assets/svg/active_history.svg',
+      ];
+    }
+    return _activeIcons;
+  }
+
+  IconData _getIconData(int index, bool isMerchant) {
+    if (isMerchant) {
+      if (index == 0) return Icons.home_filled;
+      if (index == 1) return Icons.local_offer_outlined;
+      if (index == 2) return Icons.inventory_2_outlined; // Products fallback
+      return Icons.history;
+    } else {
+      if (index == 0) return Icons.home_filled;
+      if (index == 1) return Icons.local_offer_outlined;
+      if (index == 2) return Icons.storefront;
+      if (index == 3) return Icons.workspace_premium_outlined;
+      return Icons.history;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedIndexProvider);
 
-    final List<String> labels = [
-      'Home',
-      'Offers',
-      'Shops',
-      'Rewards',
-      'History',
-    ];
+    final labels = _currentLabels;
 
     return PopScope(
       canPop: selectedIndex == 0,
@@ -89,7 +142,9 @@ class _NavBarState extends ConsumerState<NavBar> {
               ),
             );
           },
-          child: _widgetOptions.elementAt(selectedIndex),
+          child: _widgetOptions.elementAt(
+            selectedIndex < _widgetOptions.length ? selectedIndex : 0,
+          ),
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
@@ -111,14 +166,20 @@ class _NavBarState extends ConsumerState<NavBar> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
-                      children: List.generate(5, (index) {
+                      children: List.generate(labels.length, (index) {
                         final bool isSelected = selectedIndex == index;
                         return Expanded(
                           child: GestureDetector(
                             onTap: () {
                               if (selectedIndex != index) {
                                 if (selectedIndex == 1) {
-                                  ref.read(selectedOffersCategoryProvider.notifier).state = 0;
+                                  ref
+                                          .read(
+                                            selectedOffersCategoryProvider
+                                                .notifier,
+                                          )
+                                          .state =
+                                      0;
                                 }
                                 ref
                                     .read(selectedIndexProvider.notifier)
@@ -132,34 +193,44 @@ class _NavBarState extends ConsumerState<NavBar> {
                                 AnimatedScale(
                                   duration: const Duration(milliseconds: 200),
                                   scale: isSelected ? 1.2 : 1.0,
-                                  child: SvgPicture.asset(
-                                    isSelected
-                                        ? _activeIcons[index]
-                                        : _inactiveIcons[index],
-                                    colorFilter: ColorFilter.mode(
-                                      isSelected
-                                          ? kBlue
-                                          : const Color(0xFF99A1AF),
-                                      BlendMode.srcIn,
-                                    ),
-                                    width: 24,
-                                    height: 24,
-                                    placeholderBuilder:
-                                        (BuildContext context) => Icon(
-                                          index == 0
-                                              ? Icons.home_filled
-                                              : index == 1
-                                              ? Icons.local_offer_outlined
-                                              : index == 2
-                                              ? Icons.storefront
-                                              : index == 3
-                                              ? Icons.workspace_premium_outlined
-                                              : Icons.history,
+                                  child: Builder(
+                                    builder: (context) {
+                                      final iconPath = isSelected
+                                          ? _currentActiveIcons[index]
+                                          : _currentInactiveIcons[index];
+                                      final iconData = _getIconData(
+                                        index,
+                                        GlobalVariables.isMerchant,
+                                      );
+                                      if (iconPath.isEmpty) {
+                                        return Icon(
+                                          iconData,
                                           color: isSelected
                                               ? kBlue
                                               : const Color(0xFF99A1AF),
                                           size: 24,
+                                        );
+                                      }
+                                      return SvgPicture.asset(
+                                        iconPath,
+                                        colorFilter: ColorFilter.mode(
+                                          isSelected
+                                              ? kBlue
+                                              : const Color(0xFF99A1AF),
+                                          BlendMode.srcIn,
                                         ),
+                                        width: 24,
+                                        height: 24,
+                                        placeholderBuilder:
+                                            (BuildContext context) => Icon(
+                                              iconData,
+                                              color: isSelected
+                                                  ? kBlue
+                                                  : const Color(0xFF99A1AF),
+                                              size: 24,
+                                            ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 const SizedBox(height: 4),

@@ -15,6 +15,7 @@ class DealCard extends ConsumerWidget {
   final EdgeInsetsGeometry? margin;
   final double? width;
   final String? imageUrl;
+  final bool hideShopName;
 
   const DealCard({
     super.key,
@@ -27,6 +28,7 @@ class DealCard extends ConsumerWidget {
     this.margin,
     this.width,
     this.imageUrl,
+    this.hideShopName = false,
   });
 
   @override
@@ -153,25 +155,27 @@ class DealCard extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: screenSize.responsivePadding(12)),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: screenSize.responsivePadding(10),
-                        backgroundColor: avatarColor,
-                        child: Icon(Icons.store, size: 12, color: kWhite),
-                      ),
-                      SizedBox(width: screenSize.responsivePadding(8)),
-                      Expanded(
-                        child: Text(
-                          shopName,
-                          style: kSmallerTitleM,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  if (!hideShopName) ...[
+                    SizedBox(height: screenSize.responsivePadding(12)),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: screenSize.responsivePadding(10),
+                          backgroundColor: avatarColor,
+                          child: Icon(Icons.store, size: 12, color: kWhite),
                         ),
-                      ),
-                    ],
-                  ),
+                        SizedBox(width: screenSize.responsivePadding(8)),
+                        Expanded(
+                          child: Text(
+                            shopName,
+                            style: kSmallerTitleM,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -5,6 +5,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
+import '../../../data/utils/global_variables.dart';
 
 class OtpVerificationPage extends ConsumerStatefulWidget {
   const OtpVerificationPage({super.key});
@@ -74,7 +75,13 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
               PrimaryButton(
                 text: 'Verify',
                 onPressed: () {
-                  Navigator.of(context).pushNamed('profileSetup');
+                  if (GlobalVariables.isMerchant) {
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil('navbar', (route) => false);
+                  } else {
+                    Navigator.of(context).pushNamed('profileSetup');
+                  }
                 },
               ),
               SizedBox(height: screenSize.responsivePadding(24)),
