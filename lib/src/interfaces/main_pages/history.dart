@@ -73,7 +73,7 @@ class HistoryPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'My Wallet',
-          style: kSubHeadingM.copyWith(color: Color(0xFF373737)),
+            style: kBodyTitleM.copyWith(color: Color(0xFF373737)),
         ),
         backgroundColor: kWhite,
         elevation: 0,

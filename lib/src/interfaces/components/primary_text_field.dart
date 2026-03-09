@@ -16,6 +16,7 @@ class PrimaryTextField extends StatefulWidget {
   final VoidCallback? onTap;
   final bool readOnly;
   final bool isRequired;
+  final int maxLines;
 
   const PrimaryTextField({
     super.key,
@@ -30,6 +31,7 @@ class PrimaryTextField extends StatefulWidget {
     this.onTap,
     this.readOnly = false,
     this.isRequired = false,
+    this.maxLines = 1,
   });
 
   @override
@@ -87,6 +89,7 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           validator: widget.validator,
           readOnly: widget.type == TextFieldType.date || widget.readOnly,
           onTap: widget.type == TextFieldType.date ? widget.onTap : null,
+          maxLines: widget.maxLines,
           style: kSmallTitleL,
           decoration: InputDecoration(
             hintText: widget.hint,

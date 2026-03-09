@@ -12,6 +12,9 @@ import '../../interfaces/main_pages/offer_pages/redemption_otp_page.dart';
 import '../../interfaces/main_pages/offer_pages/redemption_verified_page.dart';
 import '../../interfaces/main_pages/home_pages/my_account_page.dart';
 import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
+import '../../interfaces/main_pages/merchant/merchant_redemption_page.dart';
+import '../../interfaces/main_pages/merchant/merchant_redemption_success_page.dart';
+import '../../interfaces/main_pages/merchant/merchant_account_page.dart';
 
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
 
@@ -147,6 +150,20 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
+    case 'merchantRedemption':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      page = MerchantRedemptionPage(args: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'merchantRedemptionVerified':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      page = MerchantRedemptionSuccessPage(args: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
     case 'login':
       page = const LoginPage();
       transitionToUse = TransitionType.fade;
@@ -169,6 +186,14 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       final args = settings?.arguments as Map<String, dynamic>? ?? {};
       final isEditMode = args['isEditMode'] as bool? ?? false;
       page = MyAccountPage(isEditMode: isEditMode);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'merchantAccount':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      final isEditMode = args['isEditMode'] as bool? ?? false;
+      page = MerchantAccountPage(isEditMode: isEditMode);
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

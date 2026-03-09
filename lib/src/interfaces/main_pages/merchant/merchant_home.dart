@@ -6,7 +6,8 @@ import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../components/home/home_search_bar.dart';
 import '../../components/offers/deal_card.dart';
-import '../../components/shops/shop_product_card.dart';
+import '../../components/shops/product_card.dart';
+import 'merchant_profile_page.dart';
 
 class MerchantHomePage extends ConsumerWidget {
   const MerchantHomePage({super.key});
@@ -27,7 +28,7 @@ class MerchantHomePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: screenSize.responsivePadding(16)),
-                _buildHeader(screenSize),
+                _buildHeader(context, screenSize),
                 SizedBox(height: screenSize.responsivePadding(24)),
                 Text(
                   'Welcome Back,  Fami',
@@ -91,54 +92,64 @@ class MerchantHomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(ScreenSizeData screenSize) {
+  Widget _buildHeader(BuildContext context, ScreenSizeData screenSize) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Container(
-              width: 45,
-              height: 45,
-              decoration: BoxDecoration(
-                color: kWhite,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MerchantProfilePage(),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset('assets/png/shake.png', fit: BoxFit.cover),
-              ),
-            ),
-            SizedBox(width: screenSize.responsivePadding(12)),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Freshmart Supermarket', style: kSubHeadingSB),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 14,
-                      color: Color(0xFF6B7280),
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Ernakulam',
-                      style: kSmallTitleL.copyWith(
-                        color: const Color(0xFF616161),
-                      ),
-                    ),
-                    const Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 16,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ],
+            );
+          },
+          child: Row(
+            children: [
+              Container(
+                width: 45,
+                height: 45,
+                decoration: BoxDecoration(
+                  color: kWhite,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-              ],
-            ),
-          ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset('assets/png/shake.png', fit: BoxFit.cover),
+                ),
+              ),
+              SizedBox(width: screenSize.responsivePadding(12)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Freshmart Supermarket', style: kSubHeadingSB),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: Color(0xFF6B7280),
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Ernakulam',
+                        style: kSmallTitleL.copyWith(
+                          color: const Color(0xFF616161),
+                        ),
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 16,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         Container(
           padding: const EdgeInsets.all(8),
@@ -187,44 +198,42 @@ class MerchantHomePage extends ConsumerWidget {
   ) {
     return Expanded(
       child: Container(
-        padding: EdgeInsets.all(screenSize.responsivePadding(12)),
         decoration: BoxDecoration(
           color: const Color(0xFFF3F7FA),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: [
-            Text(
-              title,
-              style: kSmallTitleB.copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF333333),
-              ),
-              maxLines: 2,
-            ),
-            SizedBox(height: screenSize.responsivePadding(12)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Text(
+            Padding(
+              padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: kSmallTitleB.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF333333),
+                    ),
+                    maxLines: 2,
+                  ),
+                  SizedBox(height: screenSize.responsivePadding(12)),
+                  Text(
                     value,
                     style: kBodyTitleL.copyWith(fontSize: 24, color: kBlue),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SvgPicture.asset(
-                  svgAsset,
-                  height: 36,
-                  width: 36,
-                  fit: BoxFit.contain,
-                ),
-              ],
+                ],
+              ),
+            ),
+
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: SvgPicture.asset(svgAsset, fit: BoxFit.contain),
             ),
           ],
         ),
@@ -363,7 +372,7 @@ class MerchantHomePage extends ConsumerWidget {
           final p = products[index];
           return SizedBox(
             width: 140,
-            child: ShopProductCard(
+            child: ProductCard(
               index: index,
               name: p['name'],
               image: p['image'],

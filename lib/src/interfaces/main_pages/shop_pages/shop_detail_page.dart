@@ -12,7 +12,7 @@ import '../../components/shops/shop_address.dart';
 import '../../components/shops/shop_reviews.dart';
 import '../../components/shops/shop_socials.dart';
 import '../../components/offers/deal_card.dart';
-import '../../components/shops/shop_product_card.dart';
+import '../../components/shops/product_card.dart';
 
 class ShopDetailPage extends ConsumerWidget {
   final String shopName;
@@ -148,7 +148,7 @@ class ShopDetailPage extends ConsumerWidget {
                 childAspectRatio: productsAspectRatio,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => ShopProductCard(index: index),
+                (context, index) => ProductCard(index: index),
                 childCount: 16,
               ),
             ),

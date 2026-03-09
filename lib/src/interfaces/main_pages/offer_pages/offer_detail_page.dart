@@ -5,6 +5,7 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/primary_button.dart';
+import '../../../data/utils/global_variables.dart';
 
 class OfferDetailPage extends ConsumerWidget {
   final Map<String, dynamic> args;
@@ -167,9 +168,13 @@ class OfferDetailPage extends ConsumerWidget {
                   const SizedBox(height: 32),
                   PrimaryButton(
                     textSize: 14,
-                    text: 'Redeem Now',
+                    text: GlobalVariables.isMerchant ? 'Generate OTP' : 'Redeem Now',
                     onPressed: () {
-                      Navigator.of(context).pushNamed('redemptionOtp');
+                      if (GlobalVariables.isMerchant) {
+                        Navigator.of(context).pushNamed('merchantRedemption', arguments: args);
+                      } else {
+                        Navigator.of(context).pushNamed('redemptionOtp');
+                      }
                     },
                   ),
                   SizedBox(

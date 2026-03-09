@@ -120,7 +120,7 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
                   ],
                   Text(
                     filter['name'] as String,
-                    style: kSmallTitleSB.copyWith(
+                    style: kSmallerTitleL.copyWith(
                       color: isSelected ? kWhite : kSecondaryTextColor,
                     ),
                   ),

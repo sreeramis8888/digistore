@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
@@ -25,103 +26,18 @@ class MerchantHistoryPage extends ConsumerWidget {
                 SizedBox(height: screenSize.responsivePadding(24)),
                 Text(
                   'History',
+                  style: kBodyTitleM.copyWith(color: Color(0xFF373737)),
+                ),
+                SizedBox(height: screenSize.responsivePadding(24)),
+                Text(
+                  "Today's Overview",
                   style: kSmallTitleB.copyWith(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: screenSize.responsivePadding(24)),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(
-                          screenSize.responsivePadding(16),
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F7FA),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Today's\nRedemption",
-                              style: kSmallTitleB.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF333333),
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(16)),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '18',
-                                  style: kDisplayTitleB.copyWith(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: kBlue,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.people_alt_outlined,
-                                  size: 40,
-                                  color: Color(0xFFC4DBED),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: screenSize.responsivePadding(16)),
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(
-                          screenSize.responsivePadding(16),
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F7FA),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Total\nRedemption",
-                              style: kSmallTitleB.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF333333),
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(16)),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '90',
-                                  style: kDisplayTitleB.copyWith(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: kBlue,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.stars_outlined,
-                                  size: 40,
-                                  color: Color(0xFFC4DBED),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                SizedBox(height: screenSize.responsivePadding(16)),
+                _buildOverviewCards(screenSize),
                 SizedBox(height: screenSize.responsivePadding(24)),
                 Text(
                   'Today',
@@ -151,6 +67,83 @@ class MerchantHistoryPage extends ConsumerWidget {
     );
   }
 
+  Widget _buildOverviewCards(ScreenSizeData screenSize) {
+    return Row(
+      children: [
+        _overviewCard(
+          screenSize,
+          "Total\nCustomers",
+          "90",
+          "assets/svg/total_customers.svg",
+        ),
+        SizedBox(width: screenSize.responsivePadding(12)),
+        _overviewCard(
+          screenSize,
+          "Your\nCommission",
+          "1.5k",
+          "assets/svg/your_commission.svg",
+        ),
+        SizedBox(width: screenSize.responsivePadding(12)),
+        _overviewCard(
+          screenSize,
+          "Total Sales\nvia Setgo",
+          "12",
+          "assets/svg/total_sales.svg",
+        ),
+      ],
+    );
+  }
+
+  Widget _overviewCard(
+    ScreenSizeData screenSize,
+    String title,
+    String value,
+    String svgAsset,
+  ) {
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F7FA),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: kSmallTitleB.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF333333),
+                    ),
+                    maxLines: 2,
+                  ),
+                  SizedBox(height: screenSize.responsivePadding(12)),
+                  Text(
+                    value,
+                    style: kBodyTitleL.copyWith(fontSize: 24, color: kBlue),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: SvgPicture.asset(svgAsset, fit: BoxFit.contain),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRedemptionList(ScreenSizeData screenSize, int count) {
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
@@ -168,12 +161,12 @@ class MerchantHistoryPage extends ConsumerWidget {
         return Container(
           padding: EdgeInsets.all(screenSize.responsivePadding(16)),
           decoration: BoxDecoration(
-            color: kWhite,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFEFEFEF), width: 1),
+            color: Color(0xFFF6F6F6),
+            borderRadius: BorderRadius.circular(4),
+
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withOpacity(0.002),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -207,9 +200,11 @@ class MerchantHistoryPage extends ConsumerWidget {
                         ),
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Text(
+                          maxLines: 1,
                           'Mix and match 3 drinks → Get 20% off',
                           style: kSmallerTitleM.copyWith(
                             color: const Color(0xFF6B7280),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -225,23 +220,54 @@ class MerchantHistoryPage extends ConsumerWidget {
                   ),
                 ],
               ),
-              SizedBox(height: screenSize.responsivePadding(12)),
+              SizedBox(height: screenSize.responsivePadding(10)),
+              Divider(color: const Color(0xFFDFDFDF), height: .5),
+              SizedBox(height: screenSize.responsivePadding(10)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Redeemed on: 03:30 PM, Yesterday',
-                    style: kSmallerTitleM.copyWith(
-                      color: const Color(0xFFA1A1AA),
-                      fontSize: 10,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Redeemed on: ',
+                          style: kSmallerTitleM.copyWith(
+                            color: const Color(0xFFA1A1AA),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '03:30 PM, Yesterday',
+                          style: kSmallerTitleM.copyWith(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Redemption ID: 12345',
-                    style: kSmallerTitleM.copyWith(
-                      color: const Color(0xFFA1A1AA),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Redemption ID: ',
+                          style: kSmallerTitleM.copyWith(
+                            color: const Color(0xFFA1A1AA),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '12345',
+                          style: kSmallerTitleM.copyWith(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

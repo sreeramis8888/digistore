@@ -37,7 +37,7 @@ class HomeSearchBar extends ConsumerWidget {
           ),
           decoration: BoxDecoration(
             color: kField,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [

@@ -3,6 +3,8 @@ import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../components/offers/offers_filter_chips.dart';
 import '../components/offers/deal_card.dart';
+import '../../data/utils/global_variables.dart';
+import '../components/home/home_search_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/providers/screen_size_provider.dart';
 
@@ -28,7 +30,7 @@ class OffersPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
-        title: Text('Offers',  style: kSubHeadingM.copyWith(color: Color(0xFF373737)),),
+        title: Text('Offers',  style: kBodyTitleM.copyWith(color: Color(0xFF373737)),),
         backgroundColor: kWhite,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -36,7 +38,11 @@ class OffersPage extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const OffersFilterChips(),
+            if (GlobalVariables.isMerchant) ...[
+              SizedBox(height: screenSize.responsivePadding(16)),
+              const HomeSearchBar(hintText: "Search for 'offers'"),
+            ] else
+              const OffersFilterChips(),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
               child: GridView.builder(

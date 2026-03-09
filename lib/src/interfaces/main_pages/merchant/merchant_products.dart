@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
-import '../../components/shops/shop_product_card.dart';
+import '../../components/shops/product_card.dart';
+import '../../components/primary_button.dart';
+import 'create_product_page.dart';
 
 class MerchantProductsPage extends ConsumerWidget {
   const MerchantProductsPage({super.key});
@@ -45,31 +47,23 @@ class MerchantProductsPage extends ConsumerWidget {
                 children: [
                   Text(
                     'Products',
-                    style: kSmallTitleB.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: kBodyTitleM.copyWith(color: Color(0xFF373737)),
                   ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kBlue,
-                      foregroundColor: kWhite,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(16),
-                        vertical: screenSize.responsivePadding(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Create Product',
-                      style: kSmallerTitleM.copyWith(
-                        color: kWhite,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  PrimaryButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateProductPage(),
+                        ),
+                      );
+                    },
+                    width: screenSize.responsivePadding(140),
+                    height: screenSize.responsivePadding(44),
+                    text: 'Create Product',
+                    textSize: 14,
+                    backgroundColor: kPrimaryColor,
+                    textColor: kWhite,
                   ),
                 ],
               ),
@@ -113,7 +107,7 @@ class MerchantProductsPage extends ConsumerWidget {
                   itemCount: products.length,
                   itemBuilder: (context, index) {
                     final p = products[index];
-                    return ShopProductCard(
+                    return ProductCard(
                       index: index,
                       name: p['name'],
                       image: p['image'],

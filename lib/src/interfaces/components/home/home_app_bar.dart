@@ -6,6 +6,8 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../main_pages/home_pages/profile_page.dart';
+import '../../main_pages/merchant/merchant_profile_page.dart';
+import '../../../data/utils/global_variables.dart';
 
 class HomeAppBar extends ConsumerWidget {
   const HomeAppBar({super.key});
@@ -29,7 +31,11 @@ class HomeAppBar extends ConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                  MaterialPageRoute(
+                    builder: (context) => GlobalVariables.isMerchant
+                        ? const MerchantProfilePage()
+                        : const ProfilePage(),
+                  ),
                 );
               },
               child: Row(
