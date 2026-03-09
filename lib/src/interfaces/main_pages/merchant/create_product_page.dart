@@ -118,7 +118,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
                           ),
                           Container(
                             color: Colors.black.withOpacity(0.3),
-                            child:SvgPicture.asset('assets/svg/edit.svg'),
+                            child: SvgPicture.asset('assets/svg/edit.svg'),
                           ),
                         ],
                       )

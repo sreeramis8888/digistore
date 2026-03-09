@@ -1,78 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
+import '../../components/merchant/merchant_menu_item.dart';
+import '../../components/merchant/merchant_action_card.dart';
+import '../../components/merchant/merchant_profile_header.dart';
 
 class MerchantProfilePage extends ConsumerWidget {
   const MerchantProfilePage({super.key});
-
-  Widget _buildMenuItem(
-    String title,
-    Widget icon,
-    ScreenSizeData screenSize, {
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap ?? () {},
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: screenSize.responsivePadding(16),
-          vertical: screenSize.responsivePadding(16),
-        ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: screenSize.responsivePadding(24),
-              height: screenSize.responsivePadding(24),
-              child: Center(child: icon),
-            ),
-            SizedBox(width: screenSize.responsivePadding(16)),
-            Expanded(
-              child: Text(title, style: kSmallTitleL.copyWith(color: kBlack)),
-            ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: screenSize.responsivePadding(14),
-              color: const Color(0xFFD1D5DB),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionCard(
-    ScreenSizeData screenSize,
-    String title,
-    IconData iconData,
-  ) {
-    return Expanded(
-      child: Container(
-        height: screenSize.responsivePadding(90),
-        decoration: BoxDecoration(
-          color: kWhite,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(iconData, color: const Color(0xFF6B7280), size: 24),
-            SizedBox(height: screenSize.responsivePadding(8)),
-            Text(
-              title,
-              style: kSmallTitleL.copyWith(
-                color: kBlack,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -103,130 +39,26 @@ class MerchantProfilePage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: screenSize.responsivePadding(16)),
-              Container(
-                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: kWhite,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/png/shake.png',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                Icons.storefront,
-                                color: kSecondaryColor,
-                              ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: screenSize.responsivePadding(12)),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  'Freshmart Supermarket',
-                                  style: kBodyTitleM.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: kPrimaryLightColor,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'Daily Needs',
-                                  style: kSmallTitleL.copyWith(
-                                    fontSize: 10,
-                                    color: kSecondaryColor,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on_outlined,
-                                size: 14,
-                                color: Color(0xFF6B7280),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Ernakulam',
-                                style: kSmallTitleL.copyWith(
-                                  color: const Color(0xFF616161),
-                                ),
-                              ),
-                              const Icon(
-                                Icons.keyboard_arrow_down,
-                                size: 16,
-                                color: Color(0xFF6B7280),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          'merchantAccount',
-                          arguments: {'isEditMode': true},
-                        );
-                      },
-                      child: SvgPicture.asset('assets/svg/edit.svg'),
-                    ),
-                  ],
-                ),
-              ),
+              MerchantProfileHeader(screenSize: screenSize),
               SizedBox(height: screenSize.responsivePadding(16)),
               Row(
                 children: [
-                  _buildActionCard(
-                    screenSize,
-                    'Offers',
-                    Icons.discount_outlined,
+                  MerchantActionCard(
+                    screenSize: screenSize,
+                    title: 'Offers',
+                    iconData: Icons.discount_outlined,
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
-                  _buildActionCard(
-                    screenSize,
-                    'Products',
-                    Icons.inventory_2_outlined,
+                  MerchantActionCard(
+                    screenSize: screenSize,
+                    title: 'Products',
+                    iconData: Icons.inventory_2_outlined,
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
-                  _buildActionCard(
-                    screenSize,
-                    'History',
-                    Icons.history_rounded,
+                  MerchantActionCard(
+                    screenSize: screenSize,
+                    title: 'History',
+                    iconData: Icons.history_rounded,
                   ),
                 ],
               ),
@@ -239,14 +71,14 @@ class MerchantProfilePage extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildMenuItem(
-                      'Account',
-                      const Icon(
+                    MerchantMenuItem(
+                      title: 'Account',
+                      icon: const Icon(
                         Icons.person_outline_rounded,
                         color: Color(0xFF6B7280),
                         size: 22,
                       ),
-                      screenSize,
+                      screenSize: screenSize,
                       onTap: () {
                         Navigator.pushNamed(
                           context,
@@ -262,14 +94,14 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    _buildMenuItem(
-                      'Help & Support',
-                      const Icon(
+                    MerchantMenuItem(
+                      title: 'Help & Support',
+                      icon: const Icon(
                         Icons.headphones_outlined,
                         color: Color(0xFF6B7280),
                         size: 22,
                       ),
-                      screenSize,
+                      screenSize: screenSize,
                     ),
                     const Divider(
                       height: 1,
@@ -278,14 +110,14 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    _buildMenuItem(
-                      'Terms & Privacy Policy',
-                      const Icon(
+                    MerchantMenuItem(
+                      title: 'Terms & Privacy Policy',
+                      icon: const Icon(
                         Icons.description_outlined,
                         color: Color(0xFF6B7280),
                         size: 22,
                       ),
-                      screenSize,
+                      screenSize: screenSize,
                     ),
                     const Divider(
                       height: 1,
@@ -294,14 +126,14 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    _buildMenuItem(
-                      'About app',
-                      const Icon(
+                    MerchantMenuItem(
+                      title: 'About app',
+                      icon: const Icon(
                         Icons.info_outline_rounded,
                         color: Color(0xFF6B7280),
                         size: 22,
                       ),
-                      screenSize,
+                      screenSize: screenSize,
                     ),
                     const Divider(
                       height: 1,
@@ -310,14 +142,14 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    _buildMenuItem(
-                      'FAQ',
-                      const Icon(
+                    MerchantMenuItem(
+                      title: 'FAQ',
+                      icon: const Icon(
                         Icons.info_outline,
                         color: Color(0xFF6B7280),
                         size: 22,
                       ),
-                      screenSize,
+                      screenSize: screenSize,
                     ),
                   ],
                 ),
@@ -329,14 +161,14 @@ class MerchantProfilePage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: _buildMenuItem(
-                  'Logout',
-                  const Icon(
+                child: MerchantMenuItem(
+                  title: 'Logout',
+                  icon: const Icon(
                     Icons.headphones_outlined,
                     color: Color(0xFF6B7280),
                     size: 22,
                   ),
-                  screenSize,
+                  screenSize: screenSize,
                 ),
               ),
               SizedBox(height: screenSize.responsivePadding(40)),
