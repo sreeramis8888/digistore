@@ -397,243 +397,118 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenSize.responsivePadding(24),
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 80,
-                              height: 80,
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFFE5E7EB),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(12),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: const Color(0xFFE5E7EB),
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: _profileImage != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        _profileImage!,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : Center(
-                                      child: Text(
-                                        'FRESH\nSUPERMARKET',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.orange.shade700,
+                                child: _profileImage != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(
+                                          _profileImage!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          'FRESH\nSUPERMARKET',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange.shade700,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                            ),
-                            const SizedBox(height: 12),
-                            if (isEditMode)
-                              GestureDetector(
-                                onTap: () async {
-                                  final result = await pickMedia(
-                                    context: context,
-                                    enableCrop: true,
-                                    cropRatio: const CropAspectRatio(
-                                      ratioX: 1,
-                                      ratioY: 1,
-                                    ),
-                                    showDocument: false,
-                                  );
-                                  if (result is XFile) {
-                                    setState(() {
-                                      _profileImage = File(result.path);
-                                    });
-                                  }
-                                },
-                                child: Row(
+                              ),
+                              const SizedBox(height: 12),
+                              if (isEditMode)
+                                GestureDetector(
+                                  onTap: () async {
+                                    final result = await pickMedia(
+                                      context: context,
+                                      enableCrop: true,
+                                      cropRatio: const CropAspectRatio(
+                                        ratioX: 1,
+                                        ratioY: 1,
+                                      ),
+                                      showDocument: false,
+                                    );
+                                    if (result is XFile) {
+                                      setState(() {
+                                        _profileImage = File(result.path);
+                                      });
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.flip_camera_ios_outlined,
+                                        size: 16,
+                                        color: kPrimaryColor,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Change Photo',
+                                        style: kSmallTitleM.copyWith(
+                                          color: kPrimaryColor,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else
+                                Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(
-                                      Icons.flip_camera_ios_outlined,
-                                      size: 16,
-                                      color: kPrimaryColor,
-                                    ),
-                                    const SizedBox(width: 4),
                                     Text(
-                                      'Change Photo',
+                                      '4.5 ',
                                       style: kSmallTitleM.copyWith(
-                                        color: kPrimaryColor,
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: FontWeight.w600,
+                                        color: kBlack,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    ),
+                                    Text(
+                                      ' out of 10',
+                                      style: kSmallTitleL.copyWith(
+                                        color: const Color(0xFF6B7280),
                                       ),
                                     ),
                                   ],
                                 ),
-                              )
-                            else
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '4.5 ',
-                                    style: kSmallTitleM.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: kBlack,
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  Text(
-                                    ' out of 10',
-                                    style: kSmallTitleL.copyWith(
-                                      color: const Color(0xFF6B7280),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      _buildSectionHeader('Personal Informations'),
-                      if (isEditMode) ...[
-                        PrimaryTextField(
-                          label: 'Owner Name',
-                          controller: _ownerNameCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Mobile Number',
-                          controller: _mobileCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Email',
-                          controller: _emailCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Location',
-                          controller: _locationCtrl,
-                          readOnly: true,
-                          suffixIcon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Color(0xFF808080),
-                          ),
-                        ),
-                      ] else
-                        Container(
-                          decoration: BoxDecoration(
-                            color: kWhite,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE5E7EB)),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildReadOnlyRow(
-                                'Owner Name',
-                                _ownerNameCtrl.text,
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow(
-                                'Mobile Number',
-                                _mobileCtrl.text,
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow('Email', _emailCtrl.text),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow('Location', _locationCtrl.text),
                             ],
                           ),
                         ),
 
-                      _buildSectionHeader('Shop Details'),
-                      if (isEditMode) ...[
-                        PrimaryTextField(
-                          label: 'Shop Name',
-                          controller: _shopNameCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Category',
-                          controller: _categoryCtrl,
-                          readOnly: true,
-                          suffixIcon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Color(0xFF808080),
-                          ),
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Contact Number',
-                          controller: _contactNumCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'WhatsApp Number',
-                          controller: _whatsappCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'PAN Number',
-                          controller: _panCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Shop Address',
-                          controller: _shopAddressCtrl,
-                          readOnly: true,
-                          suffixIcon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Color(0xFF808080),
-                          ),
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Pincode',
-                          controller: _pincodeCtrl,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PrimaryTextField(
-                          label: 'Google Map Location',
-                          controller: _mapLocationCtrl,
-                          readOnly: true,
-                          prefixIcon: const Icon(
-                            Icons.location_on_outlined,
-                            color: Color(0xFF808080),
-                            size: 18,
-                          ),
-                          suffixIcon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Color(0xFF808080),
-                          ),
-                        ),
-                      ] else
                         Container(
+                          margin: const EdgeInsets.only(bottom: 24),
                           decoration: BoxDecoration(
                             color: kWhite,
                             borderRadius: BorderRadius.circular(12),
@@ -641,189 +516,436 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
                           ),
                           child: Column(
                             children: [
-                              _buildReadOnlyRow(
-                                'Shop Name',
-                                _shopNameCtrl.text,
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow('Category', _categoryCtrl.text),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow(
-                                'Contact Number',
-                                _contactNumCtrl.text,
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow(
-                                'WhatsApp Number',
-                                _whatsappCtrl.text,
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow('PAN Number', _panCtrl.text),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow(
-                                'Shop Address',
-                                _shopAddressCtrl.text,
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow('Pincode', _pincodeCtrl.text),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0xFFF3F4F6),
-                              ),
-                              _buildReadOnlyRow(
-                                'Google Map Location',
-                                _mapLocationCtrl.text,
-                                prefixIcon: const Icon(
-                                  Icons.location_on_outlined,
-                                  color: Color(0xFF808080),
-                                  size: 16,
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Personal Informations',
+                                      style: kSmallTitleM.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: kBlack,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                              const Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: Color(0xFFF3F4F6),
+                              ),
+                              if (isEditMode) ...[
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Owner Name',
+                                    controller: _ownerNameCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Mobile Number',
+                                    controller: _mobileCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Email',
+                                    controller: _emailCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Location',
+                                    controller: _locationCtrl,
+                                    readOnly: true,
+                                    suffixIcon: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: Color(0xFF808080),
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                _buildReadOnlyRow(
+                                  'Owner Name',
+                                  _ownerNameCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'Mobile Number',
+                                  _mobileCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow('Email', _emailCtrl.text),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'Location',
+                                  _locationCtrl.text,
+                                ),
+                              ],
                             ],
                           ),
                         ),
 
-                      _buildSectionHeader('Branches', showAdd: true),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildRemovableChip('Kochi'),
-                          _buildRemovableChip('Kottayam'),
-                          _buildRemovableChip('Karunagapally'),
-                        ],
-                      ),
-
-                      _buildSectionHeader('Social Media', showAdd: true),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildRemovableChip(
-                            '@freshmart_supermarket',
-                            prefixIcon: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.pink,
-                              size: 16,
-                            ),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 24),
+                          decoration: BoxDecoration(
+                            color: kWhite,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
                           ),
-                          _buildRemovableChip(
-                            'Freshmart Supermarket',
-                            prefixIcon: const Icon(
-                              Icons.facebook,
-                              color: Colors.blue,
-                              size: 16,
-                            ),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Shop Details',
+                                      style: kSmallTitleM.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: kBlack,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: Color(0xFFF3F4F6),
+                              ),
+                              if (isEditMode) ...[
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Shop Name',
+                                    controller: _shopNameCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Category',
+                                    controller: _categoryCtrl,
+                                    readOnly: true,
+                                    suffixIcon: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: Color(0xFF808080),
+                                    ),
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Contact Number',
+                                    controller: _contactNumCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'WhatsApp Number',
+                                    controller: _whatsappCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'PAN Number',
+                                    controller: _panCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Shop Address',
+                                    controller: _shopAddressCtrl,
+                                    readOnly: true,
+                                    suffixIcon: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: Color(0xFF808080),
+                                    ),
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Pincode',
+                                    controller: _pincodeCtrl,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: PrimaryTextField(
+                                    label: 'Google Map Location',
+                                    controller: _mapLocationCtrl,
+                                    readOnly: true,
+                                    prefixIcon: const Icon(
+                                      Icons.location_on_outlined,
+                                      color: Color(0xFF808080),
+                                      size: 18,
+                                    ),
+                                    suffixIcon: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: Color(0xFF808080),
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                _buildReadOnlyRow(
+                                  'Shop Name',
+                                  _shopNameCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'Category',
+                                  _categoryCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'Contact Number',
+                                  _contactNumCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'WhatsApp Number',
+                                  _whatsappCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow('PAN Number', _panCtrl.text),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'Shop Address',
+                                  _shopAddressCtrl.text,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow('Pincode', _pincodeCtrl.text),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                _buildReadOnlyRow(
+                                  'Google Map Location',
+                                  _mapLocationCtrl.text,
+                                  prefixIcon: const Icon(
+                                    Icons.location_on_outlined,
+                                    color: Color(0xFF808080),
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
-                      ),
-
-                      _buildSectionHeader('Shop Images', showAdd: true),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildShopImage(0, false),
-                          _buildShopImage(1, false),
-                          _buildShopImage(2, false),
-                          _buildShopImage(3, true),
-                        ],
-                      ),
-
-                      _buildSectionHeader('Working Hours'),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isEditMode
-                              ? const Color(0xFFFFF7F7)
-                              : Colors
-                                    .transparent, // faint background not quite visible in image, let's keep transparent as there is none.
                         ),
-                        child: Column(
+
+                        _buildSectionHeader('Branches', showAdd: true),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
-                            _buildWorkingHourRow(
-                              'Monday',
-                              '09:00 AM',
-                              '09:00 PM',
-                            ),
-                            _buildWorkingHourRow(
-                              'Tuesday',
-                              '09:00 AM',
-                              '09:00 PM',
-                            ),
-                            _buildWorkingHourRow(
-                              'Wednesday',
-                              '09:00 AM',
-                              '09:00 PM',
-                            ),
-                            _buildWorkingHourRow(
-                              'Thursday',
-                              '09:00 AM',
-                              '09:00 PM',
-                            ),
-                            _buildWorkingHourRow(
-                              'Friday',
-                              '09:00 AM',
-                              '09:00 PM',
-                            ),
-                            _buildWorkingHourRow(
-                              'Saturday',
-                              '10:00 AM',
-                              '08:00 PM',
-                            ),
-                            _buildWorkingHourRow('Sunday', '-', '-'),
+                            _buildRemovableChip('Kochi'),
+                            _buildRemovableChip('Kottayam'),
+                            _buildRemovableChip('Karunagapally'),
                           ],
                         ),
-                      ),
 
-                      SizedBox(height: screenSize.responsivePadding(32)),
-                    ],
+                        _buildSectionHeader('Social Media', showAdd: true),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _buildRemovableChip(
+                              '@freshmart_supermarket',
+                              prefixIcon: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.pink,
+                                size: 16,
+                              ),
+                            ),
+                            _buildRemovableChip(
+                              'Freshmart Supermarket',
+                              prefixIcon: const Icon(
+                                Icons.facebook,
+                                color: Colors.blue,
+                                size: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        _buildSectionHeader('Shop Images', showAdd: true),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildShopImage(0, false),
+                            _buildShopImage(1, false),
+                            _buildShopImage(2, false),
+                            _buildShopImage(3, true),
+                          ],
+                        ),
+
+                        _buildSectionHeader('Working Hours'),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isEditMode
+                                ? const Color(0xFFFFF7F7)
+                                : Colors
+                                      .transparent, // faint background not quite visible in image, let's keep transparent as there is none.
+                          ),
+                          child: Column(
+                            children: [
+                              _buildWorkingHourRow(
+                                'Monday',
+                                '09:00 AM',
+                                '09:00 PM',
+                              ),
+                              _buildWorkingHourRow(
+                                'Tuesday',
+                                '09:00 AM',
+                                '09:00 PM',
+                              ),
+                              _buildWorkingHourRow(
+                                'Wednesday',
+                                '09:00 AM',
+                                '09:00 PM',
+                              ),
+                              _buildWorkingHourRow(
+                                'Thursday',
+                                '09:00 AM',
+                                '09:00 PM',
+                              ),
+                              _buildWorkingHourRow(
+                                'Friday',
+                                '09:00 AM',
+                                '09:00 PM',
+                              ),
+                              _buildWorkingHourRow(
+                                'Saturday',
+                                '10:00 AM',
+                                '08:00 PM',
+                              ),
+                              _buildWorkingHourRow('Sunday', '-', '-'),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: screenSize.responsivePadding(32)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (isEditMode) ...[
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: screenSize.responsivePadding(16),
+                if (isEditMode) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenSize.responsivePadding(16),
+                    ),
+                    child: PrimaryButton(
+                      text: 'Save',
+                      onPressed: () {
+                        setState(() {
+                          isEditMode = false;
+                        });
+                      },
+                    ),
                   ),
-                  child: PrimaryButton(
-                    text: 'Save',
-                    onPressed: () {
-                      setState(() {
-                        isEditMode = false;
-                      });
-                    },
-                  ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
