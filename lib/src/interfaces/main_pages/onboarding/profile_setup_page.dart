@@ -5,9 +5,9 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
+import '../../components/location_selection_bottom_sheet.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/services/secure_storage_service.dart';
-import '../../../data/models/user_model.dart';
 
 class ProfileSetupPage extends ConsumerStatefulWidget {
   const ProfileSetupPage({super.key});
@@ -22,6 +22,11 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
+  double? _lat;
+  double? _lng;
+  String? _district;
+  String? _localBody;
+  bool _isSubmitting = false;
   @override
   void initState() {
     super.initState();
@@ -112,32 +117,111 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                       SizedBox(height: screenSize.responsivePadding(24)),
                       PrimaryTextField(
                         label: 'Location',
-                        hint: 'Enter Location',
+                        hint: 'Tap to capture location',
                         controller: _locationController,
                         isRequired: true,
+                        readOnly: true,
+                        suffixIcon: const Icon(Icons.my_location_rounded, size: 20, color: kPrimaryColor),
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => LocationSelectionBottomSheet(
+                              initialLat: _lat,
+                              initialLng: _lng,
+                              initialDistrict: _district,
+                              initialLocalBody: _localBody,
+                              onLocationSelected: (district, localBody, lat, lng) {
+                                setState(() {
+                                  _locationController.text = localBody.isNotEmpty 
+                                      ? '$localBody, $district' 
+                                      : district;
+                                  _district = district;
+                                  _localBody = localBody;
+                                  _lat = lat;
+                                  _lng = lng;
+                                });
+                              },
+                            ),
+                          );
+                        },
                       ),
+                      if (_lat != null && _lng != null) ...[
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Text(
+                            'Captured: ${_lat!.toStringAsFixed(6)}, ${_lng!.toStringAsFixed(6)}',
+                            style: kSmallerTitleM.copyWith(color: kPrimaryColor),
+                          ),
+                        ),
+                      ],
                       SizedBox(height: screenSize.responsivePadding(40)),
                     ],
                   ),
                 ),
               ),
-              PrimaryButton(
-                text: 'Submit',
-                onPressed: () async {
-                  final user = UserModel(
-                    name: _nameController.text,
-                    phone: _mobileController.text,
-                    email: _emailController.text,
-                    district: DistrictDetailModel(name: _locationController.text),
-                  );
-                  await ref.read(userProvider.notifier).saveUser(user);
-                  if (context.mounted) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      'navbar',
-                      (route) => false,
-                    );
-                  }
-                },
+              SizedBox(
+                width: double.infinity,
+                child: _isSubmitting 
+                    ? const Center(child: CircularProgressIndicator(color: kPrimaryColor))
+                    : PrimaryButton(
+                        text: 'Submit',
+                        onPressed: () async {
+                          if (_nameController.text.isEmpty || _locationController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please fill all required fields.')),
+                            );
+                            return;
+                          }
+
+                          setState(() {
+                            _isSubmitting = true;
+                          });
+
+                          try {
+                            final successProfile = await ref
+                                .read(userProvider.notifier)
+                                .updateProfile(
+                                  name: _nameController.text,
+                                  email: _emailController.text,
+                                  onboardingComplete: true,
+                                );
+
+                            if (successProfile && _lat != null && _lng != null) {
+                              await ref.read(userProvider.notifier).updateLocation(
+                                lat: _lat!,
+                                lng: _lng!,
+                                district: _district ?? '',
+                                localBody: _localBody ?? '',
+                              );
+                            }
+
+                            final storage = ref.read(secureStorageServiceProvider);
+                            await storage.saveOnboardingComplete(true);
+
+                            if (context.mounted) {
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                'navbar',
+                                (route) => false,
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: ${e.toString()}')),
+                              );
+                            }
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                _isSubmitting = false;
+                              });
+                            }
+                          }
+                        },
+                      ),
               ),
             ],
           ),

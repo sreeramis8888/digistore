@@ -1,370 +1,287 @@
 class UserModel {
   final String? id;
+  final String? phone;
   final String? name;
   final String? email;
-  final String? image;
-  final String? phone;
-  final String? fcm;
-  final String? gender;
-  final String? qrCode;
-  final String? status;
-  final DateTime? lastSeen;
-  final bool online;
-  final DateTime? dob;
-  final bool isInstalled;
-  final String? rejectReason;
-  final CampusDetailModel? campus;
-  final String? bio;
-  final String? countryCode;
-  final String? country;
-  final String? districtCode;
-  final DistrictDetailModel? district;
-  final String? idNumber;
+  final String? avatar;
+  final LocationModel? location;
+  final int? pointsBalance;
+  final int? totalPointsEarned;
+  final bool? isActive;
+  final DateTime? lastLogin;
   final String? referralCode;
-  final String? profession;
-  final int? referralCount;
-  final String? referralRewardStatus;
-  final bool? referralDecisionTaken;
+  final String? referredBy;
+  final bool? referralRewardClaimed;
+  final bool? onboardingComplete;
+  final bool? tutorialCompleted;
+  final PreferencesModel? preferences;
+  final TierModel? currentTier;
+  final NextTierModel? nextTier;
+  final double? progressToNextTier;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final int? totalCampaignsParticipated;
-  final int? totalAmountDonated;
-  final int? totalReferrals;
-  final int? activeReferrals;
+  final DateTime? deletedAt;
 
-  final List<SubSchemaModel>? socialMedia;
-  final List<String>? blockedUsers;
-  final bool? isContactVisible;
   const UserModel({
     this.id,
+    this.phone,
     this.name,
     this.email,
-    this.image,
-    this.phone,
-    this.fcm,
-    this.gender,
-    this.qrCode,
-    this.bio,
-    this.status,
-    this.lastSeen,
-    this.online = false,
-    this.dob,
-    this.isInstalled = false,
-    this.rejectReason,
-    this.campus,
-    this.countryCode,
-    this.country,
-    this.districtCode,
-    this.district,
-    this.idNumber,
+    this.avatar,
+    this.location,
+    this.pointsBalance,
+    this.totalPointsEarned,
+    this.isActive,
+    this.lastLogin,
     this.referralCode,
-    this.profession,
-    this.referralCount,
-    this.referralRewardStatus,
-    this.referralDecisionTaken,
+    this.referredBy,
+    this.referralRewardClaimed,
+    this.onboardingComplete,
+    this.tutorialCompleted,
+    this.preferences,
+    this.currentTier,
+    this.nextTier,
+    this.progressToNextTier,
     this.createdAt,
     this.updatedAt,
-    this.totalCampaignsParticipated,
-    this.totalAmountDonated,
-    this.totalReferrals,
-    this.activeReferrals,
-    this.socialMedia,
-    this.blockedUsers,
-    this.isContactVisible,
+    this.deletedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const UserModel();
 
     return UserModel(
-      id: json['_id'] as String?,
+      id: (json['id'] ?? json['_id']) as String?,
+      phone: json['phone'] as String?,
       name: json['name'] as String?,
       email: json['email'] as String?,
-      image: json['image'] as String?,
-      bio: json['bio'] as String?,
-      phone: json['phone'] as String?,
-      fcm: json['fcm'] as String?,
-      gender: json['gender'] as String?,
-      qrCode: json['qr_code'] as String?,
-      status: json['status'] as String?,
-
-      lastSeen: json['last_seen'] != null
-          ? DateTime.tryParse(json['last_seen'])
-          : null,
-      online: json['online'] ?? false,
-      dob: json['dob'] != null ? DateTime.tryParse(json['dob']) : null,
-      isInstalled: json['is_installed'] ?? false,
-      rejectReason: json['reject_reason'] as String?,
-      campus: json['campus'] is Map<String, dynamic>
-          ? CampusDetailModel.fromJson(json['campus'] as Map<String, dynamic>)
-          : null,
-      countryCode: json['country_code'] as String?,
-      country: json['country'] as String?,
-      districtCode: json['district_code'] as String? ??
-          (json['district'] is String ? json['district'] as String : null),
-      district: json['district'] is Map<String, dynamic>
-          ? DistrictDetailModel.fromJson(
-              json['district'] as Map<String, dynamic>,
-            )
-          : null,
-      idNumber: json['id_number'] as String?,
-      referralCode: json['referral_code'] as String?,
-      profession: json['profession'] as String?,
-      referralCount: json['referral_count'] as int?,
-      referralRewardStatus: json['referral_reward_status'] as String?,
-      referralDecisionTaken: json['referral_decision_taken'] as bool?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'])
-          : null,
-      totalCampaignsParticipated: json["total_campaigns_participated"],
-      totalAmountDonated: json["total_amount_donated"],
-      totalReferrals: json["total_referrals"],
-      activeReferrals: json["active_referrals"],
-      socialMedia: json['social_media'] != null
-          ? (json['social_media'] as List<dynamic>)
-                .map(
-                  (item) =>
-                      SubSchemaModel.fromJson(item as Map<String, dynamic>),
-                )
-                .toList()
-          : null,
-      blockedUsers: json['blocked_users'] != null
-          ? List<String>.from(json['blocked_users'])
-          : null,
-      isContactVisible: json['is_contact_visible'] as bool?,
+      avatar: json['avatar'] as String?,
+      location: json['location'] != null ? LocationModel.fromJson(json['location'] as Map<String, dynamic>) : null,
+      pointsBalance: json['pointsBalance'] as int?,
+      totalPointsEarned: json['totalPointsEarned'] as int?,
+      isActive: json['isActive'] as bool?,
+      lastLogin: json['lastLogin'] != null ? DateTime.tryParse(json['lastLogin']) : null,
+      referralCode: json['referralCode'] as String?,
+      referredBy: json['referredBy'] as String?,
+      referralRewardClaimed: json['referralRewardClaimed'] as bool?,
+      onboardingComplete: json['onboardingComplete'] as bool?,
+      tutorialCompleted: json['tutorialCompleted'] as bool?,
+      preferences: json['preferences'] != null ? PreferencesModel.fromJson(json['preferences'] as Map<String, dynamic>) : null,
+      currentTier: json['currentTier'] != null ? TierModel.fromJson(json['currentTier'] as Map<String, dynamic>) : null,
+      nextTier: json['nextTier'] != null ? NextTierModel.fromJson(json['nextTier'] as Map<String, dynamic>) : null,
+      progressToNextTier: json['progressToNextTier'] != null ? (json['progressToNextTier'] as num).toDouble() : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
     );
   }
 
-  /// ---------- TO JSON ----------
   Map<String, dynamic> toJson() {
     return {
-      '_id': id,
+      'id': id,
+      'phone': phone,
       'name': name,
       'email': email,
-      'image': image,
-      'bio': bio,
-      'phone': phone,
-      'fcm': fcm,
-
-      'gender': gender,
-
-      'qr_code': qrCode,
-      'status': status,
-
-      'last_seen': lastSeen?.toIso8601String(),
-      'online': online,
-      'dob': dob?.toIso8601String(),
-      'is_installed': isInstalled,
-      'reject_reason': rejectReason,
-      'campus': campus?.toJson(),
-      'country_code': countryCode,
-      'country': country,
-      'district_code': districtCode,
-      'district': district?.toJson(),
-      'id_number': idNumber,
-      'referral_code': referralCode,
-      'profession': profession,
-      'referral_count': referralCount,
-      'referral_reward_status': referralRewardStatus,
-      'referral_decision_taken': referralDecisionTaken,
+      'avatar': avatar,
+      'location': location?.toJson(),
+      'pointsBalance': pointsBalance,
+      'totalPointsEarned': totalPointsEarned,
+      'isActive': isActive,
+      'lastLogin': lastLogin?.toIso8601String(),
+      'referralCode': referralCode,
+      'referredBy': referredBy,
+      'referralRewardClaimed': referralRewardClaimed,
+      'onboardingComplete': onboardingComplete,
+      'tutorialCompleted': tutorialCompleted,
+      'preferences': preferences?.toJson(),
+      'currentTier': currentTier?.toJson(),
+      'nextTier': nextTier?.toJson(),
+      'progressToNextTier': progressToNextTier,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      "total_campaigns_participated": totalCampaignsParticipated,
-      "total_amount_donated": totalAmountDonated,
-      "total_referrals": totalReferrals,
-      "active_referrals": activeReferrals,
-      'social_media': socialMedia?.map((s) => s.toJson()).toList(),
-      'blocked_users': blockedUsers,
-      'is_contact_visible': isContactVisible,
+      'deletedAt': deletedAt?.toIso8601String(),
     };
   }
 
-  /// ---------- COPY WITH ----------
   UserModel copyWith({
     String? id,
+    String? phone,
     String? name,
     String? email,
-    String? image,
-    String? phone,
-    String? fcm,
-    String? bio,
-    String? otp,
-    String? gender,
-    String? password,
-    String? qrCode,
-    String? status,
-    bool? isAdmin,
-    String? adminRole,
-    DateTime? lastSeen,
-    bool? online,
-    DateTime? dob,
-    bool? isInstalled,
-    String? rejectReason,
-    CampusDetailModel? campus,
-    String? countryCode,
-    String? country,
-    String? districtCode,
-    DistrictDetailModel? district,
-    String? idNumber,
+    String? avatar,
+    LocationModel? location,
+    int? pointsBalance,
+    int? totalPointsEarned,
+    bool? isActive,
+    DateTime? lastLogin,
     String? referralCode,
-    String? profession,
-    int? referralCount,
-    String? referralRewardStatus,
-    bool? referralDecisionTaken,
+    String? referredBy,
+    bool? referralRewardClaimed,
+    bool? onboardingComplete,
+    bool? tutorialCompleted,
+    PreferencesModel? preferences,
+    TierModel? currentTier,
+    NextTierModel? nextTier,
+    double? progressToNextTier,
     DateTime? createdAt,
     DateTime? updatedAt,
-    int? totalCampaignsParticipated,
-    int? totalAmountDonated,
-    int? totalReferrals,
-    int? activeReferrals,
-    List<SubSchemaModel>? socialMedia,
-    List<String>? blockedUsers,
-    bool? isContactVisible,
+    DateTime? deletedAt,
   }) {
     return UserModel(
       id: id ?? this.id,
+      phone: phone ?? this.phone,
       name: name ?? this.name,
       email: email ?? this.email,
-      image: image ?? this.image,
-      phone: phone ?? this.phone,
-      fcm: fcm ?? this.fcm,
-      gender: gender ?? this.gender,
-      bio: bio ?? this.bio,
-
-      qrCode: qrCode ?? this.qrCode,
-      status: status ?? this.status,
-
-      lastSeen: lastSeen ?? this.lastSeen,
-      online: online ?? this.online,
-      dob: dob ?? this.dob,
-      isInstalled: isInstalled ?? this.isInstalled,
-      rejectReason: rejectReason ?? this.rejectReason,
-      campus: campus ?? this.campus,
-      countryCode: countryCode ?? this.countryCode,
-      country: country ?? this.country,
-      districtCode: districtCode ?? this.districtCode,
-      district: district ?? this.district,
-      idNumber: idNumber ?? this.idNumber,
+      avatar: avatar ?? this.avatar,
+      location: location ?? this.location,
+      pointsBalance: pointsBalance ?? this.pointsBalance,
+      totalPointsEarned: totalPointsEarned ?? this.totalPointsEarned,
+      isActive: isActive ?? this.isActive,
+      lastLogin: lastLogin ?? this.lastLogin,
       referralCode: referralCode ?? this.referralCode,
-      profession: profession ?? this.profession,
-      referralCount: referralCount ?? this.referralCount,
-      referralRewardStatus: referralRewardStatus ?? this.referralRewardStatus,
-      referralDecisionTaken:
-          referralDecisionTaken ?? this.referralDecisionTaken,
+      referredBy: referredBy ?? this.referredBy,
+      referralRewardClaimed: referralRewardClaimed ?? this.referralRewardClaimed,
+      onboardingComplete: onboardingComplete ?? this.onboardingComplete,
+      tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
+      preferences: preferences ?? this.preferences,
+      currentTier: currentTier ?? this.currentTier,
+      nextTier: nextTier ?? this.nextTier,
+      progressToNextTier: progressToNextTier ?? this.progressToNextTier,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      totalCampaignsParticipated:
-          totalCampaignsParticipated ?? this.totalCampaignsParticipated,
-      totalAmountDonated: totalAmountDonated ?? this.totalAmountDonated,
-      totalReferrals: totalReferrals ?? this.totalReferrals,
-      activeReferrals: activeReferrals ?? this.activeReferrals,
-      socialMedia: socialMedia ?? this.socialMedia,
-      blockedUsers: blockedUsers ?? this.blockedUsers,
-      isContactVisible: isContactVisible ?? this.isContactVisible,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 }
 
-class CampusDetailModel {
-  final String? id;
-  final String? uid;
-  final String? name;
-  final DistrictDetailModel? district;
+class LocationModel {
+  final String? district;
+  final String? localBody;
+  final CoordinatesModel? coordinates;
 
-  const CampusDetailModel({this.id, this.uid, this.name, this.district});
+  const LocationModel({this.district, this.localBody, this.coordinates});
 
-  factory CampusDetailModel.fromJson(Map<String, dynamic>? json) {
-    if (json == null) return const CampusDetailModel();
-
-    return CampusDetailModel(
-      id: json['_id'] as String?,
-      uid: json['uid'] as String?,
-      name: json['name'] as String?,
-      district: json['district'] != null
-          ? DistrictDetailModel.fromJson(
-              json['district'] as Map<String, dynamic>,
-            )
-          : null,
+  factory LocationModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const LocationModel();
+    return LocationModel(
+      district: json['district'] as String?,
+      localBody: json['localBody'] as String?,
+      coordinates: json['coordinates'] != null ? CoordinatesModel.fromJson(json['coordinates'] as Map<String, dynamic>) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      '_id': id,
-      'uid': uid,
-      'name': name,
-      'district': district?.toJson(),
+      'district': district,
+      'localBody': localBody,
+      'coordinates': coordinates?.toJson(),
     };
   }
-
-  CampusDetailModel copyWith({
-    String? id,
-    String? uid,
-    String? name,
-    DistrictDetailModel? district,
-  }) {
-    return CampusDetailModel(
-      id: id ?? this.id,
-      uid: uid ?? this.uid,
-      name: name ?? this.name,
-      district: district ?? this.district,
-    );
-  }
 }
 
-class DistrictDetailModel {
-  final String? id;
-  final String? uid;
-  final String? name;
+class CoordinatesModel {
+  final String type;
+  final List<double>? coordinates;
 
-  const DistrictDetailModel({this.id, this.uid, this.name});
+  const CoordinatesModel({this.type = 'Point', this.coordinates});
 
-  factory DistrictDetailModel.fromJson(Map<String, dynamic>? json) {
-    if (json == null) return const DistrictDetailModel();
-
-    return DistrictDetailModel(
-      id: json['_id'] as String?,
-      uid: json['uid'] as String?,
-      name: json['name'] as String?,
+  factory CoordinatesModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const CoordinatesModel();
+    return CoordinatesModel(
+      type: json['type'] as String? ?? 'Point',
+      coordinates: json['coordinates'] != null ? (json['coordinates'] as List<dynamic>).map((e) => (e as num).toDouble()).toList() : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'_id': id, 'uid': uid, 'name': name};
+    return {
+      'type': type,
+      'coordinates': coordinates,
+    }..removeWhere((key, value) => value == null);
   }
 
-  DistrictDetailModel copyWith({String? id, String? uid, String? name}) {
-    return DistrictDetailModel(
-      id: id ?? this.id,
-      uid: uid ?? this.uid,
-      name: name ?? this.name,
-    );
-  }
+  double? get lng => (coordinates != null && coordinates!.isNotEmpty) ? coordinates![0] : null;
+  double? get lat => (coordinates != null && coordinates!.length > 1) ? coordinates![1] : null;
 }
 
-class SubSchemaModel {
-  final String? name;
-  final String? url;
+class PreferencesModel {
+  final bool pushNotifications;
+  final bool emailNotifications;
+  final String language;
 
-  const SubSchemaModel({this.name, this.url});
+  const PreferencesModel({
+    this.pushNotifications = true,
+    this.emailNotifications = true,
+    this.language = 'en',
+  });
 
-  factory SubSchemaModel.fromJson(Map<String, dynamic>? json) {
-    if (json == null) return const SubSchemaModel();
-
-    return SubSchemaModel(
-      name: json['name'] as String?,
-      url: json['url'] as String?,
+  factory PreferencesModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const PreferencesModel();
+    return PreferencesModel(
+      pushNotifications: json['pushNotifications'] as bool? ?? true,
+      emailNotifications: json['emailNotifications'] as bool? ?? true,
+      language: json['language'] as String? ?? 'en',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'name': name, 'url': url};
+    return {
+      'pushNotifications': pushNotifications,
+      'emailNotifications': emailNotifications,
+      'language': language,
+    };
+  }
+}
+
+class TierModel {
+  final String? name;
+  final int? minPoints;
+  final double? bonusMultiplier;
+  final List<String>? benefits;
+
+  const TierModel({this.name, this.minPoints, this.bonusMultiplier, this.benefits});
+
+  factory TierModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const TierModel();
+    return TierModel(
+      name: json['name'] as String?,
+      minPoints: json['minPoints'] as int?,
+      bonusMultiplier: json['bonusMultiplier'] != null ? (json['bonusMultiplier'] as num).toDouble() : null,
+      benefits: json['benefits'] != null ? List<String>.from(json['benefits']) : null,
+    );
   }
 
-  SubSchemaModel copyWith({String? name, String? url}) {
-    return SubSchemaModel(name: name ?? this.name, url: url ?? this.url);
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'minPoints': minPoints,
+      'bonusMultiplier': bonusMultiplier,
+      'benefits': benefits,
+    };
+  }
+}
+
+class NextTierModel {
+  final String? name;
+  final int? minPoints;
+  final int? pointsNeeded;
+
+  const NextTierModel({this.name, this.minPoints, this.pointsNeeded});
+
+  factory NextTierModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const NextTierModel();
+    return NextTierModel(
+      name: json['name'] as String?,
+      minPoints: json['minPoints'] as int?,
+      pointsNeeded: json['pointsNeeded'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'minPoints': minPoints,
+      'pointsNeeded': pointsNeeded,
+    };
   }
 }

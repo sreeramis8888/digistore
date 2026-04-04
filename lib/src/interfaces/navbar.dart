@@ -22,9 +22,6 @@ class NavBar extends ConsumerStatefulWidget {
 }
 
 class _NavBarState extends ConsumerState<NavBar> {
-  // Since you mentioned SVG icons in the first prompt,
-  // I'm predicting the file names based on the labels in the image!
-  // Make sure these are placed in assets/svg/
   static const List<String> _inactiveIcons = [
     'assets/svg/inactive_home.svg',
     'assets/svg/inactive_offer.svg',
@@ -94,7 +91,7 @@ class _NavBarState extends ConsumerState<NavBar> {
     if (isMerchant) {
       if (index == 0) return Icons.home_filled;
       if (index == 1) return Icons.local_offer_outlined;
-      if (index == 2) return Icons.inventory_2_outlined; // Products fallback
+      if (index == 2) return Icons.inventory_2_outlined;
       return Icons.history;
     } else {
       if (index == 0) return Icons.home_filled;

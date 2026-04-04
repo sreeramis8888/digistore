@@ -15,7 +15,7 @@ class ToastService {
     Duration duration = const Duration(seconds: 3),
     bool autoDismiss = true,
   }) {
-    final overlayState = NavigationService.navigatorKey.currentState?.overlay;
+    final overlayState = Overlay.maybeOf(context) ?? NavigationService.navigatorKey.currentState?.overlay;
 
     if (overlayState == null) {
       debugPrint("❌ Overlay is null");

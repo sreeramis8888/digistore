@@ -7,6 +7,8 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/social_login_button.dart';
 import '../../../data/services/secure_storage_service.dart';
+import '../../../data/providers/auth_provider.dart';
+import '../../../data/services/toast_service.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -89,7 +91,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       onChanged: (phone) {
-                        phoneNumber = phone.completeNumber;
+                        phoneNumber = phone.number;
                       },
                     ),
                   ),
@@ -98,13 +100,51 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               SizedBox(height: screenSize.responsivePadding(16)),
               PrimaryButton(
                 text: 'Login',
+                isLoading: ref.watch(authProvider).isLoading,
                 onPressed: () async {
                   if (phoneNumber.isNotEmpty) {
-                    final storage = ref.read(secureStorageServiceProvider);
-                    await storage.saveRegistrationData({'phone': phoneNumber});
-                  }
-                  if (context.mounted) {
-                    Navigator.of(context).pushNamed('otp');
+                    try {
+                      final storage = ref.read(secureStorageServiceProvider);
+                      await storage.saveRegistrationData({
+                        'phone': phoneNumber,
+                      });
+
+                      final success = await ref
+                          .read(authProvider.notifier)
+                          .sendOtp(phoneNumber);
+
+                      if (success && context.mounted) {
+                        Navigator.of(context).pushNamed('otp');
+                      } else if (!success && context.mounted) {
+                        final error =
+                            ref.read(authProvider).error?.toString() ??
+                            'Failed to send OTP';
+
+                        ToastService().showToast(
+                          context,
+                          error.replaceAll('Exception: ', ''),
+                          type: ToastType.error,
+                        );
+                      }
+                    } catch (e, stack) {
+                      // Optional: log stack trace for debugging
+                      debugPrint('Send OTP Error: $e');
+                      debugPrintStack(stackTrace: stack);
+
+                      if (context.mounted) {
+                        ToastService().showToast(
+                          context,
+                          e.toString().replaceAll('Exception: ', ''),
+                          type: ToastType.error,
+                        );
+                      }
+                    }
+                  } else {
+                    ToastService().showToast(
+                      context,
+                      'Please enter a valid phone number',
+                      type: ToastType.warning,
+                    );
                   }
                 },
               ),

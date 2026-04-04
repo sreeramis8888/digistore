@@ -6,6 +6,8 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/utils/global_variables.dart';
+import '../../../data/services/secure_storage_service.dart';
+import '../../../data/providers/user_provider.dart';
 import 'login_page.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -35,7 +37,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _entranceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
+      duration: const Duration(milliseconds: 1000),
     );
 
     _shimmerController = AnimationController(
@@ -45,7 +47,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _sloganController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 600),
     );
 
     _scaleAnimation = TweenSequence([
@@ -102,15 +104,58 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   Future<void> _playAnimations() async {
     await _entranceController.forward();
-    await Future.delayed(const Duration(milliseconds: 200));
+    await Future.delayed(const Duration(milliseconds: 100));
     await _sloganController.forward();
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 500));
     _navigateToOnboarding();
   }
 
-  void _navigateToOnboarding() {
-    GlobalVariables.setMerchantMode(true); // Added for testing merchant pov
-    if (mounted) {
+  Future<void> _navigateToOnboarding() async {
+    GlobalVariables.setMerchantMode(false); 
+    
+    final storage = ref.read(secureStorageServiceProvider);
+    final hasToken = await storage.hasBearerToken();
+    
+    if (!mounted) return;
+
+    if (hasToken) {
+      while (true) {
+        final statusCode = await ref.read(userProvider.notifier).getProfile();
+        
+        if (!mounted) return;
+        
+        if (statusCode == 200) {
+          final user = ref.read(userProvider);
+          final isComplete = user?.onboardingComplete ?? false;
+          await storage.saveOnboardingComplete(isComplete);
+          
+          if (isComplete) {
+            Navigator.of(context).pushReplacementNamed('navbar');
+          } else {
+            Navigator.of(context).pushReplacementNamed('profileSetup');
+          }
+          break;
+        } else if (statusCode == null) {
+          // Network problem or parsing error -> Stay and Retry
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Network error. Retrying in 3 seconds...'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+          await Future.delayed(const Duration(seconds: 3));
+        } else {
+          // Actual status code error (401, 403, 500, etc.) -> Login
+          await storage.clearAll();
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+          break;
+        }
+      }
+    } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );

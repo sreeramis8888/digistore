@@ -94,28 +94,31 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: kSmallTitleM.copyWith(
-                fontWeight: FontWeight.w600,
-                color: kBlack,
-              ),
-            ),
-            if (showAdd && isEditMode)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Text(
-                '+Add',
-                style: kSmallTitleL.copyWith(
-                  color: kPrimaryColor,
+                title,
+                style: kSmallTitleM.copyWith(
                   fontWeight: FontWeight.w600,
+                  color: kBlack,
                 ),
               ),
-          ],
+              if (showAdd && isEditMode)
+                Text(
+                  '+Add',
+                  style: kSmallTitleL.copyWith(
+                    color: kPrimaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
         ),
         const SizedBox(height: 12),
-        const Divider(height: 1, color: Color(0xFFE5E7EB)),
+        const Divider(height: 1, color: Color(0xFFF3F4F6)),
         const SizedBox(height: 16),
       ],
     );
@@ -384,14 +387,20 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
             ),
             onPressed: () {},
           ),
-          IconButton(
-            icon: SvgPicture.asset('assets/svg/edit.svg'),
-            onPressed: () {
-              setState(() {
-                isEditMode = true;
-              });
-            },
-          ),
+          if (!isEditMode)
+            IconButton(
+              icon: SvgPicture.asset('assets/svg/edit.svg'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            const MerchantAccountPage(isEditMode: true),
+                  ),
+                );
+              },
+            ),
         ],
       ),
       body: GestureDetector(
@@ -826,98 +835,124 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
                                   ),
                                 ),
                               ],
-                            ],
-                          ),
-                        ),
 
-                        _buildSectionHeader('Branches', showAdd: true),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _buildRemovableChip('Kochi'),
-                            _buildRemovableChip('Kottayam'),
-                            _buildRemovableChip('Karunagapally'),
-                          ],
-                        ),
+                              _buildSectionHeader('Branches', showAdd: true),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      _buildRemovableChip('Kochi'),
+                                      _buildRemovableChip('Kottayam'),
+                                      _buildRemovableChip('Karunagapally'),
+                                    ],
+                                  ),
+                                ),
+                              ),
 
-                        _buildSectionHeader('Social Media', showAdd: true),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _buildRemovableChip(
-                              '@freshmart_supermarket',
-                              prefixIcon: const Icon(
-                                Icons.camera_alt_outlined,
-                                color: Colors.pink,
-                                size: 16,
+                              _buildSectionHeader(
+                                'Social Media',
+                                showAdd: true,
                               ),
-                            ),
-                            _buildRemovableChip(
-                              'Freshmart Supermarket',
-                              prefixIcon: const Icon(
-                                Icons.facebook,
-                                color: Colors.blue,
-                                size: 16,
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      _buildRemovableChip(
+                                        '@freshmart_supermarket',
+                                        prefixIcon: const Icon(
+                                          Icons.camera_alt_outlined,
+                                          color: Colors.pink,
+                                          size: 16,
+                                        ),
+                                      ),
+                                      _buildRemovableChip(
+                                        'Freshmart Supermarket',
+                                        prefixIcon: const Icon(
+                                          Icons.facebook,
+                                          color: Colors.blue,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
 
-                        _buildSectionHeader('Shop Images', showAdd: true),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildShopImage(0, false),
-                            _buildShopImage(1, false),
-                            _buildShopImage(2, false),
-                            _buildShopImage(3, true),
-                          ],
-                        ),
+                              _buildSectionHeader('Shop Images', showAdd: true),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildShopImage(0, false),
+                                    _buildShopImage(1, false),
+                                    _buildShopImage(2, false),
+                                    _buildShopImage(3, true),
+                                  ],
+                                ),
+                              ),
 
-                        _buildSectionHeader('Working Hours'),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isEditMode
-                                ? const Color(0xFFFFF7F7)
-                                : Colors
-                                      .transparent, // faint background not quite visible in image, let's keep transparent as there is none.
-                          ),
-                          child: Column(
-                            children: [
-                              _buildWorkingHourRow(
-                                'Monday',
-                                '09:00 AM',
-                                '09:00 PM',
+                              _buildSectionHeader('Working Hours'),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isEditMode
+                                      ? const Color(0xFFFFF7F7)
+                                      : Colors
+                                            .transparent, // faint background not quite visible in image, let's keep transparent as there is none.
+                                ),
+                                child: Column(
+                                  children: [
+                                    _buildWorkingHourRow(
+                                      'Monday',
+                                      '09:00 AM',
+                                      '09:00 PM',
+                                    ),
+                                    _buildWorkingHourRow(
+                                      'Tuesday',
+                                      '09:00 AM',
+                                      '09:00 PM',
+                                    ),
+                                    _buildWorkingHourRow(
+                                      'Wednesday',
+                                      '09:00 AM',
+                                      '09:00 PM',
+                                    ),
+                                    _buildWorkingHourRow(
+                                      'Thursday',
+                                      '09:00 AM',
+                                      '09:00 PM',
+                                    ),
+                                    _buildWorkingHourRow(
+                                      'Friday',
+                                      '09:00 AM',
+                                      '09:00 PM',
+                                    ),
+                                    _buildWorkingHourRow(
+                                      'Saturday',
+                                      '10:00 AM',
+                                      '08:00 PM',
+                                    ),
+                                    _buildWorkingHourRow('Sunday', '-', '-'),
+                                  ],
+                                ),
                               ),
-                              _buildWorkingHourRow(
-                                'Tuesday',
-                                '09:00 AM',
-                                '09:00 PM',
-                              ),
-                              _buildWorkingHourRow(
-                                'Wednesday',
-                                '09:00 AM',
-                                '09:00 PM',
-                              ),
-                              _buildWorkingHourRow(
-                                'Thursday',
-                                '09:00 AM',
-                                '09:00 PM',
-                              ),
-                              _buildWorkingHourRow(
-                                'Friday',
-                                '09:00 AM',
-                                '09:00 PM',
-                              ),
-                              _buildWorkingHourRow(
-                                'Saturday',
-                                '10:00 AM',
-                                '08:00 PM',
-                              ),
-                              _buildWorkingHourRow('Sunday', '-', '-'),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -935,9 +970,7 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
                     child: PrimaryButton(
                       text: 'Save',
                       onPressed: () {
-                        setState(() {
-                          isEditMode = false;
-                        });
+                        Navigator.pop(context);
                       },
                     ),
                   ),

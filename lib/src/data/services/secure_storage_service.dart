@@ -11,6 +11,8 @@ class SecureStorageService {
   static const String _userDataKey = 'user_data';
   static const String _fcmTokenKey = 'fcm_token';
   static const String _preferredLanguageKey = 'preferred_language';
+  static const String _onboardingCompleteKey = 'onboarding_complete';
+  static const String _tutorialCompletedKey = 'tutorial_completed';
 
   final FlutterSecureStorage _storage;
 
@@ -23,6 +25,24 @@ class SecureStorageService {
 
   Future<String?> getBearerToken() async {
     return await _storage.read(key: _bearerTokenKey);
+  }
+
+  Future<void> saveOnboardingComplete(bool value) async {
+    await _storage.write(key: _onboardingCompleteKey, value: value.toString());
+  }
+
+  Future<bool> getOnboardingComplete() async {
+    final value = await _storage.read(key: _onboardingCompleteKey);
+    return value == 'true';
+  }
+
+  Future<void> saveTutorialCompleted(bool value) async {
+    await _storage.write(key: _tutorialCompletedKey, value: value.toString());
+  }
+
+  Future<bool> getTutorialCompleted() async {
+    final value = await _storage.read(key: _tutorialCompletedKey);
+    return value == 'true';
   }
 
   /// Save user ID for reference
@@ -63,18 +83,6 @@ class SecureStorageService {
     await _storage.deleteAll();
   }
 
-  /// Update blocked users list in the stored user data
-  Future<void> updateBlockedUsers(List<String> blockedUsers) async {
-    try {
-      final user = await getUserData();
-      if (user != null) {
-        final updatedUser = user.copyWith(blockedUsers: blockedUsers);
-        await saveUserData(updatedUser);
-      }
-    } catch (e) {
-      print('Error updating blocked users: $e');
-    }
-  }
 
   /// Check if bearer token exists
   Future<bool> hasBearerToken() async {

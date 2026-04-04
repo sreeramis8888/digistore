@@ -88,7 +88,7 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           obscureText: _isObscured,
           validator: widget.validator,
           readOnly: widget.type == TextFieldType.date || widget.readOnly,
-          onTap: widget.type == TextFieldType.date ? widget.onTap : null,
+          onTap: widget.onTap,
           maxLines: widget.maxLines,
           style: kSmallTitleL,
           decoration: InputDecoration(

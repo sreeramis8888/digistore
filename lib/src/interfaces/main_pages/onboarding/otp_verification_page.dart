@@ -5,7 +5,9 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
-import '../../../data/utils/global_variables.dart';
+import '../../../data/providers/auth_provider.dart';
+import '../../../data/services/toast_service.dart';
+import '../../../data/services/secure_storage_service.dart';
 
 class OtpVerificationPage extends ConsumerStatefulWidget {
   const OtpVerificationPage({super.key});
@@ -17,6 +19,7 @@ class OtpVerificationPage extends ConsumerStatefulWidget {
 
 class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
   final PinInputController _otpController = PinInputController();
+  String otp = '';
 
   @override
   Widget build(BuildContext context) {
@@ -68,19 +71,50 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                   focusedFillColor: Color(0xFFF7F4F4),
                   cursorColor: kPrimaryColor,
                 ),
-                onChanged: (value) {},
+                onChanged: (value) {
+                  otp = value;
+                },
               ),
 
               SizedBox(height: screenSize.responsivePadding(24)),
               PrimaryButton(
                 text: 'Verify',
-                onPressed: () {
-                  if (GlobalVariables.isMerchant) {
-                    Navigator.of(
-                      context,
-                    ).pushNamedAndRemoveUntil('navbar', (route) => false);
+                isLoading: ref.watch(authProvider).isLoading,
+                onPressed: () async {
+                  if (otp.length == 6) {
+                    final storage = ref.read(secureStorageServiceProvider);
+                    final data = await storage.getRegistrationData();
+                    final phone = data?['phone'] ?? '';
+                    
+                    if (phone.isNotEmpty) {
+                      final result = await ref.read(authProvider.notifier).verifyOtp(phone, otp);
+                      if (result['success'] == true && context.mounted) {
+                        await storage.clearRegistrationData();
+                        if (result['onboardingComplete'] == false) {
+                          Navigator.of(context).pushNamed('profileSetup');
+                        } else {
+                          Navigator.of(context).pushNamedAndRemoveUntil('navbar', (route) => false);
+                        }
+                      } else if (result['success'] == false && context.mounted) {
+                        ToastService().showToast(
+                          context, 
+                          (result['message'] as String).replaceAll('Exception: ', ''), 
+                          type: ToastType.error,
+                        );
+                      }
+                    } else {
+                      ToastService().showToast(
+                        context, 
+                        'Phone number not found. Please login again.', 
+                        type: ToastType.error,
+                      );
+                    }
                   } else {
-                    Navigator.of(context).pushNamed('profileSetup');
+                    ToastService().showToast(
+                      context, 
+                      'Please enter a valid 6-digit OTP', 
+                      type: ToastType.warning,
+                    );
                   }
                 },
               ),
