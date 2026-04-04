@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
-import '../../../../src/data/providers/screen_size_provider.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
+import '../../../data/providers/screen_size_provider.dart';
 import '../../components/shops/product_card.dart';
 import '../../components/primary_button.dart';
-import 'create_product_page.dart';
+import 'partner_product_page.dart';
 
-class MerchantProductsPage extends ConsumerWidget {
-  const MerchantProductsPage({super.key});
+class PartnerProductsPage extends ConsumerWidget {
+  const PartnerProductsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

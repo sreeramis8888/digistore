@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../advanced_network_image.dart';
-import '../../main_pages/merchant/product_details_page.dart';
+import '../../main_pages/partner/product_details_page.dart';
 
 class ProductCard extends ConsumerWidget {
   final int index;
@@ -46,9 +46,7 @@ class ProductCard extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductDetailsPage(
-              product: product,
-            ),
+            builder: (context) => ProductDetailsPage(product: product),
           ),
         );
       },

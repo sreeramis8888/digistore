@@ -2,26 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
-import '../../../../src/data/providers/screen_size_provider.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
+import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
-import '../../../../src/data/services/image_services.dart';
+import '../../../data/services/image_services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class MerchantAccountPage extends ConsumerStatefulWidget {
+class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
-  const MerchantAccountPage({super.key, this.isEditMode = false});
+  const PartnerAccountPage({super.key, this.isEditMode = false});
 
   @override
-  ConsumerState<MerchantAccountPage> createState() =>
-      _MerchantAccountPageState();
+  ConsumerState<PartnerAccountPage> createState() => _PartnerAccountPageState();
 }
 
-class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
+class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   late bool isEditMode;
   File? _profileImage;
 
@@ -394,9 +393,8 @@ class _MerchantAccountPageState extends ConsumerState<MerchantAccountPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            const MerchantAccountPage(isEditMode: true),
+                    builder: (context) =>
+                        const PartnerAccountPage(isEditMode: true),
                   ),
                 );
               },

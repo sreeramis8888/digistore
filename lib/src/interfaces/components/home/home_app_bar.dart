@@ -6,7 +6,7 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../main_pages/home_pages/profile_page.dart';
-import '../../main_pages/merchant/merchant_profile_page.dart';
+import '../../main_pages/partner/partner_profile_page.dart';
 import '../../../data/utils/global_variables.dart';
 
 class HomeAppBar extends ConsumerWidget {
@@ -16,13 +16,18 @@ class HomeAppBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final user = ref.watch(userProvider);
-    final name = (user?.name != null && user!.name!.isNotEmpty) ? user.name! : 'Guest User';
+    final name = (user?.name != null && user!.name!.isNotEmpty)
+        ? user.name!
+        : 'Guest User';
     final initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
-    final locationName = (user?.location?.localBody != null && user!.location!.localBody!.isNotEmpty)
+    final locationName =
+        (user?.location?.localBody != null &&
+            user!.location!.localBody!.isNotEmpty)
         ? '${user.location!.localBody}${user.location?.district != null ? ", ${user.location!.district}" : ""}'
-        : (user?.location?.district != null && user!.location!.district!.isNotEmpty)
-            ? user.location!.district!
-            : 'Unspecified Location';
+        : (user?.location?.district != null &&
+              user!.location!.district!.isNotEmpty)
+        ? user.location!.district!
+        : 'Unspecified Location';
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -36,8 +41,8 @@ class HomeAppBar extends ConsumerWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GlobalVariables.isMerchant
-                        ? const MerchantProfilePage()
+                    builder: (context) => GlobalVariables.isPartner
+                        ? const PartnerProfilePage()
                         : const ProfilePage(),
                   ),
                 );
@@ -52,7 +57,10 @@ class HomeAppBar extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     alignment: Alignment.center,
-                    child: Text(initial, style: kLargeTitleM.copyWith(color: kWhite)),
+                    child: Text(
+                      initial,
+                      style: kLargeTitleM.copyWith(color: kWhite),
+                    ),
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
                   Expanded(
@@ -71,7 +79,9 @@ class HomeAppBar extends ConsumerWidget {
                             SizedBox(width: screenSize.responsivePadding(4)),
                             Text(
                               locationName,
-                              style: kBodyTitleL.copyWith(color: kSecondaryTextColor),
+                              style: kBodyTitleL.copyWith(
+                                color: kSecondaryTextColor,
+                              ),
                             ),
                           ],
                         ),

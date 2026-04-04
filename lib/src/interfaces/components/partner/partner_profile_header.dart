@@ -4,10 +4,10 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
-class MerchantProfileHeader extends StatelessWidget {
+class PartnerProfileHeader extends StatelessWidget {
   final ScreenSizeData screenSize;
 
-  const MerchantProfileHeader({super.key, required this.screenSize});
+  const PartnerProfileHeader({super.key, required this.screenSize});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +104,7 @@ class MerchantProfileHeader extends StatelessWidget {
             onTap: () {
               Navigator.pushNamed(
                 context,
-                'merchantAccount',
+                'partnerAccount',
                 arguments: {'isEditMode': true},
               );
             },

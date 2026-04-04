@@ -6,10 +6,10 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
 
-class MerchantRedemptionSuccessPage extends ConsumerWidget {
+class PartnerRedemptionSuccessPage extends ConsumerWidget {
   final Map<String, dynamic> args;
 
-  const MerchantRedemptionSuccessPage({super.key, required this.args});
+  const PartnerRedemptionSuccessPage({super.key, required this.args});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

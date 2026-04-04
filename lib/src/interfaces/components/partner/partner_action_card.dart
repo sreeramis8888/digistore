@@ -3,12 +3,12 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
-class MerchantActionCard extends StatelessWidget {
+class PartnerActionCard extends StatelessWidget {
   final ScreenSizeData screenSize;
   final String title;
   final IconData iconData;
 
-  const MerchantActionCard({
+  const PartnerActionCard({
     super.key,
     required this.screenSize,
     required this.title,

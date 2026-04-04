@@ -5,10 +5,10 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
 
-class MerchantRedemptionPage extends ConsumerWidget {
+class PartnerRedemptionPage extends ConsumerWidget {
   final Map<String, dynamic> args;
 
-  const MerchantRedemptionPage({super.key, required this.args});
+  const PartnerRedemptionPage({super.key, required this.args});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,7 +111,7 @@ class MerchantRedemptionPage extends ConsumerWidget {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacementNamed(
-                    'merchantRedemptionVerified',
+                    'partnerRedemptionVerified',
                     arguments: args,
                   );
                 },

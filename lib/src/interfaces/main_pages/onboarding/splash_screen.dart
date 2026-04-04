@@ -113,10 +113,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   Future<void> _navigateToOnboarding() async {
     final storage = ref.read(secureStorageServiceProvider);
-    final isMerchant = await storage.getIsMerchant();
+    final isPartner = await storage.getIsPartner();
     
     // Set the user type which also updates GlobalVariables and persists it
-    ref.read(userTypeProvider.notifier).setUserType(isMerchant ? UserType.partner : UserType.customer);
+    ref.read(userTypeProvider.notifier).setUserType(isPartner ? UserType.partner : UserType.customer);
 
     final hasToken = await storage.hasBearerToken();
     

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
 import '../../components/advanced_network_image.dart';

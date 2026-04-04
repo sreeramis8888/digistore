@@ -77,7 +77,7 @@ class GlobalVariables {
   }
 
   static bool _isGuest = false;
-  static bool _isMerchant = false;
+  static bool _isPartner = false;
 
   static void setGuestMode(bool value) {
     _isGuest = value;
@@ -94,9 +94,9 @@ class GlobalVariables {
     _isGuest = false;
   }
 
-  static void setMerchantMode(bool value) {
-    _isMerchant = value;
+  static void setPartnerMode(bool value) {
+    _isPartner = value;
   }
 
-  static bool get isMerchant => _isMerchant;
+  static bool get isPartner => _isPartner;
 }

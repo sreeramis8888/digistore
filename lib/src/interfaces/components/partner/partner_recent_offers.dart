@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../components/offers/deal_card.dart';
+import '../offers/deal_card.dart';
 
-class MerchantRecentOffers extends StatelessWidget {
+class PartnerRecentOffers extends StatelessWidget {
   final ScreenSizeData screenSize;
 
-  const MerchantRecentOffers({super.key, required this.screenSize});
+  const PartnerRecentOffers({super.key, required this.screenSize});
 
   @override
   Widget build(BuildContext context) {

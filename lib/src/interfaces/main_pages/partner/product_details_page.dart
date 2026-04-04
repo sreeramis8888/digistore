@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
 import '../../components/advanced_network_image.dart';
-import 'create_product_page.dart';
+import 'partner_product_page.dart';
 
 class ProductDetailsPage extends StatelessWidget {
   final Map<String, String> product;

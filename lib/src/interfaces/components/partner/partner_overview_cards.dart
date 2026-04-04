@@ -4,10 +4,10 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
-class MerchantOverviewCards extends StatelessWidget {
+class PartnerOverviewCards extends StatelessWidget {
   final ScreenSizeData screenSize;
 
-  const MerchantOverviewCards({super.key, required this.screenSize});
+  const PartnerOverviewCards({super.key, required this.screenSize});
 
   @override
   Widget build(BuildContext context) {

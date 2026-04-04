@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../components/shops/product_card.dart';
+import '../shops/product_card.dart';
 
-class MerchantUploadedProducts extends StatelessWidget {
+class PartnerUploadedProducts extends StatelessWidget {
   final ScreenSizeData screenSize;
 
-  const MerchantUploadedProducts({super.key, required this.screenSize});
+  const PartnerUploadedProducts({super.key, required this.screenSize});
 
   @override
   Widget build(BuildContext context) {

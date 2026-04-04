@@ -26,7 +26,11 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: kTextColor),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+            color: kTextColor,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -37,10 +41,13 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: screenSize.responsivePadding(80)),
-              Text('OTP Verification', style: kSubHeadingM.copyWith(fontSize: 22)),
+              Text(
+                'OTP Verification',
+                style: kSubHeadingM.copyWith(fontSize: 22),
+              ),
               SizedBox(height: screenSize.responsivePadding(8)),
               Text(
-                'Enter the 6-digit code given by the merchant\nto complete redemption.',
+                'Enter the 6-digit code given by the partner\nto complete redemption.',
                 style: kBodyTitleL.copyWith(color: const Color(0XFF797979)),
                 textAlign: TextAlign.center,
               ),
@@ -70,7 +77,9 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
               PrimaryButton(
                 text: 'Verify',
                 onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('redemptionVerified');
+                  Navigator.of(
+                    context,
+                  ).pushReplacementNamed('redemptionVerified');
                 },
               ),
               SizedBox(height: screenSize.responsivePadding(24)),

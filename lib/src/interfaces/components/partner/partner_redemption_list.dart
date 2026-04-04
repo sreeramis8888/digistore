@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
-class MerchantRedemptionList extends StatelessWidget {
+class PartnerRedemptionList extends StatelessWidget {
   final ScreenSizeData screenSize;
   final int count;
 
-  const MerchantRedemptionList({
+  const PartnerRedemptionList({
     super.key,
     required this.screenSize,
     required this.count,

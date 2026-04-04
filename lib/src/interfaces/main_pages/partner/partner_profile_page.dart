@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
-import '../../../../src/data/providers/screen_size_provider.dart';
-import '../../components/merchant/merchant_menu_item.dart';
-import '../../components/merchant/merchant_action_card.dart';
-import '../../components/merchant/merchant_profile_header.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
+import '../../../data/providers/screen_size_provider.dart';
+import '../../components/partner/partner_menu_item.dart';
+import '../../components/partner/partner_action_card.dart';
+import '../../components/partner/partner_profile_header.dart';
 
-class MerchantProfilePage extends ConsumerWidget {
-  const MerchantProfilePage({super.key});
+class PartnerProfilePage extends ConsumerWidget {
+  const PartnerProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,23 +39,23 @@ class MerchantProfilePage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: screenSize.responsivePadding(16)),
-              MerchantProfileHeader(screenSize: screenSize),
+              PartnerProfileHeader(screenSize: screenSize),
               SizedBox(height: screenSize.responsivePadding(16)),
               Row(
                 children: [
-                  MerchantActionCard(
+                  PartnerActionCard(
                     screenSize: screenSize,
                     title: 'Offers',
                     iconData: Icons.discount_outlined,
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
-                  MerchantActionCard(
+                  PartnerActionCard(
                     screenSize: screenSize,
                     title: 'Products',
                     iconData: Icons.inventory_2_outlined,
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
-                  MerchantActionCard(
+                  PartnerActionCard(
                     screenSize: screenSize,
                     title: 'History',
                     iconData: Icons.history_rounded,
@@ -71,7 +71,7 @@ class MerchantProfilePage extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    MerchantMenuItem(
+                    PartnerMenuItem(
                       title: 'Account',
                       icon: const Icon(
                         Icons.person_outline_rounded,
@@ -82,7 +82,7 @@ class MerchantProfilePage extends ConsumerWidget {
                       onTap: () {
                         Navigator.pushNamed(
                           context,
-                          'merchantAccount',
+                          'partnerAccount',
                           arguments: {'isEditMode': false},
                         );
                       },
@@ -94,7 +94,7 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    MerchantMenuItem(
+                    PartnerMenuItem(
                       title: 'Help & Support',
                       icon: const Icon(
                         Icons.headphones_outlined,
@@ -110,7 +110,7 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    MerchantMenuItem(
+                    PartnerMenuItem(
                       title: 'Terms & Privacy Policy',
                       icon: const Icon(
                         Icons.description_outlined,
@@ -126,7 +126,7 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    MerchantMenuItem(
+                    PartnerMenuItem(
                       title: 'About app',
                       icon: const Icon(
                         Icons.info_outline_rounded,
@@ -142,7 +142,7 @@ class MerchantProfilePage extends ConsumerWidget {
                       indent: 16,
                       endIndent: 16,
                     ),
-                    MerchantMenuItem(
+                    PartnerMenuItem(
                       title: 'FAQ',
                       icon: const Icon(
                         Icons.info_outline,
@@ -161,7 +161,7 @@ class MerchantProfilePage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: MerchantMenuItem(
+                child: PartnerMenuItem(
                   title: 'Logout',
                   icon: const Icon(
                     Icons.headphones_outlined,

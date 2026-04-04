@@ -10,9 +10,9 @@ import 'main_pages/shops.dart';
 import 'main_pages/rewards.dart';
 import 'main_pages/history.dart';
 import '../data/utils/global_variables.dart';
-import 'main_pages/merchant/merchant_home.dart';
-import 'main_pages/merchant/merchant_products.dart';
-import 'main_pages/merchant/merchant_history.dart';
+import 'main_pages/partner/partner_home.dart';
+import 'main_pages/partner/partner_products.dart';
+import 'main_pages/partner/partner_history.dart';
 
 class NavBar extends ConsumerStatefulWidget {
   const NavBar({super.key});
@@ -39,12 +39,12 @@ class _NavBarState extends ConsumerState<NavBar> {
   ];
 
   List<Widget> get _widgetOptions {
-    if (GlobalVariables.isMerchant) {
+    if (GlobalVariables.isPartner) {
       return const <Widget>[
-        MerchantHomePage(),
+        PartnerHomePage(),
         OffersPage(),
-        MerchantProductsPage(),
-        MerchantHistoryPage(),
+        PartnerProductsPage(),
+        PartnerHistoryPage(),
       ];
     }
     return const <Widget>[
@@ -57,14 +57,14 @@ class _NavBarState extends ConsumerState<NavBar> {
   }
 
   List<String> get _currentLabels {
-    if (GlobalVariables.isMerchant) {
+    if (GlobalVariables.isPartner) {
       return ['Home', 'Offers', 'Products', 'History'];
     }
     return ['Home', 'Offers', 'Shops', 'Rewards', 'History'];
   }
 
   List<String> get _currentInactiveIcons {
-    if (GlobalVariables.isMerchant) {
+    if (GlobalVariables.isPartner) {
       return [
         'assets/svg/inactive_home.svg',
         'assets/svg/inactive_offer.svg',
@@ -76,7 +76,7 @@ class _NavBarState extends ConsumerState<NavBar> {
   }
 
   List<String> get _currentActiveIcons {
-    if (GlobalVariables.isMerchant) {
+    if (GlobalVariables.isPartner) {
       return [
         'assets/svg/active_home.svg',
         'assets/svg/active_offer.svg',
@@ -87,8 +87,8 @@ class _NavBarState extends ConsumerState<NavBar> {
     return _activeIcons;
   }
 
-  IconData _getIconData(int index, bool isMerchant) {
-    if (isMerchant) {
+  IconData _getIconData(int index, bool isPartner) {
+    if (isPartner) {
       if (index == 0) return Icons.home_filled;
       if (index == 1) return Icons.local_offer_outlined;
       if (index == 2) return Icons.inventory_2_outlined;
@@ -197,7 +197,7 @@ class _NavBarState extends ConsumerState<NavBar> {
                                           : _currentInactiveIcons[index];
                                       final iconData = _getIconData(
                                         index,
-                                        GlobalVariables.isMerchant,
+                                        GlobalVariables.isPartner,
                                       );
                                       if (iconPath.isEmpty) {
                                         return Icon(

@@ -151,11 +151,14 @@ class OfferDetailPage extends ConsumerWidget {
                     const SizedBox(height: 16),
                   ],
 
-                  if (args['terms'] != null && (args['terms'] as List).isNotEmpty)
-                    ...(args['terms'] as List).map((term) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: _buildBulletPoint(term.toString()),
-                    ))
+                  if (args['terms'] != null &&
+                      (args['terms'] as List).isNotEmpty)
+                    ...(args['terms'] as List).map(
+                      (term) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: _buildBulletPoint(term.toString()),
+                      ),
+                    )
                   else ...[
                     _buildBulletPoint(
                       'Get an exclusive reward to upgrade your experience!',
@@ -176,10 +179,14 @@ class OfferDetailPage extends ConsumerWidget {
                   const SizedBox(height: 32),
                   PrimaryButton(
                     textSize: 14,
-                    text: GlobalVariables.isMerchant ? 'Generate OTP' : 'Redeem Now',
+                    text: GlobalVariables.isPartner
+                        ? 'Generate OTP'
+                        : 'Redeem Now',
                     onPressed: () {
-                      if (GlobalVariables.isMerchant) {
-                        Navigator.of(context).pushNamed('merchantRedemption', arguments: args);
+                      if (GlobalVariables.isPartner) {
+                        Navigator.of(
+                          context,
+                        ).pushNamed('partnerRedemption', arguments: args);
                       } else {
                         Navigator.of(context).pushNamed('redemptionOtp');
                       }

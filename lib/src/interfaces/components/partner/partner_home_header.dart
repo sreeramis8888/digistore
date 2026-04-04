@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../main_pages/merchant/merchant_profile_page.dart';
+import '../../main_pages/partner/partner_profile_page.dart';
 
-class MerchantHomeHeader extends StatelessWidget {
+class PartnerHomeHeader extends StatelessWidget {
   final ScreenSizeData screenSize;
 
-  const MerchantHomeHeader({super.key, required this.screenSize});
+  const PartnerHomeHeader({super.key, required this.screenSize});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class MerchantHomeHeader extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const MerchantProfilePage(),
+                builder: (context) => const PartnerProfilePage(),
               ),
             );
           },

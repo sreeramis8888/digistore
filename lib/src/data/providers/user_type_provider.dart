@@ -7,14 +7,14 @@ enum UserType { customer, partner }
 class UserTypeNotifier extends Notifier<UserType> {
   @override
   UserType build() {
-    return GlobalVariables.isMerchant ? UserType.partner : UserType.customer;
+    return GlobalVariables.isPartner ? UserType.partner : UserType.customer;
   }
 
   void setUserType(UserType type) {
     state = type;
-    final isMerchant = type == UserType.partner;
-    GlobalVariables.setMerchantMode(isMerchant);
-    ref.read(secureStorageServiceProvider).saveIsMerchant(isMerchant);
+    final isPartner = type == UserType.partner;
+    GlobalVariables.setPartnerMode(isPartner);
+    ref.read(secureStorageServiceProvider).saveIsPartner(isPartner);
   }
 
   void toggle() {

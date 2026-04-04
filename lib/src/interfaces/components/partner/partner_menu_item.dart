@@ -3,13 +3,13 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
-class MerchantMenuItem extends StatelessWidget {
+class PartnerMenuItem extends StatelessWidget {
   final String title;
   final Widget icon;
   final ScreenSizeData screenSize;
   final VoidCallback? onTap;
 
-  const MerchantMenuItem({
+  const PartnerMenuItem({
     super.key,
     required this.title,
     required this.icon,

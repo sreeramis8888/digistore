@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
-import '../../../../src/data/providers/screen_size_provider.dart';
-import '../../components/merchant/merchant_overview_cards.dart';
-import '../../components/merchant/merchant_redemption_list.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
+import '../../../data/providers/screen_size_provider.dart';
+import '../../components/partner/partner_overview_cards.dart';
+import '../../components/partner/partner_redemption_list.dart';
 
-class MerchantHistoryPage extends ConsumerWidget {
-  const MerchantHistoryPage({super.key});
+class PartnerHistoryPage extends ConsumerWidget {
+  const PartnerHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +38,7 @@ class MerchantHistoryPage extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(height: screenSize.responsivePadding(16)),
-                MerchantOverviewCards(screenSize: screenSize),
+                PartnerOverviewCards(screenSize: screenSize),
                 SizedBox(height: screenSize.responsivePadding(24)),
                 Text(
                   'Today',
@@ -48,7 +48,7 @@ class MerchantHistoryPage extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(height: screenSize.responsivePadding(12)),
-                MerchantRedemptionList(screenSize: screenSize, count: 3),
+                PartnerRedemptionList(screenSize: screenSize, count: 3),
                 SizedBox(height: screenSize.responsivePadding(24)),
                 Text(
                   'Yesterday',
@@ -58,7 +58,7 @@ class MerchantHistoryPage extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(height: screenSize.responsivePadding(12)),
-                MerchantRedemptionList(screenSize: screenSize, count: 3),
+                PartnerRedemptionList(screenSize: screenSize, count: 3),
                 SizedBox(height: screenSize.responsivePadding(40)),
               ],
             ),

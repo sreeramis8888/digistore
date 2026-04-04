@@ -28,7 +28,8 @@ class OffersPage extends ConsumerWidget {
 
     String? categoryId;
     categoriesAsync.whenData((categories) {
-      if (selectedCategoryIndex > 0 && selectedCategoryIndex <= categories.length) {
+      if (selectedCategoryIndex > 0 &&
+          selectedCategoryIndex <= categories.length) {
         categoryId = categories[selectedCategoryIndex - 1].id;
       }
     });
@@ -49,7 +50,7 @@ class OffersPage extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            if (GlobalVariables.isMerchant) ...[
+            if (GlobalVariables.isPartner) ...[
               SizedBox(height: screenSize.responsivePadding(16)),
               const HomeSearchBar(hintText: "Search for 'offers'"),
             ] else
@@ -62,11 +63,14 @@ class OffersPage extends ConsumerWidget {
                     return const EmptyState(
                       imagePath: 'assets/png/empty_offers.png',
                       title: 'No offers found',
-                      subtitle: 'Check back later for exciting new deals and discounts in this category.',
+                      subtitle:
+                          'Check back later for exciting new deals and discounts in this category.',
                     );
                   }
                   return GridView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                    ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: screenSize.responsivePadding(16),
@@ -84,7 +88,8 @@ class OffersPage extends ConsumerWidget {
                 error: (e, s) => const EmptyState(
                   imagePath: 'assets/png/empty_offers.png',
                   title: 'No offers found',
-                  subtitle: 'Check back later for exciting new deals and discounts in this category.',
+                  subtitle:
+                      'Check back later for exciting new deals and discounts in this category.',
                 ),
               ),
             ),

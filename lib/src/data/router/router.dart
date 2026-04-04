@@ -12,9 +12,9 @@ import '../../interfaces/main_pages/offer_pages/redemption_otp_page.dart';
 import '../../interfaces/main_pages/offer_pages/redemption_verified_page.dart';
 import '../../interfaces/main_pages/home_pages/my_account_page.dart';
 import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
-import '../../interfaces/main_pages/merchant/merchant_redemption_page.dart';
-import '../../interfaces/main_pages/merchant/merchant_redemption_success_page.dart';
-import '../../interfaces/main_pages/merchant/merchant_account_page.dart';
+import '../../interfaces/main_pages/partner/partner_redemption_page.dart';
+import '../../interfaces/main_pages/partner/partner_redemption_success_page.dart';
+import '../../interfaces/main_pages/partner/partner_account_page.dart';
 import '../models/shop_model.dart';
 
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
@@ -152,16 +152,16 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
-    case 'merchantRedemption':
+    case 'partnerRedemption':
       final args = settings?.arguments as Map<String, dynamic>? ?? {};
-      page = MerchantRedemptionPage(args: args);
+      page = PartnerRedemptionPage(args: args);
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
-    case 'merchantRedemptionVerified':
+    case 'partnerRedemptionVerified':
       final args = settings?.arguments as Map<String, dynamic>? ?? {};
-      page = MerchantRedemptionSuccessPage(args: args);
+      page = PartnerRedemptionSuccessPage(args: args);
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;
@@ -192,10 +192,10 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
-    case 'merchantAccount':
+    case 'partnerAccount':
       final args = settings?.arguments as Map<String, dynamic>? ?? {};
       final isEditMode = args['isEditMode'] as bool? ?? false;
-      page = MerchantAccountPage(isEditMode: isEditMode);
+      page = PartnerAccountPage(isEditMode: isEditMode);
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;
