@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/secure_storage_service.dart';
+import 'user_type_provider.dart';
 
 class ApiResponse<T> {
   final bool success;
@@ -220,9 +221,21 @@ class ApiProvider {
 
 final apiProvider = Provider<ApiProvider>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
+  final userType = ref.watch(userTypeProvider);
+  String baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:5000/api';
+
+  if (userType == UserType.partner) {
+    // If the base URL is http://domain/api/..., we prepend /partner to /api
+    if (baseUrl.contains('/mobile')) {
+      baseUrl = baseUrl.replaceFirst('/mobile', '/mobile/partner');
+    } else {
+      baseUrl = '$baseUrl/partner';
+    }
+  }
+
   return ApiProvider(
     apiKey: dotenv.env['API_KEY'] ?? '',
-    baseUrl: dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:5000/api',
+    baseUrl: baseUrl,
     secureStorage: secureStorage,
   );
 });

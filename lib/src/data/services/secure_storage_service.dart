@@ -13,6 +13,7 @@ class SecureStorageService {
   static const String _preferredLanguageKey = 'preferred_language';
   static const String _onboardingCompleteKey = 'onboarding_complete';
   static const String _tutorialCompletedKey = 'tutorial_completed';
+  static const String _isMerchantKey = 'is_merchant';
 
   final FlutterSecureStorage _storage;
 
@@ -42,6 +43,15 @@ class SecureStorageService {
 
   Future<bool> getTutorialCompleted() async {
     final value = await _storage.read(key: _tutorialCompletedKey);
+    return value == 'true';
+  }
+
+  Future<void> saveIsMerchant(bool value) async {
+    await _storage.write(key: _isMerchantKey, value: value.toString());
+  }
+
+  Future<bool> getIsMerchant() async {
+    final value = await _storage.read(key: _isMerchantKey);
     return value == 'true';
   }
 

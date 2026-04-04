@@ -5,9 +5,10 @@ import 'package:shimmer/shimmer.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../../data/utils/global_variables.dart';
 import '../../../data/services/secure_storage_service.dart';
 import '../../../data/providers/user_provider.dart';
+import '../../../data/providers/partner_provider.dart';
+import '../../../data/providers/user_type_provider.dart';
 import 'login_page.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -111,22 +112,38 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _navigateToOnboarding() async {
-    GlobalVariables.setMerchantMode(false); 
-    
     final storage = ref.read(secureStorageServiceProvider);
+    final isMerchant = await storage.getIsMerchant();
+    
+    // Set the user type which also updates GlobalVariables and persists it
+    ref.read(userTypeProvider.notifier).setUserType(isMerchant ? UserType.partner : UserType.customer);
+
     final hasToken = await storage.hasBearerToken();
     
     if (!mounted) return;
 
     if (hasToken) {
       while (true) {
-        final statusCode = await ref.read(userProvider.notifier).getProfile();
+        final userType = ref.read(userTypeProvider);
+        final int? statusCode;
+        
+        if (userType == UserType.partner) {
+          statusCode = await ref.read(partnerProvider.notifier).getPartnerProfile();
+        } else {
+          statusCode = await ref.read(userProvider.notifier).getProfile();
+        }
         
         if (!mounted) return;
         
         if (statusCode == 200) {
-          final user = ref.watch(userProvider);
-          final isComplete = user?.onboardingComplete ?? false;
+          final bool isComplete;
+          if (userType == UserType.partner) {
+            isComplete = true; // Partners bypass profile setup
+          } else {
+            final user = ref.watch(userProvider);
+            isComplete = user?.onboardingComplete ?? false;
+          }
+          
           await storage.saveOnboardingComplete(isComplete);
           
           if (isComplete) {

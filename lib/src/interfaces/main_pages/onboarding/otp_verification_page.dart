@@ -8,6 +8,7 @@ import '../../components/primary_button.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../../data/services/secure_storage_service.dart';
+import '../../../data/providers/user_type_provider.dart';
 
 class OtpVerificationPage extends ConsumerStatefulWidget {
   const OtpVerificationPage({super.key});
@@ -90,9 +91,11 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                       final result = await ref.read(authProvider.notifier).verifyOtp(phone, otp);
                       if (result['success'] == true && context.mounted) {
                         await storage.clearRegistrationData();
-                        if (result['onboardingComplete'] == false) {
+                        final userType = ref.read(userTypeProvider);
+                        if (result['onboardingComplete'] == false && userType == UserType.customer) {
                           Navigator.of(context).pushNamed('profileSetup');
                         } else {
+                          // For partners or completed customers, go to navbar
                           Navigator.of(context).pushNamedAndRemoveUntil('navbar', (route) => false);
                         }
                       } else if (result['success'] == false && context.mounted) {

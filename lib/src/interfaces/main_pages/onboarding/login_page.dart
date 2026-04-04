@@ -9,6 +9,8 @@ import '../../components/social_login_button.dart';
 import '../../../data/services/secure_storage_service.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/toast_service.dart';
+import '../../components/user_type_toggle.dart';
+import '../../../data/providers/user_type_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -23,6 +25,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final userType = ref.watch(userTypeProvider);
     return Scaffold(
       backgroundColor: kWhite,
       body: SafeArea(
@@ -45,11 +48,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
               SizedBox(height: screenSize.responsivePadding(40)),
-              Text('Welcome To SETGO', style: kSubHeadingM),
+              const UserTypeToggle(),
+              SizedBox(height: screenSize.responsivePadding(32)),
+              Text(
+                userType == UserType.customer
+                    ? 'Customer Login'
+                    : 'Partner Login',
+                style: kSubHeadingM,
+              ),
               SizedBox(height: screenSize.responsivePadding(8)),
               Text(
                 'Enter Your Phone number to get started',
-                style: kBodyTitleL.copyWith(color: Color(0XFF797979)),
+                style: kBodyTitleL.copyWith(color: const Color(0XFF797979)),
               ),
               SizedBox(height: screenSize.responsivePadding(32)),
 

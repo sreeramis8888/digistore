@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/secure_storage_service.dart';
 import 'user_provider.dart';
+import 'partner_provider.dart';
 import '../utils/global_variables.dart';
 import 'api_provider.dart';
+import 'user_type_provider.dart';
+import '../models/partner_model.dart';
 
 class AuthNotifier extends Notifier<AsyncValue<void>> {
   @override
@@ -57,18 +60,30 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
         if (token != null) {
           await storage.saveBearerToken(token);
         }
-        await storage.saveOnboardingComplete(onboardingComplete);
+        
+        // Skip profile setup for partners by forcing onboardingComplete to true
+        final userType = ref.read(userTypeProvider);
+        final effectiveOnboardingComplete = (userType == UserType.partner) ? true : onboardingComplete;
+        
+        await storage.saveOnboardingComplete(effectiveOnboardingComplete);
 
-        if (userData != null) {
+        if (userType == UserType.customer && userData != null) {
           final userModel = UserModel.fromJson(userData);
           await ref.read(userProvider.notifier).saveUser(userModel);
           GlobalVariables.setUserId(userModel.id);
+        } else if (userType == UserType.partner) {
+          final partnerData = responseData['data']?['partner'];
+          if (partnerData != null) {
+            final partnerModel = PartnerModel.fromJson(partnerData);
+            await ref.read(partnerProvider.notifier).savePartner(partnerModel);
+            GlobalVariables.setUserId(partnerModel.id);
+          }
         }
 
         state = const AsyncData(null);
         return {
           'success': true,
-          'onboardingComplete': onboardingComplete,
+          'onboardingComplete': effectiveOnboardingComplete,
           'isNewUser': isNewUser,
         };
       } else {
