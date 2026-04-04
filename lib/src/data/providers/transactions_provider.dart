@@ -44,7 +44,7 @@ Future<PaginatedRedemptions> redemptions(
   };
 
   final response = await api.get(
-    '/transaction/redemptions',
+    '/transactions/redemptions',
     queryParams: queryParams,
     requireAuth: true,
   );
