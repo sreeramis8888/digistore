@@ -4,8 +4,11 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../advanced_network_image.dart';
 
+import '../../../data/models/banner_model.dart';
+
 class BannerSection extends ConsumerStatefulWidget {
-  const BannerSection({super.key});
+  final List<BannerModel>? banners;
+  const BannerSection({super.key, this.banners});
 
   @override
   ConsumerState<BannerSection> createState() => _BannerSectionState();
@@ -23,6 +26,7 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.banners == null || widget.banners!.isEmpty) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
 
     return Padding(
@@ -40,14 +44,15 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
                   _currentPage = index;
                 });
               },
-              itemCount: 3,
+              itemCount: widget.banners!.length,
               itemBuilder: (context, index) {
+                final banner = widget.banners![index];
                 return Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: screenSize.responsivePadding(4),
                   ),
                   child: AdvancedNetworkImage(
-                    imageUrl: 'https://picsum.photos/seed/${index + 1}/800/400',
+                    imageUrl: banner.image ?? '',
                     borderRadius: BorderRadius.circular(16),
                     fit: BoxFit.cover,
                   ),
@@ -59,9 +64,9 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
-              3,
+              widget.banners!.length,
               (index) => Container(
-                margin: EdgeInsets.symmetric(horizontal: 2),
+                margin: const EdgeInsets.symmetric(horizontal: 2),
                 width: index == _currentPage ? 30 : 5,
                 height: 6,
                 decoration: BoxDecoration(

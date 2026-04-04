@@ -6,6 +6,9 @@ import '../../../data/providers/screen_size_provider.dart';
 
 import '../../../data/router/nav_router.dart';
 
+import '../../../data/providers/category_provider.dart';
+import '../../../data/models/category_model.dart';
+
 class OffersFilterChips extends ConsumerStatefulWidget {
   const OffersFilterChips({super.key});
 
@@ -15,28 +18,7 @@ class OffersFilterChips extends ConsumerStatefulWidget {
 
 class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
   final ScrollController _scrollController = ScrollController();
-  late final List<GlobalKey> _keys;
-
-  final List<Map<String, dynamic>> _filters = [
-    {'name': 'All', 'icon': null},
-    {'name': 'Daily Needs', 'icon': Icons.shopping_basket},
-    {'name': 'Personal Care', 'icon': Icons.spa},
-    {'name': 'Medical', 'icon': Icons.medical_services},
-    {'name': 'Events', 'icon': Icons.event},
-    {'name': 'Construction', 'icon': Icons.construction},
-    {'name': 'Food', 'icon': Icons.restaurant},
-    {'name': 'Fashion', 'icon': Icons.checkroom},
-    {'name': 'Home Services', 'icon': Icons.home_repair_service},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _keys = List.generate(_filters.length, (index) => GlobalKey());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToSelectedIndex(ref.read(selectedOffersCategoryProvider));
-    });
-  }
+  final Map<int, GlobalKey> _keys = {};
 
   @override
   void dispose() {
@@ -45,16 +27,14 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
   }
 
   void _scrollToSelectedIndex(int index) {
-    if (index >= 0 && index < _keys.length) {
-      final keyContext = _keys[index].currentContext;
-      if (keyContext != null) {
-        Scrollable.ensureVisible(
-          keyContext,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          alignment: 0.5, // Center the selected chip
-        );
-      }
+    final keyContext = _keys[index]?.currentContext;
+    if (keyContext != null) {
+      Scrollable.ensureVisible(
+        keyContext!,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment: 0.5,
+      );
     }
   }
 
@@ -62,74 +42,68 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final selectedIndex = ref.watch(selectedOffersCategoryProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
 
-    ref.listen<int>(selectedOffersCategoryProvider, (previous, next) {
-      if (previous != next) {
-        _scrollToSelectedIndex(next);
-      }
-    });
+    return categoriesAsync.when(
+      data: (categories) {
+        final filters = [
+          const CategoryModel(name: 'All'),
+          ...categories,
+        ];
 
-    return SizedBox(
-      height: screenSize.responsivePadding(40),
-      child: ListView.builder(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(
-          horizontal: screenSize.responsivePadding(16),
-        ),
-        itemCount: _filters.length,
-        itemBuilder: (context, index) {
-          final isSelected = index == selectedIndex;
-          final filter = _filters[index];
-          return GestureDetector(
-            key: _keys[index],
-            onTap: () {
-              ref.read(selectedOffersCategoryProvider.notifier).state = index;
-            },
-            child: Container(
-              margin: EdgeInsets.only(right: screenSize.responsivePadding(8)),
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(16),
-              ),
-              decoration: BoxDecoration(
-                color: isSelected ? kPrimaryColor : const Color(0xFFFCFCFC),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected ? kPrimaryColor : Colors.transparent,
-                ),
-                boxShadow: isSelected
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: kWhite.withOpacity(0.55),
-                          blurRadius: 5,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 0),
-                        ),
-                      ],
-              ),
-              child: Row(
-                children: [
-                  if (filter['icon'] != null) ...[
-                    Icon(
-                      filter['icon'] as IconData,
-                      size: 16,
-                      color: isSelected ? kWhite : Colors.redAccent,
+        if (selectedIndex > 0 && selectedIndex < filters.length) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+             _scrollToSelectedIndex(selectedIndex);
+          });
+        }
+
+        return SizedBox(
+          height: screenSize.responsivePadding(40),
+          child: ListView.builder(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16),
+            ),
+            itemCount: filters.length,
+            itemBuilder: (context, index) {
+              final isSelected = index == selectedIndex;
+              final filter = filters[index];
+              _keys[index] ??= GlobalKey();
+
+              return GestureDetector(
+                key: _keys[index],
+                onTap: () {
+                  ref.read(selectedOffersCategoryProvider.notifier).state = index;
+                  _scrollToSelectedIndex(index);
+                },
+                child: Container(
+                  margin: EdgeInsets.only(right: screenSize.responsivePadding(8)),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected ? kPrimaryColor : const Color(0xFFFCFCFC),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isSelected ? kPrimaryColor : kBorder,
                     ),
-                    SizedBox(width: screenSize.responsivePadding(6)),
-                  ],
-                  Text(
-                    filter['name'] as String,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    filter.name ?? '',
                     style: kSmallerTitleL.copyWith(
                       color: isSelected ? kWhite : kSecondaryTextColor,
                     ),
                   ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => const SizedBox.shrink(),
     );
   }
 }

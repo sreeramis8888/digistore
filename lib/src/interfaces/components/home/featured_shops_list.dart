@@ -5,18 +5,16 @@ import '../../../data/router/nav_router.dart';
 import 'section_title.dart';
 import '../shops/featured_shop_card.dart';
 
+import '../../../data/models/featured_shop.dart';
+
 class FeaturedShopsList extends ConsumerWidget {
-  const FeaturedShopsList({super.key});
+  final List<FeaturedShop>? shops;
+  const FeaturedShopsList({super.key, this.shops});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (shops == null || shops!.isEmpty) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
-    final shops = [
-      {'name': 'Vibe', 'color': Colors.greenAccent, 'image': 'assets/jpg/vibe_logo.jpg'},
-      {'name': 'Swingin\nSpoon', 'color': Colors.orangeAccent.withOpacity(0.2), 'image': 'assets/jpg/swingin_logo.jpg'},
-      {'name': 'GOOD', 'color': Colors.black87, 'image': 'assets/jpg/good_logo.jpg'},
-      {'name': 'Chill Bite', 'color': Colors.blue, 'image': 'assets/jpg/chillbite_logo.jpg'},
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,12 +38,13 @@ class FeaturedShopsList extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: shops
+            children: shops!
+                .take(4)
                 .map((shop) => FeaturedShopCard(shop: shop))
                 .toList(),
           ),
         ),
       ],
     );
-  }           
+  }
 }

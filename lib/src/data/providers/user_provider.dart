@@ -2,33 +2,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/secure_storage_service.dart';
 import 'api_provider.dart';
+
 class UserNotifier extends Notifier<UserModel?> {
   @override
-  UserModel? build() {
-    _loadUser();
-    return null;
-  }
-
-  Future<void> _loadUser() async {
-    final storage = ref.read(secureStorageServiceProvider);
-    state = await storage.getUserData();
-  }
-
-  Future<void> init() async {
-    final storage = ref.read(secureStorageServiceProvider);
-    final user = await storage.getUserData();
-    state = user;
-  }
+  UserModel? build() => null;
 
   Future<int?> getProfile() async {
     final api = ref.read(apiProvider);
     final response = await api.get('/profile', requireAuth: true);
 
     if (response.success && response.data != null) {
-      final user = UserModel.fromJson(response.data as Map<String, dynamic>);
-      state = user;
-      await saveUser(user);
-      return 200;
+      final userData = response.data!['data'];
+      if (userData != null) {
+        final user = UserModel.fromJson(userData as Map<String, dynamic>);
+        state = user;
+        await saveUser(user);
+        return 200;
+      }
     }
     return response.statusCode;
   }
@@ -68,11 +58,17 @@ class UserNotifier extends Notifier<UserModel?> {
     );
     
     if (response.success && response.data != null) {
-      if (state != null) {
-        final updatedUser = state!.copyWith(name: name, email: email, onboardingComplete: onboardingComplete);
+      final userData = response.data!['data'];
+      if (userData != null) {
+        final user = UserModel.fromJson(userData as Map<String, dynamic>);
+        await saveUser(user);
+      } else if (state != null) {
+        final updatedUser = state!.copyWith(
+          name: name,
+          email: email,
+          onboardingComplete: onboardingComplete,
+        );
         await saveUser(updatedUser);
-      } else {
-        await saveUser(UserModel(name: name, email: email, onboardingComplete: onboardingComplete));
       }
       return true;
     }
@@ -98,7 +94,11 @@ class UserNotifier extends Notifier<UserModel?> {
     );
 
     if (response.success && response.data != null) {
-      if (state != null) {
+      final userData = response.data!['data'];
+      if (userData != null) {
+        final user = UserModel.fromJson(userData as Map<String, dynamic>);
+        await saveUser(user);
+      } else if (state != null) {
         final updatedUser = state!.copyWith(
           location: LocationModel(
             district: district,

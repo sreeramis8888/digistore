@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/models/loyalty_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LoyaltyRewardCard extends ConsumerWidget {
-  const LoyaltyRewardCard({super.key});
+  final LoyaltyCard? loyaltyCard;
+  const LoyaltyRewardCard({super.key, this.loyaltyCard});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (loyaltyCard == null) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -58,7 +61,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Maria Vinaya',
+                          loyaltyCard?.name ?? 'Guest User',
                           style: kBodyTitleR.copyWith(
                             color: const Color(0xFF3B4859),
                           ),
@@ -69,7 +72,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                             SvgPicture.asset('assets/svg/coin.svg', height: 24),
                             SizedBox(width: screenSize.responsivePadding(8)),
                             Text(
-                              '8,000 points',
+                              '${loyaltyCard?.pointsBalance ?? 0} points',
                               style: kHeadTitleB.copyWith(
                                 color: const Color(0xFF3B4859),
                                 fontSize: 22,
@@ -89,22 +92,25 @@ class LoyaltyRewardCard extends ConsumerWidget {
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: screenSize.widthPercent(60),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4FACFD),
-                            border: Border.all(
-                              color: const Color(0xFFA8A8A8),
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: kWhite.withOpacity(0.45),
-                                blurRadius: 2,
-                                blurStyle: BlurStyle.outer,
+                        child: FractionallySizedBox(
+                          widthFactor: (loyaltyCard?.pointsBalance ?? 0) /
+                              (loyaltyCard?.totalPointsEarned ?? 1000).clamp(1, double.infinity),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4FACFD),
+                              border: Border.all(
+                                color: const Color(0xFFA8A8A8),
+                                width: 1,
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: kWhite.withOpacity(0.45),
+                                  blurRadius: 2,
+                                  blurStyle: BlurStyle.outer,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -116,19 +122,24 @@ class LoyaltyRewardCard extends ConsumerWidget {
                     ),
                     SizedBox(height: screenSize.responsivePadding(10)),
                     Center(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenSize.responsivePadding(15),
-                          vertical: screenSize.responsivePadding(8),
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF1DF),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'View Benefits',
-                          style: kSmallerTitleM.copyWith(
-                            color: const Color(0xFF80592B),
+                      child: InkWell(
+                        onTap: () {
+                          // Show benefits
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenSize.responsivePadding(15),
+                            vertical: screenSize.responsivePadding(8),
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF1DF),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'View Benefits',
+                            style: kSmallerTitleM.copyWith(
+                              color: const Color(0xFF80592B),
+                            ),
                           ),
                         ),
                       ),
@@ -187,7 +198,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         ),
                         SizedBox(width: screenSize.responsivePadding(4)),
                         Text(
-                          'GOLD',
+                          (loyaltyCard?.tier ?? 'BRONZE').toUpperCase(),
                           style: kBodyTitleSB.copyWith(
                             color: const Color(0xFFE67E22),
                           ),

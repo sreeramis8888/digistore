@@ -4,6 +4,7 @@ import 'package:digistore/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../advanced_network_image.dart';
+import '../../../data/models/offer_model.dart';
 
 class DealCard extends ConsumerWidget {
   final String title;
@@ -16,6 +17,8 @@ class DealCard extends ConsumerWidget {
   final double? width;
   final String? imageUrl;
   final bool hideShopName;
+  final List<String>? terms;
+  final DateTime? validTo;
 
   const DealCard({
     super.key,
@@ -29,7 +32,28 @@ class DealCard extends ConsumerWidget {
     this.width,
     this.imageUrl,
     this.hideShopName = false,
+    this.terms,
+    this.validTo,
   });
+
+  factory DealCard.fromOffer(OfferModel offer, {double? width, EdgeInsetsGeometry? margin}) {
+    final badgeText = offer.discountType == 'percentage'
+        ? '${offer.discountValue?.toInt() ?? 0}%\nOFF'
+        : '₹${offer.discountValue?.toInt() ?? 0}\nOFF';
+
+    return DealCard(
+      title: offer.title ?? '',
+      subtitle: offer.description ?? '',
+      shopName: offer.partnerId?.businessDetails?.businessName ?? '',
+      badgeText: badgeText,
+      avatarColor: kPrimaryLightColor,
+      imageUrl: offer.images?.isNotEmpty == true ? offer.images![0] : null,
+      width: width,
+      margin: margin,
+      terms: offer.terms,
+      validTo: offer.validTo,
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,6 +75,9 @@ class DealCard extends ConsumerWidget {
             'subtitle': subtitle,
             'shopName': shopName,
             'imageUrl': imageUrl,
+            'description': subtitle,
+            'terms': terms,
+            'validTo': validTo?.toIso8601String(),
           },
         );
       },

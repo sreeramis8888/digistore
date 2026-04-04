@@ -125,7 +125,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         if (!mounted) return;
         
         if (statusCode == 200) {
-          final user = ref.read(userProvider);
+          final user = ref.watch(userProvider);
           final isComplete = user?.onboardingComplete ?? false;
           await storage.saveOnboardingComplete(isComplete);
           

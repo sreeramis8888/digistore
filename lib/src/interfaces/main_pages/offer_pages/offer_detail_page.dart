@@ -141,30 +141,39 @@ class OfferDetailPage extends ConsumerWidget {
 
                   Text('Details', style: kSmallTitleSB),
                   const SizedBox(height: 12),
-                  Text(
-                    'Expires on: 31st December 2026',
-                    style: kSmallerTitleM.copyWith(
-                      color: kSecondaryTextColor,
-                      fontWeight: FontWeight.w600,
+                  if (args['validTo'] != null) ...[
+                    Text(
+                      'Expires on: ${args['validTo']}', // I'll just use the raw string for now or format if possible
+                      style: kSmallerTitleM.copyWith(
+                        color: kSecondaryTextColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
-                  _buildBulletPoint(
-                    'Get an exclusive reward to upgrade your experience!',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBulletPoint(
-                    'Eligibility: Offer valid for early claimers. Non-transferable.',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBulletPoint(
-                    'Refund Policy: Rewards once claimed cannot be reversed.',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBulletPoint(
-                    'Support: For queries, contact us via support channel.',
-                  ),
+                  if (args['terms'] != null && (args['terms'] as List).isNotEmpty)
+                    ...(args['terms'] as List).map((term) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: _buildBulletPoint(term.toString()),
+                    ))
+                  else ...[
+                    _buildBulletPoint(
+                      'Get an exclusive reward to upgrade your experience!',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildBulletPoint(
+                      'Eligibility: Offer valid for early claimers. Non-transferable.',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildBulletPoint(
+                      'Refund Policy: Rewards once claimed cannot be reversed.',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildBulletPoint(
+                      'Support: For queries, contact us via support channel.',
+                    ),
+                  ],
                   const SizedBox(height: 32),
                   PrimaryButton(
                     textSize: 14,

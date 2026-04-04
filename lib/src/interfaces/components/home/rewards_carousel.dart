@@ -5,12 +5,15 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../rewards/reward_card.dart';
+import '../../../data/models/reward_model.dart';
 
 class RewardsCarousel extends ConsumerWidget {
-  const RewardsCarousel({super.key});
+  final List<RewardModel>? rewards;
+  const RewardsCarousel({super.key, this.rewards});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (rewards == null || rewards!.isEmpty) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
 
     return Padding(
@@ -45,7 +48,7 @@ class RewardsCarousel extends ConsumerWidget {
             ),
             SizedBox(height: screenSize.responsivePadding(16)),
             CarouselSlider.builder(
-              itemCount: 4,
+              itemCount: rewards!.length,
               options: CarouselOptions(
                 height: screenSize.responsivePadding(200),
                 viewportFraction: 0.45,
@@ -53,21 +56,18 @@ class RewardsCarousel extends ConsumerWidget {
                 padEnds: false,
               ),
               itemBuilder: (context, index, realIndex) {
-                final isEven = index % 2 == 0;
+                final reward = rewards![index];
                 return RewardCard(
-                  title: 'Flat ₹50 OFF',
-                  subtitle: 'lorem ipsum lorem ipsum',
-                  points: isEven ? '1000' : '200',
-                  icon: isEven ? Icons.local_offer : Icons.all_inclusive,
-                  iconColor: isEven
-                      ? Colors.purpleAccent
-                      : const Color(0xFFC79E53),
+                  title: reward.title ?? '',
+                  subtitle: reward.description ?? '',
+                  points: reward.pointsCost?.toString() ?? '0',
+                  imageUrl: reward.image,
                   width: screenSize.responsivePadding(145),
                   margin: EdgeInsets.only(
                     left: index == 0
                         ? screenSize.responsivePadding(16)
                         : screenSize.responsivePadding(12),
-                    right: index == 3 ? screenSize.responsivePadding(16) : 0,
+                    right: index == rewards!.length - 1 ? screenSize.responsivePadding(16) : 0,
                   ),
                 );
               },
@@ -85,7 +85,7 @@ class RewardsCarousel extends ConsumerWidget {
                       vertical: screenSize.responsivePadding(6),
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xFFEDEDED)),
+                      border: Border.all(color: const Color(0xFFEDEDED)),
                       borderRadius: BorderRadius.circular(7),
                       color: kWhite,
                     ),

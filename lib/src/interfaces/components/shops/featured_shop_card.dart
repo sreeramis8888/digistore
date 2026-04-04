@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../advanced_network_image.dart';
 
+import '../../../data/models/featured_shop.dart';
+
 class FeaturedShopCard extends ConsumerWidget {
-  final Map<String, dynamic> shop;
+  final FeaturedShop shop;
 
   const FeaturedShopCard({super.key, required this.shop});
 
@@ -19,7 +21,7 @@ class FeaturedShopCard extends ConsumerWidget {
       onTap: () {
         Navigator.of(
           context,
-        ).pushNamed('shopDetail', arguments: shop['name'] as String);
+        ).pushNamed('shopDetail', arguments: shop.businessDetails?.businessName ?? '');
       },
       child: SizedBox(
         width: screenSize.responsivePadding(76),
@@ -31,7 +33,7 @@ class FeaturedShopCard extends ConsumerWidget {
               width: screenSize.responsivePadding(70),
               height: screenSize.responsivePadding(70),
               decoration: BoxDecoration(
-                color: shop['color'] as Color,
+                color: kPrimaryLightColor,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -41,10 +43,10 @@ class FeaturedShopCard extends ConsumerWidget {
                   ),
                 ],
               ),
-              child: shop['image'] != null
+              child: shop.businessInfo?.businessLogo != null
                   ? ClipOval(
                       child: AdvancedNetworkImage(
-                        imageUrl: shop['image'] as String,
+                        imageUrl: shop.businessInfo!.businessLogo!,
                         width: screenSize.responsivePadding(70),
                         height: screenSize.responsivePadding(70),
                         fit: BoxFit.cover,
@@ -56,7 +58,7 @@ class FeaturedShopCard extends ConsumerWidget {
             ),
             SizedBox(height: screenSize.responsivePadding(8)),
             Text(
-              shop['name'] as String,
+              shop.businessDetails?.businessName ?? '',
               style: kSmallTitleL,
               textAlign: TextAlign.center,
               maxLines: 2,

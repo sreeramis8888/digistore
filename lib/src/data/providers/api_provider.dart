@@ -80,6 +80,7 @@ class ApiProvider {
       log(name: 'API GET', '$baseUrl$endpoint');
       final decoded = json.decode(response.body);
       log(name: 'DATA', response.body);
+      log(name: 'QUERY PARAMS', queryParams.toString());
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
       } else {
