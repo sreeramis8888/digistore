@@ -56,7 +56,7 @@ class OffersPage extends ConsumerWidget {
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
               child: offersAsync.when(
-                data: (offers) => GridView.builder(
+                data: (paginated) => GridView.builder(
                   padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -64,9 +64,9 @@ class OffersPage extends ConsumerWidget {
                     crossAxisSpacing: screenSize.responsivePadding(16),
                     childAspectRatio: aspectRatio,
                   ),
-                  itemCount: offers.length,
+                  itemCount: paginated.offers.length,
                   itemBuilder: (context, index) {
-                    final o = offers[index];
+                    final o = paginated.offers[index];
                     return DealCard.fromOffer(o);
                   },
                 ),

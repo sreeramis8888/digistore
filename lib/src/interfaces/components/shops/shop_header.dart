@@ -3,15 +3,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
+import '../../../../src/data/models/shop_model.dart';
+import '../../../../src/data/providers/user_provider.dart';
+import '../../../../src/data/utils/location_utils.dart';
+import '../../../../src/data/utils/launch_url.dart';
+import '../advanced_network_image.dart';
 
 class ShopHeader extends ConsumerWidget {
   final String shopName;
+  final ShopModel? shop;
 
-  const ShopHeader({super.key, required this.shopName});
+  const ShopHeader({super.key, required this.shopName, this.shop});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final rating = shop?.businessInfo?.rating ?? 0.0;
+    final totalSales = shop?.businessInfo?.totalReviews ?? 0;
+    final category = shop?.serviceCategories?.isNotEmpty == true ? shop!.serviceCategories!.first : 'General';
+    final address = shop?.businessInfo?.storeLocation?.address ?? 'No address provided';
+
+    final user = ref.watch(userProvider);
+    final userLat = user?.location?.coordinates?.lat;
+    final userLng = user?.location?.coordinates?.lng;
+    final shopCoords = shop?.businessInfo?.storeLocation?.coordinates;
+
+    String distanceLabel = '';
+    if (userLat != null && userLng != null && shopCoords != null && shopCoords.length >= 2) {
+      final d = LocationUtils.calculateDistance(
+        userLat,
+        userLng,
+        shopCoords[1], // lat
+        shopCoords[0], // lng
+      );
+      distanceLabel = ' (${d.toStringAsFixed(1)} km)';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,14 +47,27 @@ class ShopHeader extends ConsumerWidget {
             Container(
               width: screenSize.responsivePadding(40),
               height: screenSize.responsivePadding(40),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: kPrimaryColor,
               ),
-              child: const Icon(Icons.storefront, color: kWhite),
+              child: shop?.businessInfo?.businessLogo != null
+                  ? AdvancedNetworkImage(
+                      imageUrl: shop!.businessInfo!.businessLogo!,
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(20),
+                    )
+                  : const Icon(Icons.storefront, color: kWhite),
             ),
             SizedBox(width: screenSize.responsivePadding(12)),
-            Text(shopName, style: kBodyTitleM.copyWith(fontSize: 24)),
+            Expanded(
+              child: Text(
+                shopName, 
+                style: kBodyTitleM.copyWith(fontSize: 24),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             SizedBox(width: screenSize.responsivePadding(8)),
             Container(
               padding: EdgeInsets.symmetric(
@@ -39,7 +79,7 @@ class ShopHeader extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Daily Needs',
+                category,
                 style: kSmallerTitleSB.copyWith(
                   color: kPrimaryColor,
                   fontSize: 10,
@@ -52,8 +92,8 @@ class ShopHeader extends ConsumerWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
+            const Padding(
+              padding: EdgeInsets.only(top: 2),
               child: Icon(
                 Icons.location_on_outlined,
                 size: 14,
@@ -62,9 +102,18 @@ class ShopHeader extends ConsumerWidget {
             ),
             SizedBox(width: screenSize.responsivePadding(4)),
             Expanded(
-              child: Text(
-                'Chill Nagar, Panampallynagar, Ernakulam, 7.8km',
-                style: kSmallTitleL.copyWith(color: Color(0xFF4E4E4E)),
+              child: RichText(
+                text: TextSpan(
+                  style: kSmallTitleL.copyWith(color: const Color(0xFF4E4E4E)),
+                  children: [
+                    TextSpan(text: address),
+                    if (distanceLabel.isNotEmpty)
+                      TextSpan(
+                        text: distanceLabel,
+                        style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                      ),
+                  ],
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -78,20 +127,25 @@ class ShopHeader extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  '4.5',
-                  style: kBodyTitleM.copyWith(color: Color(0xFF4E4E4E)),
+                  rating.toString(),
+                  style: kBodyTitleM.copyWith(color: const Color(0xFF4E4E4E)),
                 ),
                 SizedBox(width: screenSize.responsivePadding(4)),
                 const Icon(Icons.star, color: Color(0xFFFFD700), size: 18),
                 SizedBox(width: screenSize.responsivePadding(4)),
                 Text(
-                  'out of 10',
+                  '($totalSales reviews)',
                   style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
               ],
             ),
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                final phone = shop?.businessInfo?.contactPhone;
+                if (phone != null && phone.isNotEmpty) {
+                  launchPhone(phone);
+                }
+              },
               icon: const Icon(Icons.call, size: 16, color: kTextColor),
               label: Text(
                 'Call',

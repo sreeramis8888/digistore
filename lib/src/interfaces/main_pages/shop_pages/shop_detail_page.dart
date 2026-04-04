@@ -1,44 +1,39 @@
 import 'package:digistore/src/data/constants/color_constants.dart';
 import 'package:digistore/src/data/constants/style_constants.dart';
 import 'package:digistore/src/data/providers/screen_size_provider.dart';
+import 'package:digistore/src/data/models/shop_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/shops/shop_header.dart';
-import '../../components/shops/shop_branches.dart';
 import '../../components/shops/shop_about.dart';
 import '../../components/shops/shop_gallery.dart';
 import '../../components/shops/shop_address.dart';
 import '../../components/shops/shop_reviews.dart';
 import '../../components/shops/shop_socials.dart';
-import '../../components/offers/deal_card.dart';
-import '../../components/shops/product_card.dart';
 
 class ShopDetailPage extends ConsumerWidget {
-  final String shopName;
+  final String? shopName;
+  final ShopModel? shop;
 
-  const ShopDetailPage({super.key, required this.shopName});
+  const ShopDetailPage({super.key, this.shopName, this.shop});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(44)) / 2;
-    final offersAspectRatio = itemWidth / screenSize.responsivePadding(230);
-    final productsAspectRatio = itemWidth / screenSize.responsivePadding(220);
+    final currentShopName = shop?.businessDetails?.businessName ?? shopName ?? 'Unknown Shop';
 
-    final explicitImages = const {
-      'Chill Bite': 'assets/png/chill_bite.png',
-      'Vibe': 'assets/png/vibe.png',
-      'Swingin Spoon': 'assets/png/swinging_spoon.png',
-      'GOOD': 'assets/png/good.png',
-    };
     final fallbackImages = const [
       'assets/png/swinging_spoon.png',
       'assets/png/good.png',
       'assets/png/chill_bite.png',
       'assets/png/vibe.png',
     ];
-    final heroImage = explicitImages[shopName] ?? fallbackImages[shopName.hashCode.abs() % fallbackImages.length];
+    
+    final heroImage = shop?.businessInfo?.businessLogo ?? 
+        (shop?.businessInfo?.businessImages?.isNotEmpty == true 
+            ? shop!.businessInfo!.businessImages!.first 
+            : fallbackImages[currentShopName.hashCode.abs() % fallbackImages.length]);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -81,80 +76,23 @@ class ShopDetailPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ShopHeader(shopName: shopName),
+                  ShopHeader(shopName: currentShopName, shop: shop),
                   SizedBox(height: screenSize.responsivePadding(16)),
-                  const ShopBranches(),
-                  SizedBox(height: screenSize.responsivePadding(16)),
-                  const ShopAbout(),
+                  ShopAbout(shop: shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  const ShopGallery(),
+                  if (shop?.businessInfo?.businessImages != null && shop!.businessInfo!.businessImages!.length > 1) ...[
+                    ShopGallery(images: shop!.businessInfo!.businessImages!),
+                    SizedBox(height: screenSize.responsivePadding(20)),
+                  ],
+                  ShopAddress(shop: shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  const ShopAddress(),
+                  ShopReviews(shop: shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  const ShopReviews(),
-                  SizedBox(height: screenSize.responsivePadding(20)),
-                  const ShopSocials(),
-                  SizedBox(height: screenSize.responsivePadding(20)),
-                  Text('Offers', style: kBodyTitleM),
-                  SizedBox(height: screenSize.responsivePadding(12)),
+                  ShopSocials(shop: shop),
+                  SizedBox(height: screenSize.responsivePadding(32)),
                 ],
               ),
             ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16),
-            ),
-            sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(12),
-                crossAxisSpacing: screenSize.responsivePadding(12),
-                childAspectRatio: offersAspectRatio,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => DealCard(
-                  title: 'Valentines Day Deal',
-                  subtitle: 'Buy one get one free',
-                  shopName: shopName,
-                  badgeText: '50% OFF',
-                  avatarColor: kPrimaryColor,
-                  dealOfTheHour: 'Deal of the day',
-                ),
-                childCount: 2,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                screenSize.responsivePadding(16),
-                screenSize.responsivePadding(24),
-                screenSize.responsivePadding(16),
-                screenSize.responsivePadding(12),
-              ),
-              child: Text('Explore Products', style: kBodyTitleM),
-            ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16),
-            ),
-            sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(12),
-                crossAxisSpacing: screenSize.responsivePadding(12),
-                childAspectRatio: productsAspectRatio,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => ProductCard(index: index),
-                childCount: 16,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(height: screenSize.responsivePadding(32)),
           ),
         ],
       ),

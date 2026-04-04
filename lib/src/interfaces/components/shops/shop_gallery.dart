@@ -6,18 +6,16 @@ import '../../../../src/data/providers/screen_size_provider.dart';
 import '../advanced_network_image.dart';
 
 class ShopGallery extends ConsumerWidget {
-  const ShopGallery({super.key});
+  final List<String> images;
+
+  const ShopGallery({super.key, required this.images});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (images.isEmpty) return const SizedBox();
+    
     final screenSize = ref.watch(screenSizeProvider);
-
-    final imageUrls = [
-      'https://images.unsplash.com/photo-1555396273-367dd4bc4b27?auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1570197781417-0a52377c0c71?auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1563805042-7684c8a9e9cb?auto=format&fit=crop&q=80',
-    ];
+    final displayCount = images.length > 4 ? 4 : images.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,8 +24,8 @@ class ShopGallery extends ConsumerWidget {
         SizedBox(height: screenSize.responsivePadding(12)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(4, (index) {
-            final isLast = index == 3;
+          children: List.generate(displayCount, (index) {
+            final isLast = index == 3 && images.length > 4;
             return SizedBox(
               width: screenSize.responsivePadding(75),
               height: screenSize.responsivePadding(75),
@@ -35,7 +33,7 @@ class ShopGallery extends ConsumerWidget {
                 fit: StackFit.loose,
                 children: [
                   AdvancedNetworkImage(
-                    imageUrl: imageUrls[index],
+                    imageUrl: images[index],
                     fit: BoxFit.cover,
                     borderRadius: BorderRadius.circular(8),
                     width: screenSize.responsivePadding(75),
@@ -49,7 +47,7 @@ class ShopGallery extends ConsumerWidget {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        '+3 more',
+                        '+${images.length - 3} more',
                         style: kSmallTitleSB.copyWith(color: kWhite),
                       ),
                     ),

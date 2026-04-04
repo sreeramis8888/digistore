@@ -15,6 +15,7 @@ import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
 import '../../interfaces/main_pages/merchant/merchant_redemption_page.dart';
 import '../../interfaces/main_pages/merchant/merchant_redemption_success_page.dart';
 import '../../interfaces/main_pages/merchant/merchant_account_page.dart';
+import '../models/shop_model.dart';
 
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
 
@@ -37,7 +38,6 @@ RouteTransitionsBuilder _transitionsBuilderFor(TransitionType? type) {
   switch (type) {
     case TransitionType.slideFromRight:
       return (context, animation, secondaryAnimation, child) {
-        // Professional smooth right-to-left slide
         final curved = CurvedAnimation(
           parent: animation,
           curve: Curves.easeOutCubic,
@@ -60,7 +60,6 @@ RouteTransitionsBuilder _transitionsBuilderFor(TransitionType? type) {
 
     case TransitionType.fadeScale:
       return (context, animation, secondaryAnimation, child) {
-        // subtle scale + fade for a polished material-like entrance
         final fadeAnim = CurvedAnimation(
           parent: animation,
           curve: Curves.easeOut,
@@ -81,7 +80,6 @@ RouteTransitionsBuilder _transitionsBuilderFor(TransitionType? type) {
     case TransitionType.slideFromBottom:
     default:
       return (context, animation, secondaryAnimation, child) {
-        // Standard bottom-up slide (good for modal-ish pages)
         final curved = CurvedAnimation(
           parent: animation,
           curve: Curves.easeOutCubic,
@@ -116,10 +114,14 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionToUse = TransitionType.fade;
       transitionDuration = const Duration(milliseconds: 500);
       break;
-      
+
     case 'shopDetail':
-      final shopName = settings?.arguments as String? ?? 'Unknown Shop';
-      page = ShopDetailPage(shopName: shopName);
+      if (settings?.arguments is ShopModel) {
+        page = ShopDetailPage(shop: settings!.arguments as ShopModel);
+      } else {
+        final shopName = settings?.arguments as String? ?? 'Unknown Shop';
+        page = ShopDetailPage(shopName: shopName);
+      }
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

@@ -7,6 +7,7 @@ import '../advanced_network_image.dart';
 import '../../../data/models/offer_model.dart';
 
 class DealCard extends ConsumerWidget {
+  final String? id;
   final String title;
   final String subtitle;
   final String shopName;
@@ -22,6 +23,7 @@ class DealCard extends ConsumerWidget {
 
   const DealCard({
     super.key,
+    this.id,
     required this.title,
     required this.subtitle,
     required this.shopName,
@@ -42,6 +44,7 @@ class DealCard extends ConsumerWidget {
         : '₹${offer.discountValue?.toInt() ?? 0}\nOFF';
 
     return DealCard(
+      id: offer.id,
       title: offer.title ?? '',
       subtitle: offer.description ?? '',
       shopName: offer.partnerId?.businessDetails?.businessName ?? '',
@@ -71,6 +74,7 @@ class DealCard extends ConsumerWidget {
         Navigator.of(context).pushNamed(
           'offerDetail',
           arguments: {
+            'id': id,
             'title': title,
             'subtitle': subtitle,
             'shopName': shopName,

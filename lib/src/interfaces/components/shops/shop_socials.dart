@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
+import '../../../../src/data/models/shop_model.dart';
 
 class ShopSocials extends ConsumerWidget {
-  const ShopSocials({super.key});
+  final ShopModel? shop;
+
+  const ShopSocials({super.key, this.shop});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,50 +17,64 @@ class ShopSocials extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Social Media', style: kBodyTitleM),
+        Text('Connect With Us', style: kBodyTitleM),
         SizedBox(height: screenSize.responsivePadding(12)),
         Row(
           children: [
-            OutlinedButton.icon(
+            _SocialButton(
+              icon: Icons.camera_alt,
+              iconColor: Colors.purple,
+              label: 'Instagram',
               onPressed: () {},
-              icon: const Icon(
-                Icons.camera_alt,
-                color: Colors.purple,
-                size: 18,
-              ),
-              label: Text('Instagram', style: kSmallTitleM),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Color(0xFFF9F9F9),
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(12),
-                  vertical: screenSize.responsivePadding(8),
-                ),
-                side: const BorderSide(color: Color(0xFFF9F9F9)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+              screenSize: screenSize,
             ),
             SizedBox(width: screenSize.responsivePadding(12)),
-            OutlinedButton.icon(
+            _SocialButton(
+              icon: Icons.facebook,
+              iconColor: Colors.blue,
+              label: 'Facebook',
               onPressed: () {},
-              icon: const Icon(Icons.facebook, color: Colors.blue, size: 18),
-              label: Text('Facebook', style: kSmallTitleM),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Color(0xFFF9F9F9),
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(12),
-                  vertical: screenSize.responsivePadding(8),
-                ),
-                side: const BorderSide(color: Color(0xFFF9F9F9)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+              screenSize: screenSize,
             ),
           ],
         ),
       ],
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final VoidCallback onPressed;
+  final ScreenSizeData screenSize;
+
+  const _SocialButton({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.onPressed,
+    required this.screenSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: iconColor, size: 18),
+      label: Text(label, style: kSmallTitleM),
+      style: OutlinedButton.styleFrom(
+        backgroundColor: const Color(0xFFF9F9F9),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.responsivePadding(12),
+          vertical: screenSize.responsivePadding(8),
+        ),
+        side: const BorderSide(color: Color(0xFFF9F9F9)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
     );
   }
 }

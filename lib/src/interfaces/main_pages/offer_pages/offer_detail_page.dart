@@ -15,8 +15,8 @@ class OfferDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final String title = args['title'] ?? 'Special Salon Offer';
-    final String subtitle = args['subtitle'] ?? 'Try any haircut Get 30% off';
+    final String title = args['title'] ?? '';
+    final String subtitle = args['subtitle'] ?? '';
     final String? imageUrl = args['imageUrl'];
     final String shopName = args['shopName'] ?? 'HomeGoods';
     final IconData? icon = args['icon'];
@@ -93,7 +93,6 @@ class OfferDetailPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Shop Header
                   Row(
                     children: [
                       Container(
@@ -143,7 +142,7 @@ class OfferDetailPage extends ConsumerWidget {
                   const SizedBox(height: 12),
                   if (args['validTo'] != null) ...[
                     Text(
-                      'Expires on: ${args['validTo']}', // I'll just use the raw string for now or format if possible
+                      'Expires on: ${args['validTo']}',
                       style: kSmallerTitleM.copyWith(
                         color: kSecondaryTextColor,
                         fontWeight: FontWeight.w600,

@@ -15,14 +15,20 @@ final offersProvider = OffersFamily._();
 final class OffersProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<OfferModel>>,
-          List<OfferModel>,
-          FutureOr<List<OfferModel>>
+          AsyncValue<PaginatedOffers>,
+          PaginatedOffers,
+          FutureOr<PaginatedOffers>
         >
-    with $FutureModifier<List<OfferModel>>, $FutureProvider<List<OfferModel>> {
+    with $FutureModifier<PaginatedOffers>, $FutureProvider<PaginatedOffers> {
   OffersProvider._({
     required OffersFamily super.from,
-    required ({String? categoryId, String? search, bool? isDealOfDay})
+    required ({
+      String? categoryId,
+      String? search,
+      bool? isDealOfDay,
+      int page,
+      int limit,
+    })
     super.argument,
   }) : super(
          retry: null,
@@ -44,20 +50,28 @@ final class OffersProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<OfferModel>> $createElement(
+  $FutureProviderElement<PaginatedOffers> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<OfferModel>> create(Ref ref) {
+  FutureOr<PaginatedOffers> create(Ref ref) {
     final argument =
         this.argument
-            as ({String? categoryId, String? search, bool? isDealOfDay});
+            as ({
+              String? categoryId,
+              String? search,
+              bool? isDealOfDay,
+              int page,
+              int limit,
+            });
     return offers(
       ref,
       categoryId: argument.categoryId,
       search: argument.search,
       isDealOfDay: argument.isDealOfDay,
+      page: argument.page,
+      limit: argument.limit,
     );
   }
 
@@ -72,13 +86,19 @@ final class OffersProvider
   }
 }
 
-String _$offersHash() => r'e83d6b33d080bafe6573db5647cc167811b50dce';
+String _$offersHash() => r'96025115dc2b183ea1b7641baad615c3b6753a9c';
 
 final class OffersFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<List<OfferModel>>,
-          ({String? categoryId, String? search, bool? isDealOfDay})
+          FutureOr<PaginatedOffers>,
+          ({
+            String? categoryId,
+            String? search,
+            bool? isDealOfDay,
+            int page,
+            int limit,
+          })
         > {
   OffersFamily._()
     : super(
@@ -93,11 +113,15 @@ final class OffersFamily extends $Family
     String? categoryId,
     String? search,
     bool? isDealOfDay,
+    int page = 1,
+    int limit = 20,
   }) => OffersProvider._(
     argument: (
       categoryId: categoryId,
       search: search,
       isDealOfDay: isDealOfDay,
+      page: page,
+      limit: limit,
     ),
     from: this,
   );

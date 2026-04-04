@@ -72,6 +72,7 @@ dependencies:
   intl_phone_field: ^3.2.0
   pin_code_fields: ^9.1.0
   flutter_launcher_icons: ^0.14.4
+  loading_indicator: ^3.1.1
 
 dev_dependencies:
   flutter_test:

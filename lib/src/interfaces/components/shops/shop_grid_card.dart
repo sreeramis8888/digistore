@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/models/shop_model.dart';
 
 class ShopGridCard extends ConsumerWidget {
   final String category;
@@ -14,6 +15,7 @@ class ShopGridCard extends ConsumerWidget {
   final Color avatarColor;
   final IconData avatarIcon;
   final String? imageUrl;
+  final ShopModel? shop;
 
   const ShopGridCard({
     super.key,
@@ -25,6 +27,7 @@ class ShopGridCard extends ConsumerWidget {
     required this.avatarColor,
     required this.avatarIcon,
     this.imageUrl,
+    this.shop,
   });
 
   @override
@@ -42,7 +45,7 @@ class ShopGridCard extends ConsumerWidget {
       onTap: () {
         Navigator.of(context).pushNamed(
           'shopDetail',
-          arguments: shopName,
+          arguments: shop ?? shopName,
         );
       },
       child: Container(
