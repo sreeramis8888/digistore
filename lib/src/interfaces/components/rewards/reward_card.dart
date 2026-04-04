@@ -33,6 +33,19 @@ class RewardCard extends ConsumerWidget {
     this.imageUrl,
   });
 
+  factory RewardCard.fromReward(dynamic reward, {EdgeInsetsGeometry? margin, double? width}) {
+    return RewardCard(
+      title: reward.title ?? '',
+      subtitle: reward.description ?? '',
+      points: reward.pointsCost?.toString() ?? '0',
+      imageUrl: reward.image,
+      logoText: reward.category,
+      logoColor: Colors.blue.withOpacity(0.1),
+      margin: margin,
+      width: width,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);

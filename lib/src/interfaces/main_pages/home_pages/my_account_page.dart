@@ -100,15 +100,13 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                 PrimaryButton(
                   text: 'Save',
                   onPressed: () async {
-                    final currUser = ref.read(userProvider);
-                    if (currUser != null) {
-                      final updated = currUser.copyWith(
-                        name: _nameController.text,
-                        email: _emailController.text,
-                      );
-                      await ref.read(userProvider.notifier).saveUser(updated);
+                    final success = await ref.read(userProvider.notifier).updateProfile(
+                      name: _nameController.text,
+                      email: _emailController.text,
+                    );
+                    if (success && context.mounted) {
+                      Navigator.pop(context);
                     }
-                    if (context.mounted) Navigator.pop(context);
                   },
                 ),
               ],

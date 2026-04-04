@@ -63,6 +63,10 @@ Future<PaginatedOffers> offers(
     queryParams['isDealOfDay'] = isDealOfDay.toString();
   }
 
+  if (user?.currentTier?.name != null) {
+    queryParams['tier'] = user!.currentTier!.name!;
+  }
+
   final response = await api.get('/offers', queryParams: queryParams, requireAuth: false);
 
   if (response.success && response.data != null) {

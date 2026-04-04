@@ -11,6 +11,7 @@ import '../../data/providers/screen_size_provider.dart';
 import '../../data/providers/offers_provider.dart';
 import '../../data/providers/category_provider.dart';
 import '../../data/router/nav_router.dart';
+import '../components/empty_state.dart';
 
 class OffersPage extends ConsumerWidget {
   const OffersPage({super.key});
@@ -56,22 +57,35 @@ class OffersPage extends ConsumerWidget {
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
               child: offersAsync.when(
-                data: (paginated) => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: screenSize.responsivePadding(16),
-                    crossAxisSpacing: screenSize.responsivePadding(16),
-                    childAspectRatio: aspectRatio,
-                  ),
-                  itemCount: paginated.offers.length,
-                  itemBuilder: (context, index) {
-                    final o = paginated.offers[index];
-                    return DealCard.fromOffer(o);
-                  },
-                ),
+                data: (paginated) {
+                  if (paginated.offers.isEmpty) {
+                    return const EmptyState(
+                      imagePath: 'assets/png/empty_offers.png',
+                      title: 'No offers found',
+                      subtitle: 'Check back later for exciting new deals and discounts in this category.',
+                    );
+                  }
+                  return GridView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: screenSize.responsivePadding(16),
+                      crossAxisSpacing: screenSize.responsivePadding(16),
+                      childAspectRatio: aspectRatio,
+                    ),
+                    itemCount: paginated.offers.length,
+                    itemBuilder: (context, index) {
+                      final o = paginated.offers[index];
+                      return DealCard.fromOffer(o);
+                    },
+                  );
+                },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => Center(child: Text(e.toString())),
+                error: (e, s) => const EmptyState(
+                  imagePath: 'assets/png/empty_offers.png',
+                  title: 'No offers found',
+                  subtitle: 'Check back later for exciting new deals and discounts in this category.',
+                ),
               ),
             ),
           ],

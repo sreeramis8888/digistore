@@ -1,79 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../components/history/wallet_header.dart';
 import '../components/history/transaction_tile.dart';
+import '../../data/providers/transactions_provider.dart';
 
-class HistoryPage extends StatelessWidget {
+import '../components/empty_state.dart';
+
+class HistoryPage extends ConsumerWidget {
   const HistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final transactions = [
-      {
-        'isEarned': true,
-        'title': 'Points Earned',
-        'subtitle': 'From: Daily Mart',
-        'points': '300',
-        'date': 'Today at 2:45 PM',
-      },
-      {
-        'isEarned': true,
-        'title': 'Points Earned',
-        'subtitle': 'From: Coffee House',
-        'points': '1500',
-        'date': 'Today at 10:30 AM',
-      },
-      {
-        'isEarned': false,
-        'title': 'Points Used',
-        'subtitle': 'Purchasing Voucher',
-        'points': '-200',
-        'date': 'Today at 2:45 PM',
-      },
-      {
-        'isEarned': true,
-        'title': 'Points Earned',
-        'subtitle': 'From: Bookstore',
-        'points': '2500',
-        'date': '08-09-2026 at 1:00 PM',
-      },
-      {
-        'isEarned': true,
-        'title': 'Points Earned',
-        'subtitle': 'From: Bookstore',
-        'points': '2500',
-        'date': '08-09-2026 at 1:00 PM',
-      },
-      {
-        'isEarned': true,
-        'title': 'Points Earned',
-        'subtitle': 'From: Bookstore',
-        'points': '2500',
-        'date': '08-09-2026 at 1:00 PM',
-      },
-      {
-        'isEarned': true,
-        'title': 'Points Earned',
-        'subtitle': 'From: Bookstore',
-        'points': '2500',
-        'date': '08-09-2026 at 1:00 PM',
-      },
-      {
-        'isEarned': false,
-        'title': 'Points Used',
-        'subtitle': 'Offer Purchase',
-        'points': '-100',
-        'date': '08-09-2026 at 1:00 PM',
-      },
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final transactionsAsync = ref.watch(transactionsProvider());
 
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
         title: Text(
           'My Wallet',
-            style: kBodyTitleM.copyWith(color: Color(0xFF373737)),
+          style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
         ),
         backgroundColor: kWhite,
         elevation: 0,
@@ -84,18 +31,29 @@ class HistoryPage extends StatelessWidget {
           children: [
             const WalletHeader(),
             Expanded(
-              child: ListView.builder(
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  final t = transactions[index];
-                  return TransactionTile(
-                    isEarned: t['isEarned'] as bool,
-                    title: t['title'] as String,
-                    subtitle: t['subtitle'] as String,
-                    points: t['points'] as String,
-                    date: t['date'] as String,
+              child: transactionsAsync.when(
+                data: (paginated) {
+                  if (paginated.transactions.isEmpty) {
+                    return const EmptyState(
+                      imagePath: 'assets/png/empty_history.png',
+                      title: 'No transaction history',
+                      subtitle: 'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: paginated.transactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = paginated.transactions[index];
+                      return TransactionTile.fromTransaction(transaction);
+                    },
                   );
                 },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, s) => const EmptyState(
+                  imagePath: 'assets/png/empty_history.png',
+                  title: 'No transaction history',
+                  subtitle: 'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                ),
               ),
             ),
           ],

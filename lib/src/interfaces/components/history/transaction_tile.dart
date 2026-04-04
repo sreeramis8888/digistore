@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/utils/date_formatter.dart';
+import '../../../data/models/transaction_model.dart';
 
 class TransactionTile extends ConsumerWidget {
   final bool isEarned;
@@ -20,6 +22,19 @@ class TransactionTile extends ConsumerWidget {
     required this.points,
     required this.date,
   });
+
+  factory TransactionTile.fromTransaction(TransactionModel transaction) {
+    final type = transaction.type ?? 'other';
+    final isEarned = type == 'earned' || type == 'bonus';
+    
+    return TransactionTile(
+      isEarned: isEarned,
+      title: type[0].toUpperCase() + type.substring(1),
+      subtitle: transaction.description ?? '',
+      points: transaction.amount?.toString() ?? '0',
+      date: formatDateTime(transaction.createdAt),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +74,7 @@ class TransactionTile extends ConsumerWidget {
               children: [
                 Text(
                   title,
-                  style: kSmallTitleL.copyWith(color: Color(0xFF101828)),
+                  style: kSmallTitleL.copyWith(color: const Color(0xFF101828)),
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
@@ -94,7 +109,7 @@ class TransactionTile extends ConsumerWidget {
               SizedBox(height: screenSize.responsivePadding(4)),
               Text(
                 date,
-                style: kSmallerTitleL.copyWith(color: Color(0xFF99A1AF)),
+                style: kSmallerTitleL.copyWith(color: const Color(0xFF99A1AF)),
               ),
             ],
           ),

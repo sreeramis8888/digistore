@@ -5,6 +5,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
+import '../../components/primary_button.dart';
 import '../history.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -274,6 +275,21 @@ class ProfilePage extends ConsumerWidget {
                       screenSize,
                     ),
                   ],
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+                child: PrimaryButton(
+                  text: 'Log out',
+                  backgroundColor: kWhite,
+                  textColor: kRed,
+                  onPressed: () async {
+                    await ref.read(userProvider.notifier).clearUser();
+                    if (context.mounted) {
+                      Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
+                    }
+                  },
                 ),
               ),
 

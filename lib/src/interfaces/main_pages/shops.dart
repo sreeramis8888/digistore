@@ -9,6 +9,8 @@ import '../../data/models/shop_model.dart';
 import '../../data/utils/location_utils.dart';
 import '../components/shops/shop_grid_card.dart';
 
+import '../components/empty_state.dart';
+
 class ShopsPage extends ConsumerStatefulWidget {
   const ShopsPage({super.key});
 
@@ -68,51 +70,64 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       ),
       body: SafeArea(
         child: shopsAsync.when(
-          data: (paginated) => GridView.builder(
-            padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: screenSize.responsivePadding(16),
-              crossAxisSpacing: screenSize.responsivePadding(16),
-              childAspectRatio: aspectRatio,
-            ),
-            itemCount: paginated.shops.length,
-            itemBuilder: (context, index) {
-              final ShopModel shop = paginated.shops[index];
-              final type = shop.businessDetails?.businessType;
-              final logo = shop.businessInfo?.businessLogo;
-              final address = shop.businessInfo?.storeLocation?.address ?? 
-                  shop.businessDetails?.businessType ?? 'No address provided';
-
-              String distance = '...';
-              final shopCoords = shop.businessInfo?.storeLocation?.coordinates;
-              if (userLat != null && userLng != null && shopCoords != null && shopCoords.length >= 2) {
-                final d = LocationUtils.calculateDistance(
-                  userLat, 
-                  userLng, 
-                  shopCoords[1], 
-                  shopCoords[0], 
-                );
-                distance = '${d.toStringAsFixed(1)} km';
-              }
-              
-              return ShopGridCard(
-                category: shop.serviceCategories?.first ?? 'Other',
-                shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
-                address: address,
-                distance: distance,
-                rating: shop.businessInfo?.rating?.toString() ?? '0.0',
-                avatarColor: _getCategoryColor(type),
-                avatarIcon: _getCategoryIcon(type),
-                imageUrl: logo ?? (shop.businessInfo?.businessImages?.isNotEmpty == true 
-                    ? shop.businessInfo!.businessImages!.first 
-                    : null),
-                shop: shop,
+          data: (paginated) {
+            if (paginated.shops.isEmpty) {
+              return const EmptyState(
+                imagePath: 'assets/png/empty_shops.png', 
+                title: 'No shops found',
+                subtitle: 'We couldn\'t find any shops in your area. Try a different category or change your location.',
               );
-            },
-          ),
+            }
+            return GridView.builder(
+              padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: screenSize.responsivePadding(16),
+                crossAxisSpacing: screenSize.responsivePadding(16),
+                childAspectRatio: aspectRatio,
+              ),
+              itemCount: paginated.shops.length,
+              itemBuilder: (context, index) {
+                final ShopModel shop = paginated.shops[index];
+                final type = shop.businessDetails?.businessType;
+                final logo = shop.businessInfo?.businessLogo;
+                final address = shop.businessInfo?.storeLocation?.address ?? 
+                    shop.businessDetails?.businessType ?? 'No address provided';
+
+                String distance = '...';
+                final shopCoords = shop.businessInfo?.storeLocation?.coordinates;
+                if (userLat != null && userLng != null && shopCoords != null && shopCoords.length >= 2) {
+                  final d = LocationUtils.calculateDistance(
+                    userLat, 
+                    userLng, 
+                    shopCoords[1], 
+                    shopCoords[0], 
+                  );
+                  distance = '${d.toStringAsFixed(1)} km';
+                }
+                
+                return ShopGridCard(
+                  category: shop.serviceCategories?.first ?? 'Other',
+                  shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
+                  address: address,
+                  distance: distance,
+                  rating: shop.businessInfo?.rating?.toString() ?? '0.0',
+                  avatarColor: _getCategoryColor(type),
+                  avatarIcon: _getCategoryIcon(type),
+                  imageUrl: logo ?? (shop.businessInfo?.businessImages?.isNotEmpty == true 
+                      ? shop.businessInfo!.businessImages!.first 
+                      : null),
+                  shop: shop,
+                );
+              },
+            );
+          },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Center(child: Text(e.toString())),
+          error: (e, s) => const EmptyState(
+            imagePath: 'assets/png/empty_shops.png', 
+            title: 'No shops found',
+            subtitle: 'We couldn\'t find any shops in your area. Try a different category or change your location.',
+          ),
         ),
       ),
     );

@@ -13,7 +13,8 @@ class WalletHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final user = ref.watch(userProvider);
-    final name = (user?.name != null && user!.name!.isNotEmpty) ? user.name!.toUpperCase() : 'ABDUL WAHAAB';
+    final name = user?.name?.toUpperCase() ?? 'GUEST USER';
+    final points = user?.pointsBalance?.toString() ?? '0';
 
     return Padding(
       padding: EdgeInsets.all(screenSize.responsivePadding(20)),
@@ -26,13 +27,13 @@ class WalletHeader extends ConsumerWidget {
               children: [
                 Text(
                   name,
-                  style: kHeadTitleM.copyWith(color: Color(0xFF3E3D40)),
+                  style: kHeadTitleM.copyWith(color: const Color(0xFF3E3D40)),
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
                   'Your available points:',
                   style: kSmallTitleR.copyWith(
-                    color: Color(0xFF6B7276),
+                    color: const Color(0xFF6B7276),
                     letterSpacing: .1,
                   ),
                 ),
@@ -54,7 +55,7 @@ class WalletHeader extends ConsumerWidget {
               children: [
                 SvgPicture.asset('assets/svg/coin.svg', width: 20, height: 20),
                 SizedBox(width: screenSize.responsivePadding(8)),
-                Text('3000', style: kHeadTitleB.copyWith(color: kWhite)),
+                Text(points, style: kHeadTitleB.copyWith(color: kWhite)),
               ],
             ),
           ),
