@@ -11,6 +11,7 @@ import '../../../data/services/image_services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../../data/providers/partner_provider.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -52,21 +53,22 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   void initState() {
     super.initState();
     isEditMode = widget.isEditMode;
+    final partner = ref.read(partnerProvider);
 
-    _ownerNameCtrl = TextEditingController(text: 'John Sam');
-    _mobileCtrl = TextEditingController(text: '98888774456');
-    _emailCtrl = TextEditingController(text: 'freshmartKlm@gmail.com');
-    _locationCtrl = TextEditingController(text: 'Palarivattom, Kochi');
+    _ownerNameCtrl = TextEditingController(text: partner?.businessInfo?.ownerName ?? '');
+    _mobileCtrl = TextEditingController(text: partner?.businessInfo?.contactPhone ?? '');
+    _emailCtrl = TextEditingController(text: partner?.businessInfo?.email ?? '');
+    _locationCtrl = TextEditingController(text: partner?.businessDetails?.address ?? '');
 
-    _shopNameCtrl = TextEditingController(text: 'Freshmart Supermarket');
-    _categoryCtrl = TextEditingController(text: 'Daily Needs');
-    _contactNumCtrl = TextEditingController(text: '9898887776');
-    _whatsappCtrl = TextEditingController(text: '9898887776');
-    _panCtrl = TextEditingController(text: 'AANPS8558A');
-    _shopAddressCtrl = TextEditingController(text: '12, Church Road, Kochi');
-    _pincodeCtrl = TextEditingController(text: '7056030');
+    _shopNameCtrl = TextEditingController(text: partner?.businessDetails?.businessName ?? '');
+    _categoryCtrl = TextEditingController(text: partner?.businessDetails?.businessType ?? '');
+    _contactNumCtrl = TextEditingController(text: partner?.businessInfo?.contactPhone ?? '');
+    _whatsappCtrl = TextEditingController(text: partner?.businessInfo?.whatsappNumber ?? '');
+    _panCtrl = TextEditingController(text: partner?.businessDetails?.gstNumber ?? '');
+    _shopAddressCtrl = TextEditingController(text: partner?.businessDetails?.address ?? '');
+    _pincodeCtrl = TextEditingController(text: partner?.businessDetails?.pincode ?? '');
     _mapLocationCtrl = TextEditingController(
-      text: '12, MG Road, Palarivattom, Kochi',
+      text: partner?.businessDetails?.address ?? '',
     );
   }
 
@@ -967,8 +969,19 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                     ),
                     child: PrimaryButton(
                       text: 'Save',
-                      onPressed: () {
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        final success = await ref.read(partnerProvider.notifier).updateProfile(
+                          ownerName: _ownerNameCtrl.text,
+                          email: _emailCtrl.text,
+                          shopName: _shopNameCtrl.text,
+                          contactPhone: _contactNumCtrl.text,
+                          whatsappNumber: _whatsappCtrl.text,
+                          address: _shopAddressCtrl.text,
+                          pincode: _pincodeCtrl.text,
+                        );
+                        if (success && context.mounted) {
+                          Navigator.pop(context);
+                        }
                       },
                     ),
                   ),

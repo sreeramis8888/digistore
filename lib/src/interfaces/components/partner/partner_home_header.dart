@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../main_pages/partner/partner_profile_page.dart';
+import '../../../data/providers/partner_provider.dart';
+import '../advanced_network_image.dart';
 
-class PartnerHomeHeader extends StatelessWidget {
+class PartnerHomeHeader extends ConsumerWidget {
   final ScreenSizeData screenSize;
 
   const PartnerHomeHeader({super.key, required this.screenSize});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final partner = ref.watch(partnerProvider);
+    final businessName = partner?.businessDetails?.businessName ?? 'Partners Shop';
+    final location = partner?.businessDetails?.address ?? 'Location';
+    final logo = partner?.businessInfo?.businessLogo;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -35,14 +43,17 @@ class PartnerHomeHeader extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset('assets/png/shake.png', fit: BoxFit.cover),
+                  child: AdvancedNetworkImage(
+                    imageUrl: logo ?? '',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               SizedBox(width: screenSize.responsivePadding(12)),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Freshmart Supermarket', style: kSubHeadingSB),
+                  Text(businessName, style: kSubHeadingSB),
                   Row(
                     children: [
                       const Icon(
@@ -52,7 +63,7 @@ class PartnerHomeHeader extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Ernakulam',
+                        location,
                         style: kSmallTitleL.copyWith(
                           color: const Color(0xFF616161),
                         ),

@@ -86,7 +86,7 @@ final class OffersProvider
   }
 }
 
-String _$offersHash() => r'96025115dc2b183ea1b7641baad615c3b6753a9c';
+String _$offersHash() => r'4e28b90ed18dc869611ef346916221a5f1120b22';
 
 final class OffersFamily extends $Family
     with

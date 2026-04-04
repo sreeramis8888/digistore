@@ -15,11 +15,13 @@ final homeDataProvider = HomeDataProvider._();
 final class HomeDataProvider
     extends
         $FunctionalProvider<
-          AsyncValue<HomeData?>,
-          HomeData?,
-          FutureOr<HomeData?>
+          AsyncValue<HomeResponseState?>,
+          HomeResponseState?,
+          FutureOr<HomeResponseState?>
         >
-    with $FutureModifier<HomeData?>, $FutureProvider<HomeData?> {
+    with
+        $FutureModifier<HomeResponseState?>,
+        $FutureProvider<HomeResponseState?> {
   HomeDataProvider._()
     : super(
         from: null,
@@ -36,13 +38,14 @@ final class HomeDataProvider
 
   @$internal
   @override
-  $FutureProviderElement<HomeData?> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $FutureProviderElement<HomeResponseState?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<HomeData?> create(Ref ref) {
+  FutureOr<HomeResponseState?> create(Ref ref) {
     return homeData(ref);
   }
 }
 
-String _$homeDataHash() => r'761eb0c41a5ef0332007e9b8d4e598901e93c655';
+String _$homeDataHash() => r'7a33623bc3bb16ed6832c7954175de7fca902d96';

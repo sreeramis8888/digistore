@@ -14,6 +14,7 @@ import '../components/home/rewards_carousel.dart';
 
 import '../../data/providers/home_provider.dart';
 import '../../data/models/home_data.dart';
+import 'partner/partner_home.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -26,7 +27,17 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kWhite,
       body: homeDataAsync.when(
-        data: (data) => _buildContent(context, ref, data, screenSize),
+        data: (state) {
+          if (state == null) {
+            return const Center(child: Text('No data available'));
+          }
+          if (state is CustomerHomeState) {
+            return _buildContent(context, ref, state.data, screenSize);
+          } else if (state is PartnerHomeState) {
+            return const PartnerHomePage();
+          }
+          return const Center(child: Text('No data available'));
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),

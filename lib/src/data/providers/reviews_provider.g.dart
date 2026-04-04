@@ -22,8 +22,7 @@ final class ReviewsProvider
     with $FutureModifier<PaginatedReviews>, $FutureProvider<PaginatedReviews> {
   ReviewsProvider._({
     required ReviewsFamily super.from,
-    required ({int limit, int page, String? shopId})
-    super.argument,
+    required ({String? shopId, int page, int limit}) super.argument,
   }) : super(
          retry: null,
          name: r'reviewsProvider',
@@ -50,13 +49,12 @@ final class ReviewsProvider
 
   @override
   FutureOr<PaginatedReviews> create(Ref ref) {
-    final argument =
-        this.argument as ({int limit, int page, String? shopId});
+    final argument = this.argument as ({String? shopId, int page, int limit});
     return reviews(
       ref,
       shopId: argument.shopId,
-      limit: argument.limit,
       page: argument.page,
+      limit: argument.limit,
     );
   }
 
@@ -71,13 +69,13 @@ final class ReviewsProvider
   }
 }
 
-String _$reviewsHash() => r'f4951d44db12c70c6da964a9108b5c2a8bffb8f4';
+String _$reviewsHash() => r'69f5c931b476114d1cb2e32e63b718cba8596b5b';
 
 final class ReviewsFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<PaginatedReviews>,
-          ({int limit, int page, String? shopId})
+          ({String? shopId, int page, int limit})
         > {
   ReviewsFamily._()
     : super(
@@ -88,14 +86,11 @@ final class ReviewsFamily extends $Family
         isAutoDispose: true,
       );
 
-  ReviewsProvider call({
-    String? shopId,
-    int limit = 10,
-    int page = 1,
-  }) => ReviewsProvider._(
-    argument: (limit: limit, page: page, shopId: shopId),
-    from: this,
-  );
+  ReviewsProvider call({String? shopId, int page = 1, int limit = 10}) =>
+      ReviewsProvider._(
+        argument: (shopId: shopId, page: page, limit: limit),
+        from: this,
+      );
 
   @override
   String toString() => r'reviewsProvider';

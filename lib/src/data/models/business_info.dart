@@ -21,6 +21,8 @@ class BusinessInfo {
   final List<String>? achievements;
   final List<BusinessFAQ>? faqs;
   final List<BusinessBranch>? branches;
+  final String? ownerName;
+  final String? email;
 
   const BusinessInfo({
     this.businessLogo,
@@ -43,6 +45,8 @@ class BusinessInfo {
     this.achievements,
     this.faqs,
     this.branches,
+    this.ownerName,
+    this.email,
   });
 
   factory BusinessInfo.fromJson(Map<String, dynamic> json) {
@@ -67,6 +71,8 @@ class BusinessInfo {
       achievements: json['achievements'] != null ? List<String>.from(json['achievements']) : null,
       faqs: (json['faqs'] as List?)?.map((e) => BusinessFAQ.fromJson(e as Map<String, dynamic>)).toList(),
       branches: (json['branches'] as List?)?.map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>)).toList(),
+      ownerName: json['ownerName'] as String?,
+      email: json['email'] as String?,
     );
   }
 }

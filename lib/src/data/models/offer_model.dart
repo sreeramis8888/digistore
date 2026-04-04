@@ -33,6 +33,7 @@ class OfferModel {
   final List<String>? tags;
   final LocationPoint? location;
   final int? shareCount;
+  final DateTime? createdAt;
 
   const OfferModel({
     this.id,
@@ -63,6 +64,7 @@ class OfferModel {
     this.tags,
     this.location,
     this.shareCount,
+    this.createdAt,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
@@ -101,6 +103,7 @@ class OfferModel {
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       location: json['location'] != null ? LocationPoint.fromJson(json['location'] as Map<String, dynamic>) : null,
       shareCount: json['shareCount'] as int?,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
     );
   }
 }

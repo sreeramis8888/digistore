@@ -6,6 +6,9 @@ part of 'rewards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
 @ProviderFor(rewards)
 final rewardsProvider = RewardsFamily._();
 
@@ -19,8 +22,7 @@ final class RewardsProvider
     with $FutureModifier<PaginatedRewards>, $FutureProvider<PaginatedRewards> {
   RewardsProvider._({
     required RewardsFamily super.from,
-    required ({String? category, int limit, int page})
-    super.argument,
+    required ({int page, int limit, String? category}) super.argument,
   }) : super(
          retry: null,
          name: r'rewardsProvider',
@@ -47,13 +49,12 @@ final class RewardsProvider
 
   @override
   FutureOr<PaginatedRewards> create(Ref ref) {
-    final argument =
-        this.argument as ({String? category, int limit, int page});
+    final argument = this.argument as ({int page, int limit, String? category});
     return rewards(
       ref,
-      category: argument.category,
-      limit: argument.limit,
       page: argument.page,
+      limit: argument.limit,
+      category: argument.category,
     );
   }
 
@@ -68,13 +69,13 @@ final class RewardsProvider
   }
 }
 
-String _$rewardsHash() => r'rewards_hash_stub_123';
+String _$rewardsHash() => r'504907c6f2201008f6d974cb8335010ada339f1b';
 
 final class RewardsFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<PaginatedRewards>,
-          ({String? category, int limit, int page})
+          ({int page, int limit, String? category})
         > {
   RewardsFamily._()
     : super(
@@ -85,14 +86,11 @@ final class RewardsFamily extends $Family
         isAutoDispose: true,
       );
 
-  RewardsProvider call({
-    String? category,
-    int limit = 10,
-    int page = 1,
-  }) => RewardsProvider._(
-    argument: (category: category, limit: limit, page: page),
-    from: this,
-  );
+  RewardsProvider call({int page = 1, int limit = 10, String? category}) =>
+      RewardsProvider._(
+        argument: (page: page, limit: limit, category: category),
+        from: this,
+      );
 
   @override
   String toString() => r'rewardsProvider';

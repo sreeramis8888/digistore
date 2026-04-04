@@ -73,7 +73,7 @@ final class ShopsProvider
   }
 }
 
-String _$shopsHash() => r'6bc99defc5e88e1e4da0f5a4d76f4fb116cc9da8';
+String _$shopsHash() => r'8eabb4064050b204da02d9939eb5efdd551b37a8';
 
 final class ShopsFamily extends $Family
     with

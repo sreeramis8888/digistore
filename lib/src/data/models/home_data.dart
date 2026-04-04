@@ -4,6 +4,7 @@ import 'category_model.dart';
 import 'offer_model.dart';
 import 'featured_shop.dart';
 import 'reward_model.dart';
+import 'partner_home_data.dart';
 
 class HomeData {
   final LoyaltyCard? loyaltyCard;
@@ -67,4 +68,18 @@ class HomeData {
           : null,
     );
   }
+}
+
+sealed class HomeResponseState {
+  const HomeResponseState();
+}
+
+class CustomerHomeState extends HomeResponseState {
+  final HomeData data;
+  const CustomerHomeState(this.data);
+}
+
+class PartnerHomeState extends HomeResponseState {
+  final PartnerHomeData data;
+  const PartnerHomeState(this.data);
 }

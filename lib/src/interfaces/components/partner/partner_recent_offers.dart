@@ -1,45 +1,38 @@
 import 'package:flutter/material.dart';
-import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../offers/deal_card.dart';
+import '../../../data/models/offer_model.dart';
 
 class PartnerRecentOffers extends StatelessWidget {
   final ScreenSizeData screenSize;
+  final List<OfferModel>? offers;
 
-  const PartnerRecentOffers({super.key, required this.screenSize});
+  const PartnerRecentOffers({
+    super.key,
+    required this.screenSize,
+    this.offers,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (offers == null || offers!.isEmpty) {
+      return const Center(child: Text('No offers available'));
+    }
+
     return SizedBox(
       height: screenSize.responsivePadding(210),
-      child: ListView(
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
-        children: const [
-          SizedBox(
+        itemCount: offers!.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
+        itemBuilder: (context, index) {
+          final offer = offers![index];
+          return SizedBox(
             width: 160,
-            child: DealCard(
-              title: 'Big Grocery Savings',
-              subtitle: 'Shop for ₹500 or more and Save ₹100',
-              shopName: 'DailyMart',
-              badgeText: '₹100\nOFF',
-              avatarColor: kPrimaryLightColor,
-              hideShopName: true,
-            ),
-          ),
-          SizedBox(width: 16),
-          SizedBox(
-            width: 160,
-            child: DealCard(
-              title: 'Fresh Bakes Deal',
-              subtitle: 'Buy one bun Get one free',
-              shopName: 'Fresh Bakes',
-              badgeText: 'BUY 1\nGET 1',
-              avatarColor: kPrimaryLightColor,
-              hideShopName: true,
-            ),
-          ),
-        ],
+            child: DealCard.fromOffer(offer),
+          );
+        },
       ),
     );
   }

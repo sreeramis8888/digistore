@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/partner_provider.dart';
+import '../advanced_network_image.dart';
 
-class PartnerProfileHeader extends StatelessWidget {
+class PartnerProfileHeader extends ConsumerWidget {
   final ScreenSizeData screenSize;
 
   const PartnerProfileHeader({super.key, required this.screenSize});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final partner = ref.watch(partnerProvider);
+    final businessName = partner?.businessDetails?.businessName ?? 'Partners Shop';
+    final location = partner?.businessDetails?.address ?? 'Location';
+    final logo = partner?.businessInfo?.businessLogo;
+    final tagline = partner?.businessInfo?.tagline ?? 'Daily Needs';
+
     return Container(
       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
       decoration: BoxDecoration(
@@ -30,11 +39,9 @@ class PartnerProfileHeader extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/png/shake.png',
+              child: AdvancedNetworkImage(
+                imageUrl: logo ?? '',
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.storefront, color: kSecondaryColor),
               ),
             ),
           ),
@@ -47,7 +54,7 @@ class PartnerProfileHeader extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'Freshmart Supermarket',
+                        businessName,
                         style: kBodyTitleM.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -65,7 +72,7 @@ class PartnerProfileHeader extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'Daily Needs',
+                        tagline,
                         style: kSmallTitleL.copyWith(
                           fontSize: 10,
                           color: kSecondaryColor,
@@ -84,7 +91,7 @@ class PartnerProfileHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Ernakulam',
+                      location,
                       style: kSmallTitleL.copyWith(
                         color: const Color(0xFF616161),
                       ),

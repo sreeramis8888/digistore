@@ -54,7 +54,10 @@ class AdvancedNetworkImage extends StatelessWidget {
                   placeholder: (context, url) => SizedBox(
                     width: width,
                     height: height,
-                    child: _AdvancedShimmer(width: fallbackW, height: fallbackH),
+                    child: _AdvancedShimmer(
+                      width: fallbackW,
+                      height: fallbackH,
+                    ),
                   ),
                   errorWidget: (context, url, error) => SizedBox(
                     width: width,
@@ -96,7 +99,6 @@ class AdvancedNetworkImage extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: kWhite,
-              shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.04),

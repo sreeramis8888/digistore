@@ -6,6 +6,9 @@ part of 'transactions_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
 @ProviderFor(transactions)
 final transactionsProvider = TransactionsFamily._();
 
@@ -16,11 +19,12 @@ final class TransactionsProvider
           PaginatedTransactions,
           FutureOr<PaginatedTransactions>
         >
-    with $FutureModifier<PaginatedTransactions>, $FutureProvider<PaginatedTransactions> {
+    with
+        $FutureModifier<PaginatedTransactions>,
+        $FutureProvider<PaginatedTransactions> {
   TransactionsProvider._({
     required TransactionsFamily super.from,
-    required ({int limit, int page})
-    super.argument,
+    required ({int page, int limit}) super.argument,
   }) : super(
          retry: null,
          name: r'transactionsProvider',
@@ -47,13 +51,8 @@ final class TransactionsProvider
 
   @override
   FutureOr<PaginatedTransactions> create(Ref ref) {
-    final argument =
-        this.argument as ({int limit, int page});
-    return transactions(
-      ref,
-      limit: argument.limit,
-      page: argument.page,
-    );
+    final argument = this.argument as ({int page, int limit});
+    return transactions(ref, page: argument.page, limit: argument.limit);
   }
 
   @override
@@ -67,13 +66,13 @@ final class TransactionsProvider
   }
 }
 
-String _$transactionsHash() => r'transactions_hash_stub_456';
+String _$transactionsHash() => r'cb3a8e09a061f3472b1f2dbcd07fae054e58e2c0';
 
 final class TransactionsFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<PaginatedTransactions>,
-          ({int limit, int page})
+          ({int page, int limit})
         > {
   TransactionsFamily._()
     : super(
@@ -84,13 +83,8 @@ final class TransactionsFamily extends $Family
         isAutoDispose: true,
       );
 
-  TransactionsProvider call({
-    int limit = 20,
-    int page = 1,
-  }) => TransactionsProvider._(
-    argument: (limit: limit, page: page),
-    from: this,
-  );
+  TransactionsProvider call({int page = 1, int limit = 20}) =>
+      TransactionsProvider._(argument: (page: page, limit: limit), from: this);
 
   @override
   String toString() => r'transactionsProvider';
@@ -106,11 +100,12 @@ final class RedemptionsProvider
           PaginatedRedemptions,
           FutureOr<PaginatedRedemptions>
         >
-    with $FutureModifier<PaginatedRedemptions>, $FutureProvider<PaginatedRedemptions> {
+    with
+        $FutureModifier<PaginatedRedemptions>,
+        $FutureProvider<PaginatedRedemptions> {
   RedemptionsProvider._({
     required RedemptionsFamily super.from,
-    required ({int limit, int page})
-    super.argument,
+    required ({int page, int limit}) super.argument,
   }) : super(
          retry: null,
          name: r'redemptionsProvider',
@@ -137,13 +132,8 @@ final class RedemptionsProvider
 
   @override
   FutureOr<PaginatedRedemptions> create(Ref ref) {
-    final argument =
-        this.argument as ({int limit, int page});
-    return redemptions(
-      ref,
-      limit: argument.limit,
-      page: argument.page,
-    );
+    final argument = this.argument as ({int page, int limit});
+    return redemptions(ref, page: argument.page, limit: argument.limit);
   }
 
   @override
@@ -157,13 +147,13 @@ final class RedemptionsProvider
   }
 }
 
-String _$redemptionsHash() => r'redemptions_hash_stub_789';
+String _$redemptionsHash() => r'b7d92897b12e11b7eed566f7637a8d4d21bfbb06';
 
 final class RedemptionsFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<PaginatedRedemptions>,
-          ({int limit, int page})
+          ({int page, int limit})
         > {
   RedemptionsFamily._()
     : super(
@@ -174,13 +164,8 @@ final class RedemptionsFamily extends $Family
         isAutoDispose: true,
       );
 
-  RedemptionsProvider call({
-    int limit = 20,
-    int page = 1,
-  }) => RedemptionsProvider._(
-    argument: (limit: limit, page: page),
-    from: this,
-  );
+  RedemptionsProvider call({int page = 1, int limit = 20}) =>
+      RedemptionsProvider._(argument: (page: page, limit: limit), from: this);
 
   @override
   String toString() => r'redemptionsProvider';

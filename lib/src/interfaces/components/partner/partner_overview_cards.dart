@@ -6,8 +6,17 @@ import '../../../data/providers/screen_size_provider.dart';
 
 class PartnerOverviewCards extends StatelessWidget {
   final ScreenSizeData screenSize;
+  final int? totalCustomers;
+  final double? commissionAmount;
+  final int? totalSalesViaSetgo;
 
-  const PartnerOverviewCards({super.key, required this.screenSize});
+  const PartnerOverviewCards({
+    super.key,
+    required this.screenSize,
+    this.totalCustomers,
+    this.commissionAmount,
+    this.totalSalesViaSetgo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,19 +24,19 @@ class PartnerOverviewCards extends StatelessWidget {
       children: [
         _overviewCard(
           "Total\nCustomers",
-          "90",
+          (totalCustomers ?? 0).toString(),
           "assets/svg/total_customers.svg",
         ),
         SizedBox(width: screenSize.responsivePadding(12)),
         _overviewCard(
           "Your\nCommission",
-          "1.5k",
+          "₹${(commissionAmount ?? 0).toStringAsFixed(1)}",
           "assets/svg/your_commission.svg",
         ),
         SizedBox(width: screenSize.responsivePadding(12)),
         _overviewCard(
           "Total Sales\nvia Setgo",
-          "12",
+          (totalSalesViaSetgo ?? 0).toString(),
           "assets/svg/total_sales.svg",
         ),
       ],
