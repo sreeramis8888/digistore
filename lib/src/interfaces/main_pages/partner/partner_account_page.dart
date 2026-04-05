@@ -23,6 +23,8 @@ import '../../../data/models/partner_model.dart';
 import '../../../data/models/business_details.dart';
 import '../../../data/models/business_info.dart';
 import '../../../data/models/location_point.dart';
+import '../../components/add_specialty_dialog.dart';
+import '../../components/add_branch_dialog.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -312,89 +314,18 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     });
   }
 
-  void _showAddSpecialtyDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Specialty'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'e.g. Organic Vegetables',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                setState(() => _specialties.add(controller.text));
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
+  void _showAddSpecialtyDialog() async {
+    final result = await showAddSpecialtyDialog(context);
+    if (result != null && mounted) {
+      setState(() => _specialties.add(result));
+    }
   }
 
-  void _showAddBranchDialog() {
-    final nameCtrl = TextEditingController();
-    final addressCtrl = TextEditingController();
-    final phoneCtrl = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Branch'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration: const InputDecoration(hintText: 'Branch Name'),
-            ),
-            TextField(
-              controller: addressCtrl,
-              decoration: const InputDecoration(hintText: 'Address'),
-            ),
-            TextField(
-              controller: phoneCtrl,
-              decoration: const InputDecoration(hintText: 'Phone'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (nameCtrl.text.isNotEmpty) {
-                setState(() {
-                  _branches.add(
-                    BusinessBranch(
-                      name: nameCtrl.text,
-                      address: addressCtrl.text,
-                      phone: phoneCtrl.text,
-                      isActive: true,
-                    ),
-                  );
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
+  void _showAddBranchDialog() async {
+    final result = await showAddBranchDialog(context);
+    if (result != null && mounted) {
+      setState(() => _branches.add(result));
+    }
   }
 
   Widget _buildSectionHeader(
@@ -605,6 +536,44 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                     final time = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay.now(),
+                      builder: (context, child) => Theme(
+                        data: Theme.of(context).copyWith(
+                          timePickerTheme: TimePickerThemeData(
+                            backgroundColor: kWhite,
+                            dialBackgroundColor: kField,
+                            dialHandColor: kPrimaryColor,
+                            dialTextColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                            ),
+                            hourMinuteColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kField,
+                            ),
+                            hourMinuteTextColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                            ),
+                            dayPeriodColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kPrimaryLightColor : kField,
+                            ),
+                            dayPeriodTextColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kSecondaryTextColor,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            hourMinuteShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            dayPeriodShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            entryModeIconColor: kPrimaryColor,
+                          ),
+                          colorScheme: const ColorScheme.light(
+                            primary: kPrimaryColor,
+                            onPrimary: kWhite,
+                            surface: kWhite,
+                            onSurface: kTextColor,
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(foregroundColor: kPrimaryColor),
+                          ),
+                        ),
+                        child: child!,
+                      ),
                     );
                     if (time != null && mounted) {
                       _updateDayStatus(day, open: time.format(context));
@@ -633,6 +602,44 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                     final time = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay.now(),
+                      builder: (context, child) => Theme(
+                        data: Theme.of(context).copyWith(
+                          timePickerTheme: TimePickerThemeData(
+                            backgroundColor: kWhite,
+                            dialBackgroundColor: kField,
+                            dialHandColor: kPrimaryColor,
+                            dialTextColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                            ),
+                            hourMinuteColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kField,
+                            ),
+                            hourMinuteTextColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                            ),
+                            dayPeriodColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kPrimaryLightColor : kField,
+                            ),
+                            dayPeriodTextColor: WidgetStateColor.resolveWith(
+                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kSecondaryTextColor,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            hourMinuteShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            dayPeriodShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            entryModeIconColor: kPrimaryColor,
+                          ),
+                          colorScheme: const ColorScheme.light(
+                            primary: kPrimaryColor,
+                            onPrimary: kWhite,
+                            surface: kWhite,
+                            onSurface: kTextColor,
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(foregroundColor: kPrimaryColor),
+                          ),
+                        ),
+                        child: child!,
+                      ),
                     );
                     if (time != null && mounted) {
                       _updateDayStatus(day, close: time.format(context));
@@ -808,29 +815,37 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                             _pickedCover!,
                                             fit: BoxFit.cover,
                                           )
-                                        : partner?.businessInfo?.coverImage != null
-                                            ? AdvancedNetworkImage(
-                                                imageUrl: partner!.businessInfo!.coverImage!,
-                                                borderRadius: BorderRadius.circular(12),
-                                              )
-                                            : Container(
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFF3F4F6),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Icon(
-                                                  Icons.image_outlined,
-                                                  size: 48,
-                                                  color: Colors.grey.shade400,
-                                                ),
-                                              ),
+                                        : partner?.businessInfo?.coverImage !=
+                                              null
+                                        ? AdvancedNetworkImage(
+                                            imageUrl: partner!
+                                                .businessInfo!
+                                                .coverImage!,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          )
+                                        : Container(
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF3F4F6),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Icon(
+                                              Icons.image_outlined,
+                                              size: 48,
+                                              color: Colors.grey.shade400,
+                                            ),
+                                          ),
                                   ),
                                   if (isEditMode)
                                     Positioned.fill(
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: Colors.black.withOpacity(0.25),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         alignment: Alignment.center,
                                         child: Column(
@@ -933,7 +948,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                       ),
                                     ],
                                   ),
-                                 )
+                                ),
                             ],
                           ),
                         ),
@@ -967,18 +982,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 color: Color(0xFFF3F4F6),
                               ),
                               if (isEditMode) ...[
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: PrimaryTextField(
-                                    label: 'Owner Name',
-                                    controller: _ownerNameCtrl,
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: PrimaryTextField(
@@ -1017,15 +1020,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   ),
                                 ),
                               ] else ...[
-                                _buildReadOnlyRow(
-                                  'Owner Name',
-                                  _ownerNameCtrl.text,
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow(
                                   'Mobile Number',
                                   _mobileCtrl.text,
@@ -1125,18 +1119,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   child: PrimaryTextField(
                                     label: 'WhatsApp Number',
                                     controller: _whatsappCtrl,
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: PrimaryTextField(
-                                    label: 'PAN Number',
-                                    controller: _panCtrl,
                                   ),
                                 ),
                                 const Divider(
@@ -1682,7 +1664,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             );
                           }
 
-                          final fresh = ref.read(partnerProvider) ?? currentPartner;
+                          final fresh =
+                              ref.read(partnerProvider) ?? currentPartner;
                           final finalPartner = PartnerModel(
                             id: updatedPartner.id,
                             userId: updatedPartner.userId,
@@ -1694,7 +1677,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                               whatsappNumber: _whatsappCtrl.text,
                               businessLogo: fresh.businessInfo?.businessLogo,
                               coverImage: fresh.businessInfo?.coverImage,
-                              businessImages: fresh.businessInfo?.businessImages ?? _businessImages,
+                              businessImages:
+                                  fresh.businessInfo?.businessImages ??
+                                  _businessImages,
                               tagline: _taglineCtrl.text,
                               description: _descriptionCtrl.text,
                               websiteUrl: _websiteUrlCtrl.text,
@@ -1705,14 +1690,16 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 facebook: _facebookCtrl.text,
                                 youtube: _youtubeCtrl.text,
                               ),
-                              storeLocation: updatedPartner.businessInfo?.storeLocation,
+                              storeLocation:
+                                  updatedPartner.businessInfo?.storeLocation,
                               operatingHours: _operatingHours,
                             ),
                             serviceCategories: updatedPartner.serviceCategories,
                             coverageAreas: updatedPartner.coverageAreas,
                             isActive: updatedPartner.isActive,
                             isFeatured: updatedPartner.isFeatured,
-                            verificationStatus: updatedPartner.verificationStatus,
+                            verificationStatus:
+                                updatedPartner.verificationStatus,
                             createdAt: updatedPartner.createdAt,
                             updatedAt: DateTime.now(),
                           );
