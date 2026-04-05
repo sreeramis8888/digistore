@@ -49,5 +49,19 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Setgo needs camera access to capture images for your business profile and products.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Setgo needs access to your photo library to select images for your business profile and products.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Setgo needs permission to save images to your photo library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Setgo uses your location to show nearby stores and services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Setgo uses your location to show nearby stores and services.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Setgo uses your location to show nearby stores and services.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Setgo needs microphone access to record videos for your business profile.</string>
 </dict>
 </plist>

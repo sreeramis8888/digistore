@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/user_provider.dart';
+import '../../../data/providers/partner_provider.dart';
+import '../../../data/utils/global_variables.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
 import '../../components/partner/partner_profile_header.dart';
@@ -164,11 +167,24 @@ class PartnerProfilePage extends ConsumerWidget {
                 child: PartnerMenuItem(
                   title: 'Logout',
                   icon: const Icon(
-                    Icons.headphones_outlined,
-                    color: Color(0xFF6B7280),
+                    Icons.logout_rounded,
+                    color: kRed,
                     size: 22,
                   ),
                   screenSize: screenSize,
+                  onTap: () async {
+                    await ref.read(userProvider.notifier).clearUser();
+                    ref.read(partnerProvider.notifier).clearPartner();
+                    GlobalVariables.clear();
+                    GlobalVariables.setPartnerMode(false);
+                    if (context.mounted) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        'login',
+                        (route) => false,
+                      );
+                    }
+                  },
                 ),
               ),
               SizedBox(height: screenSize.responsivePadding(40)),

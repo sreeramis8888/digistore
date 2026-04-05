@@ -19,72 +19,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 
-Future<String> imageUpload(String imagePath) async {
-  File imageFile = File(imagePath);
-  Uint8List imageBytes = await imageFile.readAsBytes();
-  log(
-    "Original image size: ${(imageBytes.lengthInBytes / 1024).toStringAsFixed(2)} KB",
-  );
-
-  final String extension = p.extension(imagePath);
-  final String? mimeType = lookupMimeType(imagePath, headerBytes: imageBytes);
-
-  log("Image extension: $extension");
-  log("Image MIME type: $mimeType");
-
-  if (imageBytes.lengthInBytes > 2 * 1024 * 1024) {
-    img.Image? decodedImage = img.decodeImage(imageBytes);
-
-    if (decodedImage != null) {
-      final resizedImage = img.copyResize(
-        decodedImage,
-        width: (decodedImage.width * 0.5).toInt(),
-      );
-
-      imageBytes = Uint8List.fromList(img.encodeJpg(resizedImage, quality: 80));
-
-      log(
-        "Compressed image size: ${(imageBytes.lengthInBytes / 1024).toStringAsFixed(2)} KB",
-      );
-
-      imageFile = await imageFile.writeAsBytes(imageBytes);
-    }
-  }
-
-  final String baseUrl = dotenv.env['BASE_URL'] ?? '';
-  final String apiKey = dotenv.env['API_KEY'] ?? '';
-
-  final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/upload'));
-
-  request.headers['x-api-key'] = apiKey;
-
-  final secureStorage = SecureStorageService();
-  final bearerToken = await secureStorage.getBearerToken();
-
-  if (bearerToken != null) {
-    request.headers['Authorization'] = 'Bearer $bearerToken';
-  }
-
-  request.files.add(
-    await http.MultipartFile.fromPath(
-      'file',
-      imageFile.path,
-      contentType: mimeType != null
-          ? http.MediaType.parse(mimeType)
-          : http.MediaType('image', 'jpeg'),
-    ),
-  );
-
-  final response = await request.send();
-  final responseBody = await response.stream.bytesToString();
-
-  if (response.statusCode == 200) {
-    return extractImageUrl(responseBody);
-  } else {
-    log("Upload failed: $responseBody");
-    throw Exception('Failed to upload image');
-  }
-}
 
 String extractImageUrl(String responseBody) {
   final responseJson = jsonDecode(responseBody);
@@ -237,13 +171,6 @@ class FileDownloadService {
   }
 }
 
-// ============================================================================
-// MEDIA PICKER DIALOG
-// ============================================================================
-
-// ============================================================================
-// VIDEO COMPRESSION HELPER
-// ============================================================================
 
 Future<File?> _compressVideo(File file) async {
   try {
@@ -261,89 +188,6 @@ Future<File?> _compressVideo(File file) async {
   }
 }
 
-Future<String> uploadMedia(String filePath, {bool isVideo = false}) async {
-  File file = File(filePath);
-  if (!file.existsSync()) {
-    throw Exception('File not found');
-  }
-
-  String? mimeType = lookupMimeType(filePath);
-
-  // If it's an image and not a video, try to compress it
-  if (!isVideo && (mimeType?.startsWith('image/') ?? true)) {
-    return await imageUpload(filePath);
-  }
-
-  // Handle Video/Raw Upload
-  // Check if it's a video and try to compress
-  if (isVideo) {
-    int originalSize = await file.length();
-    log(
-      "Original video size: ${(originalSize / 1024 / 1024).toStringAsFixed(2)} MB",
-    );
-
-    // Only compress if larger than 10MB to verify efficiency, or just always compress for consistency
-    // User requested "seperate compressor... shouldn't compress that much"
-    // MediumQuality is usually good for social feeds (approx 720p/480p and optimized bitrates)
-
-    File? compressedFile = await _compressVideo(file);
-    if (compressedFile != null) {
-      int compressedSize = await compressedFile.length();
-      log(
-        "Compressed video size: ${(compressedSize / 1024 / 1024).toStringAsFixed(2)} MB",
-      );
-      file = compressedFile;
-      // Update mimeType for the compressed file (usually mp4)
-      mimeType = lookupMimeType(file.path);
-    } else {
-      log("Using original video file as compression failed or returned null");
-    }
-  }
-
-  final String baseUrl = dotenv.env['BASE_URL'] ?? '';
-  final String apiKey = dotenv.env['API_KEY'] ?? '';
-
-  final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/upload'));
-  request.headers['x-api-key'] = apiKey;
-
-  final secureStorage = SecureStorageService();
-  final bearerToken = await secureStorage.getBearerToken();
-
-  if (bearerToken != null) {
-    request.headers['Authorization'] = 'Bearer $bearerToken';
-  }
-
-  request.files.add(
-    await http.MultipartFile.fromPath(
-      'file',
-      file.path,
-      contentType: mimeType != null
-          ? http.MediaType.parse(mimeType)
-          : http.MediaType(isVideo ? 'video' : 'application', 'octet-stream'),
-    ),
-  );
-
-  final response = await request.send();
-  final responseBody = await response.stream.bytesToString();
-
-  if (isVideo) {
-    // Cleanup compressed file if created by VideoCompress
-    // VideoCompress usually manages cache, but good to be aware.
-    // VideoCompress.deleteAllCache(); // Can be called periodically, maybe not immediately here if upload is async in background?
-    // But since we await response, we can safely clear cache if we want, or rely on VideoCompress's cache management.
-  }
-
-  if (response.statusCode == 200) {
-    return extractImageUrl(responseBody);
-  } else {
-    log("Upload failed: $responseBody");
-    throw Exception('Failed to upload media');
-  }
-}
-
-// ============================================================================
-// MEDIA PICKER DIALOG
-// ============================================================================
 
 Future<dynamic> pickMedia({
   required BuildContext context,
@@ -467,11 +311,9 @@ class _PickSourceDialog extends StatelessWidget {
   }
 
   Future<void> _pickFromCamera(BuildContext context) async {
-    final canUseCamera = await requestPermission(Permission.camera);
-    if (!canUseCamera) {
-      if (context.mounted) {
-        openAppSettings();
-      }
+    final status = await Permission.camera.status;
+    if (status.isPermanentlyDenied) {
+      if (context.mounted) openAppSettings();
       return;
     }
 
@@ -479,17 +321,17 @@ class _PickSourceDialog extends StatelessWidget {
     final XFile? rawImage = await picker.pickImage(source: ImageSource.camera);
 
     if (rawImage == null) {
-      Navigator.pop(context, null);
+      if (context.mounted) Navigator.pop(context, null);
       return;
     }
 
     if (enableCrop) {
       final cropped = await _cropImage(rawImage.path);
-      Navigator.pop(context, cropped);
+      if (context.mounted) Navigator.pop(context, cropped);
       return;
     }
 
-    Navigator.pop(context, rawImage);
+    if (context.mounted) Navigator.pop(context, rawImage);
   }
 
   Future<void> _pickFromGallery(BuildContext context) async {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:digistore/src/data/models/user_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -97,6 +98,7 @@ class SecureStorageService {
   /// Check if bearer token exists
   Future<bool> hasBearerToken() async {
     final token = await getBearerToken();
+    log('$token', name: 'BEARER');
     return token != null && token.isNotEmpty;
   }
 

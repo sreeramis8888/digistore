@@ -13,6 +13,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/category_provider.dart';
 import '../../components/advanced_network_image.dart';
@@ -75,26 +77,62 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     isEditMode = widget.isEditMode;
     final partner = ref.read(partnerProvider);
 
-    _ownerNameCtrl = TextEditingController(text: partner?.businessInfo?.ownerName ?? '');
-    _mobileCtrl = TextEditingController(text: partner?.businessInfo?.contactPhone ?? '');
-    _emailCtrl = TextEditingController(text: partner?.businessInfo?.email ?? '');
-    _locationCtrl = TextEditingController(text: partner?.businessDetails?.address ?? '');
+    _ownerNameCtrl = TextEditingController(
+      text: partner?.businessInfo?.ownerName ?? '',
+    );
+    _mobileCtrl = TextEditingController(
+      text: partner?.businessInfo?.contactPhone ?? '',
+    );
+    _emailCtrl = TextEditingController(
+      text: partner?.businessInfo?.email ?? '',
+    );
+    _locationCtrl = TextEditingController(
+      text: partner?.businessDetails?.address ?? '',
+    );
 
-    _shopNameCtrl = TextEditingController(text: partner?.businessDetails?.businessName ?? '');
-    _categoryCtrl = TextEditingController(text: partner?.businessDetails?.businessType ?? '');
-    _contactNumCtrl = TextEditingController(text: partner?.businessInfo?.contactPhone ?? '');
-    _whatsappCtrl = TextEditingController(text: partner?.businessInfo?.whatsappNumber ?? '');
-    _panCtrl = TextEditingController(text: partner?.businessDetails?.gstNumber ?? '');
-    _shopAddressCtrl = TextEditingController(text: partner?.businessDetails?.address ?? '');
-    _pincodeCtrl = TextEditingController(text: partner?.businessDetails?.pincode ?? '');
-    _mapLocationCtrl = TextEditingController(text: partner?.businessDetails?.address ?? '');
-    
-    _taglineCtrl = TextEditingController(text: partner?.businessInfo?.tagline ?? '');
-    _descriptionCtrl = TextEditingController(text: partner?.businessInfo?.description ?? '');
-    _websiteUrlCtrl = TextEditingController(text: partner?.businessInfo?.websiteUrl ?? '');
-    _instagramCtrl = TextEditingController(text: partner?.businessInfo?.socialLinks?.instagram ?? '');
-    _facebookCtrl = TextEditingController(text: partner?.businessInfo?.socialLinks?.facebook ?? '');
-    _youtubeCtrl = TextEditingController(text: partner?.businessInfo?.socialLinks?.youtube ?? '');
+    _shopNameCtrl = TextEditingController(
+      text: partner?.businessDetails?.businessName ?? '',
+    );
+    _categoryCtrl = TextEditingController(
+      text: partner?.businessDetails?.businessType ?? '',
+    );
+    _contactNumCtrl = TextEditingController(
+      text: partner?.businessInfo?.contactPhone ?? '',
+    );
+    _whatsappCtrl = TextEditingController(
+      text: partner?.businessInfo?.whatsappNumber ?? '',
+    );
+    _panCtrl = TextEditingController(
+      text: partner?.businessDetails?.gstNumber ?? '',
+    );
+    _shopAddressCtrl = TextEditingController(
+      text: partner?.businessDetails?.address ?? '',
+    );
+    _pincodeCtrl = TextEditingController(
+      text: partner?.businessDetails?.pincode ?? '',
+    );
+    _mapLocationCtrl = TextEditingController(
+      text: partner?.businessDetails?.address ?? '',
+    );
+
+    _taglineCtrl = TextEditingController(
+      text: partner?.businessInfo?.tagline ?? '',
+    );
+    _descriptionCtrl = TextEditingController(
+      text: partner?.businessInfo?.description ?? '',
+    );
+    _websiteUrlCtrl = TextEditingController(
+      text: partner?.businessInfo?.websiteUrl ?? '',
+    );
+    _instagramCtrl = TextEditingController(
+      text: partner?.businessInfo?.socialLinks?.instagram ?? '',
+    );
+    _facebookCtrl = TextEditingController(
+      text: partner?.businessInfo?.socialLinks?.facebook ?? '',
+    );
+    _youtubeCtrl = TextEditingController(
+      text: partner?.businessInfo?.socialLinks?.youtube ?? '',
+    );
 
     _specialties = List.from(partner?.businessInfo?.specialties ?? []);
     _branches = List.from(partner?.businessInfo?.branches ?? []);
@@ -146,7 +184,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _shopAddressCtrl.dispose();
     _pincodeCtrl.dispose();
     _mapLocationCtrl.dispose();
-    
+
     _taglineCtrl.dispose();
     _descriptionCtrl.dispose();
     _websiteUrlCtrl.dispose();
@@ -156,46 +194,27 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     super.dispose();
   }
 
-  Future<String?> _uploadImage(File file) async {
-    try {
-      setState(() => _isLoading = true);
-      final url = await img_service.imageUpload(file.path);
-      return url;
-    } catch (e) {
-      if (mounted) {
-        ToastService().showToast(context, 'Upload failed: $e', type: ToastType.error);
-      }
-      return null;
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
   Future<void> _pickAndUploadImage(String field) async {
     final result = await img_service.pickMedia(
       context: context,
       enableCrop: true,
-      cropRatio: field == 'logo' ? const CropAspectRatio(ratioX: 1, ratioY: 1) : null,
+      cropRatio: field == 'logo'
+          ? const CropAspectRatio(ratioX: 1, ratioY: 1)
+          : null,
       showDocument: false,
     );
 
     if (result is XFile) {
-      final url = await _uploadImage(File(result.path));
-      if (url != null) {
-        setState(() {
-          if (field == 'logo') {
-            _pickedLogo = File(result.path);
-            _profileImage = _pickedLogo; // For preview
-          } else if (field == 'cover') {
-            _pickedCover = File(result.path);
-          } else if (field == 'gallery') {
-            _pickedGallery.add(File(result.path));
-          }
-        });
-        
-        // If it's a profile/logo change, we might want to update the partner object now 
-        // OR wait for save. Let's wait for save for consistency unless it's a separate "upload" button.
-      }
+      setState(() {
+        if (field == 'logo') {
+          _pickedLogo = File(result.path);
+          _profileImage = _pickedLogo;
+        } else if (field == 'cover') {
+          _pickedCover = File(result.path);
+        } else {
+          _pickedGallery.add(File(result.path));
+        }
+      });
     }
   }
 
@@ -214,7 +233,10 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Select Category', style: kSmallTitleM.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                'Select Category',
+                style: kSmallTitleM.copyWith(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -239,17 +261,36 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
-  void _updateDayStatus(String day, {bool? isOpen, String? open, String? close}) {
+  void _updateDayStatus(
+    String day, {
+    bool? isOpen,
+    String? open,
+    String? close,
+  }) {
     final current = _operatingHours ?? const OperatingHours();
     DayStatus? status;
     switch (day) {
-      case 'Monday': status = current.monday; break;
-      case 'Tuesday': status = current.tuesday; break;
-      case 'Wednesday': status = current.wednesday; break;
-      case 'Thursday': status = current.thursday; break;
-      case 'Friday': status = current.friday; break;
-      case 'Saturday': status = current.saturday; break;
-      case 'Sunday': status = current.sunday; break;
+      case 'Monday':
+        status = current.monday;
+        break;
+      case 'Tuesday':
+        status = current.tuesday;
+        break;
+      case 'Wednesday':
+        status = current.wednesday;
+        break;
+      case 'Thursday':
+        status = current.thursday;
+        break;
+      case 'Friday':
+        status = current.friday;
+        break;
+      case 'Saturday':
+        status = current.saturday;
+        break;
+      case 'Sunday':
+        status = current.sunday;
+        break;
     }
 
     final newStatus = DayStatus(
@@ -279,10 +320,15 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         title: const Text('Add Specialty'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: 'e.g. Organic Vegetables'),
+          decoration: const InputDecoration(
+            hintText: 'e.g. Organic Vegetables',
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
@@ -309,23 +355,37 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(hintText: 'Branch Name')),
-            TextField(controller: addressCtrl, decoration: const InputDecoration(hintText: 'Address')),
-            TextField(controller: phoneCtrl, decoration: const InputDecoration(hintText: 'Phone')),
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(hintText: 'Branch Name'),
+            ),
+            TextField(
+              controller: addressCtrl,
+              decoration: const InputDecoration(hintText: 'Address'),
+            ),
+            TextField(
+              controller: phoneCtrl,
+              decoration: const InputDecoration(hintText: 'Phone'),
+            ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               if (nameCtrl.text.isNotEmpty) {
                 setState(() {
-                  _branches.add(BusinessBranch(
-                    name: nameCtrl.text,
-                    address: addressCtrl.text,
-                    phone: phoneCtrl.text,
-                    isActive: true,
-                  ));
+                  _branches.add(
+                    BusinessBranch(
+                      name: nameCtrl.text,
+                      address: addressCtrl.text,
+                      phone: phoneCtrl.text,
+                      isActive: true,
+                    ),
+                  );
                 });
                 Navigator.pop(context);
               }
@@ -337,7 +397,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title, {bool showAdd = false, VoidCallback? onAdd}) {
+  Widget _buildSectionHeader(
+    String title, {
+    bool showAdd = false,
+    VoidCallback? onAdd,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -415,7 +479,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
-  Widget _buildRemovableChip(String label, {Widget? prefixIcon, VoidCallback? onDelete}) {
+  Widget _buildRemovableChip(
+    String label, {
+    Widget? prefixIcon,
+    VoidCallback? onDelete,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -425,10 +493,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (prefixIcon != null) ...[
-            prefixIcon,
-            const SizedBox(width: 4),
-          ],
+          if (prefixIcon != null) ...[prefixIcon, const SizedBox(width: 4)],
           Text(
             label,
             style: kSmallTitleL.copyWith(
@@ -467,11 +532,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
             borderRadius: BorderRadius.circular(8),
             child: imageUrl != null && imageUrl.isNotEmpty
                 ? AdvancedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)
-                : Icon(
-                    Icons.storefront,
-                    color: Colors.grey.shade400,
-                    size: 30,
-                  ),
+                : Icon(Icons.storefront, color: Colors.grey.shade400, size: 30),
           ),
           if (overlayText != null)
             Container(
@@ -498,13 +559,27 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     final current = _operatingHours ?? const OperatingHours();
     DayStatus? status;
     switch (day) {
-      case 'Monday': status = current.monday; break;
-      case 'Tuesday': status = current.tuesday; break;
-      case 'Wednesday': status = current.wednesday; break;
-      case 'Thursday': status = current.thursday; break;
-      case 'Friday': status = current.friday; break;
-      case 'Saturday': status = current.saturday; break;
-      case 'Sunday': status = current.sunday; break;
+      case 'Monday':
+        status = current.monday;
+        break;
+      case 'Tuesday':
+        status = current.tuesday;
+        break;
+      case 'Wednesday':
+        status = current.wednesday;
+        break;
+      case 'Thursday':
+        status = current.thursday;
+        break;
+      case 'Friday':
+        status = current.friday;
+        break;
+      case 'Saturday':
+        status = current.saturday;
+        break;
+      case 'Sunday':
+        status = current.sunday;
+        break;
     }
 
     bool isOpen = status?.isOpen ?? false;
@@ -544,7 +619,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                     alignment: Alignment.center,
                     child: Text(
                       start,
-                      style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
+                      style: kSmallTitleL.copyWith(
+                        color: const Color(0xFF373737),
+                      ),
                     ),
                   ),
                 ),
@@ -570,7 +647,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                     alignment: Alignment.center,
                     child: Text(
                       end,
-                      style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
+                      style: kSmallTitleL.copyWith(
+                        color: const Color(0xFF373737),
+                      ),
                     ),
                   ),
                 ),
@@ -616,7 +695,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                 child: Center(
                   child: Text(
                     start,
-                    style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
+                    style: kSmallTitleL.copyWith(
+                      color: const Color(0xFF373737),
+                    ),
                   ),
                 ),
               ),
@@ -624,7 +705,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                 child: Center(
                   child: Text(
                     end,
-                    style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
+                    style: kSmallTitleL.copyWith(
+                      color: const Color(0xFF373737),
+                    ),
                   ),
                 ),
               ),
@@ -707,17 +790,75 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (partner?.businessInfo?.coverImage != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: GestureDetector(
+                            onTap: isEditMode
+                                ? () => _pickAndUploadImage('cover')
+                                : null,
                             child: AspectRatio(
                               aspectRatio: 16 / 9,
-                              child: AdvancedNetworkImage(
-                                imageUrl: partner!.businessInfo!.coverImage!,
-                                borderRadius: BorderRadius.circular(12),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: _pickedCover != null
+                                        ? Image.file(
+                                            _pickedCover!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : partner?.businessInfo?.coverImage != null
+                                            ? AdvancedNetworkImage(
+                                                imageUrl: partner!.businessInfo!.coverImage!,
+                                                borderRadius: BorderRadius.circular(12),
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFF3F4F6),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: Icon(
+                                                  Icons.image_outlined,
+                                                  size: 48,
+                                                  color: Colors.grey.shade400,
+                                                ),
+                                              ),
+                                  ),
+                                  if (isEditMode)
+                                    Positioned.fill(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.25),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.camera_alt_outlined,
+                                              color: Colors.white,
+                                              size: 28,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Change Cover',
+                                              style: kSmallTitleL.copyWith(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
+                        ),
+
                         Center(
                           child: Column(
                             children: [
@@ -739,34 +880,36 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           fit: BoxFit.cover,
                                           errorBuilder:
                                               (context, error, stackTrace) =>
-                                                  const Icon(Icons.error,
-                                                      color: Colors.red),
+                                                  const Icon(
+                                                    Icons.error,
+                                                    color: Colors.red,
+                                                  ),
                                         ),
                                       )
-                                    : partner?.businessInfo?.businessLogo != null
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            child: AdvancedNetworkImage(
-                                              imageUrl: partner!
-                                                  .businessInfo!.businessLogo!,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          )
-                                        : Center(
-                                            child: Text(
-                                              partner?.businessDetails
-                                                      ?.businessName
-                                                      ?.toUpperCase() ??
-                                                  'FRESH\nSUPERMARKET',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.orange.shade700,
-                                              ),
-                                            ),
+                                    : partner?.businessInfo?.businessLogo !=
+                                          null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: AdvancedNetworkImage(
+                                          imageUrl: partner!
+                                              .businessInfo!
+                                              .businessLogo!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          partner?.businessDetails?.businessName
+                                                  ?.toUpperCase() ??
+                                              '',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange.shade700,
                                           ),
+                                        ),
+                                      ),
                               ),
                               const SizedBox(height: 12),
                               if (isEditMode)
@@ -790,31 +933,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                       ),
                                     ],
                                   ),
-                                )
-                              else
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '4.5 ',
-                                      style: kSmallTitleM.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: kBlack,
-                                      ),
-                                    ),
-                                    const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                      size: 16,
-                                    ),
-                                    Text(
-                                      ' out of 10',
-                                      style: kSmallTitleL.copyWith(
-                                        color: const Color(0xFF6B7280),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                 )
                             ],
                           ),
                         ),
@@ -1148,19 +1267,30 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 onAdd: () => _showAddBranchDialog(),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: SizedBox(
                                   width: double.infinity,
                                   child: Wrap(
                                     spacing: 8,
                                     runSpacing: 8,
                                     children: [
-                                      ..._branches.map((branch) => _buildRemovableChip(
-                                        branch.name ?? '',
-                                        onDelete: () => setState(() => _branches.remove(branch)),
-                                      )),
+                                      ..._branches.map(
+                                        (branch) => _buildRemovableChip(
+                                          branch.name ?? '',
+                                          onDelete: () => setState(
+                                            () => _branches.remove(branch),
+                                          ),
+                                        ),
+                                      ),
                                       if (_branches.isEmpty)
-                                        Text('No branches added', style: kSmallTitleL.copyWith(color: kGrey)),
+                                        Text(
+                                          'No branches added',
+                                          style: kSmallTitleL.copyWith(
+                                            color: kGrey,
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -1172,46 +1302,110 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 onAdd: () => _showAddSpecialtyDialog(),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: SizedBox(
                                   width: double.infinity,
                                   child: Wrap(
                                     spacing: 8,
                                     runSpacing: 8,
                                     children: [
-                                      ..._specialties.map((s) => _buildRemovableChip(
-                                        s,
-                                        onDelete: () => setState(() => _specialties.remove(s)),
-                                      )),
+                                      ..._specialties.map(
+                                        (s) => _buildRemovableChip(
+                                          s,
+                                          onDelete: () => setState(
+                                            () => _specialties.remove(s),
+                                          ),
+                                        ),
+                                      ),
                                       if (_specialties.isEmpty)
-                                        Text('No specialties added', style: kSmallTitleL.copyWith(color: kGrey)),
+                                        Text(
+                                          'No specialties added',
+                                          style: kSmallTitleL.copyWith(
+                                            color: kGrey,
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
                               ),
 
-                              _buildSectionHeader('Social Media', showAdd: false),
+                              _buildSectionHeader(
+                                'Social Media',
+                                showAdd: false,
+                              ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: Column(
                                   children: [
                                     if (isEditMode) ...[
-                                      PrimaryTextField(label: 'Instagram', controller: _instagramCtrl, hint: 'Instagram Profile Link'),
+                                      PrimaryTextField(
+                                        label: 'Instagram',
+                                        controller: _instagramCtrl,
+                                        hint: 'Instagram Profile Link',
+                                      ),
                                       const SizedBox(height: 12),
-                                      PrimaryTextField(label: 'Facebook', controller: _facebookCtrl, hint: 'Facebook Profile Link'),
+                                      PrimaryTextField(
+                                        label: 'Facebook',
+                                        controller: _facebookCtrl,
+                                        hint: 'Facebook Profile Link',
+                                      ),
                                       const SizedBox(height: 12),
-                                      PrimaryTextField(label: 'YouTube', controller: _youtubeCtrl, hint: 'YouTube Channel Link'),
+                                      PrimaryTextField(
+                                        label: 'YouTube',
+                                        controller: _youtubeCtrl,
+                                        hint: 'YouTube Channel Link',
+                                      ),
                                       const SizedBox(height: 12),
-                                      PrimaryTextField(label: 'Website', controller: _websiteUrlCtrl, hint: 'Business Website URL'),
+                                      PrimaryTextField(
+                                        label: 'Website',
+                                        controller: _websiteUrlCtrl,
+                                        hint: 'Business Website URL',
+                                      ),
                                     ] else ...[
                                       if (_instagramCtrl.text.isNotEmpty)
-                                        _buildReadOnlyRow('Instagram', _instagramCtrl.text, prefixIcon: const Icon(Icons.camera_alt_outlined, color: Colors.pink, size: 16)),
+                                        _buildReadOnlyRow(
+                                          'Instagram',
+                                          _instagramCtrl.text,
+                                          prefixIcon: const Icon(
+                                            Icons.camera_alt_outlined,
+                                            color: Colors.pink,
+                                            size: 16,
+                                          ),
+                                        ),
                                       if (_facebookCtrl.text.isNotEmpty)
-                                        _buildReadOnlyRow('Facebook', _facebookCtrl.text, prefixIcon: const Icon(Icons.facebook, color: Colors.blue, size: 16)),
+                                        _buildReadOnlyRow(
+                                          'Facebook',
+                                          _facebookCtrl.text,
+                                          prefixIcon: const Icon(
+                                            Icons.facebook,
+                                            color: Colors.blue,
+                                            size: 16,
+                                          ),
+                                        ),
                                       if (_youtubeCtrl.text.isNotEmpty)
-                                        _buildReadOnlyRow('YouTube', _youtubeCtrl.text, prefixIcon: const Icon(Icons.play_circle_outline, color: Colors.red, size: 16)),
+                                        _buildReadOnlyRow(
+                                          'YouTube',
+                                          _youtubeCtrl.text,
+                                          prefixIcon: const Icon(
+                                            Icons.play_circle_outline,
+                                            color: Colors.red,
+                                            size: 16,
+                                          ),
+                                        ),
                                       if (_websiteUrlCtrl.text.isNotEmpty)
-                                        _buildReadOnlyRow('Website', _websiteUrlCtrl.text, prefixIcon: const Icon(Icons.language, color: Colors.blue, size: 16)),
+                                        _buildReadOnlyRow(
+                                          'Website',
+                                          _websiteUrlCtrl.text,
+                                          prefixIcon: const Icon(
+                                            Icons.language,
+                                            color: Colors.blue,
+                                            size: 16,
+                                          ),
+                                        ),
                                     ],
                                   ],
                                 ),
@@ -1219,50 +1413,93 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
                               _buildSectionHeader('Shop Images', showAdd: true),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: Wrap(
                                   spacing: 12,
                                   runSpacing: 12,
                                   children: [
-                                    ..._businessImages.asMap().entries.map((entry) {
+                                    ..._businessImages.asMap().entries.map((
+                                      entry,
+                                    ) {
                                       return Stack(
                                         children: [
-                                          _buildShopImage(imageUrl: entry.value),
+                                          _buildShopImage(
+                                            imageUrl: entry.value,
+                                          ),
                                           if (isEditMode)
                                             Positioned(
                                               top: 2,
                                               right: 2,
                                               child: GestureDetector(
-                                                onTap: () => setState(() => _businessImages.removeAt(entry.key)),
+                                                onTap: () => setState(
+                                                  () => _businessImages
+                                                      .removeAt(entry.key),
+                                                ),
                                                 child: Container(
-                                                  padding: const EdgeInsets.all(2),
-                                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                                  child: const Icon(Icons.close, size: 12, color: Colors.white),
+                                                  padding: const EdgeInsets.all(
+                                                    2,
+                                                  ),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color: Colors.red,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    size: 12,
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                         ],
                                       );
                                     }),
-                                    ..._pickedGallery.asMap().entries.map((entry) {
+                                    ..._pickedGallery.asMap().entries.map((
+                                      entry,
+                                    ) {
                                       return Stack(
                                         children: [
                                           Container(
-                                            width: 70, height: 70,
-                                            margin: const EdgeInsets.only(right: 12, bottom: 12),
+                                            width: 70,
+                                            height: 70,
+                                            margin: const EdgeInsets.only(
+                                              right: 12,
+                                              bottom: 12,
+                                            ),
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(8),
-                                              image: DecorationImage(image: FileImage(entry.value), fit: BoxFit.cover),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              image: DecorationImage(
+                                                image: FileImage(entry.value),
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                           ),
                                           Positioned(
-                                            top: -2, right: 8,
+                                            top: -2,
+                                            right: 8,
                                             child: GestureDetector(
-                                              onTap: () => setState(() => _pickedGallery.removeAt(entry.key)),
+                                              onTap: () => setState(
+                                                () => _pickedGallery.removeAt(
+                                                  entry.key,
+                                                ),
+                                              ),
                                               child: Container(
-                                                padding: const EdgeInsets.all(2),
-                                                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                                child: const Icon(Icons.close, size: 12, color: Colors.white),
+                                                padding: const EdgeInsets.all(
+                                                  2,
+                                                ),
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.red,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 12,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -1271,16 +1508,25 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     }),
                                     if (isEditMode)
                                       GestureDetector(
-                                        onTap: () => _pickAndUploadImage('gallery'),
+                                        onTap: () =>
+                                            _pickAndUploadImage('gallery'),
                                         child: Container(
                                           width: 70,
                                           height: 70,
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFF3F4F6),
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: Colors.grey.shade300, style: BorderStyle.none), // dashed border not easily possible without extra package, let's just use normal
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.grey.shade300,
+                                              style: BorderStyle.none,
+                                            ), // dashed border not easily possible without extra package, let's just use normal
                                           ),
-                                          child: const Icon(Icons.add_a_photo_outlined, color: kGrey),
+                                          child: const Icon(
+                                            Icons.add_a_photo_outlined,
+                                            color: kGrey,
+                                          ),
                                         ),
                                       ),
                                   ],
@@ -1339,14 +1585,17 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             address: _shopAddressCtrl.text,
                             pincode: _pincodeCtrl.text,
                             gstNumber: _panCtrl.text,
-                            registrationNumber: currentPartner.businessDetails?.registrationNumber,
+                            registrationNumber: currentPartner
+                                .businessDetails
+                                ?.registrationNumber,
                           ),
                           businessInfo: BusinessInfo(
                             ownerName: _ownerNameCtrl.text,
                             email: _emailCtrl.text,
                             contactPhone: _contactNumCtrl.text,
                             whatsappNumber: _whatsappCtrl.text,
-                            businessLogo: currentPartner.businessInfo?.businessLogo,
+                            businessLogo:
+                                currentPartner.businessInfo?.businessLogo,
                             coverImage: currentPartner.businessInfo?.coverImage,
                             businessImages: _businessImages,
                             tagline: _taglineCtrl.text,
@@ -1380,38 +1629,116 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                         setState(() => _isLoading = true);
                         try {
                           final notifier = ref.read(partnerProvider.notifier);
-                          var currentData = updatedPartner;
+                          bool success = false;
 
-                          // Sequential uploads to respect the single uploadField logic of the backend
                           if (_pickedLogo != null) {
-                            final file = await http.MultipartFile.fromPath('file', _pickedLogo!.path);
-                            final success = await notifier.updateProfile(currentData, files: [file], uploadField: 'logo');
-                            if (success) currentData = ref.read(partnerProvider)!;
+                            final file = await http.MultipartFile.fromPath(
+                              'images',
+                              _pickedLogo!.path,
+                              contentType: MediaType.parse(
+                                lookupMimeType(_pickedLogo!.path) ??
+                                    'image/jpeg',
+                              ),
+                            );
+                            success = await notifier.updateProfile(
+                              updatedPartner,
+                              files: [file],
+                              uploadField: 'logo',
+                            );
                           }
 
                           if (_pickedCover != null) {
-                            final file = await http.MultipartFile.fromPath('file', _pickedCover!.path);
-                            final success = await notifier.updateProfile(currentData, files: [file], uploadField: 'cover');
-                            if (success) currentData = ref.read(partnerProvider)!;
+                            final file = await http.MultipartFile.fromPath(
+                              'images',
+                              _pickedCover!.path,
+                              contentType: MediaType.parse(
+                                lookupMimeType(_pickedCover!.path) ??
+                                    'image/jpeg',
+                              ),
+                            );
+                            success = await notifier.updateProfile(
+                              updatedPartner,
+                              files: [file],
+                              uploadField: 'cover',
+                            );
                           }
 
                           if (_pickedGallery.isNotEmpty) {
-                            final files = await Future.wait(_pickedGallery.map((f) => http.MultipartFile.fromPath('file', f.path)));
-                            final success = await notifier.updateProfile(currentData, files: files, uploadField: 'gallery');
-                            if (success) currentData = ref.read(partnerProvider)!;
+                            final files = await Future.wait(
+                              _pickedGallery.map(
+                                (f) => http.MultipartFile.fromPath(
+                                  'images',
+                                  f.path,
+                                  contentType: MediaType.parse(
+                                    lookupMimeType(f.path) ?? 'image/jpeg',
+                                  ),
+                                ),
+                              ),
+                            );
+                            success = await notifier.updateProfile(
+                              updatedPartner,
+                              files: files,
+                              uploadField: 'gallery',
+                            );
                           }
 
-                          // Final non-multipart update to catch any remaining changes
-                          final finalSuccess = await notifier.updateProfile(currentData);
-                          
-                          if (finalSuccess && context.mounted) {
-                            ToastService().showToast(context, 'Profile updated successfully');
+                          final fresh = ref.read(partnerProvider) ?? currentPartner;
+                          final finalPartner = PartnerModel(
+                            id: updatedPartner.id,
+                            userId: updatedPartner.userId,
+                            businessDetails: updatedPartner.businessDetails,
+                            businessInfo: BusinessInfo(
+                              ownerName: _ownerNameCtrl.text,
+                              email: _emailCtrl.text,
+                              contactPhone: _contactNumCtrl.text,
+                              whatsappNumber: _whatsappCtrl.text,
+                              businessLogo: fresh.businessInfo?.businessLogo,
+                              coverImage: fresh.businessInfo?.coverImage,
+                              businessImages: fresh.businessInfo?.businessImages ?? _businessImages,
+                              tagline: _taglineCtrl.text,
+                              description: _descriptionCtrl.text,
+                              websiteUrl: _websiteUrlCtrl.text,
+                              specialties: _specialties,
+                              branches: _branches,
+                              socialLinks: SocialLinks(
+                                instagram: _instagramCtrl.text,
+                                facebook: _facebookCtrl.text,
+                                youtube: _youtubeCtrl.text,
+                              ),
+                              storeLocation: updatedPartner.businessInfo?.storeLocation,
+                              operatingHours: _operatingHours,
+                            ),
+                            serviceCategories: updatedPartner.serviceCategories,
+                            coverageAreas: updatedPartner.coverageAreas,
+                            isActive: updatedPartner.isActive,
+                            isFeatured: updatedPartner.isFeatured,
+                            verificationStatus: updatedPartner.verificationStatus,
+                            createdAt: updatedPartner.createdAt,
+                            updatedAt: DateTime.now(),
+                          );
+
+                          success = await notifier.updateProfile(finalPartner);
+
+                          if (success && context.mounted) {
+                            ToastService().showToast(
+                              context,
+                              'Profile updated successfully',
+                            );
                             Navigator.pop(context);
-                          } else if (!finalSuccess && context.mounted) {
-                            ToastService().showToast(context, 'Failed to update profile details', type: ToastType.error);
+                          } else if (!success && context.mounted) {
+                            ToastService().showToast(
+                              context,
+                              'Failed to update profile details',
+                              type: ToastType.error,
+                            );
                           }
                         } catch (e) {
-                          if (context.mounted) ToastService().showToast(context, 'An error occurred: $e', type: ToastType.error);
+                          if (context.mounted)
+                            ToastService().showToast(
+                              context,
+                              'An error occurred: $e',
+                              type: ToastType.error,
+                            );
                         } finally {
                           if (mounted) setState(() => _isLoading = false);
                         }
