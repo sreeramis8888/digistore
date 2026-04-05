@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/home_data.dart';
 import '../models/partner_home_data.dart';
 import 'api_provider.dart';
+import 'user_provider.dart';
 import 'user_type_provider.dart';
 
 part 'home_provider.g.dart';
@@ -11,7 +12,19 @@ part 'home_provider.g.dart';
 Future<HomeResponseState?> homeData(Ref ref) async {
   final userType = ref.watch(userTypeProvider);
   final api = ref.watch(apiProvider);
-  final response = await api.get('/home');
+  final user = ref.watch(userProvider);
+
+  final lat = user?.location?.coordinates?.lat;
+  final lng = user?.location?.coordinates?.lng;
+
+  final Map<String, String>? queryParams = (lat != null && lng != null)
+      ? {
+          'lat': lat.toString(),
+          'lng': lng.toString(),
+        }
+      : null;
+
+  final response = await api.get('/home', queryParams: queryParams);
 
   if (response.success && response.data != null) {
     if (response.data!['data'] != null) {

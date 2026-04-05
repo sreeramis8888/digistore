@@ -20,7 +20,10 @@ class AdvancedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl.isEmpty) {
+    final cleanedUrl = imageUrl.trim();
+    if (cleanedUrl.isEmpty ||
+        cleanedUrl == 'null' ||
+        cleanedUrl == 'undefined') {
       return _buildErrorPlaceholder();
     }
 
@@ -34,9 +37,9 @@ class AdvancedNetworkImage extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
-          child: imageUrl.startsWith('assets/')
+          child: cleanedUrl.startsWith('assets/')
               ? Image.asset(
-                  imageUrl,
+                  cleanedUrl,
                   width: width,
                   height: height,
                   fit: fit,
@@ -47,7 +50,7 @@ class AdvancedNetworkImage extends StatelessWidget {
                   ),
                 )
               : CachedNetworkImage(
-                  imageUrl: imageUrl,
+                  imageUrl: cleanedUrl,
                   width: width,
                   height: height,
                   fit: fit,

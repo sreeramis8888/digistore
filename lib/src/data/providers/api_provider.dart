@@ -171,8 +171,12 @@ class ApiProvider {
         headers: headers,
         body: json.encode(data),
       );
-
+      log(name: 'API PUT', '$baseUrl$endpoint');
+      log(name: 'API PUT payload', json.encode(data));
       final decoded = json.decode(response.body);
+
+      log(name: 'API PUT', '$baseUrl$endpoint');
+      log(name: 'API PUT data ', '${decoded['data']}');
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
@@ -184,6 +188,41 @@ class ApiProvider {
       await CrashlyticsService.logError(e, stackTrace);
       await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
       await CrashlyticsService.setCustomKey('api_method', 'PUT');
+      return ApiResponse.error('Failed to connect to the server: $e');
+    }
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> putMultipart(
+    String endpoint,
+    Map<String, String> body, {
+    List<http.MultipartFile>? files,
+    bool requireAuth = true,
+  }) async {
+    try {
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      headers.remove('Content-Type');
+      
+      final request = http.MultipartRequest('PUT', Uri.parse('$baseUrl$endpoint'));
+      request.headers.addAll(headers);
+      request.fields.addAll(body);
+      
+      if (files != null) {
+        request.files.addAll(files);
+      }
+      
+      log(name: 'API PUT MULTIPART', '$baseUrl$endpoint');
+      final streamedResponse = await request.send();
+      final responseBody = await streamedResponse.stream.bytesToString();
+      final decoded = json.decode(responseBody);
+      
+      if (streamedResponse.statusCode >= 200 && streamedResponse.statusCode < 300) {
+        return ApiResponse.success(decoded, streamedResponse.statusCode);
+      } else {
+        final message = decoded['message'] ?? 'Failed to put multipart data';
+        return ApiResponse.error(message, streamedResponse.statusCode);
+      }
+    } catch (e, stackTrace) {
+      await CrashlyticsService.logError(e, stackTrace);
       return ApiResponse.error('Failed to connect to the server: $e');
     }
   }

@@ -112,6 +112,11 @@ class _LocationSelectionBottomSheetState
   }
 
   void _submit() {
+    if (_districtController.text.trim().isEmpty) {
+      setState(() => _errorMessage = 'District is mandatory.');
+      return;
+    }
+
     if (_lat == null || _lng == null) {
       setState(
         () => _errorMessage =
@@ -178,6 +183,7 @@ class _LocationSelectionBottomSheetState
               label: 'District',
               hint: 'Enter district',
               controller: _districtController,
+              isRequired: true,
             ),
 
             const SizedBox(height: 10),

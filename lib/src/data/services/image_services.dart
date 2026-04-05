@@ -576,11 +576,11 @@ Future<File?> cropImage(String path, {CropAspectRatio? cropRatio}) async {
     compressQuality: 95,
     uiSettings: [
       AndroidUiSettings(
-        toolbarTitle: "cropImage",
+        toolbarTitle: "Crop Image",
         hideBottomControls: false,
         lockAspectRatio: cropRatio != null,
       ),
-      IOSUiSettings(title: "cropImage"),
+      IOSUiSettings(title: "Crop Image"),
     ],
   );
 

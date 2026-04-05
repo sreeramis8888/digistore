@@ -76,6 +76,30 @@ class PartnerModel {
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'userId': userId,
+      'businessDetails': businessDetails?.toJson(),
+      'businessInfo': businessInfo?.toJson(),
+      'coverageAreas': coverageAreas?.toJson(),
+      'serviceCategories': serviceCategories,
+      'incomeSharingPercentage': incomeSharingPercentage,
+      'verificationStatus': verificationStatus,
+      'isActive': isActive,
+      'isFeatured': isFeatured,
+      'isPremium': isPremium,
+      'tags': tags,
+      'totalLeads': totalLeads,
+      'convertedLeads': convertedLeads,
+      'totalRevenue': totalRevenue,
+      'paymentDetails': paymentDetails?.toJson(),
+      'documents': documents?.toJson(),
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
 }
 
 class PaymentDetails {
@@ -102,6 +126,16 @@ class PaymentDetails {
       upiId: json['upiId'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'bankName': bankName,
+      'accountNumber': accountNumber,
+      'ifscCode': ifscCode,
+      'accountHolderName': accountHolderName,
+      'upiId': upiId,
+    };
+  }
 }
 
 class PartnerDocuments {
@@ -121,5 +155,13 @@ class PartnerDocuments {
       businessLicense: json['businessLicense'] as String?,
       panCard: json['panCard'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'gstCertificate': gstCertificate,
+      'businessLicense': businessLicense,
+      'panCard': panCard,
+    };
   }
 }

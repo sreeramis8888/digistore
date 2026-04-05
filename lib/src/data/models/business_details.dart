@@ -25,4 +25,15 @@ class BusinessDetails {
       pincode: json['pincode'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'businessName': businessName,
+      'businessType': businessType,
+      'registrationNumber': registrationNumber,
+      'gstNumber': gstNumber,
+      'address': address,
+      'pincode': pincode,
+    };
+  }
 }

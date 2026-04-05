@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/partner_model.dart';
-import '../models/business_details.dart';
-import '../models/business_info.dart';
 import 'api_provider.dart';
 
 class PartnerNotifier extends Notifier<PartnerModel?> {
@@ -33,60 +33,44 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
     return response.statusCode;
   }
 
-  Future<bool> updateProfile({
-    String? ownerName,
-    String? email,
-    String? shopName,
-    String? contactPhone,
-    String? whatsappNumber,
-    String? address,
-    String? pincode,
+  Future<bool> updateProfile(
+    PartnerModel updatedPartner, {
+    List<http.MultipartFile>? files,
+    String? uploadField,
   }) async {
-    // In a real app, we'd send a PUT/PATCH request
-    // For now, we update local state to reflect changes
-    if (state != null) {
-      final updatedPartner = PartnerModel(
-        id: state!.id,
-        userId: state!.userId,
-        businessDetails: BusinessDetails(
-          businessName: shopName ?? state!.businessDetails?.businessName,
-          address: address ?? state!.businessDetails?.address,
-          pincode: pincode ?? state!.businessDetails?.pincode,
-          businessType: state!.businessDetails?.businessType,
-          registrationNumber: state!.businessDetails?.registrationNumber,
-          gstNumber: state!.businessDetails?.gstNumber,
-        ),
-        businessInfo: BusinessInfo(
-          contactPhone: contactPhone ?? state!.businessInfo?.contactPhone,
-          whatsappNumber: whatsappNumber ?? state!.businessInfo?.whatsappNumber,
-          email: email ?? state!.businessInfo?.email,
-          ownerName: ownerName ?? state!.businessInfo?.ownerName,
-          businessLogo: state!.businessInfo?.businessLogo,
-          coverImage: state!.businessInfo?.coverImage,
-          description: state!.businessInfo?.description,
-          tagline: state!.businessInfo?.tagline,
-          operatingHours: state!.businessInfo?.operatingHours,
-          socialLinks: state!.businessInfo?.socialLinks,
-          storeLocation: state!.businessInfo?.storeLocation,
-        ),
-        coverageAreas: state!.coverageAreas,
-        serviceCategories: state!.serviceCategories,
-        incomeSharingPercentage: state!.incomeSharingPercentage,
-        verificationStatus: state!.verificationStatus,
-        isActive: state!.isActive,
-        isFeatured: state!.isFeatured,
-        isPremium: state!.isPremium,
-        tags: state!.tags,
-        totalLeads: state!.totalLeads,
-        convertedLeads: state!.convertedLeads,
-        totalRevenue: state!.totalRevenue,
-        paymentDetails: state!.paymentDetails,
-        documents: state!.documents,
-        createdAt: state!.createdAt,
-        updatedAt: DateTime.now(),
+    final api = ref.read(apiProvider);
+
+    ApiResponse<Map<String, dynamic>> response;
+    
+    if (files != null && files.isNotEmpty) {
+      final body = {
+        'businessDetails': json.encode(updatedPartner.businessDetails?.toJson()),
+        'businessInfo': json.encode(updatedPartner.businessInfo?.toJson()),
+      };
+      if (uploadField != null) {
+        body['uploadField'] = uploadField;
+      }
+      
+      response = await api.putMultipart(
+        '/profile',
+        body,
+        files: files,
+        requireAuth: true,
       );
-      state = updatedPartner;
-      return true;
+    } else {
+      response = await api.put(
+        '/profile',
+        updatedPartner.toJson(),
+        requireAuth: true,
+      );
+    }
+
+    if (response.success && response.data != null) {
+      final partnerData = response.data!['data'];
+      if (partnerData != null) {
+        state = PartnerModel.fromJson(partnerData as Map<String, dynamic>);
+        return true;
+      }
     }
     return false;
   }

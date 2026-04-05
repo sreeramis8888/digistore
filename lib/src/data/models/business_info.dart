@@ -75,6 +75,33 @@ class BusinessInfo {
       email: json['email'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'businessLogo': businessLogo,
+      'coverImage': coverImage,
+      'businessImages': businessImages,
+      'description': description,
+      'tagline': tagline,
+      'specialties': specialties,
+      'yearsOfExperience': yearsOfExperience,
+      'rating': rating,
+      'totalReviews': totalReviews,
+      'contactPhone': contactPhone,
+      'otpPhone': otpPhone,
+      'whatsappNumber': whatsappNumber,
+      'websiteUrl': websiteUrl,
+      'storeLocation': storeLocation?.toJson(),
+      'operatingHours': operatingHours?.toJson(),
+      'socialLinks': socialLinks?.toJson(),
+      'videoUrl': videoUrl,
+      'achievements': achievements,
+      'faqs': faqs?.map((e) => e.toJson()).toList(),
+      'branches': branches?.map((e) => e.toJson()).toList(),
+      'ownerName': ownerName,
+      'email': email,
+    };
+  }
 }
 
 class OperatingHours {
@@ -107,6 +134,18 @@ class OperatingHours {
       sunday: json['sunday'] != null ? DayStatus.fromJson(json['sunday'] as Map<String, dynamic>) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'monday': monday?.toJson(),
+      'tuesday': tuesday?.toJson(),
+      'wednesday': wednesday?.toJson(),
+      'thursday': thursday?.toJson(),
+      'friday': friday?.toJson(),
+      'saturday': saturday?.toJson(),
+      'sunday': sunday?.toJson(),
+    };
+  }
 }
 
 class DayStatus {
@@ -122,6 +161,14 @@ class DayStatus {
       open: json['open'] as String?,
       close: json['close'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isOpen': isOpen,
+      'open': open,
+      'close': close,
+    };
   }
 }
 
@@ -139,6 +186,14 @@ class SocialLinks {
       youtube: json['youtube'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'instagram': instagram,
+      'facebook': facebook,
+      'youtube': youtube,
+    };
+  }
 }
 
 class BusinessFAQ {
@@ -152,6 +207,13 @@ class BusinessFAQ {
       question: json['question'] as String?,
       answer: json['answer'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'question': question,
+      'answer': answer,
+    };
   }
 }
 
@@ -181,5 +243,16 @@ class BusinessBranch {
       operatingHours: json['operatingHours'] != null ? OperatingHours.fromJson(json['operatingHours'] as Map<String, dynamic>) : null,
       isActive: json['isActive'] as bool?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'address': address,
+      'phone': phone,
+      'location': location?.toJson(),
+      'operatingHours': operatingHours?.toJson(),
+      'isActive': isActive,
+    };
   }
 }

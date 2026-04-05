@@ -25,4 +25,15 @@ class LocationPoint {
       pincode: json['pincode'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'coordinates': coordinates,
+      'address': address,
+      'city': city,
+      'state': state,
+      'pincode': pincode,
+    };
+  }
 }

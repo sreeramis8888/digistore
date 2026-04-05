@@ -19,4 +19,13 @@ class CoverageAreas {
       localBodies: json['localBodies'] != null ? List<String>.from(json['localBodies']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'districts': districts,
+      'cities': cities,
+      'states': states,
+      'localBodies': localBodies,
+    };
+  }
 }
