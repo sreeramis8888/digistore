@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
@@ -15,11 +16,26 @@ import '../components/empty_state.dart';
 import '../components/primary_button.dart';
 import 'partner/create_offer_page.dart';
 
-class OffersPage extends ConsumerWidget {
+class OffersPage extends ConsumerStatefulWidget {
   const OffersPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OffersPage> createState() => _OffersPageState();
+}
+
+class _OffersPageState extends ConsumerState<OffersPage> {
+  String? _lastCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(offersProvider.notifier).fetchOffers();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
     final itemHeight = screenSize.responsivePadding(260);
@@ -36,7 +52,14 @@ class OffersPage extends ConsumerWidget {
       }
     });
 
-    final offersAsync = ref.watch(offersProvider(categoryId: categoryId));
+    if (categoryId != _lastCategoryId) {
+      _lastCategoryId = categoryId;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(offersProvider.notifier).fetchOffers(categoryId: categoryId);
+      });
+    }
+
+    final offersState = ref.watch(offersProvider);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -48,87 +71,69 @@ class OffersPage extends ConsumerWidget {
         backgroundColor: kWhite,
         elevation: 0,
         scrolledUnderElevation: 0,
+        actions: [
+          if (GlobalVariables.isPartner)
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16),
+                vertical: screenSize.responsivePadding(8),
+              ),
+              child: PrimaryButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateOfferPage(),
+                    ),
+                  );
+                },
+                width: screenSize.responsivePadding(120),
+                text: 'Create Offer',
+                textSize: 12,
+                backgroundColor: kPrimaryColor,
+                textColor: kWhite,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: Column(
           children: [
             if (GlobalVariables.isPartner) ...[
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16),
-                  vertical: screenSize.responsivePadding(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'All Deals',
-                      style: kSmallTitleB.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    PrimaryButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateOfferPage(),
-                          ),
-                        );
-                      },
-                      width: screenSize.responsivePadding(140),
-                      height: screenSize.responsivePadding(44),
-                      text: 'Create Offer',
-                      textSize: 14,
-                      backgroundColor: kPrimaryColor,
-                      textColor: kWhite,
-                    ),
-                  ],
-                ),
-              ),
+              SizedBox(height: screenSize.responsivePadding(16)),
               const HomeSearchBar(hintText: "Search for 'offers'"),
             ] else
               const OffersFilterChips(),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
-              child: offersAsync.when(
-                data: (paginated) {
-                  if (paginated.offers.isEmpty) {
-                    return EmptyState(
+              child: offersState.isLoading
+                  ? const Center(child: LoadingAnimation())
+                  : offersState.offers.isEmpty
+                  ? EmptyState(
                       imagePath: 'assets/png/empty_offers.png',
-                      title: GlobalVariables.isPartner ? 'No offer created yet' : 'No offers found',
+                      title: GlobalVariables.isPartner
+                          ? 'No offer created yet'
+                          : 'No offers found',
                       subtitle: GlobalVariables.isPartner
                           ? 'You haven\'t created any offers yet. Start by creating your first deal!'
                           : 'Check back later for exciting new deals and discounts in this category.',
-                    );
-                  }
-                  return GridView.builder(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
+                    )
+                  : GridView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: screenSize.responsivePadding(16),
+                        crossAxisSpacing: screenSize.responsivePadding(16),
+                        childAspectRatio: aspectRatio,
+                      ),
+                      itemCount: offersState.offers.length,
+                      itemBuilder: (context, index) {
+                        final o = offersState.offers[index];
+                        return DealCard.fromOffer(o);
+                      },
                     ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: screenSize.responsivePadding(16),
-                      crossAxisSpacing: screenSize.responsivePadding(16),
-                      childAspectRatio: aspectRatio,
-                    ),
-                    itemCount: paginated.offers.length,
-                    itemBuilder: (context, index) {
-                      final o = paginated.offers[index];
-                      return DealCard.fromOffer(o);
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => EmptyState(
-                  imagePath: 'assets/png/empty_offers.png',
-                  title: GlobalVariables.isPartner ? 'No offer created yet' : 'No offers found',
-                  subtitle: GlobalVariables.isPartner
-                      ? 'You haven\'t created any offers yet. Start by creating your first deal!'
-                      : 'Check back later for exciting new deals and discounts in this category.',
-                ),
-              ),
             ),
           ],
         ),

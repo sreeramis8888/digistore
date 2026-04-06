@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -87,7 +88,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                 ),
               ),
               SizedBox(height: screenSize.responsivePadding(40)),
-              
+
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -121,7 +122,11 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                         controller: _locationController,
                         isRequired: true,
                         readOnly: true,
-                        suffixIcon: const Icon(Icons.my_location_rounded, size: 20, color: kPrimaryColor),
+                        suffixIcon: const Icon(
+                          Icons.my_location_rounded,
+                          size: 20,
+                          color: kPrimaryColor,
+                        ),
                         onTap: () {
                           showModalBottomSheet(
                             context: context,
@@ -132,17 +137,19 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                               initialLng: _lng,
                               initialDistrict: _district,
                               initialLocalBody: _localBody,
-                              onLocationSelected: (district, localBody, lat, lng) {
-                                setState(() {
-                                  _locationController.text = localBody.isNotEmpty 
-                                      ? '$localBody, $district' 
-                                      : district;
-                                  _district = district;
-                                  _localBody = localBody;
-                                  _lat = lat;
-                                  _lng = lng;
-                                });
-                              },
+                              onLocationSelected:
+                                  (district, localBody, lat, lng) {
+                                    setState(() {
+                                      _locationController.text =
+                                          localBody.isNotEmpty
+                                          ? '$localBody, $district'
+                                          : district;
+                                      _district = district;
+                                      _localBody = localBody;
+                                      _lat = lat;
+                                      _lng = lng;
+                                    });
+                                  },
                             ),
                           );
                         },
@@ -153,7 +160,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Text(
                             'Captured: ${_lat!.toStringAsFixed(6)}, ${_lng!.toStringAsFixed(6)}',
-                            style: kSmallerTitleM.copyWith(color: kPrimaryColor),
+                            style: kSmallerTitleM.copyWith(
+                              color: kPrimaryColor,
+                            ),
                           ),
                         ),
                       ],
@@ -164,14 +173,21 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
               ),
               SizedBox(
                 width: double.infinity,
-                child: _isSubmitting 
-                    ? const Center(child: CircularProgressIndicator(color: kPrimaryColor))
+                child: _isSubmitting
+                    ? const Center(
+                        child: LoadingAnimation(),
+                      )
                     : PrimaryButton(
                         text: 'Submit',
                         onPressed: () async {
-                          if (_nameController.text.isEmpty || _locationController.text.isEmpty) {
+                          if (_nameController.text.isEmpty ||
+                              _locationController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Please fill all required fields.')),
+                              const SnackBar(
+                                content: Text(
+                                  'Please fill all required fields.',
+                                ),
+                              ),
                             );
                             return;
                           }
@@ -189,16 +205,22 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                                   onboardingComplete: true,
                                 );
 
-                            if (successProfile && _lat != null && _lng != null) {
-                              await ref.read(userProvider.notifier).updateLocation(
-                                lat: _lat!,
-                                lng: _lng!,
-                                district: _district ?? '',
-                                localBody: _localBody ?? '',
-                              );
+                            if (successProfile &&
+                                _lat != null &&
+                                _lng != null) {
+                              await ref
+                                  .read(userProvider.notifier)
+                                  .updateLocation(
+                                    lat: _lat!,
+                                    lng: _lng!,
+                                    district: _district ?? '',
+                                    localBody: _localBody ?? '',
+                                  );
                             }
 
-                            final storage = ref.read(secureStorageServiceProvider);
+                            final storage = ref.read(
+                              secureStorageServiceProvider,
+                            );
                             await storage.saveOnboardingComplete(true);
 
                             if (context.mounted) {
@@ -210,7 +232,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                           } catch (e) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error: ${e.toString()}')),
+                                SnackBar(
+                                  content: Text('Error: ${e.toString()}'),
+                                ),
                               );
                             }
                           } finally {

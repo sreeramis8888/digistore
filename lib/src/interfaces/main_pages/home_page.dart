@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -38,13 +39,18 @@ class HomePage extends ConsumerWidget {
           }
           return const Center(child: Text('No data available'));
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: LoadingAnimation()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, HomeData? data, ScreenSizeData screenSize) {
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    HomeData? data,
+    ScreenSizeData screenSize,
+  ) {
     if (data == null) {
       return const Center(child: Text('No data available'));
     }
@@ -93,7 +99,8 @@ class HomePage extends ConsumerWidget {
           ],
           BannerSection(banners: data.premiumBanners),
           SizedBox(height: screenSize.responsivePadding(16)),
-          if (data.dealOfTheMonth != null && data.dealOfTheMonth!.isNotEmpty) ...[
+          if (data.dealOfTheMonth != null &&
+              data.dealOfTheMonth!.isNotEmpty) ...[
             DealsCarousel(
               title: 'Deal of the Month',
               deals: data.dealOfTheMonth!

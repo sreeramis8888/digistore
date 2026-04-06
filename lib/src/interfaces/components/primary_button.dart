@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
@@ -60,10 +61,7 @@ class PrimaryButton extends StatelessWidget {
             ? const SizedBox(
                 height: 24,
                 width: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(kWhite),
-                ),
+                child: LoadingAnimation()
               )
             : child ??
                   Row(

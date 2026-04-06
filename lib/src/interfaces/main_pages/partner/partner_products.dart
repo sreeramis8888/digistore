@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -12,7 +13,8 @@ class PartnerProductsPage extends ConsumerStatefulWidget {
   const PartnerProductsPage({super.key});
 
   @override
-  ConsumerState<PartnerProductsPage> createState() => _PartnerProductsPageState();
+  ConsumerState<PartnerProductsPage> createState() =>
+      _PartnerProductsPageState();
 }
 
 class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
@@ -33,7 +35,8 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       ref.read(partnerProductsProvider.notifier).loadMore();
     }
   }
@@ -88,7 +91,9 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
                 child: TextField(
                   controller: _searchController,
                   onChanged: (value) {
-                    ref.read(partnerProductsProvider.notifier).updateSearch(value);
+                    ref
+                        .read(partnerProductsProvider.notifier)
+                        .updateSearch(value);
                   },
                   decoration: InputDecoration(
                     hintText: "Search for 'products'",
@@ -111,42 +116,51 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
               SizedBox(height: screenSize.responsivePadding(24)),
               Expanded(
                 child: productsState.isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: LoadingAnimation())
                     : productsState.error != null
-                        ? Center(child: Text(productsState.error!))
-                        : productsState.products.isEmpty
-                            ? const Center(child: Text('No products found'))
-                            : RefreshIndicator(
-                                onRefresh: () => ref.read(partnerProductsProvider.notifier).refresh(),
-                                child: GridView.builder(
-                                  controller: _scrollController,
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  padding: EdgeInsets.only(
-                                    bottom: screenSize.responsivePadding(24),
-                                  ),
-                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: screenSize.responsivePadding(16),
-                                    crossAxisSpacing: screenSize.responsivePadding(16),
-                                    childAspectRatio: 0.8,
-                                  ),
-                                  itemCount: productsState.products.length + (productsState.isLoadingMore ? 1 : 0),
-                                  itemBuilder: (context, index) {
-                                    if (index == productsState.products.length) {
-                                      return const Center(child: CircularProgressIndicator());
-                                    }
-                                    final p = productsState.products[index];
-                                    return ProductCard(
-                                      index: index,
-                                      name: p.title,
-                                      image: (p.images != null && p.images!.isNotEmpty)
-                                          ? p.images![0]
-                                          : 'assets/png/shake.png',
-                                      price: '₹ ${p.price}',
-                                    );
-                                  },
+                    ? Center(child: Text(productsState.error!))
+                    : productsState.products.isEmpty
+                    ? const Center(child: Text('No products found'))
+                    : RefreshIndicator(
+                        onRefresh: () => ref
+                            .read(partnerProductsProvider.notifier)
+                            .refresh(),
+                        child: GridView.builder(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.only(
+                            bottom: screenSize.responsivePadding(24),
+                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: screenSize.responsivePadding(
+                                  16,
                                 ),
+                                crossAxisSpacing: screenSize.responsivePadding(
+                                  16,
+                                ),
+                                childAspectRatio: 0.8,
                               ),
+                          itemCount:
+                              productsState.products.length +
+                              (productsState.isLoadingMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == productsState.products.length) {
+                              return const Center(child: LoadingAnimation());
+                            }
+                            final p = productsState.products[index];
+                            return ProductCard(
+                              index: index,
+                              name: p.title,
+                              image: (p.images != null && p.images!.isNotEmpty)
+                                  ? p.images![0]
+                                  : 'assets/png/shake.png',
+                              price: '₹ ${p.price}',
+                            );
+                          },
+                        ),
+                      ),
               ),
             ],
           ),

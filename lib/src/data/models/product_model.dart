@@ -61,7 +61,7 @@ class ProductModel {
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
       price: (json['price'] as num?)?.toDouble(),
-      category: json['category'] != null
+      category: (json['category'] != null && json['category'] is Map<String, dynamic>)
           ? ProductCategory.fromJson(json['category'] as Map<String, dynamic>)
           : null,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
@@ -111,6 +111,20 @@ class PaginationModel {
       limit: json['limit'] as int? ?? 20,
       total: json['total'] as int? ?? 0,
       pages: json['pages'] as int? ?? 1,
+    );
+  }
+
+  PaginationModel copyWith({
+    int? page,
+    int? limit,
+    int? total,
+    int? pages,
+  }) {
+    return PaginationModel(
+      page: page ?? this.page,
+      limit: limit ?? this.limit,
+      total: total ?? this.total,
+      pages: pages ?? this.pages,
     );
   }
 }

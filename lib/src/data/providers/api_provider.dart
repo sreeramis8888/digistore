@@ -109,6 +109,7 @@ class ApiProvider {
         body: json.encode(data),
       );
       log(name: 'API POST', '$baseUrl$endpoint');
+      log(name: 'API POST body', json.encode(data));
       final decoded = json.decode(response.body);
       log(name: 'API POST data ', '${decoded['data']}');
       log(name: 'API POST message', '${decoded['message']}');
@@ -201,21 +202,25 @@ class ApiProvider {
     try {
       final headers = await _buildHeaders(requireAuth: requireAuth);
       headers.remove('Content-Type');
-      
-      final request = http.MultipartRequest('PUT', Uri.parse('$baseUrl$endpoint'));
+
+      final request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('$baseUrl$endpoint'),
+      );
       request.headers.addAll(headers);
       request.fields.addAll(body);
-      
+
       if (files != null) {
         request.files.addAll(files);
       }
-      
+
       log(name: 'API PUT MULTIPART', '$baseUrl$endpoint');
       final streamedResponse = await request.send();
       final responseBody = await streamedResponse.stream.bytesToString();
       final decoded = json.decode(responseBody);
-      
-      if (streamedResponse.statusCode >= 200 && streamedResponse.statusCode < 300) {
+
+      if (streamedResponse.statusCode >= 200 &&
+          streamedResponse.statusCode < 300) {
         return ApiResponse.success(decoded, streamedResponse.statusCode);
       } else {
         final message = decoded['message'] ?? 'Failed to put multipart data';
@@ -237,8 +242,10 @@ class ApiProvider {
       final headers = await _buildHeaders(requireAuth: requireAuth);
       headers.remove('Content-Type');
 
-      final request =
-          http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl$endpoint'),
+      );
       request.headers.addAll(headers);
       request.fields.addAll(body);
 
@@ -247,10 +254,13 @@ class ApiProvider {
       }
 
       log(name: 'API POST MULTIPART', '$baseUrl$endpoint');
+      log(name: 'API POST MULTIPART fields', '${request.fields}');
       final streamedResponse = await request.send();
       final responseBody = await streamedResponse.stream.bytesToString();
       final decoded = json.decode(responseBody);
 
+      log(name: 'API POST MULTIPART data ', '$decoded');
+      log(name: 'API POST MULTIPART message', '${decoded['message']}');
       if (streamedResponse.statusCode >= 200 &&
           streamedResponse.statusCode < 300) {
         return ApiResponse.success(decoded, streamedResponse.statusCode);
@@ -298,7 +308,7 @@ class ApiProvider {
 final publicApiProvider = Provider<ApiProvider>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
   final baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:5000/api';
-  
+
   return ApiProvider(
     apiKey: dotenv.env['API_KEY'] ?? '',
     baseUrl: baseUrl,
@@ -309,7 +319,7 @@ final publicApiProvider = Provider<ApiProvider>((ref) {
 final apiProvider = Provider<ApiProvider>((ref) {
   final userType = ref.watch(userTypeProvider);
   final publicApi = ref.watch(publicApiProvider);
-  
+
   String baseUrl = publicApi.baseUrl;
 
   if (userType == UserType.partner) {

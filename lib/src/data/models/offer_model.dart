@@ -70,7 +70,9 @@ class OfferModel {
   factory OfferModel.fromJson(Map<String, dynamic> json) {
     return OfferModel(
       id: json['_id'] as String?,
-      partnerId: json['partnerId'] != null ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>) : null,
+      partnerId: (json['partnerId'] != null && json['partnerId'] is Map<String, dynamic>)
+          ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>)
+          : null,
       title: json['title'] as String?,
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
@@ -101,7 +103,9 @@ class OfferModel {
       isDealOfDay: json['isDealOfDay'] as bool?,
       requiredTier: json['requiredTier'] as String?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
-      location: json['location'] != null ? LocationPoint.fromJson(json['location'] as Map<String, dynamic>) : null,
+      location: json['location'] != null
+          ? LocationPoint.fromJson(json['location'] as Map<String, dynamic>)
+          : null,
       shareCount: json['shareCount'] as int?,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
     );

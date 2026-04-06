@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -112,12 +113,8 @@ class PartnerHomePage extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, s) => Scaffold(
-        body: Center(child: Text('Error: $e')),
-      ),
+      loading: () => const Scaffold(body: Center(child: LoadingAnimation())),
+      error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }
 }

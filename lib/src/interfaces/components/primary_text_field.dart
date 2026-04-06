@@ -5,7 +5,7 @@ import '../../data/constants/style_constants.dart';
 enum TextFieldType { text, email, number, date }
 
 class PrimaryTextField extends StatefulWidget {
-  final String label;
+  final String? label;
   final String? hint;
   final TextEditingController? controller;
   final TextFieldType type;
@@ -14,13 +14,14 @@ class PrimaryTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final VoidCallback? onTap;
+  final ValueChanged<String>? onChanged;
   final bool readOnly;
   final bool isRequired;
   final int maxLines;
 
   const PrimaryTextField({
     super.key,
-    required this.label,
+    this.label,
     this.hint,
     this.controller,
     this.type = TextFieldType.text,
@@ -29,6 +30,7 @@ class PrimaryTextField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.onTap,
+    this.onChanged,
     this.readOnly = false,
     this.isRequired = false,
     this.maxLines = 1,
@@ -65,23 +67,25 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RichText(
-          text: TextSpan(
-            text: widget.label,
-            style: kSmallTitleM.copyWith(
-              color: Color(0xFF0A0A0A),
-              fontWeight: FontWeight.w500,
+        if (widget.label != null) ...[
+          RichText(
+            text: TextSpan(
+              text: widget.label!,
+              style: kSmallTitleM.copyWith(
+                color: const Color(0xFF0A0A0A),
+                fontWeight: FontWeight.w500,
+              ),
+              children: [
+                if (widget.isRequired)
+                  const TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: Colors.red),
+                  ),
+              ],
             ),
-            children: [
-              if (widget.isRequired)
-                const TextSpan(
-                  text: ' *',
-                  style: TextStyle(color: Colors.red),
-                ),
-            ],
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         TextFormField(
           controller: widget.controller,
           keyboardType: _getKeyboardType(),
@@ -89,6 +93,7 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           validator: widget.validator,
           readOnly: widget.type == TextFieldType.date || widget.readOnly,
           onTap: widget.onTap,
+          onChanged: widget.onChanged,
           maxLines: widget.maxLines,
           style: kSmallTitleL,
           decoration: InputDecoration(

@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -21,27 +22,43 @@ class ShopsPage extends ConsumerStatefulWidget {
 class _ShopsPageState extends ConsumerState<ShopsPage> {
   Color _getCategoryColor(String? type) {
     switch (type) {
-      case 'Restaurants & Cafes': return Colors.orange;
-      case 'Beauty & Wellness': return Colors.pink;
-      case 'Fitness & Sports': return Colors.green;
-      case 'Automotive Services': return Colors.blue;
-      case 'Construction': return Colors.amber;
-      case 'Medical': return Colors.red;
-      case 'PG Hostels': return Colors.indigo;
-      default: return kPrimaryColor;
+      case 'Restaurants & Cafes':
+        return Colors.orange;
+      case 'Beauty & Wellness':
+        return Colors.pink;
+      case 'Fitness & Sports':
+        return Colors.green;
+      case 'Automotive Services':
+        return Colors.blue;
+      case 'Construction':
+        return Colors.amber;
+      case 'Medical':
+        return Colors.red;
+      case 'PG Hostels':
+        return Colors.indigo;
+      default:
+        return kPrimaryColor;
     }
   }
 
   IconData _getCategoryIcon(String? type) {
     switch (type) {
-      case 'Restaurants & Cafes': return Icons.restaurant;
-      case 'Beauty & Wellness': return Icons.spa;
-      case 'Fitness & Sports': return Icons.fitness_center;
-      case 'Automotive Services': return Icons.home_repair_service;
-      case 'Construction': return Icons.construction;
-      case 'Medical': return Icons.medical_services;
-      case 'PG Hostels': return Icons.home_filled;
-      default: return Icons.store;
+      case 'Restaurants & Cafes':
+        return Icons.restaurant;
+      case 'Beauty & Wellness':
+        return Icons.spa;
+      case 'Fitness & Sports':
+        return Icons.fitness_center;
+      case 'Automotive Services':
+        return Icons.home_repair_service;
+      case 'Construction':
+        return Icons.construction;
+      case 'Medical':
+        return Icons.medical_services;
+      case 'PG Hostels':
+        return Icons.home_filled;
+      default:
+        return Icons.store;
     }
   }
 
@@ -73,9 +90,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
           data: (paginated) {
             if (paginated.shops.isEmpty) {
               return const EmptyState(
-                imagePath: 'assets/png/empty_shops.png', 
+                imagePath: 'assets/png/empty_shops.png',
                 title: 'No shops found',
-                subtitle: 'We couldn\'t find any shops in your area. Try a different category or change your location.',
+                subtitle:
+                    'We couldn\'t find any shops in your area. Try a different category or change your location.',
               );
             }
             return GridView.builder(
@@ -91,42 +109,52 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                 final ShopModel shop = paginated.shops[index];
                 final type = shop.businessDetails?.businessType;
                 final logo = shop.businessInfo?.businessLogo;
-                final address = shop.businessInfo?.storeLocation?.address ?? 
-                    shop.businessDetails?.businessType ?? 'No address provided';
+                final address =
+                    shop.businessInfo?.storeLocation?.address ??
+                    shop.businessDetails?.businessType ??
+                    'No address provided';
 
                 String distance = '...';
-                final shopCoords = shop.businessInfo?.storeLocation?.coordinates;
-                if (userLat != null && userLng != null && shopCoords != null && shopCoords.length >= 2) {
+                final shopCoords =
+                    shop.businessInfo?.storeLocation?.coordinates;
+                if (userLat != null &&
+                    userLng != null &&
+                    shopCoords != null &&
+                    shopCoords.length >= 2) {
                   final d = LocationUtils.calculateDistance(
-                    userLat, 
-                    userLng, 
-                    shopCoords[1], 
-                    shopCoords[0], 
+                    userLat,
+                    userLng,
+                    shopCoords[1],
+                    shopCoords[0],
                   );
                   distance = '${d.toStringAsFixed(1)} km';
                 }
-                
+
                 return ShopGridCard(
                   category: shop.serviceCategories?.first ?? 'Other',
-                  shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
+                  shopName:
+                      shop.businessDetails?.businessName ?? 'Unnamed Shop',
                   address: address,
                   distance: distance,
                   rating: shop.businessInfo?.rating?.toString() ?? '0.0',
                   avatarColor: _getCategoryColor(type),
                   avatarIcon: _getCategoryIcon(type),
-                  imageUrl: logo ?? (shop.businessInfo?.businessImages?.isNotEmpty == true 
-                      ? shop.businessInfo!.businessImages!.first 
-                      : null),
+                  imageUrl:
+                      logo ??
+                      (shop.businessInfo?.businessImages?.isNotEmpty == true
+                          ? shop.businessInfo!.businessImages!.first
+                          : null),
                   shop: shop,
                 );
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: LoadingAnimation()),
           error: (e, s) => const EmptyState(
-            imagePath: 'assets/png/empty_shops.png', 
+            imagePath: 'assets/png/empty_shops.png',
             title: 'No shops found',
-            subtitle: 'We couldn\'t find any shops in your area. Try a different category or change your location.',
+            subtitle:
+                'We couldn\'t find any shops in your area. Try a different category or change your location.',
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -45,7 +46,8 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
               return const EmptyState(
                 imagePath: 'assets/png/empty_rewards.png',
                 title: 'No rewards available',
-                subtitle: 'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
+                subtitle:
+                    'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
               );
             }
             return GridView.builder(
@@ -63,11 +65,12 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: LoadingAnimation()),
           error: (e, s) => const EmptyState(
             imagePath: 'assets/png/empty_rewards.png',
             title: 'No rewards available',
-            subtitle: 'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
+            subtitle:
+                'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
           ),
         ),
       ),

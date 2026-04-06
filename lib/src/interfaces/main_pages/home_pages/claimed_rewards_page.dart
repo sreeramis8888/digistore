@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -22,10 +23,17 @@ class ClaimedRewardsPage extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kTextColor, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: kTextColor,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('My Claimed Rewards', style: kSubHeadingM.copyWith(color: kTextColor)),
+        title: Text(
+          'My Claimed Rewards',
+          style: kSubHeadingM.copyWith(color: kTextColor),
+        ),
         centerTitle: false,
         titleSpacing: 0,
       ),
@@ -52,7 +60,7 @@ class ClaimedRewardsPage extends ConsumerWidget {
                 final redemption = paginated.redemptions[index];
                 final offer = redemption.offerId;
                 final partner = redemption.partnerId;
-                
+
                 return Container(
                   padding: EdgeInsets.all(screenSize.responsivePadding(16)),
                   decoration: BoxDecoration(
@@ -65,14 +73,18 @@ class ClaimedRewardsPage extends ConsumerWidget {
                     children: [
                       Text(
                         offer?.title ?? 'Redeemed Offer',
-                        style: kSmallTitleM.copyWith(color: kTextColor, fontSize: 11),
+                        style: kSmallTitleM.copyWith(
+                          color: kTextColor,
+                          fontSize: 11,
+                        ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: screenSize.responsivePadding(4)),
                       Text(
-                        partner?.businessDetails?.businessName ?? 'Partner Store',
+                        partner?.businessDetails?.businessName ??
+                            'Partner Store',
                         style: kSmallerTitleL.copyWith(
                           color: kSecondaryTextColor,
                           fontSize: 9,
@@ -85,20 +97,28 @@ class ClaimedRewardsPage extends ConsumerWidget {
                       SizedBox(
                         height: screenSize.responsivePadding(60),
                         child: AdvancedNetworkImage(
-                          imageUrl: offer?.images?.isNotEmpty == true ? offer!.images!.first : '',
+                          imageUrl: offer?.images?.isNotEmpty == true
+                              ? offer!.images!.first
+                              : '',
                         ),
                       ),
                       SizedBox(height: screenSize.responsivePadding(8)),
                       if (redemption.otp != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: kPrimaryColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             'OTP: ${redemption.otp}',
-                            style: kSmallTitleB.copyWith(color: kPrimaryColor, fontSize: 10),
+                            style: kSmallTitleB.copyWith(
+                              color: kPrimaryColor,
+                              fontSize: 10,
+                            ),
                           ),
                         ),
                     ],
@@ -107,7 +127,7 @@ class ClaimedRewardsPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: LoadingAnimation()),
           error: (e, s) => const EmptyState(
             imagePath: 'assets/png/empty_rewards.png',
             title: 'Failed to load rewards',

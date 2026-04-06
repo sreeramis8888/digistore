@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -46,14 +47,11 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
 
     return categoriesAsync.when(
       data: (categories) {
-        final filters = [
-          const CategoryModel(name: 'All'),
-          ...categories,
-        ];
+        final filters = [const CategoryModel(name: 'All'), ...categories];
 
         if (selectedIndex > 0 && selectedIndex < filters.length) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-             _scrollToSelectedIndex(selectedIndex);
+            _scrollToSelectedIndex(selectedIndex);
           });
         }
 
@@ -74,11 +72,14 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
               return GestureDetector(
                 key: _keys[index],
                 onTap: () {
-                  ref.read(selectedOffersCategoryProvider.notifier).state = index;
+                  ref.read(selectedOffersCategoryProvider.notifier).state =
+                      index;
                   _scrollToSelectedIndex(index);
                 },
                 child: Container(
-                  margin: EdgeInsets.only(right: screenSize.responsivePadding(8)),
+                  margin: EdgeInsets.only(
+                    right: screenSize.responsivePadding(8),
+                  ),
                   padding: EdgeInsets.symmetric(
                     horizontal: screenSize.responsivePadding(16),
                   ),
@@ -102,7 +103,7 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: LoadingAnimation()),
       error: (e, s) => const SizedBox.shrink(),
     );
   }

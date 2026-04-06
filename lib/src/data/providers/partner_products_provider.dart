@@ -110,6 +110,14 @@ class PartnerProductsNotifier extends Notifier<PartnerProductsState> {
     if (state.searchQuery == query) return;
     getProducts(page: 1, search: query);
   }
+  void addProduct(ProductModel product) {
+    state = state.copyWith(
+      products: [product, ...state.products],
+      pagination: state.pagination?.copyWith(
+        total: (state.pagination?.total ?? 0) + 1,
+      ),
+    );
+  }
 }
 
 final partnerProductsProvider =

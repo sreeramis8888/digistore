@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -37,7 +38,8 @@ class HistoryPage extends ConsumerWidget {
                     return const EmptyState(
                       imagePath: 'assets/png/empty_history.png',
                       title: 'No transaction history',
-                      subtitle: 'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                      subtitle:
+                          'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
                     );
                   }
                   return ListView.builder(
@@ -48,11 +50,12 @@ class HistoryPage extends ConsumerWidget {
                     },
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: LoadingAnimation()),
                 error: (e, s) => const EmptyState(
                   imagePath: 'assets/png/empty_history.png',
                   title: 'No transaction history',
-                  subtitle: 'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                  subtitle:
+                      'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
                 ),
               ),
             ),

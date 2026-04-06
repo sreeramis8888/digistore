@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -95,8 +96,7 @@ class _LocationSelectionBottomSheetState
               place.subAdministrativeArea ?? place.administrativeArea ?? '';
           _localBodyController.text = place.locality ?? place.subLocality ?? '';
         }
-      } catch (_) {
-      }
+      } catch (_) {}
 
       setState(() {
         _lat = position.latitude;
@@ -271,7 +271,7 @@ class _LocationSelectionBottomSheetState
                       const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: LoadingAnimation(),
                       )
                     else if (_lat != null)
                       const Icon(

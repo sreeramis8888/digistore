@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
@@ -42,7 +43,9 @@ class ShopReviews extends ConsumerWidget {
             if (paginated.reviews.isEmpty) {
               return Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenSize.responsivePadding(20)),
+                  padding: EdgeInsets.symmetric(
+                    vertical: screenSize.responsivePadding(20),
+                  ),
                   child: Text(
                     'No reviews yet. Be the first to review!',
                     style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
@@ -64,7 +67,7 @@ class ShopReviews extends ConsumerWidget {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: LoadingAnimation()),
           error: (e, s) => Center(child: Text(e.toString())),
         ),
       ],
@@ -80,7 +83,11 @@ class _ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = [const Color(0xFFFFB74D), const Color(0xFF64B5F6), const Color(0xFF81C784)];
+    final colors = [
+      const Color(0xFFFFB74D),
+      const Color(0xFF64B5F6),
+      const Color(0xFF81C784),
+    ];
     final color = colors[review.userName.hashCode.abs() % colors.length];
 
     return Container(
@@ -122,16 +129,9 @@ class _ReviewCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Text(
-                    review.rating?.toString() ?? '0.0',
-                    style: kSmallTitleM,
-                  ),
+                  Text(review.rating?.toString() ?? '0.0', style: kSmallTitleM),
                   SizedBox(width: screenSize.responsivePadding(4)),
-                  const Icon(
-                    Icons.star,
-                    color: Color(0xFFFFD700),
-                    size: 14,
-                  ),
+                  const Icon(Icons.star, color: Color(0xFFFFD700), size: 14),
                 ],
               ),
             ],

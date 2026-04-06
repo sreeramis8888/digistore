@@ -1,91 +1,140 @@
 import 'dart:developer';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/offer_model.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';
 import 'user_type_provider.dart';
-
-part 'offers_provider.g.dart';
 
 class PaginatedOffers {
   final List<OfferModel> offers;
   final int page;
   final int totalPages;
   final int totalCount;
+  final bool isLoading;
+  final String? error;
 
   const PaginatedOffers({
     required this.offers,
     required this.page,
     required this.totalPages,
     required this.totalCount,
+    this.isLoading = false,
+    this.error,
   });
 
   const PaginatedOffers.empty()
       : offers = const [],
         page = 1,
         totalPages = 0,
-        totalCount = 0;
+        totalCount = 0,
+        isLoading = false,
+        error = null;
+
+  PaginatedOffers copyWith({
+    List<OfferModel>? offers,
+    int? page,
+    int? totalPages,
+    int? totalCount,
+    bool? isLoading,
+    String? error,
+  }) {
+    return PaginatedOffers(
+      offers: offers ?? this.offers,
+      page: page ?? this.page,
+      totalPages: totalPages ?? this.totalPages,
+      totalCount: totalCount ?? this.totalCount,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
 }
 
-@riverpod
-Future<PaginatedOffers> offers(
-  Ref ref, {
-  String? categoryId,
-  String? search,
-  bool? isDealOfDay,
-  int page = 1,
-  int limit = 20,
-}) async {
-  final api = ref.watch(apiProvider);
-  final user = ref.watch(userProvider);
-  final userType = ref.watch(userTypeProvider);
-
-  final lat = user?.location?.coordinates?.lat;
-  final lng = user?.location?.coordinates?.lng;
-
-  final queryParams = <String, String>{
-    'page': page.toString(),
-    'limit': limit.toString(),
-  };
-
-  if (lat != null && lng != null) {
-    queryParams['lat'] = lat.toString();
-    queryParams['lng'] = lng.toString();
-  } else if (userType == UserType.customer) {
-    // For regular users, location is required for marketplace offers
-    log(name: 'OffersProvider', 'Returning empty because location is null for regular user');
+class OffersNotifier extends Notifier<PaginatedOffers> {
+  @override
+  PaginatedOffers build() {
     return const PaginatedOffers.empty();
   }
 
-  if (categoryId != null && categoryId != 'All' && categoryId.isNotEmpty) {
-    queryParams['category'] = categoryId;
+  Future<void> fetchOffers({String? categoryId, bool isRefresh = true}) async {
+    if (isRefresh) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
+
+    try {
+      final api = ref.read(apiProvider);
+      final user = ref.read(userProvider);
+      final userType = ref.read(userTypeProvider);
+
+      final lat = user?.location?.coordinates?.lat;
+      final lng = user?.location?.coordinates?.lng;
+
+      final queryParams = <String, String>{
+        'page': isRefresh ? '1' : (state.page + 1).toString(),
+        'limit': '20',
+      };
+
+      if (lat != null && lng != null) {
+        queryParams['lat'] = lat.toString();
+        queryParams['lng'] = lng.toString();
+      } else if (userType == UserType.customer) {
+        state = const PaginatedOffers.empty();
+        return;
+      }
+
+      if (categoryId != null && categoryId != 'All' && categoryId.isNotEmpty) {
+        queryParams['category'] = categoryId;
+      }
+
+      if (user?.currentTier?.name != null) {
+        queryParams['tier'] = user!.currentTier!.name!;
+      }
+
+      final response = await api.get('/offers', queryParams: queryParams, requireAuth: true);
+
+      if (response.success && response.data != null) {
+        final List<dynamic> data = response.data!['data'] as List<dynamic>;
+        final pagination = response.data!['pagination'];
+        final newOffers = data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList();
+
+        state = PaginatedOffers(
+          offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
+          page: pagination['page'] as int? ?? 1,
+          totalPages: pagination['pages'] as int? ?? 1,
+          totalCount: pagination['total'] as int? ?? 0,
+          isLoading: false,
+        );
+      } else {
+        state = state.copyWith(isLoading: false, error: response.message);
+      }
+    } catch (e, stack) {
+      log('Error fetching offers: $e', stackTrace: stack);
+      state = state.copyWith(isLoading: false, error: 'Parsing error: $e');
+    }
   }
 
-  if (search != null && search.isNotEmpty) {
-    queryParams['search'] = search;
-  }
-
-  if (isDealOfDay != null) {
-    queryParams['isDealOfDay'] = isDealOfDay.toString();
-  }
-
-  if (user?.currentTier?.name != null) {
-    queryParams['tier'] = user!.currentTier!.name!;
-  }
-
-  final response = await api.get('/offers', queryParams: queryParams, requireAuth: true);
-
-  if (response.success && response.data != null) {
-    final List<dynamic> data = response.data!['data'] as List<dynamic>;
-    final pagination = response.data!['pagination'];
-
-    return PaginatedOffers(
-      offers: data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList(),
-      page: pagination['page'] as int? ?? 1,
-      totalPages: pagination['pages'] as int? ?? 1,
-      totalCount: pagination['total'] as int? ?? 0,
+  void addOffer(OfferModel offer) {
+    state = state.copyWith(
+      offers: [offer, ...state.offers],
+      totalCount: state.totalCount + 1,
     );
-  } else {
-    throw Exception(response.message ?? 'Failed to fetch offers');
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> generateRedemptionOtp(
+    String offerId,
+    String userPhone,
+  ) async {
+    try {
+      final api = ref.read(apiProvider);
+      final response = await api.post('/offers/$offerId/generate-otp', {
+        'userPhone': userPhone,
+      });
+
+      return response;
+    } catch (e, stack) {
+      log('Error generating redemption OTP: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to generate OTP: $e');
+    }
   }
 }
+
+final offersProvider = NotifierProvider<OffersNotifier, PaginatedOffers>(OffersNotifier.new);

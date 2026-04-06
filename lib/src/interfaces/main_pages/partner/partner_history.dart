@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -45,72 +46,73 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
       backgroundColor: kWhite,
       body: SafeArea(
         child: historyState.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: LoadingAnimation())
             : historyState.error != null
-                ? Center(child: Text(historyState.error!))
-                : RefreshIndicator(
-                    onRefresh: () =>
-                        ref.read(partnerHistoryProvider.notifier).refresh(),
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenSize.responsivePadding(16),
+            ? Center(child: Text(historyState.error!))
+            : RefreshIndicator(
+                onRefresh: () =>
+                    ref.read(partnerHistoryProvider.notifier).refresh(),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: screenSize.responsivePadding(24)),
+                        Text(
+                          'History',
+                          style: kBodyTitleM.copyWith(
+                            color: const Color(0xFF373737),
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: screenSize.responsivePadding(24)),
-                            Text(
-                              'History',
-                              style: kBodyTitleM.copyWith(
-                                  color: const Color(0xFF373737)),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(24)),
-                            Text(
-                              "Performance Overview",
-                              style: kSmallTitleB.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(16)),
-                            PartnerOverviewCards(
-                              screenSize: screenSize,
-                              totalCustomers: historyState.data?.totalCustomers,
-                              commissionAmount:
-                                  historyState.data?.commissionAmount,
-                              totalSalesViaSetgo: historyState.data
-                                  ?.totalSalesViaSetgo.toInt(),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(24)),
-                            Text(
-                              'Redemption History',
-                              style: kSmallTitleB.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(12)),
-                            PartnerRedemptionList(
-                              screenSize: screenSize,
-                              redemptions:
-                                  historyState.data?.redemptions ?? [],
-                            ),
-                            if (historyState.isLoadingMore)
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: screenSize.responsivePadding(16)),
-                                child: const Center(
-                                    child: CircularProgressIndicator()),
-                              ),
-                            SizedBox(height: screenSize.responsivePadding(40)),
-                          ],
+                        SizedBox(height: screenSize.responsivePadding(24)),
+                        Text(
+                          "Performance Overview",
+                          style: kSmallTitleB.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
+                        SizedBox(height: screenSize.responsivePadding(16)),
+                        PartnerOverviewCards(
+                          screenSize: screenSize,
+                          totalCustomers: historyState.data?.totalCustomers,
+                          commissionAmount: historyState.data?.commissionAmount,
+                          totalSalesViaSetgo: historyState
+                              .data
+                              ?.totalSalesViaSetgo
+                              .toInt(),
+                        ),
+                        SizedBox(height: screenSize.responsivePadding(24)),
+                        Text(
+                          'Redemption History',
+                          style: kSmallTitleB.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: screenSize.responsivePadding(12)),
+                        PartnerRedemptionList(
+                          screenSize: screenSize,
+                          redemptions: historyState.data?.redemptions ?? [],
+                        ),
+                        if (historyState.isLoadingMore)
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: screenSize.responsivePadding(16),
+                            ),
+                            child: const Center(child: LoadingAnimation()),
+                          ),
+                        SizedBox(height: screenSize.responsivePadding(40)),
+                      ],
                     ),
                   ),
+                ),
+              ),
       ),
     );
   }
