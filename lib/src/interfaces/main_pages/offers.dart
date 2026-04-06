@@ -12,6 +12,8 @@ import '../../data/providers/offers_provider.dart';
 import '../../data/providers/category_provider.dart';
 import '../../data/router/nav_router.dart';
 import '../components/empty_state.dart';
+import '../components/primary_button.dart';
+import 'partner/create_offer_page.dart';
 
 class OffersPage extends ConsumerWidget {
   const OffersPage({super.key});
@@ -51,7 +53,40 @@ class OffersPage extends ConsumerWidget {
         child: Column(
           children: [
             if (GlobalVariables.isPartner) ...[
-              SizedBox(height: screenSize.responsivePadding(16)),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16),
+                  vertical: screenSize.responsivePadding(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'All Deals',
+                      style: kSmallTitleB.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    PrimaryButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CreateOfferPage(),
+                          ),
+                        );
+                      },
+                      width: screenSize.responsivePadding(140),
+                      height: screenSize.responsivePadding(44),
+                      text: 'Create Offer',
+                      textSize: 14,
+                      backgroundColor: kPrimaryColor,
+                      textColor: kWhite,
+                    ),
+                  ],
+                ),
+              ),
               const HomeSearchBar(hintText: "Search for 'offers'"),
             ] else
               const OffersFilterChips(),

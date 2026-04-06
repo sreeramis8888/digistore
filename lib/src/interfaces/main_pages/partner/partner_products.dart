@@ -3,33 +3,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/partner_products_provider.dart';
 import '../../components/shops/product_card.dart';
 import '../../components/primary_button.dart';
 import 'partner_product_page.dart';
 
-class PartnerProductsPage extends ConsumerWidget {
+class PartnerProductsPage extends ConsumerStatefulWidget {
   const PartnerProductsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final screenSize = ref.watch(screenSizeProvider);
+  ConsumerState<PartnerProductsPage> createState() => _PartnerProductsPageState();
+}
 
-    final products = const [
-      {'name': 'Fresh Juice', 'image': 'assets/png/shake.png', 'price': '₹ 30'},
-      {'name': 'Onion', 'image': 'assets/png/waffle.png', 'price': '₹ 30/Kg'},
-      {
-        'name': 'Tomato',
-        'image': 'assets/png/italian_fruit_salad.png',
-        'price': '₹ 25/Kg',
-      },
-      {'name': 'Oats', 'image': 'assets/png/shake.png', 'price': '₹ 120/kg'},
-      {
-        'name': 'Smoothie',
-        'image': 'assets/png/gulabjamun_shake.png',
-        'price': '₹ 70',
-      },
-      {'name': 'Potato', 'image': 'assets/png/waffle.png', 'price': '₹ 20/Kg'},
-    ];
+class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      ref.read(partnerProductsProvider.notifier).loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = ref.watch(screenSizeProvider);
+    final productsState = ref.watch(partnerProductsProvider);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -47,7 +59,7 @@ class PartnerProductsPage extends ConsumerWidget {
                 children: [
                   Text(
                     'Products',
-                    style: kBodyTitleM.copyWith(color: Color(0xFF373737)),
+                    style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
                   ),
                   PrimaryButton(
                     onPressed: () {
@@ -74,6 +86,10 @@ class PartnerProductsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    ref.read(partnerProductsProvider.notifier).updateSearch(value);
+                  },
                   decoration: InputDecoration(
                     hintText: "Search for 'products'",
                     hintStyle: kSmallerTitleM.copyWith(
@@ -94,27 +110,43 @@ class PartnerProductsPage extends ConsumerWidget {
               ),
               SizedBox(height: screenSize.responsivePadding(24)),
               Expanded(
-                child: GridView.builder(
-                  padding: EdgeInsets.only(
-                    bottom: screenSize.responsivePadding(24),
-                  ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: screenSize.responsivePadding(16),
-                    crossAxisSpacing: screenSize.responsivePadding(16),
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final p = products[index];
-                    return ProductCard(
-                      index: index,
-                      name: p['name'],
-                      image: p['image'],
-                      price: p['price'],
-                    );
-                  },
-                ),
+                child: productsState.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : productsState.error != null
+                        ? Center(child: Text(productsState.error!))
+                        : productsState.products.isEmpty
+                            ? const Center(child: Text('No products found'))
+                            : RefreshIndicator(
+                                onRefresh: () => ref.read(partnerProductsProvider.notifier).refresh(),
+                                child: GridView.builder(
+                                  controller: _scrollController,
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  padding: EdgeInsets.only(
+                                    bottom: screenSize.responsivePadding(24),
+                                  ),
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: screenSize.responsivePadding(16),
+                                    crossAxisSpacing: screenSize.responsivePadding(16),
+                                    childAspectRatio: 0.8,
+                                  ),
+                                  itemCount: productsState.products.length + (productsState.isLoadingMore ? 1 : 0),
+                                  itemBuilder: (context, index) {
+                                    if (index == productsState.products.length) {
+                                      return const Center(child: CircularProgressIndicator());
+                                    }
+                                    final p = productsState.products[index];
+                                    return ProductCard(
+                                      index: index,
+                                      name: p.title,
+                                      image: (p.images != null && p.images!.isNotEmpty)
+                                          ? p.images![0]
+                                          : 'assets/png/shake.png',
+                                      price: '₹ ${p.price}',
+                                    );
+                                  },
+                                ),
+                              ),
               ),
             ],
           ),

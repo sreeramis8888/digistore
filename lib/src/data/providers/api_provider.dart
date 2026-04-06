@@ -227,6 +227,43 @@ class ApiProvider {
     }
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> postMultipart(
+    String endpoint,
+    Map<String, String> body, {
+    List<http.MultipartFile>? files,
+    bool requireAuth = true,
+  }) async {
+    try {
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      headers.remove('Content-Type');
+
+      final request =
+          http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
+      request.headers.addAll(headers);
+      request.fields.addAll(body);
+
+      if (files != null) {
+        request.files.addAll(files);
+      }
+
+      log(name: 'API POST MULTIPART', '$baseUrl$endpoint');
+      final streamedResponse = await request.send();
+      final responseBody = await streamedResponse.stream.bytesToString();
+      final decoded = json.decode(responseBody);
+
+      if (streamedResponse.statusCode >= 200 &&
+          streamedResponse.statusCode < 300) {
+        return ApiResponse.success(decoded, streamedResponse.statusCode);
+      } else {
+        final message = decoded['message'] ?? 'Failed to post multipart data';
+        return ApiResponse.error(message, streamedResponse.statusCode);
+      }
+    } catch (e, stackTrace) {
+      await CrashlyticsService.logError(e, stackTrace);
+      return ApiResponse.error('Failed to connect to the server: $e');
+    }
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> delete(
     String endpoint, {
     bool requireAuth = false,

@@ -1,18 +1,43 @@
 import 'partner_model.dart';
 import 'offer_model.dart';
 
+class PublicUserModel {
+  final String? id;
+  final String? name;
+  final String? phone;
+
+  const PublicUserModel({
+    this.id,
+    this.name,
+    this.phone,
+  });
+
+  factory PublicUserModel.fromJson(Map<String, dynamic> json) {
+    return PublicUserModel(
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+      phone: json['phone'] as String?,
+    );
+  }
+}
+
 class RedemptionModel {
   final String? id;
-  final String? publicUserId;
+  final PublicUserModel? publicUserId;
   final PartnerModel? partnerId;
   final OfferModel? offerId;
   final String? status;
-  final int? saleAmount;
+  final double? saleAmount;
   final int? pointsEarned;
+  final double? commissionPercent;
+  final double? commissionAmount;
+  final String? billImage;
   final String? otp;
   final bool? otpVerified;
+  final String? initiatedBy;
   final DateTime? redeemedAt;
   final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const RedemptionModel({
     this.id,
@@ -22,25 +47,48 @@ class RedemptionModel {
     this.status,
     this.saleAmount,
     this.pointsEarned,
+    this.commissionPercent,
+    this.commissionAmount,
+    this.billImage,
     this.otp,
     this.otpVerified,
+    this.initiatedBy,
     this.redeemedAt,
     this.createdAt,
+    this.updatedAt,
   });
 
   factory RedemptionModel.fromJson(Map<String, dynamic> json) {
     return RedemptionModel(
       id: json['_id'] as String?,
-      publicUserId: json['publicUserId'] as String?,
-      partnerId: json['partnerId'] != null ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>) : null,
-      offerId: json['offerId'] != null ? OfferModel.fromJson(json['offerId'] as Map<String, dynamic>) : null,
+      publicUserId: json['publicUserId'] != null
+          ? PublicUserModel.fromJson(
+              json['publicUserId'] as Map<String, dynamic>)
+          : null,
+      partnerId: json['partnerId'] != null && json['partnerId'] is Map
+          ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>)
+          : null,
+      offerId: json['offerId'] != null
+          ? OfferModel.fromJson(json['offerId'] as Map<String, dynamic>)
+          : null,
       status: json['status'] as String?,
-      saleAmount: json['saleAmount'] as int?,
+      saleAmount: (json['saleAmount'] as num?)?.toDouble(),
       pointsEarned: json['pointsEarned'] as int?,
+      commissionPercent: (json['commissionPercent'] as num?)?.toDouble(),
+      commissionAmount: (json['commissionAmount'] as num?)?.toDouble(),
+      billImage: json['billImage'] as String?,
       otp: json['otp'] as String?,
       otpVerified: json['otpVerified'] as bool?,
-      redeemedAt: json['redeemedAt'] != null ? DateTime.tryParse(json['redeemedAt']) : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      initiatedBy: json['initiatedBy'] as String?,
+      redeemedAt: json['redeemedAt'] != null
+          ? DateTime.tryParse(json['redeemedAt'])
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
     );
   }
 }

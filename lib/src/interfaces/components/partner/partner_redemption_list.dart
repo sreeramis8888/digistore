@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/models/redemption_model.dart';
+import '../advanced_network_image.dart';
+import 'package:intl/intl.dart';
 
 class PartnerRedemptionList extends StatelessWidget {
   final ScreenSizeData screenSize;
-  final int count;
+  final List<RedemptionModel> redemptions;
 
   const PartnerRedemptionList({
     super.key,
     required this.screenSize,
-    required this.count,
+    required this.redemptions,
   });
 
   @override
@@ -17,15 +20,22 @@ class PartnerRedemptionList extends StatelessWidget {
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: count,
+      itemCount: redemptions.length,
       separatorBuilder: (context, index) =>
           SizedBox(height: screenSize.responsivePadding(12)),
       itemBuilder: (context, index) {
-        final isVerified = index % 2 == 0;
-        final statusColor = isVerified
+        final redemption = redemptions[index];
+        final isCompleted = redemption.status == 'completed';
+        final statusColor = isCompleted
             ? const Color(0xFF139F5A)
             : const Color(0xFFEB4335);
-        final statusText = isVerified ? 'Verified' : 'Rejected';
+        
+        final formattedDate = redemption.redeemedAt != null 
+            ? DateFormat('hh:mm a, dd MMM').format(redemption.redeemedAt!)
+            : 'N/A';
+
+        final offer = redemption.offerId;
+        final user = redemption.publicUserId;
 
         return Container(
           padding: EdgeInsets.all(screenSize.responsivePadding(16)),
@@ -47,11 +57,15 @@ class PartnerRedemptionList extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      'assets/png/shake.png',
+                    child: SizedBox(
                       width: 50,
                       height: 50,
-                      fit: BoxFit.cover,
+                      child: AdvancedNetworkImage(
+                        imageUrl: (offer?.images != null && offer!.images!.isNotEmpty)
+                            ? offer.images![0]
+                            : '',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
@@ -60,15 +74,17 @@ class PartnerRedemptionList extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Beverage Bonanza',
+                          offer?.title ?? 'Redeemed Offer',
                           style: kSmallTitleB.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Text(
-                          'Mix and match 3 drinks → Get 20% off',
+                          'Customer: ${user?.name ?? 'Unknown'}',
                           maxLines: 1,
                           style: kSmallerTitleM.copyWith(
                             color: const Color(0xFF6B7280),
@@ -79,7 +95,7 @@ class PartnerRedemptionList extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    statusText,
+                    redemption.status?.toUpperCase() ?? 'N/A',
                     style: kSmallTitleB.copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -106,7 +122,7 @@ class PartnerRedemptionList extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: '03:30 PM, Yesterday',
+                          text: formattedDate,
                           style: kSmallerTitleM.copyWith(
                             color: Colors.black,
                             fontSize: 10,
@@ -120,7 +136,7 @@ class PartnerRedemptionList extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: 'Redemption ID: ',
+                          text: 'Sale: ',
                           style: kSmallerTitleM.copyWith(
                             color: const Color(0xFFA1A1AA),
                             fontSize: 10,
@@ -128,7 +144,7 @@ class PartnerRedemptionList extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: '12345',
+                          text: '₹${redemption.saleAmount ?? 0}',
                           style: kSmallerTitleM.copyWith(
                             color: Colors.black,
                             fontSize: 10,
