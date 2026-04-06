@@ -126,8 +126,8 @@ class OffersNotifier extends Notifier<PaginatedOffers> {
     String userPhone,
   ) async {
     try {
-      final api = ref.read(apiProvider);
-      final response = await api.post('/offers/$offerId/generate-otp', {
+      final api = ref.read(publicApiProvider);
+      final response = await api.post('/partner/offers/$offerId/generate-otp', {
         'userPhone': userPhone,
       });
 
@@ -135,6 +135,27 @@ class OffersNotifier extends Notifier<PaginatedOffers> {
     } catch (e, stack) {
       log('Error generating redemption OTP: $e', stackTrace: stack);
       return ApiResponse.error('Failed to generate OTP: $e');
+    }
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> verifyRedemptionOtp({
+    required String offerId,
+    required String userPhone,
+    required String otp,
+    double? saleAmount,
+  }) async {
+    try {
+      final api = ref.read(publicApiProvider);
+      final response = await api.post('/partner/offers/$offerId/verify-otp', {
+        'userPhone': userPhone,
+        'otp': otp,
+        if (saleAmount != null) 'saleAmount': saleAmount,
+      });
+
+      return response;
+    } catch (e, stack) {
+      log('Error verifying redemption OTP: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to verify OTP: $e');
     }
   }
 }

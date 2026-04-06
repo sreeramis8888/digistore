@@ -18,9 +18,13 @@ class UserTypeNotifier extends Notifier<UserType> {
   }
 
   void toggle() {
-    final nextType = (state == UserType.customer) ? UserType.partner : UserType.customer;
+    final nextType = (state == UserType.customer)
+        ? UserType.partner
+        : UserType.customer;
     setUserType(nextType);
   }
 }
 
-final userTypeProvider = NotifierProvider<UserTypeNotifier, UserType>(UserTypeNotifier.new);
+final userTypeProvider = NotifierProvider<UserTypeNotifier, UserType>(
+  UserTypeNotifier.new,
+);

@@ -84,8 +84,8 @@ class OfferModel {
       originalPrice: (json['originalPrice'] as num?)?.toDouble(),
       offerPrice: (json['offerPrice'] as num?)?.toDouble(),
       terms: json['terms'] != null ? List<String>.from(json['terms']) : null,
-      validFrom: json['validFrom'] != null ? DateTime.tryParse(json['validFrom']) : null,
-      validTo: json['validTo'] != null ? DateTime.tryParse(json['validTo']) : null,
+      validFrom: json['validFrom'] != null ? DateTime.tryParse(json['validFrom'])?.toLocal() : null,
+      validTo: json['validTo'] != null ? DateTime.tryParse(json['validTo'])?.toLocal() : null,
       redemptionRules: json['redemptionRules'] != null
           ? RedemptionRules.fromJson(json['redemptionRules'] as Map<String, dynamic>)
           : null,
@@ -107,7 +107,7 @@ class OfferModel {
           ? LocationPoint.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       shareCount: json['shareCount'] as int?,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
     );
   }
 }

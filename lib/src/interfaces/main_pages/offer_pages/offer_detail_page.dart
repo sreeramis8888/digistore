@@ -8,21 +8,71 @@ import '../../components/primary_button.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/date_formatter.dart';
 
-class OfferDetailPage extends ConsumerWidget {
+import '../../../data/providers/offers_provider.dart';
+import '../../../data/providers/user_provider.dart';
+import '../../../data/services/toast_service.dart';
+
+class OfferDetailPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> args;
 
   const OfferDetailPage({super.key, required this.args});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OfferDetailPage> createState() => _OfferDetailPageState();
+}
+
+class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
+  bool isRedeeming = false;
+
+  Future<void> _customerRedeem() async {
+    setState(() => isRedeeming = true);
+
+    final phone = ref.read(userProvider)?.phone;
+    final offerId = widget.args['id'] as String?;
+
+    if (phone == null || offerId == null) {
+      setState(() => isRedeeming = false);
+      ToastService().showToast(
+        context,
+        'Login required or invalid offer',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    final response = await ref
+        .read(offersProvider.notifier)
+        .generateRedemptionOtp(offerId, phone);
+
+    if (response.success && mounted) {
+      ToastService().showToast(
+        context,
+        'OTP sent to your phone!',
+        type: ToastType.success,
+      );
+      Navigator.of(context).pushNamed('redemptionInstructions', arguments: widget.args);
+    } else {
+      setState(() => isRedeeming = false);
+      if (mounted) {
+        ToastService().showToast(
+          context,
+          response.message ?? 'Failed to initiate redemption',
+          type: ToastType.error,
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final String title = args['title'] ?? '';
-    final String subtitle = args['subtitle'] ?? '';
-    final String? imageUrl = args['imageUrl'];
-    final String shopName = args['shopName'] ?? 'HomeGoods';
-    final IconData? icon = args['icon'];
-    final String? logoText = args['logoText'];
-    final Color? logoColor = args['logoColor'];
+    final String title = widget.args['title'] ?? '';
+    final String subtitle = widget.args['subtitle'] ?? '';
+    final String? imageUrl = widget.args['imageUrl'];
+    final String shopName = widget.args['shopName'] ?? 'HomeGoods';
+    final IconData? icon = widget.args['icon'];
+    final String? logoText = widget.args['logoText'];
+    final Color? logoColor = widget.args['logoColor'];
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -141,9 +191,9 @@ class OfferDetailPage extends ConsumerWidget {
 
                   Text('Details', style: kSmallTitleSB),
                   const SizedBox(height: 12),
-                  if (args['validTo'] != null) ...[
+                  if (widget.args['validTo'] != null) ...[
                     Text(
-                      'Expires on: ${formatOfferDate(DateTime.tryParse(args['validTo']))}',
+                      'Expires on: ${formatOfferDate(DateTime.tryParse(widget.args['validTo'] ?? '')?.toLocal())}',
                       style: kSmallerTitleM.copyWith(
                         color: kSecondaryTextColor,
                         fontWeight: FontWeight.w600,
@@ -152,9 +202,9 @@ class OfferDetailPage extends ConsumerWidget {
                     const SizedBox(height: 16),
                   ],
 
-                  if (args['terms'] != null &&
-                      (args['terms'] as List).isNotEmpty)
-                    ...(args['terms'] as List).map(
+                  if (widget.args['terms'] != null &&
+                      (widget.args['terms'] as List).isNotEmpty)
+                    ...(widget.args['terms'] as List).map(
                       (term) => Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: _buildBulletPoint(term.toString()),
@@ -180,16 +230,18 @@ class OfferDetailPage extends ConsumerWidget {
                   const SizedBox(height: 32),
                   PrimaryButton(
                     textSize: 14,
+                    isLoading: isRedeeming,
                     text: GlobalVariables.isPartner
-                        ? 'Generate OTP'
+                        ? 'Initiate Redemption'
                         : 'Redeem Now',
                     onPressed: () {
                       if (GlobalVariables.isPartner) {
-                        Navigator.of(
-                          context,
-                        ).pushNamed('partnerRedemption', arguments: args);
+                        Navigator.of(context).pushNamed(
+                          'partnerRedemption',
+                          arguments: widget.args,
+                        );
                       } else {
-                        Navigator.of(context).pushNamed('redemptionOtp');
+                        _customerRedeem();
                       }
                     },
                   ),

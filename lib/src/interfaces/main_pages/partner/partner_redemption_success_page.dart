@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
+import '../../components/primary_button.dart';
 
 class PartnerRedemptionSuccessPage extends ConsumerWidget {
   final Map<String, dynamic> args;
@@ -14,9 +14,16 @@ class PartnerRedemptionSuccessPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final String title = args['title'] ?? 'Fresh Bakes Deal';
-    final String subtitle = args['subtitle'] ?? 'Buy one bun Get one free';
-    final String? imageUrl = args['imageUrl'];
+    
+    // Extract actual data from arguments
+    final offerData = args['offer'] as Map<String, dynamic>? ?? {};
+    final redemptionData = args['redemption'] as Map<String, dynamic>? ?? {};
+    
+    final String title = offerData['title'] ?? 'Reward Redemption';
+    final String subtitle = offerData['subtitle'] ?? 'Transaction Completed';
+    final String? imageUrl = offerData['imageUrl'];
+    final String redemptionId = redemptionData['redemptionId'] ?? 'N/A';
+    final String discountCode = offerData['discountType'] == 'BOGO' ? 'BUY 1 GET 1' : 'SUCCESS';
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -41,13 +48,23 @@ class PartnerRedemptionSuccessPage extends ConsumerWidget {
           child: Column(
             children: [
               SizedBox(height: screenSize.responsivePadding(60)),
-              SvgPicture.asset(
-                'assets/svg/verified.svg',
-                height: screenSize.responsivePadding(120),
+              // Success Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE8F5E9),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF1EA136),
+                  size: 50,
+                ),
               ),
               SizedBox(height: screenSize.responsivePadding(24)),
               Text(
-                'OTP Verified Successfully',
+                'Redemption Successful',
                 style: kSubHeadingM.copyWith(
                   color: const Color(0xFF1EA136),
                   fontSize: 22,
@@ -55,8 +72,11 @@ class PartnerRedemptionSuccessPage extends ConsumerWidget {
               ),
               SizedBox(height: screenSize.responsivePadding(12)),
               Text(
-                'Redemption Complete',
-                style: kBodyTitleM.copyWith(color: kSecondaryTextColor),
+                'Redemption ID: $redemptionId',
+                style: kBodyTitleM.copyWith(
+                  color: kSecondaryTextColor,
+                  fontSize: 14,
+                ),
               ),
               SizedBox(height: screenSize.responsivePadding(32)),
               const Divider(color: Color(0xFFF1F1F1), thickness: 1),
@@ -80,15 +100,18 @@ class PartnerRedemptionSuccessPage extends ConsumerWidget {
                   children: [
                     Container(
                       width: screenSize.responsivePadding(60),
-                      height: screenSize.responsivePadding(40),
+                      height: screenSize.responsivePadding(60),
                       decoration: BoxDecoration(
+                        color: kGreyLight,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: AdvancedNetworkImage(
-                        imageUrl: imageUrl ?? 'assets/jpg/bakes.jpg',
-                        fit: BoxFit.cover,
-                      ),
+                      child: imageUrl != null && imageUrl.startsWith('http')
+                          ? AdvancedNetworkImage(
+                              imageUrl: imageUrl,
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(Icons.celebration, color: kPrimaryColor),
                     ),
                     SizedBox(width: screenSize.responsivePadding(12)),
                     Expanded(
@@ -101,39 +124,49 @@ class PartnerRedemptionSuccessPage extends ConsumerWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: screenSize.responsivePadding(2)),
+                          SizedBox(height: screenSize.responsivePadding(4)),
                           Text(
                             subtitle,
                             style: kSmallerTitleM.copyWith(
                               color: kSecondaryTextColor,
                             ),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    Text(
-                      'BUY 1 GET 1',
-                      style: kSmallerTitleB.copyWith(
-                        color: const Color(0xFF4A89FF),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4A89FF).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        discountCode,
+                        style: kSmallerTitleB.copyWith(
+                          color: const Color(0xFF4A89FF),
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: screenSize.responsivePadding(48)),
+              const Spacer(),
 
-              GestureDetector(
-                onTap: () {
+              PrimaryButton(
+                text: 'Done',
+                onPressed: () {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
-                child: Text(
-                  'Back to Home',
-                  style: kBodyTitleB.copyWith(color: const Color(0xFF4A89FF)),
-                ),
               ),
+              SizedBox(height: screenSize.responsivePadding(24)),
             ],
           ),
         ),

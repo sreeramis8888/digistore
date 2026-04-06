@@ -72,8 +72,8 @@ class PartnerModel {
           ? PaymentDetails.fromJson(json['paymentDetails'] as Map<String, dynamic>)
           : null,
       documents: json['documents'] != null ? PartnerDocuments.fromJson(json['documents'] as Map<String, dynamic>) : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
     );
   }
 

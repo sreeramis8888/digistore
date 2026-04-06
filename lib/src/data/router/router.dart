@@ -9,6 +9,7 @@ import '../../interfaces/main_pages/home_pages/notifications_page.dart';
 import '../../interfaces/main_pages/offer_pages/offer_detail_page.dart';
 import '../../interfaces/main_pages/reward_pages/reward_detail_page.dart';
 import '../../interfaces/main_pages/offer_pages/redemption_otp_page.dart';
+import '../../interfaces/main_pages/offer_pages/redemption_instructions_page.dart';
 import '../../interfaces/main_pages/offer_pages/redemption_verified_page.dart';
 import '../../interfaces/main_pages/home_pages/my_account_page.dart';
 import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
@@ -141,7 +142,15 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       break;
 
     case 'redemptionOtp':
-      page = const RedemptionOtpPage();
+      final args = settings?.arguments as Map<String, dynamic>?;
+      page = RedemptionOtpPage(args: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'redemptionInstructions':
+      final args = settings?.arguments as Map<String, dynamic>?;
+      page = RedemptionInstructionsPage(args: args);
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;
@@ -159,7 +168,7 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
-    case 'partnerRedemptionVerified':
+    case 'partnerRedemptionSuccess':
       final args = settings?.arguments as Map<String, dynamic>? ?? {};
       page = PartnerRedemptionSuccessPage(args: args);
       transitionToUse = TransitionType.slideFromRight;

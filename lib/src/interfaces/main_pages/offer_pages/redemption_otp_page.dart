@@ -5,9 +5,14 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
+import '../../components/primary_text_field.dart';
+import '../../../data/providers/offers_provider.dart';
+import '../../../data/providers/user_provider.dart';
+import '../../../data/services/toast_service.dart';
 
 class RedemptionOtpPage extends ConsumerStatefulWidget {
-  const RedemptionOtpPage({super.key});
+  final Map<String, dynamic>? args;
+  const RedemptionOtpPage({super.key, this.args});
 
   @override
   ConsumerState<RedemptionOtpPage> createState() => _RedemptionOtpPageState();
@@ -15,6 +20,65 @@ class RedemptionOtpPage extends ConsumerStatefulWidget {
 
 class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
   final PinInputController _otpController = PinInputController();
+  final TextEditingController _saleAmountController = TextEditingController();
+  String otp = '';
+  bool isLoading = false;
+
+  Future<void> _verify() async {
+    if (otp.length < 6) {
+      ToastService().showToast(
+        context,
+        'Please enter 6-digit OTP',
+        type: ToastType.warning,
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final offerId = widget.args?['id'] as String?;
+      final phone =
+          widget.args?['phone'] as String? ?? ref.read(userProvider)?.phone;
+
+      if (offerId == null || phone == null) {
+        throw 'Missing offer or phone details';
+      }
+
+      final response = await ref
+          .read(offersProvider.notifier)
+          .verifyRedemptionOtp(
+            offerId: offerId,
+            userPhone: phone,
+            otp: otp,
+            saleAmount: double.tryParse(_saleAmountController.text.trim()),
+          );
+
+      if (response.success && mounted) {
+        ToastService().showToast(context, 'Redemption successful!');
+        Navigator.of(context).pushReplacementNamed(
+          'partnerRedemptionSuccess',
+          arguments: {
+            'redemption': response.data!['data'],
+            'offer': widget.args,
+          },
+        );
+      } else {
+        throw response.message ?? 'Verification failed';
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ToastService().showToast(context, e.toString(), type: ToastType.error);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _saleAmountController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +111,18 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
               ),
               SizedBox(height: screenSize.responsivePadding(8)),
               Text(
-                'Enter the 6-digit code given by the partner\nto complete redemption.',
+                'Ask customer for the 6-digit code\nsent to their phone via SMS.',
                 style: kBodyTitleL.copyWith(color: const Color(0XFF797979)),
                 textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: screenSize.responsivePadding(32)),
+              if (widget.args?['phone'] != null) ...[
+                Text(
+                  'Sent to ${widget.args!['phone']}',
+                  style: kSmallTitleM.copyWith(color: kPrimaryColor),
+                ),
+                SizedBox(height: screenSize.responsivePadding(24)),
+              ],
 
               MaterialPinField(
                 length: 6,
@@ -70,37 +140,15 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                   focusedFillColor: kWhite,
                   cursorColor: kPrimaryColor,
                 ),
-                onChanged: (value) {},
-              ),
-
-              SizedBox(height: screenSize.responsivePadding(24)),
-              PrimaryButton(
-                text: 'Verify',
-                onPressed: () {
-                  Navigator.of(
-                    context,
-                  ).pushReplacementNamed('redemptionVerified');
+                onChanged: (value) {
+                  otp = value;
                 },
               ),
               SizedBox(height: screenSize.responsivePadding(24)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Resend code in ',
-                    style: kSmallTitleL.copyWith(
-                      color: const Color(0xFF626165),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    '04:13',
-                    style: kSmallTitleB.copyWith(
-                      color: kPrimaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              PrimaryButton(
+                text: 'Verify',
+                isLoading: isLoading,
+                onPressed: _verify,
               ),
             ],
           ),

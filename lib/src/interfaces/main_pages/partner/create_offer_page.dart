@@ -70,7 +70,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     );
 
     if (widget.offer?['validFrom'] != null) {
-      _validFrom = DateTime.tryParse(widget.offer!['validFrom']);
+      _validFrom = DateTime.tryParse(widget.offer!['validFrom'])?.toLocal();
       if (_validFrom != null) {
         _validFromController = TextEditingController(
           text: DateFormat('dd MMM, yyyy').format(_validFrom!),
@@ -83,7 +83,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
 
     if (widget.offer?['validTo'] != null) {
-      _validTo = DateTime.tryParse(widget.offer!['validTo']);
+      _validTo = DateTime.tryParse(widget.offer!['validTo'])?.toLocal();
       if (_validTo != null) {
         _validToController = TextEditingController(
           text: DateFormat('dd MMM, yyyy').format(_validTo!),
@@ -300,7 +300,19 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     try {
       final api = ref.read(apiProvider);
       final partner = ref.read(partnerProvider);
-      
+
+      if (partner == null ||
+          partner.businessInfo?.storeLocation?.coordinates == null ||
+          partner.businessInfo!.storeLocation!.coordinates!.isEmpty) {
+        ToastService().showToast(
+          context,
+          'Shop location is required. Please set it in "My Account" profile.',
+          type: ToastType.error,
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
+
       final body = <String, String>{
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),

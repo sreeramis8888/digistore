@@ -60,7 +60,7 @@ class UserModel {
       pointsBalance: json['pointsBalance'] as int?,
       totalPointsEarned: json['totalPointsEarned'] as int?,
       isActive: json['isActive'] as bool?,
-      lastLogin: json['lastLogin'] != null ? DateTime.tryParse(json['lastLogin']) : null,
+      lastLogin: json['lastLogin'] != null ? DateTime.tryParse(json['lastLogin'])?.toLocal() : null,
       referralCode: json['referralCode'] as String?,
       referredBy: json['referredBy'] as String?,
       referralRewardClaimed: json['referralRewardClaimed'] as bool?,
@@ -70,9 +70,9 @@ class UserModel {
       currentTier: json['currentTier'] != null ? TierModel.fromJson(json['currentTier'] as Map<String, dynamic>) : null,
       nextTier: json['nextTier'] != null ? NextTierModel.fromJson(json['nextTier'] as Map<String, dynamic>) : null,
       progressToNextTier: json['progressToNextTier'] != null ? (json['progressToNextTier'] as num).toDouble() : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
-      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt'])?.toLocal() : null,
     );
   }
 
