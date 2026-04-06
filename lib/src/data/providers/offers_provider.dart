@@ -23,12 +23,12 @@ class PaginatedOffers {
   });
 
   const PaginatedOffers.empty()
-      : offers = const [],
-        page = 1,
-        totalPages = 0,
-        totalCount = 0,
-        isLoading = false,
-        error = null;
+    : offers = const [],
+      page = 1,
+      totalPages = 0,
+      totalCount = 0,
+      isLoading = false,
+      error = null;
 
   PaginatedOffers copyWith({
     List<OfferModel>? offers,
@@ -89,12 +89,14 @@ class OffersNotifier extends Notifier<PaginatedOffers> {
         queryParams['tier'] = user!.currentTier!.name!;
       }
 
-      final response = await api.get('/offers', queryParams: queryParams, requireAuth: true);
+      final response = await api.get('/offers', queryParams: queryParams);
 
       if (response.success && response.data != null) {
         final List<dynamic> data = response.data!['data'] as List<dynamic>;
         final pagination = response.data!['pagination'];
-        final newOffers = data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList();
+        final newOffers = data
+            .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+            .toList();
 
         state = PaginatedOffers(
           offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
@@ -137,4 +139,6 @@ class OffersNotifier extends Notifier<PaginatedOffers> {
   }
 }
 
-final offersProvider = NotifierProvider<OffersNotifier, PaginatedOffers>(OffersNotifier.new);
+final offersProvider = NotifierProvider<OffersNotifier, PaginatedOffers>(
+  OffersNotifier.new,
+);

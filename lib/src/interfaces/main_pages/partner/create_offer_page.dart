@@ -38,6 +38,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _offerPriceController;
   late TextEditingController _validFromController;
   late TextEditingController _validToController;
+  final List<TextEditingController> _termControllers = [];
 
   String? _selectedCategoryId;
   DateTime? _validFrom;
@@ -96,6 +97,13 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
     _selectedCategoryId = widget.offer?['categoryId'] ?? widget.offer?['category'];
     _isActive = widget.offer?['isActive'] ?? true;
+
+    if (widget.offer?['terms'] != null) {
+      final terms = widget.offer!['terms'] as List;
+      for (final term in terms) {
+        _termControllers.add(TextEditingController(text: term.toString()));
+      }
+    }
   }
 
   @override
@@ -108,6 +116,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _offerPriceController.dispose();
     _validFromController.dispose();
     _validToController.dispose();
+    for (final controller in _termControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -156,6 +167,19 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         },
       ),
     );
+  }
+
+  void _addTerm() {
+    setState(() {
+      _termControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeTerm(int index) {
+    setState(() {
+      _termControllers[index].dispose();
+      _termControllers.removeAt(index);
+    });
   }
 
   Future<void> _selectDate(BuildContext context, bool isValidFrom) async {
@@ -285,6 +309,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         'originalPrice': _originalPriceController.text.trim(),
         'offerPrice': _offerPriceController.text.trim(),
         'tags': _tagsController.text.trim(),
+        'terms': json.encode(
+          _termControllers
+              .map((c) => c.text.trim())
+              .where((t) => t.isNotEmpty)
+              .toList(),
+        ),
       };
 
       if (_selectedCategoryId != null) {
@@ -466,7 +496,53 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Terms & Conditions',
+                    style: kSmallTitleB.copyWith(fontSize: 14),
+                  ),
+                  TextButton.icon(
+                    onPressed: _addTerm,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add Term'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimaryColor,
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (_termControllers.isEmpty)
+                Text(
+                  'No terms added yet.',
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                ),
+              ...List.generate(_termControllers.length, (index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: PrimaryTextField(
+                          controller: _termControllers[index],
+                          hint: 'Enter term (e.g. Valid on weekends only)',
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => _removeTerm(index),
+                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
+                        padding: const EdgeInsets.only(top: 12),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 10),
               Text(
                 'Offer Images',
                 style: kSmallTitleM.copyWith(

@@ -6,6 +6,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/primary_button.dart';
 import '../../../data/utils/global_variables.dart';
+import '../../../data/utils/date_formatter.dart';
 
 class OfferDetailPage extends ConsumerWidget {
   final Map<String, dynamic> args;
@@ -142,7 +143,7 @@ class OfferDetailPage extends ConsumerWidget {
                   const SizedBox(height: 12),
                   if (args['validTo'] != null) ...[
                     Text(
-                      'Expires on: ${args['validTo']}',
+                      'Expires on: ${formatOfferDate(DateTime.tryParse(args['validTo']))}',
                       style: kSmallerTitleM.copyWith(
                         color: kSecondaryTextColor,
                         fontWeight: FontWeight.w600,
