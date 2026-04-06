@@ -14,6 +14,8 @@ class LoyaltyRewardCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (loyaltyCard == null) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
+    final isSilver = loyaltyCard?.tier?.toLowerCase() == 'silver';
+    
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -42,7 +44,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                     child: Transform.flip(
                       flipX: true,
                       child: Image.asset(
-                        'assets/png/loyalty_card_bg.png',
+                        isSilver ? 'assets/png/loyalty_card_silver_bg.png' : 'assets/png/loyalty_card_bg.png',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -69,7 +71,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Row(
                           children: [
-                            SvgPicture.asset('assets/svg/coin.svg', height: 24),
+                            SvgPicture.asset(isSilver ? 'assets/svg/silver_coin.svg' : 'assets/svg/coin.svg', height: 24),
                             SizedBox(width: screenSize.responsivePadding(8)),
                             Text(
                               '${loyaltyCard?.pointsBalance ?? 0} points',
@@ -152,16 +154,23 @@ class LoyaltyRewardCard extends ConsumerWidget {
                 right: 20,
                 child: Container(
                   padding: const EdgeInsets.only(bottom: 1, left: 1, right: 1),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFFFDCB4F),
-                        Color(0xFFEF9A2D),
-                        Color(0xFFED8E2F),
-                        Color(0xFFFFC43E),
-                      ],
+                      colors: isSilver
+                          ? [
+                              const Color(0xFFE0E0E0),
+                              const Color(0xFFBDBDBD),
+                              const Color(0xFF9E9E9E),
+                              const Color(0xFFD6D6D6),
+                            ]
+                          : [
+                              const Color(0xFFFDCB4F),
+                              const Color(0xFFEF9A2D),
+                              const Color(0xFFED8E2F),
+                              const Color(0xFFFFC43E),
+                            ],
                     ),
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(8),
@@ -173,16 +182,23 @@ class LoyaltyRewardCard extends ConsumerWidget {
                       horizontal: screenSize.responsivePadding(12),
                       vertical: screenSize.responsivePadding(6),
                     ),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFFFFF7E2),
-                          Color(0xFFFFF0D9),
-                          Color(0xFFFFE9D6),
-                          Color(0xFFFFDDBB),
-                        ],
+                        colors: isSilver
+                            ? [
+                                const Color(0xFFF5F5F5),
+                                const Color(0xFFEEEEEE),
+                                const Color(0xFFE0E0E0),
+                                const Color(0xFFF0F0F0),
+                              ]
+                            : [
+                                const Color(0xFFFFF7E2),
+                                const Color(0xFFFFF0D9),
+                                const Color(0xFFFFE9D6),
+                                const Color(0xFFFFDDBB),
+                              ],
                       ),
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(7),
@@ -193,14 +209,14 @@ class LoyaltyRewardCard extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SvgPicture.asset(
-                          'assets/svg/gold_icon.svg',
+                          isSilver ? 'assets/svg/silver_coin.svg' : 'assets/svg/gold_icon.svg',
                           height: 25,
                         ),
                         SizedBox(width: screenSize.responsivePadding(4)),
                         Text(
                           (loyaltyCard?.tier ?? 'BRONZE').toUpperCase(),
                           style: kBodyTitleSB.copyWith(
-                            color: const Color(0xFFE67E22),
+                            color: isSilver ? const Color(0xFF757575) : const Color(0xFFE67E22),
                           ),
                         ),
                       ],

@@ -21,7 +21,6 @@ class DealsCarousel extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final padding = screenSize.responsivePadding(16);
     
-    // Calculate width to show 2.25 items
     final itemWidth = (screenWidth - (3 * padding)) / 2.25;
     
     return Column(

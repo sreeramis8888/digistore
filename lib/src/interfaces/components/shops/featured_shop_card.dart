@@ -43,18 +43,14 @@ class FeaturedShopCard extends ConsumerWidget {
                   ),
                 ],
               ),
-              child: shop.businessInfo?.businessLogo != null
-                  ? ClipOval(
-                      child: AdvancedNetworkImage(
-                        imageUrl: shop.businessInfo!.businessLogo!,
-                        width: screenSize.responsivePadding(70),
-                        height: screenSize.responsivePadding(70),
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : const Center(
-                      child: Icon(Icons.storefront, color: kWhite, size: 30),
-                    ),
+              child: ClipOval(
+                child: AdvancedNetworkImage(
+                  imageUrl: shop.businessInfo?.businessLogo ?? '',
+                  width: screenSize.responsivePadding(70),
+                  height: screenSize.responsivePadding(70),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             SizedBox(height: screenSize.responsivePadding(8)),
             Text(

@@ -66,7 +66,7 @@ final class TransactionsProvider
   }
 }
 
-String _$transactionsHash() => r'cb3a8e09a061f3472b1f2dbcd07fae054e58e2c0';
+String _$transactionsHash() => r'd8a4eddc7a1ad62f9c3ce59ec80067d48abb1842';
 
 final class TransactionsFamily extends $Family
     with
@@ -147,7 +147,7 @@ final class RedemptionsProvider
   }
 }
 
-String _$redemptionsHash() => r'b7d92897b12e11b7eed566f7637a8d4d21bfbb06';
+String _$redemptionsHash() => r'7cb972973d7702124069c7616ca978b9e8f62fbf';
 
 final class RedemptionsFamily extends $Family
     with

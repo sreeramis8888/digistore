@@ -62,6 +62,8 @@ class RewardsCarousel extends ConsumerWidget {
                   subtitle: reward.description ?? '',
                   points: reward.pointsCost?.toString() ?? '0',
                   imageUrl: reward.image,
+                  logoText: reward.category,
+                  logoColor: kBlue.withOpacity(0.1),
                   width: screenSize.responsivePadding(145),
                   margin: EdgeInsets.only(
                     left: index == 0

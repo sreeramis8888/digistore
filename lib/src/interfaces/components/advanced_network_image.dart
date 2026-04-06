@@ -8,6 +8,8 @@ class AdvancedNetworkImage extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final BorderRadius? borderRadius;
+  final Widget? errorWidget;
+  final IconData? errorIcon;
 
   const AdvancedNetworkImage({
     super.key,
@@ -16,24 +18,25 @@ class AdvancedNetworkImage extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.borderRadius,
+    this.errorWidget,
+    this.errorIcon,
   });
 
   @override
   Widget build(BuildContext context) {
     final cleanedUrl = imageUrl.trim();
-    if (cleanedUrl.isEmpty ||
-        cleanedUrl == 'null' ||
-        cleanedUrl == 'undefined') {
-      return _buildErrorPlaceholder();
-    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final w = width ?? constraints.maxWidth;
-        final h = height ?? constraints.maxHeight;
+        final w = width ?? (constraints.maxWidth == double.infinity ? 100.0 : constraints.maxWidth);
+        final h = height ?? (constraints.maxHeight == double.infinity ? 100.0 : constraints.maxHeight);
 
-        final fallbackW = w == double.infinity ? 100.0 : w;
-        final fallbackH = h == double.infinity ? 100.0 : h;
+        if (cleanedUrl.isEmpty || cleanedUrl == 'null' || cleanedUrl == 'undefined') {
+          return errorWidget ?? _buildErrorPlaceholder(w, h);
+        }
+
+        final fallbackW = w;
+        final fallbackH = h;
 
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
@@ -43,78 +46,56 @@ class AdvancedNetworkImage extends StatelessWidget {
                   width: width,
                   height: height,
                   fit: fit,
-                  errorBuilder: (context, error, stackTrace) => SizedBox(
-                    width: width,
-                    height: height,
-                    child: _buildErrorPlaceholder(),
-                  ),
+                  errorBuilder: (context, error, stackTrace) => errorWidget ?? _buildErrorPlaceholder(w, h),
                 )
               : CachedNetworkImage(
                   imageUrl: cleanedUrl,
                   width: width,
                   height: height,
                   fit: fit,
-                  placeholder: (context, url) => SizedBox(
-                    width: width,
-                    height: height,
-                    child: _AdvancedShimmer(
-                      width: fallbackW,
-                      height: fallbackH,
-                    ),
+                  placeholder: (context, url) => _AdvancedShimmer(
+                    width: fallbackW,
+                    height: fallbackH,
+                    borderRadius: borderRadius,
                   ),
-                  errorWidget: (context, url, error) => SizedBox(
-                    width: width,
-                    height: height,
-                    child: _buildErrorPlaceholder(),
-                  ),
+                  errorWidget: (context, url, error) => errorWidget ?? _buildErrorPlaceholder(w, h),
                 ),
         );
       },
     );
   }
 
-  Widget _buildErrorPlaceholder() {
+  Widget _buildErrorPlaceholder(double w, double h) {
     return Container(
-      width: width,
-      height: height,
+      width: w,
+      height: h,
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: const Color(0xFFF8FAFF),
         borderRadius: borderRadius ?? BorderRadius.zero,
+        border: Border.all(color: const Color(0xFFE8F0FF).withOpacity(0.5)),
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFFF3F4F6),
-                    const Color(0xFFE5E7EB).withOpacity(0.5),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+            child: Opacity(
+              opacity: 0.05,
+              child: Icon(
+                errorIcon ?? Icons.image_not_supported_outlined,
+                size: w * 0.7,
+                color: kPrimaryColor,
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: kWhite,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.image_not_supported_rounded,
-              color: kSecondaryTextColor,
-              size: 24,
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                errorIcon ?? Icons.error_outline_rounded,
+                color: kPrimaryColor.withOpacity(0.4),
+                size: (w * 0.4).clamp(24.0, 48.0),
+              ),
+            ],
           ),
         ],
       ),
@@ -125,8 +106,9 @@ class AdvancedNetworkImage extends StatelessWidget {
 class _AdvancedShimmer extends StatefulWidget {
   final double width;
   final double height;
+  final BorderRadius? borderRadius;
 
-  const _AdvancedShimmer({required this.width, required this.height});
+  const _AdvancedShimmer({required this.width, required this.height, this.borderRadius});
 
   @override
   State<_AdvancedShimmer> createState() => _AdvancedShimmerState();
@@ -160,6 +142,7 @@ class _AdvancedShimmerState extends State<_AdvancedShimmer>
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(
+            borderRadius: widget.borderRadius,
             gradient: LinearGradient(
               colors: const [
                 Color(0xFFF3F4F6),

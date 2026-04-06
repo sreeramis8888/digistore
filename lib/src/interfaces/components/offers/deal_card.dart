@@ -61,13 +61,6 @@ class DealCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final defaultImages = const [
-      'assets/png/saloon.jpg',
-      'assets/jpg/bakes.jpg',
-      'assets/jpg/grocery.png',
-    ];
-    final defaultImage =
-        defaultImages[shopName.hashCode.abs() % defaultImages.length];
 
     return GestureDetector(
       onTap: () {
@@ -102,7 +95,7 @@ class DealCard extends ConsumerWidget {
                   height: screenSize.responsivePadding(120),
                   width: double.infinity,
                   child: AdvancedNetworkImage(
-                    imageUrl: imageUrl ?? defaultImage,
+                    imageUrl: imageUrl ?? '',
                     fit: BoxFit.cover,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(12),

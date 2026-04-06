@@ -13,15 +13,11 @@ Future<PaginatedTransactions> transactions(
 }) async {
   final api = ref.watch(apiProvider);
 
-  final queryParams = {
-    'page': page.toString(),
-    'limit': limit.toString(),
-  };
+  final queryParams = {'page': page.toString(), 'limit': limit.toString()};
 
   final response = await api.get(
     '/transactions/points',
     queryParams: queryParams,
-    requireAuth: false,
   );
 
   if (response.success && response.data != null) {
@@ -30,6 +26,7 @@ Future<PaginatedTransactions> transactions(
     throw Exception(response.message ?? 'Failed to fetch transactions');
   }
 }
+
 @riverpod
 Future<PaginatedRedemptions> redemptions(
   Ref ref, {
@@ -38,15 +35,11 @@ Future<PaginatedRedemptions> redemptions(
 }) async {
   final api = ref.watch(apiProvider);
 
-  final queryParams = {
-    'page': page.toString(),
-    'limit': limit.toString(),
-  };
+  final queryParams = {'page': page.toString(), 'limit': limit.toString()};
 
   final response = await api.get(
     '/transactions/redemptions',
     queryParams: queryParams,
-    requireAuth: true,
   );
 
   if (response.success && response.data != null) {

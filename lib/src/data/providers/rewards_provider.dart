@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/reward_model.dart';
+import '../models/claimed_reward_model.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';
 
@@ -45,5 +46,49 @@ Future<PaginatedRewards> rewards(
     return PaginatedRewards.fromJson(response.data!);
   } else {
     throw Exception(response.message ?? 'Failed to fetch rewards');
+  }
+}
+
+@riverpod
+Future<PaginatedClaimedRewards> claimedRewards(
+  Ref ref, {
+  int page = 1,
+  int limit = 10,
+}) async {
+  final api = ref.watch(apiProvider);
+  
+  final queryParams = {
+    'page': page.toString(),
+    'limit': limit.toString(),
+  };
+
+  final response = await api.get(
+    '/rewards/my-coupons',
+    queryParams: queryParams,
+    requireAuth: true,
+  );
+
+  if (response.success && response.data != null) {
+    return PaginatedClaimedRewards.fromJson(response.data!);
+  } else {
+    throw Exception(response.message ?? 'Failed to fetch claimed rewards');
+  }
+}
+
+
+@Riverpod(keepAlive: true)
+class RewardAction extends _$RewardAction {
+  @override
+  void build() {}
+
+  Future<ApiResponse<Map<String, dynamic>>> redeemReward(String rewardId) async {
+    final api = ref.read(apiProvider);
+    final response = await api.post('/rewards/$rewardId/redeem', {});
+
+    if (response.success) {
+      await ref.read(userProvider.notifier).getProfile();
+    }
+
+    return response;
   }
 }

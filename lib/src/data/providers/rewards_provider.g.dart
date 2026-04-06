@@ -95,3 +95,138 @@ final class RewardsFamily extends $Family
   @override
   String toString() => r'rewardsProvider';
 }
+
+@ProviderFor(claimedRewards)
+final claimedRewardsProvider = ClaimedRewardsFamily._();
+
+final class ClaimedRewardsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PaginatedClaimedRewards>,
+          PaginatedClaimedRewards,
+          FutureOr<PaginatedClaimedRewards>
+        >
+    with
+        $FutureModifier<PaginatedClaimedRewards>,
+        $FutureProvider<PaginatedClaimedRewards> {
+  ClaimedRewardsProvider._({
+    required ClaimedRewardsFamily super.from,
+    required ({int page, int limit}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'claimedRewardsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$claimedRewardsHash();
+
+  @override
+  String toString() {
+    return r'claimedRewardsProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<PaginatedClaimedRewards> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<PaginatedClaimedRewards> create(Ref ref) {
+    final argument = this.argument as ({int page, int limit});
+    return claimedRewards(ref, page: argument.page, limit: argument.limit);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ClaimedRewardsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$claimedRewardsHash() => r'7de8af8cc87504e0b8da38c602213371f923906b';
+
+final class ClaimedRewardsFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<PaginatedClaimedRewards>,
+          ({int page, int limit})
+        > {
+  ClaimedRewardsFamily._()
+    : super(
+        retry: null,
+        name: r'claimedRewardsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ClaimedRewardsProvider call({int page = 1, int limit = 10}) =>
+      ClaimedRewardsProvider._(
+        argument: (page: page, limit: limit),
+        from: this,
+      );
+
+  @override
+  String toString() => r'claimedRewardsProvider';
+}
+
+@ProviderFor(RewardAction)
+final rewardActionProvider = RewardActionProvider._();
+
+final class RewardActionProvider extends $NotifierProvider<RewardAction, void> {
+  RewardActionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rewardActionProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rewardActionHash();
+
+  @$internal
+  @override
+  RewardAction create() => RewardAction();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$rewardActionHash() => r'f1751de3ddbfec99b94a4333e3d8c63101ecd55f';
+
+abstract class _$RewardAction extends $Notifier<void> {
+  void build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<void, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<void, void>,
+              void,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

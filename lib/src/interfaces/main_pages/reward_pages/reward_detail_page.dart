@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,22 +9,33 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/primary_button.dart';
 
-class RewardDetailPage extends ConsumerWidget {
+import '../../../data/services/toast_service.dart';
+import '../../../data/providers/rewards_provider.dart';
+
+class RewardDetailPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> args;
 
   const RewardDetailPage({super.key, required this.args});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RewardDetailPage> createState() => _RewardDetailPageState();
+}
+
+class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final args = widget.args;
     final screenSize = ref.watch(screenSizeProvider);
     final String title = args['title'] ?? 'Special Reward';
     final String subtitle = args['subtitle'] ?? 'Exclusive Reward for you';
     final String? imageUrl = args['imageUrl'];
     final String shopName = args['shopName'] ?? 'Store';
     final IconData? icon = args['icon'];
-    final String? logoText = args['logoText'];
-    final Color? logoColor = args['logoColor'];
     final String points = args['points']?.toString() ?? '0';
+    final bool isClaimed = args['isClaimed'] == true;
+    final String? couponCode = args['couponCode'];
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -68,20 +81,6 @@ class RewardDetailPage extends ConsumerWidget {
                 alignment: Alignment.center,
                 child: icon != null
                     ? Icon(icon, size: 80, color: kPrimaryColor)
-                    : (logoText != null && logoColor != null)
-                    ? Container(
-                        color: logoColor,
-                        alignment: Alignment.center,
-                        child: Text(
-                          logoText,
-                          style: kHeadTitleB.copyWith(
-                            color: logoColor == Colors.white
-                                ? kTextColor
-                                : kWhite,
-                            fontSize: 40,
-                          ),
-                        ),
-                      )
                     : const Icon(
                         Icons.image_not_supported,
                         size: 80,
@@ -119,7 +118,7 @@ class RewardDetailPage extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          shopName,
+                          title,
                           style: kBodyTitleB.copyWith(fontSize: 24),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -127,15 +126,25 @@ class RewardDetailPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
-                  Text(title, style: kSubHeadingL.copyWith(fontSize: 24)),
-                  const SizedBox(height: 8),
+                  if (shopName != title)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        shopName,
+                        style: kBodyTitleSB.copyWith(
+                          color: kPrimaryColor,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  
                   Text(
                     subtitle,
                     style: kBodyTitleSB.copyWith(
                       color: kSecondaryTextColor,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -167,18 +176,79 @@ class RewardDetailPage extends ConsumerWidget {
                     'Support: For queries, contact us via support channel.',
                   ),
                   const SizedBox(height: 32),
-                  PrimaryButton(
-                    textSize: 14,
-                    text: 'Get it For $points',
-                    trailingIcon: Padding(
-                      padding: const EdgeInsets.only(left: 4.0),
-                      child: SvgPicture.asset(
-                        'assets/svg/coin.svg',
-                        height: 18,
+                  if (!isClaimed)
+                    PrimaryButton(
+                      isLoading: _isLoading,
+                      textSize: 14,
+                      text: 'Get it For $points',
+                      trailingIcon: Padding(
+                        padding: const EdgeInsets.only(left: 4.0),
+                        child: SvgPicture.asset(
+                          'assets/svg/coin.svg',
+                          height: 18,
+                        ),
+                      ),
+                      onPressed: () async {
+                        final rewardId = args['id'];
+                        if (rewardId == null) {
+                          ToastService().showToast(
+                            context,
+                            'Invalid reward ID',
+                            type: ToastType.error,
+                          );
+                          return;
+                        }
+
+                        setState(() => _isLoading = true);
+                        try {
+                          final response = await ref
+                              .read(rewardActionProvider.notifier)
+                              .redeemReward(rewardId);
+
+                          if (response.success && mounted) {
+                            ToastService().showToast(
+                              context,
+                              response.message ?? 'Reward redeemed successfully!',
+                            );
+                            Navigator.of(context).pop();
+                          } else if (mounted) {
+                            ToastService().showToast(
+                              context,
+                              response.message ?? 'Failed to redeem reward',
+                              type: ToastType.error,
+                            );
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            log('Error redeeming reward: $e');
+                            ToastService().showToast(
+                              context,
+                              'An error occurred: $e',
+                              type: ToastType.error,
+                            );
+                          }
+                        } finally {
+                          if (mounted) {
+                            setState(() => _isLoading = false);
+                          }
+                        }
+                      },
+                    )
+                  else if (couponCode != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: kPrimaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Your Coupon Code: $couponCode',
+                          style: kBodyTitleB.copyWith(color: kPrimaryColor),
+                        ),
                       ),
                     ),
-                    onPressed: () {},
-                  ),
                   SizedBox(
                     height: MediaQuery.of(context).padding.bottom > 0
                         ? MediaQuery.of(context).padding.bottom
