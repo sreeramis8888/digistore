@@ -258,13 +258,24 @@ class ApiProvider {
   }
 }
 
-final apiProvider = Provider<ApiProvider>((ref) {
+final publicApiProvider = Provider<ApiProvider>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
+  final baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:5000/api';
+  
+  return ApiProvider(
+    apiKey: dotenv.env['API_KEY'] ?? '',
+    baseUrl: baseUrl,
+    secureStorage: secureStorage,
+  );
+});
+
+final apiProvider = Provider<ApiProvider>((ref) {
   final userType = ref.watch(userTypeProvider);
-  String baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:5000/api';
+  final publicApi = ref.watch(publicApiProvider);
+  
+  String baseUrl = publicApi.baseUrl;
 
   if (userType == UserType.partner) {
-    // If the base URL is http://domain/api/..., we prepend /partner to /api
     if (baseUrl.contains('/mobile')) {
       baseUrl = baseUrl.replaceFirst('/mobile', '/mobile/partner');
     } else {
@@ -273,8 +284,8 @@ final apiProvider = Provider<ApiProvider>((ref) {
   }
 
   return ApiProvider(
-    apiKey: dotenv.env['API_KEY'] ?? '',
+    apiKey: publicApi.apiKey,
     baseUrl: baseUrl,
-    secureStorage: secureStorage,
+    secureStorage: publicApi.secureStorage,
   );
 });

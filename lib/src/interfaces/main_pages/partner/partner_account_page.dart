@@ -997,18 +997,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: PrimaryTextField(
-                                    label: 'Email',
-                                    controller: _emailCtrl,
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: PrimaryTextField(
                                     label: 'Location',
                                     controller: _locationCtrl,
                                     readOnly: true,
@@ -1024,12 +1012,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   'Mobile Number',
                                   _mobileCtrl.text,
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
-                                _buildReadOnlyRow('Email', _emailCtrl.text),
                                 const Divider(
                                   height: 1,
                                   thickness: 1,

@@ -60,11 +60,12 @@ class OffersPage extends ConsumerWidget {
               child: offersAsync.when(
                 data: (paginated) {
                   if (paginated.offers.isEmpty) {
-                    return const EmptyState(
+                    return EmptyState(
                       imagePath: 'assets/png/empty_offers.png',
-                      title: 'No offers found',
-                      subtitle:
-                          'Check back later for exciting new deals and discounts in this category.',
+                      title: GlobalVariables.isPartner ? 'No offer created yet' : 'No offers found',
+                      subtitle: GlobalVariables.isPartner
+                          ? 'You haven\'t created any offers yet. Start by creating your first deal!'
+                          : 'Check back later for exciting new deals and discounts in this category.',
                     );
                   }
                   return GridView.builder(
@@ -85,11 +86,12 @@ class OffersPage extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => const EmptyState(
+                error: (e, s) => EmptyState(
                   imagePath: 'assets/png/empty_offers.png',
-                  title: 'No offers found',
-                  subtitle:
-                      'Check back later for exciting new deals and discounts in this category.',
+                  title: GlobalVariables.isPartner ? 'No offer created yet' : 'No offers found',
+                  subtitle: GlobalVariables.isPartner
+                      ? 'You haven\'t created any offers yet. Start by creating your first deal!'
+                      : 'Check back later for exciting new deals and discounts in this category.',
                 ),
               ),
             ),

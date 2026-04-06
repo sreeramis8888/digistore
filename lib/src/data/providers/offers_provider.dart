@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/offer_model.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';
+import 'user_type_provider.dart';
 
 part 'offers_provider.g.dart';
 
@@ -36,20 +38,24 @@ Future<PaginatedOffers> offers(
 }) async {
   final api = ref.watch(apiProvider);
   final user = ref.watch(userProvider);
+  final userType = ref.watch(userTypeProvider);
 
   final lat = user?.location?.coordinates?.lat;
   final lng = user?.location?.coordinates?.lng;
 
-  if (lat == null || lng == null) {
-    return const PaginatedOffers.empty();
-  }
-
-  final queryParams = {
-    'lat': lat.toString(),
-    'lng': lng.toString(),
+  final queryParams = <String, String>{
     'page': page.toString(),
     'limit': limit.toString(),
   };
+
+  if (lat != null && lng != null) {
+    queryParams['lat'] = lat.toString();
+    queryParams['lng'] = lng.toString();
+  } else if (userType == UserType.customer) {
+    // For regular users, location is required for marketplace offers
+    log(name: 'OffersProvider', 'Returning empty because location is null for regular user');
+    return const PaginatedOffers.empty();
+  }
 
   if (categoryId != null && categoryId != 'All' && categoryId.isNotEmpty) {
     queryParams['category'] = categoryId;
@@ -67,7 +73,7 @@ Future<PaginatedOffers> offers(
     queryParams['tier'] = user!.currentTier!.name!;
   }
 
-  final response = await api.get('/offers', queryParams: queryParams, requireAuth: false);
+  final response = await api.get('/offers', queryParams: queryParams, requireAuth: true);
 
   if (response.success && response.data != null) {
     final List<dynamic> data = response.data!['data'] as List<dynamic>;

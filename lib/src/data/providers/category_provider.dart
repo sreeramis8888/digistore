@@ -6,7 +6,7 @@ part 'category_provider.g.dart';
 
 @riverpod
 Future<List<CategoryModel>> categories(Ref ref) async {
-  final api = ref.watch(apiProvider);
+  final api = ref.watch(publicApiProvider);
   final response = await api.get('/categories', requireAuth: false);
 
   if (response.success && response.data != null) {
