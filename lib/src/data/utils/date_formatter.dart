@@ -2,17 +2,18 @@ import 'package:intl/intl.dart';
 
 String formatDate(DateTime? date) {
   if (date == null) return "-";
-  return DateFormat('dd MMM yyyy').format(date);
+  return DateFormat('dd MMM yyyy').format(date.toLocal());
 }
 
 String formatDateTime(DateTime? date) {
   if (date == null) return "-";
-  return DateFormat('dd-MM-yyyy at h:mm a').format(date);
+  return DateFormat('dd-MM-yyyy \'at\' h:mm a').format(date.toLocal());
 }
 
 String formatOfferDate(DateTime? date) {
   if (date == null) return "-";
-  final day = date.day;
+  final localDate = date.toLocal();
+  final day = localDate.day;
   String suffix = 'th';
   if (day >= 11 && day <= 13) {
     suffix = 'th';
@@ -31,5 +32,5 @@ String formatOfferDate(DateTime? date) {
         suffix = 'th';
     }
   }
-  return "${day}$suffix ${DateFormat('MMMM yyyy').format(date)}";
+  return "${day}$suffix ${DateFormat('MMMM yyyy').format(localDate)}";
 }
