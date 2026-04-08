@@ -95,7 +95,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       _validToController = TextEditingController();
     }
 
-    _selectedCategoryId = widget.offer?['categoryId'] ?? widget.offer?['category'];
+    _selectedCategoryId =
+        widget.offer?['categoryId'] ?? widget.offer?['category'];
     _isActive = widget.offer?['isActive'] ?? true;
 
     if (widget.offer?['terms'] != null) {
@@ -124,7 +125,11 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
   Future<void> _pickImages() async {
     if (_pickedImages.length >= 5) {
-      ToastService().showToast(context, 'Maximum 5 images allowed', type: ToastType.error);
+      ToastService().showToast(
+        context,
+        'Maximum 5 images allowed',
+        type: ToastType.error,
+      );
       return;
     }
 
@@ -138,9 +143,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     if (result is List<XFile>) {
       setState(() {
         final remaining = 5 - _pickedImages.length;
-        _pickedImages.addAll(
-          result.take(remaining).map((e) => File(e.path)),
-        );
+        _pickedImages.addAll(result.take(remaining).map((e) => File(e.path)));
       });
     } else if (result is XFile) {
       setState(() {
@@ -245,12 +248,14 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     setState(() {
                       if (isValidFrom) {
                         _validFrom = date;
-                        _validFromController.text =
-                            DateFormat('dd MMM, yyyy').format(date);
+                        _validFromController.text = DateFormat(
+                          'dd MMM, yyyy',
+                        ).format(date);
                       } else {
                         _validTo = date;
-                        _validToController.text =
-                            DateFormat('dd MMM, yyyy').format(date);
+                        _validToController.text = DateFormat(
+                          'dd MMM, yyyy',
+                        ).format(date);
                       }
                     });
                   },
@@ -264,14 +269,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                   if (isValidFrom && _validFrom == null) {
                     setState(() {
                       _validFrom = initialDate;
-                      _validFromController.text =
-                          DateFormat('dd MMM, yyyy').format(initialDate);
+                      _validFromController.text = DateFormat(
+                        'dd MMM, yyyy',
+                      ).format(initialDate);
                     });
                   } else if (!isValidFrom && _validTo == null) {
                     setState(() {
                       _validTo = initialDate;
-                      _validToController.text =
-                          DateFormat('dd MMM, yyyy').format(initialDate);
+                      _validToController.text = DateFormat(
+                        'dd MMM, yyyy',
+                      ).format(initialDate);
                     });
                   }
                   Navigator.pop(context);
@@ -393,6 +400,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       child: Scaffold(
         backgroundColor: kWhite,
         appBar: AppBar(
+          scrolledUnderElevation: 0,
           backgroundColor: kWhite,
           elevation: 0,
           leading: IconButton(
@@ -547,7 +555,11 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       const SizedBox(width: 8),
                       IconButton(
                         onPressed: () => _removeTerm(index),
-                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                         padding: const EdgeInsets.only(top: 12),
                       ),
                     ],

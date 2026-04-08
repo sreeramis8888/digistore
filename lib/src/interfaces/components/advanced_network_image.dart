@@ -28,10 +28,20 @@ class AdvancedNetworkImage extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final w = width ?? (constraints.maxWidth == double.infinity ? 100.0 : constraints.maxWidth);
-        final h = height ?? (constraints.maxHeight == double.infinity ? 100.0 : constraints.maxHeight);
+        final w = (width == null || !width!.isFinite)
+            ? (constraints.maxWidth == double.infinity
+                ? 100.0
+                : constraints.maxWidth)
+            : width!;
+        final h = (height == null || !height!.isFinite)
+            ? (constraints.maxHeight == double.infinity
+                ? 100.0
+                : constraints.maxHeight)
+            : height!;
 
-        if (cleanedUrl.isEmpty || cleanedUrl == 'null' || cleanedUrl == 'undefined') {
+        if (cleanedUrl.isEmpty ||
+            cleanedUrl == 'null' ||
+            cleanedUrl == 'undefined') {
           return errorWidget ?? _buildErrorPlaceholder(w, h);
         }
 
@@ -46,7 +56,8 @@ class AdvancedNetworkImage extends StatelessWidget {
                   width: width,
                   height: height,
                   fit: fit,
-                  errorBuilder: (context, error, stackTrace) => errorWidget ?? _buildErrorPlaceholder(w, h),
+                  errorBuilder: (context, error, stackTrace) =>
+                      errorWidget ?? _buildErrorPlaceholder(w, h),
                 )
               : CachedNetworkImage(
                   imageUrl: cleanedUrl,
@@ -58,7 +69,8 @@ class AdvancedNetworkImage extends StatelessWidget {
                     height: fallbackH,
                     borderRadius: borderRadius,
                   ),
-                  errorWidget: (context, url, error) => errorWidget ?? _buildErrorPlaceholder(w, h),
+                  errorWidget: (context, url, error) =>
+                      errorWidget ?? _buildErrorPlaceholder(w, h),
                 ),
         );
       },
@@ -81,21 +93,11 @@ class AdvancedNetworkImage extends StatelessWidget {
             child: Opacity(
               opacity: 0.05,
               child: Icon(
-                errorIcon ?? Icons.image_not_supported_outlined,
+                errorIcon ?? Icons.storefront,
                 size: w * 0.7,
                 color: kPrimaryColor,
               ),
             ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                errorIcon ?? Icons.error_outline_rounded,
-                color: kPrimaryColor.withOpacity(0.4),
-                size: (w * 0.4).clamp(24.0, 48.0),
-              ),
-            ],
           ),
         ],
       ),
@@ -108,7 +110,11 @@ class _AdvancedShimmer extends StatefulWidget {
   final double height;
   final BorderRadius? borderRadius;
 
-  const _AdvancedShimmer({required this.width, required this.height, this.borderRadius});
+  const _AdvancedShimmer({
+    required this.width,
+    required this.height,
+    this.borderRadius,
+  });
 
   @override
   State<_AdvancedShimmer> createState() => _AdvancedShimmerState();

@@ -24,45 +24,6 @@ class OfferDetailPage extends ConsumerStatefulWidget {
 class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
   bool isRedeeming = false;
 
-  Future<void> _customerRedeem() async {
-    setState(() => isRedeeming = true);
-
-    final phone = ref.read(userProvider)?.phone;
-    final offerId = widget.args['id'] as String?;
-
-    if (phone == null || offerId == null) {
-      setState(() => isRedeeming = false);
-      ToastService().showToast(
-        context,
-        'Login required or invalid offer',
-        type: ToastType.error,
-      );
-      return;
-    }
-
-    final response = await ref
-        .read(offersProvider.notifier)
-        .generateRedemptionOtp(offerId, phone);
-
-    if (response.success && mounted) {
-      ToastService().showToast(
-        context,
-        'OTP sent to your phone!',
-        type: ToastType.success,
-      );
-      Navigator.of(context).pushNamed('redemptionInstructions', arguments: widget.args);
-    } else {
-      setState(() => isRedeeming = false);
-      if (mounted) {
-        ToastService().showToast(
-          context,
-          response.message ?? 'Failed to initiate redemption',
-          type: ToastType.error,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
@@ -241,7 +202,10 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           arguments: widget.args,
                         );
                       } else {
-                        _customerRedeem();
+                           Navigator.of(context).pushNamed(
+                          'redemptionInstructions',
+                          arguments: widget.args,
+                        );
                       }
                     },
                   ),

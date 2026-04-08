@@ -7,11 +7,7 @@ class PartnerRecentOffers extends StatelessWidget {
   final ScreenSizeData screenSize;
   final List<OfferModel>? offers;
 
-  const PartnerRecentOffers({
-    super.key,
-    required this.screenSize,
-    this.offers,
-  });
+  const PartnerRecentOffers({super.key, required this.screenSize, this.offers});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +16,7 @@ class PartnerRecentOffers extends StatelessWidget {
     }
 
     return SizedBox(
-      height: screenSize.responsivePadding(210),
+      height: screenSize.responsivePadding(220),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
@@ -28,10 +24,7 @@ class PartnerRecentOffers extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final offer = offers![index];
-          return SizedBox(
-            width: 160,
-            child: DealCard.fromOffer(offer),
-          );
+          return SizedBox(width: 160, child: DealCard.fromOffer(offer));
         },
       ),
     );

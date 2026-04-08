@@ -20,14 +20,13 @@ class HomeAppBar extends ConsumerWidget {
         ? user.name!
         : 'Guest User';
     final initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
-    final locationName =
-        (user?.location?.localBody != null &&
+    final locationName = (user?.location?.localBody != null &&
             user!.location!.localBody!.isNotEmpty)
-        ? '${user.location!.localBody}${user.location?.district != null ? ", ${user.location!.district}" : ""}'
+        ? user.location!.localBody!.split(' ').first
         : (user?.location?.district != null &&
-              user!.location!.district!.isNotEmpty)
-        ? user.location!.district!
-        : 'Unspecified Location';
+                user!.location!.district!.isNotEmpty)
+            ? user.location!.district!.split(' ').first
+            : 'Unspecified Location';
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),

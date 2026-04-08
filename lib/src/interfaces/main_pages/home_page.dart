@@ -1,4 +1,3 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -12,6 +11,8 @@ import '../components/home/banner_section.dart';
 import '../components/offers/deal_card.dart';
 import '../components/home/featured_shops_list.dart';
 import '../components/home/rewards_carousel.dart';
+import '../components/shimmers/home_shimmer.dart';
+import '../../data/utils/global_variables.dart';
 
 import '../../data/providers/home_provider.dart';
 import '../../data/models/home_data.dart';
@@ -25,22 +26,34 @@ class HomePage extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     final homeDataAsync = ref.watch(homeDataProvider);
 
+    if (GlobalVariables.isPartner) {
+      return const PartnerHomePage();
+    }
+
     return Scaffold(
       backgroundColor: kWhite,
-      body: homeDataAsync.when(
-        data: (state) {
-          if (state == null) {
-            return const Center(child: Text('No data available'));
-          }
-          if (state is CustomerHomeState) {
-            return _buildContent(context, ref, state.data, screenSize);
-          } else if (state is PartnerHomeState) {
-            return const PartnerHomePage();
-          }
-          return const Center(child: Text('No data available'));
-        },
-        loading: () => const Center(child: LoadingAnimation()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+      body: Column(
+        children: [
+          SizedBox(height: screenSize.responsivePadding(45)),
+          const HomeAppBar(),
+          SizedBox(height: screenSize.responsivePadding(16)),
+          const HomeSearchBar(),
+          Expanded(
+            child: homeDataAsync.when(
+              data: (state) {
+                if (state == null) {
+                  return const Center(child: Text('No data available'));
+                }
+                if (state is CustomerHomeState) {
+                  return _buildContent(context, ref, state.data, screenSize);
+                }
+                return const Center(child: Text('Invalid state'));
+              },
+              loading: () => const HomeShimmer(isPartner: false),
+              error: (err, stack) => Center(child: Text('Error: $err')),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -59,10 +72,6 @@ class HomePage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: screenSize.responsivePadding(45)),
-          const HomeAppBar(),
-          SizedBox(height: screenSize.responsivePadding(16)),
-          const HomeSearchBar(),
           SizedBox(height: screenSize.responsivePadding(16)),
           LoyaltyRewardCard(loyaltyCard: data.loyaltyCard),
           SizedBox(height: screenSize.responsivePadding(16)),

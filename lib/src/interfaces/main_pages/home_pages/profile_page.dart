@@ -56,8 +56,10 @@ class ProfilePage extends ConsumerWidget {
         ? user.phone!
         : '9998877766';
     final locationName = (user?.location?.localBody != null && user!.location!.localBody!.isNotEmpty)
-        ? user.location!.localBody!
-        : 'Not Set';
+        ? user.location!.localBody!.split(' ').first
+        : (user?.location?.district != null && user!.location!.district!.isNotEmpty)
+            ? user.location!.district!.split(' ').first
+            : 'Not Set';
 
     return Scaffold(
       backgroundColor: kWhite,

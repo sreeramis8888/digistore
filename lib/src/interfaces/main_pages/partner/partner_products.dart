@@ -58,12 +58,20 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
             children: [
               SizedBox(height: screenSize.responsivePadding(24)),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                   IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: kTextColor,
+                      size: 20,
+                    ),
+                  ),
                   Text(
                     'Products',
                     style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
                   ),
+                  const Spacer(),
                   PrimaryButton(
                     onPressed: () {
                       Navigator.push(

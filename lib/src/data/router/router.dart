@@ -16,6 +16,11 @@ import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_success_page.dart';
 import '../../interfaces/main_pages/partner/partner_account_page.dart';
+import '../../interfaces/main_pages/partner/partner_product_page.dart';
+import '../../interfaces/main_pages/partner/create_offer_page.dart';
+import '../../interfaces/main_pages/offers.dart';
+import '../../interfaces/main_pages/partner/partner_products.dart';
+import '../../interfaces/main_pages/partner/partner_history.dart';
 import '../models/shop_model.dart';
 
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
@@ -211,6 +216,38 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'claimedRewards':
       page = const ClaimedRewardsPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'createProduct':
+      final args = settings?.arguments as Map<String, dynamic>?;
+      page = CreateProductPage(product: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'createOffer':
+      final args = settings?.arguments as Map<String, dynamic>?;
+      page = CreateOfferPage(offer: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'offers':
+      page = const OffersPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'partnerProducts':
+      page = const PartnerProductsPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'partnerHistory':
+      page = const PartnerHistoryPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

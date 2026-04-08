@@ -6,6 +6,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
+import '../../components/location_selection_bottom_sheet.dart';
 
 class MyAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -19,6 +20,12 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
   late TextEditingController _nameController;
   late TextEditingController _mobileController;
   late TextEditingController _emailController;
+  late TextEditingController _locationController;
+
+  double? _lat;
+  double? _lng;
+  String? _district;
+  String? _localBody;
 
   @override
   void initState() {
@@ -27,6 +34,19 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
     _nameController = TextEditingController(text: user?.name ?? '');
     _mobileController = TextEditingController(text: user?.phone ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
+
+    _district = user?.location?.district;
+    _localBody = user?.location?.localBody;
+    _lat = user?.location?.coordinates?.lat;
+    _lng = user?.location?.coordinates?.lng;
+
+    _locationController = TextEditingController(
+      text: (_localBody != null && _localBody!.isNotEmpty)
+          ? _localBody!.split(' ').first
+          : (_district != null && _district!.isNotEmpty)
+              ? _district!.split(' ').first
+              : '',
+    );
   }
 
   @override
@@ -34,6 +54,7 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
     _nameController.dispose();
     _mobileController.dispose();
     _emailController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -86,10 +107,50 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                           hint: 'Enter email',
                           controller: _emailController,
                         ),
+                        SizedBox(height: screenSize.responsivePadding(24)),
+                        PrimaryTextField(
+                          label: 'Location',
+                          hint: 'Tap to capture location',
+                          controller: _locationController,
+                          isRequired: true,
+                          readOnly: true,
+                          suffixIcon: const Icon(
+                            Icons.my_location_rounded,
+                            size: 20,
+                            color: kPrimaryColor,
+                          ),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => LocationSelectionBottomSheet(
+                                initialLat: _lat,
+                                initialLng: _lng,
+                                initialDistrict: _district,
+                                initialLocalBody: _localBody,
+                                onLocationSelected:
+                                    (district, localBody, lat, lng) {
+                                  setState(() {
+                                    _locationController.text =
+                                        localBody.isNotEmpty
+                                            ? localBody.split(' ').first
+                                            : district.split(' ').first;
+                                    _district = district;
+                                    _localBody = localBody;
+                                    _lat = lat;
+                                    _lng = lng;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        ),
                       ] else ...[
                         _buildReadOnlyField('Name', _nameController.text),
                         _buildReadOnlyField('Mobile Number', _mobileController.text),
                         _buildReadOnlyField('Email', _emailController.text),
+                        _buildReadOnlyField('Location', _locationController.text.split(',').first.split(' ').first),
                       ]
                     ],
                   ),
@@ -104,6 +165,16 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                       name: _nameController.text,
                       email: _emailController.text,
                     );
+
+                    if (success && _lat != null && _lng != null) {
+                      await ref.read(userProvider.notifier).updateLocation(
+                        lat: _lat!,
+                        lng: _lng!,
+                        district: _district ?? '',
+                        localBody: _localBody ?? '',
+                      );
+                    }
+
                     if (success && context.mounted) {
                       Navigator.pop(context);
                     }

@@ -6,6 +6,7 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../rewards/reward_card.dart';
 import '../../../data/models/reward_model.dart';
+import '../../../data/router/nav_router.dart';
 
 class RewardsCarousel extends ConsumerWidget {
   final List<RewardModel>? rewards;
@@ -81,23 +82,26 @@ class RewardsCarousel extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(12),
-                      vertical: screenSize.responsivePadding(6),
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFEDEDED)),
-                      borderRadius: BorderRadius.circular(7),
-                      color: kWhite,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('See all', style: kSmallTitleSB),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.chevron_right, size: 16),
-                      ],
+                  GestureDetector(
+                    onTap: () => ref.read(selectedIndexProvider.notifier).updateIndex(3),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(12),
+                        vertical: screenSize.responsivePadding(6),
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFEDEDED)),
+                        borderRadius: BorderRadius.circular(7),
+                        color: kWhite,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('See all', style: kSmallTitleSB),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.chevron_right, size: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ],

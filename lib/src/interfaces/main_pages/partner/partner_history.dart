@@ -62,12 +62,26 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: screenSize.responsivePadding(24)),
-                        Text(
-                          'History',
-                          style: kBodyTitleM.copyWith(
-                            color: const Color(0xFF373737),
-                          ),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: kTextColor,
+                                size: 20,
+                              ),
+                            ),
+                            SizedBox(width: screenSize.responsivePadding(12)),
+                            Text(
+                              'History',
+                              style: kBodyTitleM.copyWith(
+                                color: const Color(0xFF373737),
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(height: screenSize.responsivePadding(24)),
                         Text(

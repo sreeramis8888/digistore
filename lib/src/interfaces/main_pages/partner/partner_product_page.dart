@@ -168,7 +168,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: kWhite,
-        appBar: AppBar(
+        appBar: AppBar(scrolledUnderElevation: 0,
           backgroundColor: kWhite,
           elevation: 0,
           leading: IconButton(

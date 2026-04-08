@@ -38,7 +38,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
-    final itemHeight = screenSize.responsivePadding(260);
+    final itemHeight = screenSize.responsivePadding(235);
     final aspectRatio = itemWidth / itemHeight;
 
     final selectedCategoryIndex = ref.watch(selectedOffersCategoryProvider);
