@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
@@ -20,9 +21,9 @@ class PartnerActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+      child: InteractiveFeedbackButton(
+        onPressed: onTap,
+        scaleFactor: 0.95,
         child: Container(
           height: screenSize.responsivePadding(90),
           decoration: BoxDecoration(

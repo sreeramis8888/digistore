@@ -1,4 +1,6 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
+import 'package:digistore/src/interfaces/animations/index.dart';
+import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -69,14 +71,15 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
               final filter = filters[index];
               _keys[index] ??= GlobalKey();
 
-              return GestureDetector(
-                key: _keys[index],
-                onTap: () {
+              return InteractiveFeedbackButton(
+                onPressed: () {
                   ref.read(selectedOffersCategoryProvider.notifier).state =
                       index;
                   _scrollToSelectedIndex(index);
                 },
+                scaleFactor: 0.95,
                 child: Container(
+                  key: _keys[index],
                   margin: EdgeInsets.only(
                     right: screenSize.responsivePadding(8),
                   ),
@@ -98,12 +101,23 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
                     ),
                   ),
                 ),
-              );
+              ).fadeIn(delayMilliseconds: index * 40);
             },
           ),
         );
       },
-      loading: () => const Center(child: LoadingAnimation()),
+      loading: () => SizedBox(
+        height: screenSize.responsivePadding(40),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(16),
+          ),
+          itemCount: 5,
+          itemBuilder: (context, index) =>
+              CardShimmers.filterChipShimmer(screenSize),
+        ),
+      ),
       error: (e, s) => const SizedBox.shrink(),
     );
   }

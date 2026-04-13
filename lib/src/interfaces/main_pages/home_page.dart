@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/animations/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -35,9 +36,9 @@ class HomePage extends ConsumerWidget {
       body: Column(
         children: [
           SizedBox(height: screenSize.responsivePadding(45)),
-          const HomeAppBar(),
+          const HomeAppBar().fadeIn(),
           SizedBox(height: screenSize.responsivePadding(16)),
-          const HomeSearchBar(),
+          const HomeSearchBar().fadeSlideInFromBottom(delayMilliseconds: 100),
           Expanded(
             child: homeDataAsync.when(
               data: (state) {

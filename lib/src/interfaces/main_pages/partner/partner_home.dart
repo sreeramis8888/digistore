@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/animations/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -35,7 +36,7 @@ class PartnerHomePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: screenSize.responsivePadding(16)),
-                  PartnerHomeHeader(screenSize: screenSize),
+                  PartnerHomeHeader(screenSize: screenSize).fadeIn(),
                   SizedBox(height: screenSize.responsivePadding(24)),
                   Text(
                     'Welcome Back!',
@@ -43,13 +44,13 @@ class PartnerHomePage extends ConsumerWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
-                  ),
+                  ).fadeSlideInFromBottom(delayMilliseconds: 100),
                   SizedBox(height: screenSize.responsivePadding(16)),
                   HomeSearchBar(
                     hintText: "Search for 'offers'",
                     padding: EdgeInsets.zero,
                     onTap: () {},
-                  ),
+                  ).fadeSlideInFromBottom(delayMilliseconds: 200),
                   SizedBox(height: screenSize.responsivePadding(24)),
                 ],
               ),

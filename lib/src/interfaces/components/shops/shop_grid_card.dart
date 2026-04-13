@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:digistore/src/interfaces/components/advanced_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,13 +42,14 @@ class ShopGridCard extends ConsumerWidget {
     ];
     final defaultImage = defaultImages[shopName.hashCode.abs() % defaultImages.length];
 
-    return GestureDetector(
-      onTap: () {
+    return InteractiveFeedbackButton(
+      onPressed: () {
         Navigator.of(context).pushNamed(
           'shopDetail',
           arguments: shop ?? shopName,
         );
       },
+      scaleFactor: 0.98,
       child: Container(
         decoration: BoxDecoration(
           color: kWhite,

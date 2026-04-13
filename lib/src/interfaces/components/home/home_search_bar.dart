@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -24,12 +25,13 @@ class HomeSearchBar extends ConsumerWidget {
       padding:
           padding ??
           EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
-      child: GestureDetector(
-        onTap:
+      child: InteractiveFeedbackButton(
+        onPressed:
             onTap ??
             () {
               ref.read(selectedIndexProvider.notifier).updateIndex(2);
             },
+        scaleFactor: 0.98,
         child: Container(
           height: screenSize.responsivePadding(54),
           padding: EdgeInsets.symmetric(

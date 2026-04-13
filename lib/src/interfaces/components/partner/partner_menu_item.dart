@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
@@ -19,8 +20,9 @@ class PartnerMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap ?? () {},
+    return InteractiveFeedbackButton(
+      onPressed: onTap ?? () {},
+      scaleFactor: 0.98,
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(16),

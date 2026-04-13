@@ -1,3 +1,5 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
+import 'package:digistore/src/interfaces/animations/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,8 +19,9 @@ class ProfilePage extends ConsumerWidget {
     ScreenSizeData screenSize, {
     VoidCallback? onTap,
   }) {
-    return InkWell(
-      onTap: onTap ?? () {},
+    return InteractiveFeedbackButton(
+      onPressed: onTap ?? () {},
+      scaleFactor: 0.98,
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(16),
@@ -136,18 +139,19 @@ class ProfilePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
+                  InteractiveFeedbackButton(
+                    onPressed: () {
                       Navigator.pushNamed(
                         context,
                         'myAccount',
                         arguments: {'isEditMode': true},
                       );
                     },
+                    scaleFactor: 1.2,
                     child: SvgPicture.asset('assets/svg/edit.svg'),
                   ),
                 ],
-              ),
+              ).fadeIn(),
 
               SizedBox(height: screenSize.responsivePadding(32)),
 
@@ -222,7 +226,7 @@ class ProfilePage extends ConsumerWidget {
                     ),
                   ],
                 ),
-              ),
+              ).fadeSlideInFromBottom(delayMilliseconds: 100),
 
               SizedBox(height: screenSize.responsivePadding(20)),
 
@@ -278,7 +282,7 @@ class ProfilePage extends ConsumerWidget {
                     ),
                   ],
                 ),
-              ),
+              ).fadeSlideInFromBottom(delayMilliseconds: 200),
 
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
@@ -292,7 +296,7 @@ class ProfilePage extends ConsumerWidget {
                       Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
                     }
                   },
-                ),
+                ).fadeSlideInFromBottom(delayMilliseconds: 300),
               ),
 
               SizedBox(height: screenSize.responsivePadding(40)),

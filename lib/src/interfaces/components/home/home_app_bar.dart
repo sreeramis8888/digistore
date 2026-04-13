@@ -8,6 +8,8 @@ import '../../../data/providers/user_provider.dart';
 import '../../main_pages/home_pages/profile_page.dart';
 import '../../main_pages/partner/partner_profile_page.dart';
 import '../../../data/utils/global_variables.dart';
+import '../../../data/utils/interactive_feedback_button.dart';
+import '../../animations/index.dart';
 
 class HomeAppBar extends ConsumerWidget {
   const HomeAppBar({super.key});
@@ -35,8 +37,8 @@ class HomeAppBar extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
-              onTap: () {
+            child: InteractiveFeedbackButton(
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -46,6 +48,7 @@ class HomeAppBar extends ConsumerWidget {
                   ),
                 );
               },
+              scaleFactor: 0.98,
               child: Row(
                 children: [
                   Container(
@@ -60,7 +63,7 @@ class HomeAppBar extends ConsumerWidget {
                       initial,
                       style: kLargeTitleM.copyWith(color: kWhite),
                     ),
-                  ),
+                  ).fadeIn(),
                   SizedBox(width: screenSize.responsivePadding(12)),
                   Expanded(
                     child: Column(
@@ -85,16 +88,17 @@ class HomeAppBar extends ConsumerWidget {
                           ],
                         ),
                       ],
-                    ),
+                    ).fadeSlideInFromLeft(delayMilliseconds: 100),
                   ),
                 ],
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {
+          InteractiveFeedbackButton(
+            onPressed: () {
               Navigator.pushNamed(context, 'notifications');
             },
+            scaleFactor: 1.1,
             child: Container(
               padding: EdgeInsets.all(screenSize.responsivePadding(10)),
               decoration: BoxDecoration(
@@ -103,7 +107,7 @@ class HomeAppBar extends ConsumerWidget {
               ),
               child: SvgPicture.asset('assets/svg/bell.svg'),
             ),
-          ),
+          ).fadeIn(delayMilliseconds: 200),
         ],
       ),
     );

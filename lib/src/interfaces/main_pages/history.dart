@@ -1,4 +1,5 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:digistore/src/interfaces/animations/index.dart';
+import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -6,6 +7,7 @@ import '../../data/constants/style_constants.dart';
 import '../components/history/wallet_header.dart';
 import '../components/history/transaction_tile.dart';
 import '../../data/providers/transactions_provider.dart';
+import '../../data/providers/screen_size_provider.dart';
 
 import '../components/empty_state.dart';
 
@@ -46,11 +48,20 @@ class HistoryPage extends ConsumerWidget {
                     itemCount: paginated.transactions.length,
                     itemBuilder: (context, index) {
                       final transaction = paginated.transactions[index];
-                      return TransactionTile.fromTransaction(transaction);
+                      return TransactionTile.fromTransaction(transaction)
+                          .fadeSlideInFromLeft(
+                        delayMilliseconds: index * 40,
+                      );
                     },
                   );
                 },
-                loading: () => const Center(child: LoadingAnimation()),
+                loading: () => ListView.builder(
+                  itemCount: 8,
+                  itemBuilder: (context, index) {
+                    final screenSize = ref.watch(screenSizeProvider);
+                    return CardShimmers.transactionTileShimmer(screenSize);
+                  },
+                ),
                 error: (e, s) => const EmptyState(
                   imagePath: 'assets/png/empty_history.png',
                   title: 'No transaction history',

@@ -1,4 +1,5 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:digistore/src/interfaces/animations/index.dart';
+import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
@@ -106,34 +107,49 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               const OffersFilterChips(),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
-              child: offersState.isLoading
-                  ? const Center(child: LoadingAnimation())
-                  : offersState.offers.isEmpty
-                  ? EmptyState(
-                      imagePath: 'assets/png/empty_offers.png',
-                      title: GlobalVariables.isPartner
-                          ? 'No offer created yet'
-                          : 'No offers found',
-                      subtitle: GlobalVariables.isPartner
-                          ? 'You haven\'t created any offers yet. Start by creating your first deal!'
-                          : 'Check back later for exciting new deals and discounts in this category.',
-                    )
-                  : GridView.builder(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(16),
+                child: offersState.isLoading
+                    ? GridView.builder(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.responsivePadding(16),
+                        ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: aspectRatio,
+                        ),
+                        itemCount: 6,
+                        itemBuilder: (context, index) =>
+                            CardShimmers.dealCardShimmer(screenSize),
+                      )
+                    : offersState.offers.isEmpty
+                    ? EmptyState(
+                        imagePath: 'assets/png/empty_offers.png',
+                        title: GlobalVariables.isPartner
+                            ? 'No offer created yet'
+                            : 'No offers found',
+                        subtitle: GlobalVariables.isPartner
+                            ? 'You haven\'t created any offers yet. Start by creating your first deal!'
+                            : 'Check back later for exciting new deals and discounts in this category.',
+                      ).fadeIn()
+                    : GridView.builder(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.responsivePadding(16),
+                        ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: aspectRatio,
+                        ),
+                        itemCount: offersState.offers.length,
+                        itemBuilder: (context, index) {
+                          final o = offersState.offers[index];
+                          return DealCard.fromOffer(o).fadeSlideInFromBottom(
+                            delayMilliseconds: index * 50,
+                          );
+                        },
                       ),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: screenSize.responsivePadding(16),
-                        crossAxisSpacing: screenSize.responsivePadding(16),
-                        childAspectRatio: aspectRatio,
-                      ),
-                      itemCount: offersState.offers.length,
-                      itemBuilder: (context, index) {
-                        final o = offersState.offers[index];
-                        return DealCard.fromOffer(o);
-                      },
-                    ),
             ),
           ],
         ),

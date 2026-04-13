@@ -3,6 +3,7 @@ import 'package:digistore/src/data/constants/style_constants.dart';
 import 'package:digistore/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import '../advanced_network_image.dart';
 import '../../../data/models/offer_model.dart';
 
@@ -62,8 +63,8 @@ class DealCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
 
-    return GestureDetector(
-      onTap: () {
+    return InteractiveFeedbackButton(
+      onPressed: () {
         Navigator.of(context).pushNamed(
           'offerDetail',
           arguments: {
@@ -78,6 +79,7 @@ class DealCard extends ConsumerWidget {
           },
         );
       },
+      scaleFactor: 0.98,
       child: Container(
         width: width,
         margin: margin,

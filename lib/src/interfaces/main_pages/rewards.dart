@@ -1,4 +1,5 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:digistore/src/interfaces/animations/index.dart';
+import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -61,11 +62,24 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
               itemCount: paginated.rewards.length,
               itemBuilder: (context, index) {
                 final reward = paginated.rewards[index];
-                return RewardCard.fromReward(reward);
+                return RewardCard.fromReward(reward).fadeScaleUp(
+                  delayMilliseconds: index * 50,
+                );
               },
             );
           },
-          loading: () => const Center(child: LoadingAnimation()),
+          loading: () => GridView.builder(
+            padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: screenSize.responsivePadding(16),
+              crossAxisSpacing: screenSize.responsivePadding(16),
+              childAspectRatio: aspectRatio,
+            ),
+            itemCount: 6,
+            itemBuilder: (context, index) =>
+                CardShimmers.rewardCardShimmer(screenSize),
+          ),
           error: (e, s) => const EmptyState(
             imagePath: 'assets/png/empty_rewards.png',
             title: 'No rewards available',

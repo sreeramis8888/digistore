@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
@@ -39,59 +40,63 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width ?? double.infinity,
-      height: height ?? 52,
-      child: ElevatedButton(
-        onPressed: (isEnabled && !isLoading) ? onPressed : null,
-        style: ElevatedButton.styleFrom(
-          padding:
-              padding ??
-              ((icon != null || trailingIcon != null)
-                  ? const EdgeInsets.symmetric(horizontal: 8)
-                  : null),
-          backgroundColor: backgroundColor ?? kPrimaryColor,
-          disabledBackgroundColor: kGreyLight,
-          shape: RoundedRectangleBorder(
-            borderRadius: borderRadius ?? BorderRadius.circular(8),
+    return InteractiveFeedbackButton(
+      onPressed: (isEnabled && !isLoading) ? onPressed : null,
+      scaleFactor: 0.98,
+      child: SizedBox(
+        width: width ?? double.infinity,
+        height: height ?? 52,
+        child: ElevatedButton(
+          onPressed: (isEnabled && !isLoading) ? onPressed : null,
+          style: ElevatedButton.styleFrom(
+            padding:
+                padding ??
+                ((icon != null || trailingIcon != null)
+                    ? const EdgeInsets.symmetric(horizontal: 8)
+                    : null),
+            backgroundColor: backgroundColor ?? kPrimaryColor,
+            disabledBackgroundColor: kGreyLight,
+            shape: RoundedRectangleBorder(
+              borderRadius: borderRadius ?? BorderRadius.circular(8),
+            ),
+            elevation: 0,
           ),
-          elevation: 0,
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: LoadingAnimation()
-              )
-            : child ??
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (icon != null) ...[icon!, const SizedBox(width: 8)],
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            text,
-                            style: kSmallTitleR.copyWith(
-                              color: !isEnabled ? kGrey : (textColor ?? kWhite),
-                              fontWeight: FontWeight.w600,
-                              fontSize: (icon != null || trailingIcon != null)
-                                  ? textSize
-                                  : null,
+          child: isLoading
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: LoadingAnimation()
+                )
+              : child ??
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (icon != null) ...[icon!, const SizedBox(width: 8)],
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              text,
+                              style: kSmallTitleR.copyWith(
+                                color: !isEnabled ? kGrey : (textColor ?? kWhite),
+                                fontWeight: FontWeight.w600,
+                                fontSize: (icon != null || trailingIcon != null)
+                                    ? textSize
+                                    : null,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ),
-                      if (trailingIcon != null) ...[
-                        const SizedBox(width: 8),
-                        trailingIcon!,
+                        if (trailingIcon != null) ...[
+                          const SizedBox(width: 8),
+                          trailingIcon!,
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
+        ),
       ),
     );
   }

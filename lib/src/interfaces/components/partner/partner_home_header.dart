@@ -6,6 +6,8 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../main_pages/partner/partner_profile_page.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../advanced_network_image.dart';
+import '../../../data/utils/interactive_feedback_button.dart';
+import '../../animations/index.dart';
 
 class PartnerHomeHeader extends ConsumerWidget {
   final ScreenSizeData screenSize;
@@ -22,8 +24,8 @@ class PartnerHomeHeader extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
-          onTap: () {
+        InteractiveFeedbackButton(
+          onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -31,6 +33,7 @@ class PartnerHomeHeader extends ConsumerWidget {
               ),
             );
           },
+          scaleFactor: 0.98,
           child: Row(
             children: [
               Container(
@@ -48,7 +51,7 @@ class PartnerHomeHeader extends ConsumerWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-              ),
+              ).fadeIn(),
               SizedBox(width: screenSize.responsivePadding(12)),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,18 +79,22 @@ class PartnerHomeHeader extends ConsumerWidget {
                     ],
                   ),
                 ],
-              ),
+              ).fadeSlideInFromLeft(delayMilliseconds: 100),
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+        InteractiveFeedbackButton(
+          onPressed: () {},
+          scaleFactor: 1.1,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: const Icon(Icons.notifications_none, size: 24, color: kBlack),
           ),
-          child: const Icon(Icons.notifications_none, size: 24, color: kBlack),
-        ),
+        ).fadeIn(delayMilliseconds: 200),
       ],
     );
   }

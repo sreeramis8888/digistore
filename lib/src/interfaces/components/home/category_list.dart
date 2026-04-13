@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -42,11 +43,12 @@ class CategoryList extends ConsumerWidget {
               final category = entry.value;
               return Padding(
                 padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
-                child: GestureDetector(
-                  onTap: () {
+                child: InteractiveFeedbackButton(
+                  onPressed: () {
                     ref.read(selectedOffersCategoryProvider.notifier).state = index + 1;
                     ref.read(selectedIndexProvider.notifier).updateIndex(1);
                   },
+                  scaleFactor: 0.95,
                   child: CategoryCard(
                     category: {
                       'name': category.name ?? '',

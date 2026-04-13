@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:digistore/src/data/constants/color_constants.dart';
 import 'package:digistore/src/data/constants/style_constants.dart';
 import 'package:digistore/src/data/providers/screen_size_provider.dart';
@@ -82,8 +83,8 @@ class RewardCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
 
-    return GestureDetector(
-      onTap: () {
+    return InteractiveFeedbackButton(
+      onPressed: () {
         Navigator.of(context).pushNamed(
           'rewardDetail',
           arguments: {
@@ -101,6 +102,7 @@ class RewardCard extends ConsumerWidget {
           },
         );
       },
+      scaleFactor: 0.98,
       child: Container(
         width: width,
         margin: margin,
