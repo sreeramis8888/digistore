@@ -215,10 +215,12 @@ class ApiProvider {
       }
 
       log(name: 'API PUT MULTIPART', '$baseUrl$endpoint');
+
       final streamedResponse = await request.send();
       final responseBody = await streamedResponse.stream.bytesToString();
       final decoded = json.decode(responseBody);
-
+      log(name: 'API PUT MULTIPART data ', '$decoded');
+      log(name: 'API PUT MULTIPART message', '${decoded['message']}');
       if (streamedResponse.statusCode >= 200 &&
           streamedResponse.statusCode < 300) {
         return ApiResponse.success(decoded, streamedResponse.statusCode);

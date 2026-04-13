@@ -1593,55 +1593,74 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                         setState(() => _isLoading = true);
                         try {
                           final notifier = ref.read(partnerProvider.notifier);
-                          bool success = false;
+                          bool success = true;
 
-                          final List<http.MultipartFile> allFiles = [];
-
-                          if (_pickedLogo != null) {
-                            allFiles.add(
-                              await http.MultipartFile.fromPath(
-                                'logo',
-                                _pickedLogo!.path,
-                                contentType: MediaType.parse(
-                                  lookupMimeType(_pickedLogo!.path) ??
-                                      'image/jpeg',
-                                ),
-                              ),
+                          if (_pickedLogo == null &&
+                              _pickedCover == null &&
+                              _pickedGallery.isEmpty) {
+                            success = await notifier.updateProfile(
+                              updatedPartner,
                             );
-                          }
+                          } else {
+                            if (_pickedLogo != null) {
+                              final logoFile =
+                                  await http.MultipartFile.fromPath(
+                                    'images',
+                                    _pickedLogo!.path,
+                                    contentType: MediaType.parse(
+                                      lookupMimeType(_pickedLogo!.path) ??
+                                          'image/jpeg',
+                                    ),
+                                  );
+                              success =
+                                  await notifier.updateProfile(
+                                    updatedPartner,
+                                    files: [logoFile],
+                                    uploadField: 'logo',
+                                  ) &&
+                                  success;
+                            }
 
-                          if (_pickedCover != null) {
-                            allFiles.add(
-                              await http.MultipartFile.fromPath(
-                                'cover',
-                                _pickedCover!.path,
-                                contentType: MediaType.parse(
-                                  lookupMimeType(_pickedCover!.path) ??
-                                      'image/jpeg',
-                                ),
-                              ),
-                            );
-                          }
+                            if (_pickedCover != null) {
+                              final coverFile =
+                                  await http.MultipartFile.fromPath(
+                                    'images',
+                                    _pickedCover!.path,
+                                    contentType: MediaType.parse(
+                                      lookupMimeType(_pickedCover!.path) ??
+                                          'image/jpeg',
+                                    ),
+                                  );
+                              success =
+                                  await notifier.updateProfile(
+                                    updatedPartner,
+                                    files: [coverFile],
+                                    uploadField: 'cover',
+                                  ) &&
+                                  success;
+                            }
 
-                          if (_pickedGallery.isNotEmpty) {
-                            final galleryFiles = await Future.wait(
-                              _pickedGallery.map(
-                                (f) => http.MultipartFile.fromPath(
-                                  'gallery',
-                                  f.path,
-                                  contentType: MediaType.parse(
-                                    lookupMimeType(f.path) ?? 'image/jpeg',
+                            if (_pickedGallery.isNotEmpty) {
+                              final galleryFiles = await Future.wait(
+                                _pickedGallery.map(
+                                  (f) => http.MultipartFile.fromPath(
+                                    'images',
+                                    f.path,
+                                    contentType: MediaType.parse(
+                                      lookupMimeType(f.path) ?? 'image/jpeg',
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                            allFiles.addAll(galleryFiles);
+                              );
+                              success =
+                                  await notifier.updateProfile(
+                                    updatedPartner,
+                                    files: galleryFiles,
+                                    uploadField: 'gallery',
+                                  ) &&
+                                  success;
+                            }
                           }
-
-                          success = await notifier.updateProfile(
-                            updatedPartner,
-                            files: allFiles.isNotEmpty ? allFiles : null,
-                          );
 
                           if (success && context.mounted) {
                             ToastService().showToast(
