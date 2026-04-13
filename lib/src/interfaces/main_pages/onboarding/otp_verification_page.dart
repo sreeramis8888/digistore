@@ -21,6 +21,13 @@ class OtpVerificationPage extends ConsumerStatefulWidget {
 class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
   final PinInputController _otpController = PinInputController();
   String otp = '';
+  late Future<Map<String, dynamic>?> _registrationDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _registrationDataFuture = ref.read(secureStorageServiceProvider).getRegistrationData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +59,22 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
               Text(
                 'Enter the verification code sent to your number',
                 style: kBodyTitleL.copyWith(color: Color(0XFF797979)),
+              ),
+              FutureBuilder<Map<String, dynamic>?>(
+                future: _registrationDataFuture,
+                builder: (context, snapshot) {
+                  final devOtp = snapshot.data?['devOtp'];
+                  if (devOtp != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Testing OTP: $devOtp',
+                        style: kBodyTitleM.copyWith(color: kPrimaryColor),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
 
               SizedBox(height: screenSize.responsivePadding(32)),

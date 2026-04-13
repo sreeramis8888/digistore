@@ -26,8 +26,9 @@ class PartnerHomePage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kWhite,
       body: SafeArea(
-        child: Column(
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.responsivePadding(16),
@@ -55,14 +56,12 @@ class PartnerHomePage extends ConsumerWidget {
                 ],
               ),
             ),
-            Expanded(
-              child: homeDataAsync.when(
+              homeDataAsync.when(
                 data: (state) {
                   if (state is! PartnerHomeState) return const SizedBox.shrink();
                   final data = state.data;
 
-                  return SingleChildScrollView(
-                    child: Padding(
+                  return Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: screenSize.responsivePadding(16),
                       ),
@@ -122,7 +121,6 @@ class PartnerHomePage extends ConsumerWidget {
                           SizedBox(height: screenSize.responsivePadding(40)),
                         ],
                       ),
-                    ),
                   );
                 },
                 loading: () => const Padding(
@@ -131,8 +129,8 @@ class PartnerHomePage extends ConsumerWidget {
                 ),
                 error: (e, s) => Center(child: Text('Error: $e')),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

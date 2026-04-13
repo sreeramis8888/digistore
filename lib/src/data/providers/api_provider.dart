@@ -177,8 +177,8 @@ class ApiProvider {
       final decoded = json.decode(response.body);
 
       log(name: 'API PUT', '$baseUrl$endpoint');
-      log(name: 'API PUT data ', '${decoded['data']}');
-
+      log(name: 'API PUT data', '${decoded['data']}');
+      log(name: 'API PUT message', '${decoded['message']}');
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
       } else {

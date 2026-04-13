@@ -1595,43 +1595,39 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                           final notifier = ref.read(partnerProvider.notifier);
                           bool success = false;
 
+                          final List<http.MultipartFile> allFiles = [];
+
                           if (_pickedLogo != null) {
-                            final file = await http.MultipartFile.fromPath(
-                              'images',
-                              _pickedLogo!.path,
-                              contentType: MediaType.parse(
-                                lookupMimeType(_pickedLogo!.path) ??
-                                    'image/jpeg',
+                            allFiles.add(
+                              await http.MultipartFile.fromPath(
+                                'logo',
+                                _pickedLogo!.path,
+                                contentType: MediaType.parse(
+                                  lookupMimeType(_pickedLogo!.path) ??
+                                      'image/jpeg',
+                                ),
                               ),
-                            );
-                            success = await notifier.updateProfile(
-                              updatedPartner,
-                              files: [file],
-                              uploadField: 'logo',
                             );
                           }
 
                           if (_pickedCover != null) {
-                            final file = await http.MultipartFile.fromPath(
-                              'images',
-                              _pickedCover!.path,
-                              contentType: MediaType.parse(
-                                lookupMimeType(_pickedCover!.path) ??
-                                    'image/jpeg',
+                            allFiles.add(
+                              await http.MultipartFile.fromPath(
+                                'cover',
+                                _pickedCover!.path,
+                                contentType: MediaType.parse(
+                                  lookupMimeType(_pickedCover!.path) ??
+                                      'image/jpeg',
+                                ),
                               ),
-                            );
-                            success = await notifier.updateProfile(
-                              updatedPartner,
-                              files: [file],
-                              uploadField: 'cover',
                             );
                           }
 
                           if (_pickedGallery.isNotEmpty) {
-                            final files = await Future.wait(
+                            final galleryFiles = await Future.wait(
                               _pickedGallery.map(
                                 (f) => http.MultipartFile.fromPath(
-                                  'images',
+                                  'gallery',
                                   f.path,
                                   contentType: MediaType.parse(
                                     lookupMimeType(f.path) ?? 'image/jpeg',
@@ -1639,54 +1635,13 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 ),
                               ),
                             );
-                            success = await notifier.updateProfile(
-                              updatedPartner,
-                              files: files,
-                              uploadField: 'gallery',
-                            );
+                            allFiles.addAll(galleryFiles);
                           }
 
-                          final fresh =
-                              ref.read(partnerProvider) ?? currentPartner;
-                          final finalPartner = PartnerModel(
-                            id: updatedPartner.id,
-                            userId: updatedPartner.userId,
-                            businessDetails: updatedPartner.businessDetails,
-                            businessInfo: BusinessInfo(
-                              ownerName: _ownerNameCtrl.text,
-                              email: _emailCtrl.text,
-                              contactPhone: _contactNumCtrl.text,
-                              whatsappNumber: _whatsappCtrl.text,
-                              businessLogo: fresh.businessInfo?.businessLogo,
-                              coverImage: fresh.businessInfo?.coverImage,
-                              businessImages:
-                                  fresh.businessInfo?.businessImages ??
-                                  _businessImages,
-                              tagline: _taglineCtrl.text,
-                              description: _descriptionCtrl.text,
-                              websiteUrl: _websiteUrlCtrl.text,
-                              specialties: _specialties,
-                              branches: _branches,
-                              socialLinks: SocialLinks(
-                                instagram: _instagramCtrl.text,
-                                facebook: _facebookCtrl.text,
-                                youtube: _youtubeCtrl.text,
-                              ),
-                              storeLocation:
-                                  updatedPartner.businessInfo?.storeLocation,
-                              operatingHours: _operatingHours,
-                            ),
-                            serviceCategories: updatedPartner.serviceCategories,
-                            coverageAreas: updatedPartner.coverageAreas,
-                            isActive: updatedPartner.isActive,
-                            isFeatured: updatedPartner.isFeatured,
-                            verificationStatus:
-                                updatedPartner.verificationStatus,
-                            createdAt: updatedPartner.createdAt,
-                            updatedAt: DateTime.now(),
+                          success = await notifier.updateProfile(
+                            updatedPartner,
+                            files: allFiles.isNotEmpty ? allFiles : null,
                           );
-
-                          success = await notifier.updateProfile(finalPartner);
 
                           if (success && context.mounted) {
                             ToastService().showToast(

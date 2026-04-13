@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/partner_model.dart';
 import 'api_provider.dart';
+import '../utils/map_utils.dart';
 
 class PartnerNotifier extends Notifier<PartnerModel?> {
   @override
@@ -25,7 +26,9 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
     if (response.success && response.data != null) {
       final partnerData = response.data!['data'];
       if (partnerData != null) {
-        final partner = PartnerModel.fromJson(partnerData as Map<String, dynamic>);
+        final partner = PartnerModel.fromJson(
+          partnerData as Map<String, dynamic>,
+        );
         state = partner;
         return 200;
       }
@@ -41,16 +44,26 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
     final api = ref.read(apiProvider);
 
     ApiResponse<Map<String, dynamic>> response;
-    
+
     if (files != null && files.isNotEmpty) {
-      final body = {
-        'businessDetails': json.encode(updatedPartner.businessDetails?.toJson()),
-        'businessInfo': json.encode(updatedPartner.businessInfo?.toJson()),
-      };
+      final body = <String, String>{};
+
+      final businessDetailsMap = updatedPartner.businessDetails?.toJson();
+      if (businessDetailsMap != null) {
+        final cleaned = MapUtils.cleanMap(businessDetailsMap);
+        if (cleaned.isNotEmpty) body['businessDetails'] = json.encode(cleaned);
+      }
+
+      final businessInfoMap = updatedPartner.businessInfo?.toJson();
+      if (businessInfoMap != null) {
+        final cleaned = MapUtils.cleanMap(businessInfoMap);
+        if (cleaned.isNotEmpty) body['businessInfo'] = json.encode(cleaned);
+      }
+
       if (uploadField != null) {
         body['uploadField'] = uploadField;
       }
-      
+
       response = await api.putMultipart(
         '/profile',
         body,
@@ -58,11 +71,8 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
         requireAuth: true,
       );
     } else {
-      response = await api.put(
-        '/profile',
-        updatedPartner.toJson(),
-        requireAuth: true,
-      );
+      final cleanedData = MapUtils.cleanMap(updatedPartner.toJson());
+      response = await api.put('/profile', cleanedData, requireAuth: true);
     }
 
     if (response.success && response.data != null) {
@@ -76,4 +86,6 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
   }
 }
 
-final partnerProvider = NotifierProvider<PartnerNotifier, PartnerModel?>(PartnerNotifier.new);
+final partnerProvider = NotifierProvider<PartnerNotifier, PartnerModel?>(
+  PartnerNotifier.new,
+);
