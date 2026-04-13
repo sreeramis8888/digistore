@@ -101,7 +101,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       onChanged: (phone) {
-                        phoneNumber = phone.number;
+                        phoneNumber = phone.completeNumber;
                       },
                     ),
                   ),
