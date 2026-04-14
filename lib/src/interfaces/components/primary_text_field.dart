@@ -15,6 +15,7 @@ class PrimaryTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final bool readOnly;
   final bool isRequired;
   final int maxLines;
@@ -31,6 +32,7 @@ class PrimaryTextField extends StatefulWidget {
     this.suffixIcon,
     this.onTap,
     this.onChanged,
+    this.onSubmitted,
     this.readOnly = false,
     this.isRequired = false,
     this.maxLines = 1,
@@ -94,6 +96,7 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           readOnly: widget.type == TextFieldType.date || widget.readOnly,
           onTap: widget.onTap,
           onChanged: widget.onChanged,
+          onFieldSubmitted: widget.onSubmitted,
           maxLines: widget.maxLines,
           style: kSmallTitleL,
           decoration: InputDecoration(

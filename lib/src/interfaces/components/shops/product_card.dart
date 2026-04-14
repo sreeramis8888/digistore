@@ -10,6 +10,7 @@ class ProductCard extends ConsumerWidget {
 
   final String? name;
   final String? image;
+  final String? description;
   final String? price;
 
   const ProductCard({
@@ -17,20 +18,22 @@ class ProductCard extends ConsumerWidget {
     required this.index,
     this.name,
     this.image,
+    this.description,
     this.price,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-   
+
     final product = (name != null && image != null && price != null)
-        ? {'name': name!, 'image': image!, 'price': price!}
-        : {
-            'name': '',
-            'image': '',
-            'price': '',
-          };
+        ? {
+            'name': name ??'',
+            'image': image??'',
+            'price': price??'',
+            'description': description??'',
+          }
+        : {'name': '', 'image': '', 'price': '', 'description': ''};
 
     return GestureDetector(
       onTap: () {

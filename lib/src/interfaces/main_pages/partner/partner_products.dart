@@ -48,6 +48,38 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
+      appBar: AppBar(
+        title: Text(
+          'Products',
+          style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
+        ),
+        backgroundColor: kWhite,
+        surfaceTintColor: kWhite,
+        elevation: 0,
+        actions: [
+          Center(
+            child: Padding(
+              padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
+              child: PrimaryButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateProductPage(),
+                    ),
+                  );
+                },
+                width: screenSize.responsivePadding(140),
+                height: screenSize.responsivePadding(38),
+                text: 'Create Product',
+                textSize: 14,
+                backgroundColor: kPrimaryColor,
+                textColor: kWhite,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -56,40 +88,6 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: screenSize.responsivePadding(24)),
-              Row(
-                children: [
-                   IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: kTextColor,
-                      size: 20,
-                    ),
-                  ),
-                  Text(
-                    'Products',
-                    style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
-                  ),
-                  const Spacer(),
-                  PrimaryButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CreateProductPage(),
-                        ),
-                      );
-                    },
-                    width: screenSize.responsivePadding(140),
-                    height: screenSize.responsivePadding(44),
-                    text: 'Create Product',
-                    textSize: 14,
-                    backgroundColor: kPrimaryColor,
-                    textColor: kWhite,
-                  ),
-                ],
-              ),
               SizedBox(height: screenSize.responsivePadding(16)),
               Container(
                 decoration: BoxDecoration(

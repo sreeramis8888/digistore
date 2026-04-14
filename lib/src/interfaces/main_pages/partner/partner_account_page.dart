@@ -18,13 +18,13 @@ import 'package:mime/mime.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/category_provider.dart';
 import '../../components/advanced_network_image.dart';
-import '../../components/location_selection_bottom_sheet.dart';
 import '../../../data/models/partner_model.dart';
 import '../../../data/models/business_details.dart';
 import '../../../data/models/business_info.dart';
 import '../../../data/models/location_point.dart';
 import '../../components/add_specialty_dialog.dart';
 import '../../components/add_branch_dialog.dart';
+import '../../components/map_location_picker_page.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -148,27 +148,28 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     }
   }
 
-  void _showLocationPicker() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => LocationSelectionBottomSheet(
-        initialLat: _lat,
-        initialLng: _lng,
-        initialDistrict: _locationCtrl.text,
-        initialLocalBody: _shopAddressCtrl.text,
-        onLocationSelected: (district, localBody, lat, lng) {
-          setState(() {
-            _locationCtrl.text = district;
-            _shopAddressCtrl.text = localBody;
-            _lat = lat;
-            _lng = lng;
-            _mapLocationCtrl.text = '$district, $localBody';
-          });
-        },
+  Future<void> _showGoogleMapLocationPicker() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapLocationPickerPage(
+          initialLat: _lat,
+          initialLng: _lng,
+          initialDistrict: _locationCtrl.text,
+          initialLocalBody: _shopAddressCtrl.text,
+        ),
       ),
     );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        _locationCtrl.text = result['district'] as String;
+        _shopAddressCtrl.text = result['localBody'] as String;
+        _lat = result['lat'] as double;
+        _lng = result['lng'] as double;
+        _mapLocationCtrl.text = '${_locationCtrl.text}, ${_shopAddressCtrl.text}';
+      });
+    }
   }
 
   @override
@@ -987,6 +988,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   child: PrimaryTextField(
                                     label: 'Mobile Number',
                                     controller: _mobileCtrl,
+                                    readOnly: true,
                                   ),
                                 ),
                                 const Divider(
@@ -999,12 +1001,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   child: PrimaryTextField(
                                     label: 'Location',
                                     controller: _locationCtrl,
-                                    readOnly: true,
-                                    onTap: _showLocationPicker,
-                                    suffixIcon: const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Color(0xFF808080),
-                                    ),
                                   ),
                                 ),
                               ] else ...[
@@ -1113,12 +1109,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   child: PrimaryTextField(
                                     label: 'Shop Address',
                                     controller: _shopAddressCtrl,
-                                    readOnly: true,
-                                    onTap: _showLocationPicker,
-                                    suffixIcon: const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Color(0xFF808080),
-                                    ),
                                   ),
                                 ),
                                 const Divider(
@@ -1144,7 +1134,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     label: 'Google Map Location',
                                     controller: _mapLocationCtrl,
                                     readOnly: true,
-                                    onTap: _showLocationPicker,
+                                    onTap: _showGoogleMapLocationPicker,
                                     prefixIcon: const Icon(
                                       Icons.location_on_outlined,
                                       color: Color(0xFF808080),

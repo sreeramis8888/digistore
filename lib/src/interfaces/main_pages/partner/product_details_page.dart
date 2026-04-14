@@ -99,7 +99,7 @@ class ProductDetailsPage extends StatelessWidget {
                   Text('Description', style: kSmallTitleM),
                   const SizedBox(height: 8),
                   Text(
-                    'Sodales cras etiam senectus turpis at scelerisque sed ullamcorper. Orci tincidunt scelerisque nunc in. Ut semper cursus in vel. Gravida vehicula lorem amet faucibus. Nec tellus nisi arcu neque ultrices. Urna lobortis ipsum sollicitudin quis id tortor.',
+                        product['description'] ?? '',
                     style: kSmallerTitleL.copyWith(color: Color(0xFF4E4E4E)),
                   ),
                 ],
