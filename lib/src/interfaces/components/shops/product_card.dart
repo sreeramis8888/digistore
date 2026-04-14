@@ -23,23 +23,14 @@ class ProductCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final mockProducts = const [
-      {
-        'name': 'Gulabjamun Shake',
-        'image': 'assets/png/gulabjamun_shake.png',
-        'price': '₹ 200',
-      },
-      {'name': 'Waffle', 'image': 'assets/png/waffle.png', 'price': '₹ 150'},
-      {
-        'name': 'Italian Fruit Salad',
-        'image': 'assets/png/italian_fruit_salad.png',
-        'price': '₹ 250',
-      },
-      {'name': 'Shake', 'image': 'assets/png/shake.png', 'price': '₹ 180'},
-    ];
+   
     final product = (name != null && image != null && price != null)
         ? {'name': name!, 'image': image!, 'price': price!}
-        : mockProducts[index % mockProducts.length];
+        : {
+            'name': '',
+            'image': '',
+            'price': '',
+          };
 
     return GestureDetector(
       onTap: () {
