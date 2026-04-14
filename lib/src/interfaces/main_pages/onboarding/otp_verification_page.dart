@@ -9,6 +9,8 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../../data/services/secure_storage_service.dart';
 import '../../../data/providers/user_type_provider.dart';
+import '../../../data/providers/user_provider.dart';
+import '../../../data/providers/partner_provider.dart';
 
 class OtpVerificationPage extends ConsumerStatefulWidget {
   const OtpVerificationPage({super.key});
@@ -115,6 +117,14 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                       if (result['success'] == true && context.mounted) {
                         await storage.clearRegistrationData();
                         final userType = ref.read(userTypeProvider);
+                        
+                        // Fetch appropriate data based on user type
+                        if (userType == UserType.customer) {
+                          await ref.read(userProvider.notifier).getProfile();
+                        } else {
+                          await ref.read(partnerProvider.notifier).getPartnerProfile();
+                        }
+
                         if (result['onboardingComplete'] == false && userType == UserType.customer) {
                           Navigator.of(context).pushNamed('profileSetup');
                         } else {

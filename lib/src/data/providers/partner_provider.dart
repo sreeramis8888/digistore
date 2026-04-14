@@ -4,18 +4,21 @@ import 'package:http/http.dart' as http;
 import '../models/partner_model.dart';
 import 'api_provider.dart';
 import '../utils/map_utils.dart';
+import '../services/secure_storage_service.dart';
 
 class PartnerNotifier extends Notifier<PartnerModel?> {
   @override
   PartnerModel? build() => null;
 
   Future<void> savePartner(PartnerModel partner) async {
-    // We can store partner data in a separate key in secure storage if needed
-    // For now, let's just keep it in memory
+    final storage = ref.read(secureStorageServiceProvider);
+    await storage.savePartnerData(partner);
     state = partner;
   }
 
   Future<void> clearPartner() async {
+    final storage = ref.read(secureStorageServiceProvider);
+    await storage.clearAll();
     state = null;
   }
 
@@ -29,7 +32,7 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
         final partner = PartnerModel.fromJson(
           partnerData as Map<String, dynamic>,
         );
-        state = partner;
+        await savePartner(partner);
         return 200;
       }
     }
@@ -78,7 +81,8 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
     if (response.success && response.data != null) {
       final partnerData = response.data!['data'];
       if (partnerData != null) {
-        state = PartnerModel.fromJson(partnerData as Map<String, dynamic>);
+        final partner = PartnerModel.fromJson(partnerData as Map<String, dynamic>);
+        await savePartner(partner);
         return true;
       }
     }

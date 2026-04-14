@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:digistore/src/data/models/user_model.dart';
+import 'package:digistore/src/data/models/partner_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,6 +16,7 @@ class SecureStorageService {
   static const String _onboardingCompleteKey = 'onboarding_complete';
   static const String _tutorialCompletedKey = 'tutorial_completed';
   static const String _isPartnerKey = 'is_partner';
+  static const String _partnerDataKey = 'partner_data';
 
   final FlutterSecureStorage _storage;
 
@@ -84,6 +86,27 @@ class SecureStorageService {
       // Log the error for debugging
       print('Error reading user data: $e');
       rethrow; // Re-throw to let caller handle it
+    }
+    return null;
+  }
+
+  /// Save partner data as JSON
+  Future<void> savePartnerData(PartnerModel partner) async {
+    final jsonString = json.encode(partner.toJson());
+    await _storage.write(key: _partnerDataKey, value: jsonString);
+  }
+
+  /// Retrieve partner data from local storage
+  Future<PartnerModel?> getPartnerData() async {
+    try {
+      final jsonString = await _storage.read(key: _partnerDataKey);
+      if (jsonString != null) {
+        final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+        return PartnerModel.fromJson(jsonMap);
+      }
+    } catch (e) {
+      print('Error reading partner data: $e');
+      rethrow;
     }
     return null;
   }

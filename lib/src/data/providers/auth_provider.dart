@@ -71,6 +71,8 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
         final effectiveOnboardingComplete = (userType == UserType.partner) ? true : onboardingComplete;
         
         await storage.saveOnboardingComplete(effectiveOnboardingComplete);
+        await storage.saveIsPartner(userType == UserType.partner);
+        ref.read(userTypeProvider.notifier).setUserType(userType);
 
         if (userType == UserType.customer && userData != null) {
           final userModel = UserModel.fromJson(userData);
