@@ -44,19 +44,46 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   bool _isLoading = false;
   bool _isActive = true;
 
+  bool get _isModified {
+    if (widget.product == null) return true;
+
+    if (_nameController.text.trim() != (widget.product?['title'] ?? widget.product?['name'] ?? '')) return true;
+    if (_descController.text.trim() != (widget.product?['description'] ?? '')) return true;
+    if (_priceController.text.trim() != (widget.product?['price']?.toString() ?? '')) return true;
+    
+    final oldCategoryId = widget.product?['category'] is Map ? widget.product?['category']?['_id'] : widget.product?['category'];
+    if (_selectedCategoryId != oldCategoryId) return true;
+
+    final oldTags = (widget.product?['tags'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    if (_tags.length != oldTags.length) return true;
+    for (int i = 0; i < _tags.length; i++) {
+       if (_tags[i] != oldTags[i]) return true;
+    }
+
+    if (_pickedImage != null) return true;
+    
+    if (_isActive != (widget.product?['isActive'] ?? true)) return true;
+
+    return false;
+  }
+
+  void _onFieldChanged() {
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.product?['title']);
-    _descController = TextEditingController(
-      text: widget.product?['description'],
-    );
-    _priceController = TextEditingController(
-      text: widget.product?['price']?.toString(),
-    );
-    _categoryController = TextEditingController(
-      text: widget.product?['category']?['category'],
-    );
+    _nameController = TextEditingController(text: widget.product?['title'] ?? widget.product?['name'] ?? '');
+    _descController = TextEditingController(text: widget.product?['description'] ?? '');
+    _priceController = TextEditingController(text: widget.product?['price']?.toString() ?? '');
+    
+    final cat = widget.product?['category'];
+    _categoryController = TextEditingController(text: cat is Map ? cat['category'] : '');
+
+    _nameController.addListener(_onFieldChanged);
+    _descController.addListener(_onFieldChanged);
+    _priceController.addListener(_onFieldChanged);
     _tagsController = TextEditingController();
     final initialTags = widget.product?['tags'];
     if (initialTags is List) {
@@ -68,6 +95,9 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
 
   @override
   void dispose() {
+    _nameController.removeListener(_onFieldChanged);
+    _descController.removeListener(_onFieldChanged);
+    _priceController.removeListener(_onFieldChanged);
     _nameController.dispose();
     _descController.dispose();
     _priceController.dispose();
@@ -164,13 +194,25 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
         ];
       }
 
-      final response = await api.postMultipart('/products', body, files: files);
+      final isEdit = widget.product != null;
+      final response = isEdit
+          ? await api.putMultipart('/products/${widget.product!['_id']}', body, files: files)
+          : await api.postMultipart('/products', body, files: files);
 
       if (response.success && mounted) {
         final newProduct = ProductModel.fromJson(response.data!['data']);
-        ref.read(partnerProductsProvider.notifier).addProduct(newProduct);
-        ToastService().showToast(context, 'Product created successfully');
-        Navigator.pop(context);
+        if (isEdit) {
+          ref.read(partnerProductsProvider.notifier).updateProductLocally(newProduct);
+        } else {
+          ref.read(partnerProductsProvider.notifier).addProduct(newProduct);
+        }
+        ToastService().showToast(context, 'Product ${isEdit ? 'updated' : 'created'} successfully');
+        if (isEdit) {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        } else {
+          Navigator.pop(context);
+        }
       } else if (mounted) {
         ToastService().showToast(
           context,
@@ -356,10 +398,10 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: PrimaryButton(
-              onPressed: _saveProduct,
+              onPressed: _isModified ? _saveProduct : () {},
               isLoading: _isLoading,
-              text: 'Save',
-              backgroundColor: kPrimaryColor,
+              text: widget.product != null ? 'Update' : 'Save',
+              backgroundColor: _isModified ? kPrimaryColor : Colors.grey,
               textColor: kWhite,
             ),
           ),

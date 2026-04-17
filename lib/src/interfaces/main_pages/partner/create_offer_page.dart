@@ -34,6 +34,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _categoryController;
   late TextEditingController _discountValueController;
   late TextEditingController _tagsController;
+  List<String> _tags = [];
   late TextEditingController _originalPriceController;
   late TextEditingController _offerPriceController;
   late TextEditingController _validFromController;
@@ -59,9 +60,11 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _discountValueController = TextEditingController(
       text: widget.offer?['discountValue']?.toString(),
     );
-    _tagsController = TextEditingController(
-      text: (widget.offer?['tags'] as List?)?.join(', '),
-    );
+    _tagsController = TextEditingController();
+    final initialTags = widget.offer?['tags'];
+    if (initialTags is List) {
+      _tags = initialTags.map((e) => e.toString()).toList();
+    }
     _originalPriceController = TextEditingController(
       text: widget.offer?['originalPrice']?.toString(),
     );
@@ -142,7 +145,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
     if (result is List<XFile>) {
       final remaining = 5 - _pickedImages.length;
-      List<File> newFiles = result.take(remaining).map((e) => File(e.path)).toList();
+      List<File> newFiles = result
+          .take(remaining)
+          .map((e) => File(e.path))
+          .toList();
       for (int i = 0; i < newFiles.length; i++) {
         newFiles[i] = await img_service.compressImageIfNeeded(newFiles[i]);
       }
@@ -151,7 +157,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       });
     } else if (result is XFile) {
       if (_pickedImages.length < 5) {
-        File compressedFile = await img_service.compressImageIfNeeded(File(result.path));
+        File compressedFile = await img_service.compressImageIfNeeded(
+          File(result.path),
+        );
         setState(() {
           _pickedImages.add(compressedFile);
         });
@@ -318,7 +326,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           partner.businessInfo!.storeLocation!.coordinates!.isEmpty) {
         ToastService().showToast(
           context,
-          'Shop location is required. Please set it in "My Account" profile.',
+          'Shop location is required. Please set it in "Account" profile.',
           type: ToastType.error,
         );
         setState(() => _isLoading = false);
@@ -332,7 +340,6 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         'discountValue': _discountValueController.text.trim(),
         'originalPrice': _originalPriceController.text.trim(),
         'offerPrice': _offerPriceController.text.trim(),
-        'tags': _tagsController.text.trim(),
         'terms': json.encode(
           _termControllers
               .map((c) => c.text.trim())
@@ -340,6 +347,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               .toList(),
         ),
       };
+
+      if (_tags.isNotEmpty) {
+        body['tags'] = jsonEncode(_tags);
+      }
 
       if (_selectedCategoryId != null) {
         body['category'] = _selectedCategoryId!;
@@ -477,10 +488,61 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 type: TextFieldType.number,
               ),
               const SizedBox(height: 20),
-              PrimaryTextField(
-                controller: _tagsController,
-                label: 'Tags',
-                hint: 'e.g. food, pizza, vegetarian (comma separated)',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PrimaryTextField(
+                    controller: _tagsController,
+                    label: 'Tags',
+                    hint: 'Type a tag and press space',
+                    onChanged: (val) {
+                      if (val.endsWith(' ')) {
+                        final newTag = val.trim();
+                        if (newTag.isNotEmpty && !_tags.contains(newTag)) {
+                          setState(() {
+                            _tags.add(newTag);
+                          });
+                        }
+                        _tagsController.clear();
+                      }
+                    },
+                    onSubmitted: (val) {
+                      final newTag = val.trim();
+                      if (newTag.isNotEmpty && !_tags.contains(newTag)) {
+                        setState(() {
+                          _tags.add(newTag);
+                        });
+                      }
+                      _tagsController.clear();
+                    },
+                  ),
+                  if (_tags.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: _tags.map((tag) {
+                        return Chip(
+                          label: Text(
+                            tag,
+                            style: const TextStyle(color: kWhite),
+                          ),
+                          backgroundColor: kPrimaryColor,
+                          deleteIconColor: kWhite,
+                          onDeleted: () {
+                            setState(() {
+                              _tags.remove(tag);
+                            });
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(color: Colors.transparent),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: 20),
               Row(

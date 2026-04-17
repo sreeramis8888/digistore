@@ -9,7 +9,6 @@ class MapLocationState {
   final LatLng center;
   final bool isFetching;
   final String address;
-  final String district;
   final String localBody;
   final String errorMessage;
 
@@ -17,7 +16,6 @@ class MapLocationState {
     required this.center,
     this.isFetching = false,
     this.address = '',
-    this.district = '',
     this.localBody = '',
     this.errorMessage = '',
   });
@@ -26,7 +24,6 @@ class MapLocationState {
     LatLng? center,
     bool? isFetching,
     String? address,
-    String? district,
     String? localBody,
     String? errorMessage,
   }) {
@@ -34,7 +31,6 @@ class MapLocationState {
       center: center ?? this.center,
       isFetching: isFetching ?? this.isFetching,
       address: address ?? this.address,
-      district: district ?? this.district,
       localBody: localBody ?? this.localBody,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -45,15 +41,16 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
   final Ref ref;
 
   MapLocationNotifier(this.ref, {LatLng? initialCenter})
-      : super(MapLocationState(
+    : super(
+        MapLocationState(
           center: initialCenter ?? const LatLng(10.8505, 76.2711),
-        ));
+        ),
+      );
 
-  void initLocation(LatLng? initialCenter, String? initialDistrict, String? initialLocalBody) {
+  void initLocation(LatLng? initialCenter, String? initialLocalBody) {
     if (initialCenter != null) {
       state = state.copyWith(
         center: initialCenter,
-        district: initialDistrict ?? '',
         localBody: initialLocalBody ?? '',
       );
     } else {
@@ -87,7 +84,11 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
   }
 
   Future<void> updateLocation(LatLng location) async {
-    state = state.copyWith(isFetching: true, center: location, errorMessage: '');
+    state = state.copyWith(
+      isFetching: true,
+      center: location,
+      errorMessage: '',
+    );
     try {
       final placemarks = await placemarkFromCoordinates(
         location.latitude,
@@ -95,7 +96,6 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
       );
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
-        final district = p.subAdministrativeArea ?? p.administrativeArea ?? '';
         final localBody = p.locality ?? p.subLocality ?? '';
         final addressParts = [
           p.name,
@@ -104,23 +104,19 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
           p.locality,
           p.subAdministrativeArea,
           p.administrativeArea,
-          p.postalCode
+          p.postalCode,
         ].where((e) => e != null && e.isNotEmpty).toList();
-        
+
         final address = addressParts.join(', ');
 
         state = state.copyWith(
           center: location,
-          district: district,
           localBody: localBody,
           address: address,
           isFetching: false,
         );
       } else {
-        state = state.copyWith(
-          center: location,
-          isFetching: false,
-        );
+        state = state.copyWith(center: location, isFetching: false);
       }
     } catch (e) {
       state = state.copyWith(
@@ -142,16 +138,24 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
         await updateLocation(latLng);
         return latLng;
       } else {
-        state = state.copyWith(isFetching: false, errorMessage: 'Location not found.');
+        state = state.copyWith(
+          isFetching: false,
+          errorMessage: 'Location not found.',
+        );
       }
     } catch (e) {
-      state = state.copyWith(isFetching: false, errorMessage: 'Location not found.');
+      state = state.copyWith(
+        isFetching: false,
+        errorMessage: 'Location not found.',
+      );
     }
     return null;
   }
 }
 
 final mapLocationProvider =
-    StateNotifierProvider.autoDispose<MapLocationNotifier, MapLocationState>((ref) {
-  return MapLocationNotifier(ref);
-});
+    StateNotifierProvider.autoDispose<MapLocationNotifier, MapLocationState>((
+      ref,
+    ) {
+      return MapLocationNotifier(ref);
+    });

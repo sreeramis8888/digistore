@@ -4,6 +4,7 @@ import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../advanced_network_image.dart';
 import '../../main_pages/partner/product_details_page.dart';
+import '../../../../src/data/models/product_model.dart';
 
 class ProductCard extends ConsumerWidget {
   final int index;
@@ -13,6 +14,7 @@ class ProductCard extends ConsumerWidget {
   final String? description;
   final String? price;
   final List<String>? tags;
+  final ProductModel? rawProduct;
 
   const ProductCard({
     super.key,
@@ -22,6 +24,7 @@ class ProductCard extends ConsumerWidget {
     this.description,
     this.price,
     this.tags,
+    this.rawProduct,
   });
 
   @override
@@ -43,7 +46,9 @@ class ProductCard extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductDetailsPage(product: product),
+            builder: (context) => ProductDetailsPage(
+              product: rawProduct?.toJson() ?? product,
+            ),
           ),
         );
       },

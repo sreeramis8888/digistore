@@ -34,6 +34,8 @@ class LocationPoint {
       'city': city,
       'state': state,
       'pincode': pincode,
+      if (coordinates != null && coordinates!.length >= 2) 'lng': coordinates![0],
+      if (coordinates != null && coordinates!.length >= 2) 'lat': coordinates![1],
     };
   }
 }

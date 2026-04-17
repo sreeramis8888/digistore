@@ -156,7 +156,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         builder: (context) => MapLocationPickerPage(
           initialLat: _lat,
           initialLng: _lng,
-          initialDistrict: _locationCtrl.text,
           initialLocalBody: _shopAddressCtrl.text,
         ),
       ),
@@ -164,7 +163,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        _locationCtrl.text = result['district'] as String;
         _shopAddressCtrl.text = result['localBody'] as String;
         _lat = result['lat'] as double;
         _lng = result['lng'] as double;

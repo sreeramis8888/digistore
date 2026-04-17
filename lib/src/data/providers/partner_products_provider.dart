@@ -118,6 +118,34 @@ class PartnerProductsNotifier extends Notifier<PartnerProductsState> {
       ),
     );
   }
+
+  void updateProductLocally(ProductModel updatedProduct) {
+    final index = state.products.indexWhere((p) => p.id == updatedProduct.id);
+    if (index != -1) {
+      final newProducts = List<ProductModel>.from(state.products);
+      newProducts[index] = updatedProduct;
+      state = state.copyWith(products: newProducts);
+    }
+  }
+
+  void removeProductLocally(String id) {
+    state = state.copyWith(
+      products: state.products.where((p) => p.id != id).toList(),
+      pagination: state.pagination?.copyWith(
+        total: (state.pagination?.total ?? 1) - 1,
+      ),
+    );
+  }
+
+  Future<void> deleteProduct(String id) async {
+    final api = ref.read(apiProvider);
+    final response = await api.delete('/products/$id');
+    if (response.success) {
+      removeProductLocally(id);
+    } else {
+      throw Exception(response.message ?? 'Failed to delete product');
+    }
+  }
 }
 
 final partnerProductsProvider =

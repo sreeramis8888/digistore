@@ -13,14 +13,12 @@ import 'primary_text_field.dart';
 class MapLocationPickerPage extends ConsumerStatefulWidget {
   final double? initialLat;
   final double? initialLng;
-  final String? initialDistrict;
   final String? initialLocalBody;
 
   const MapLocationPickerPage({
     super.key,
     this.initialLat,
     this.initialLng,
-    this.initialDistrict,
     this.initialLocalBody,
   });
 
@@ -31,7 +29,6 @@ class MapLocationPickerPage extends ConsumerStatefulWidget {
 class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage> {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
-  late TextEditingController _districtController;
   late TextEditingController _localBodyController;
   
   bool _isInit = true;
@@ -40,7 +37,6 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage> {
   @override
   void initState() {
     super.initState();
-    _districtController = TextEditingController(text: widget.initialDistrict ?? '');
     _localBodyController = TextEditingController(text: widget.initialLocalBody ?? '');
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,14 +44,13 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage> {
           ? LatLng(widget.initialLat!, widget.initialLng!)
           : null;
       ref.read(mapLocationProvider.notifier).initLocation(
-          initialCenter, widget.initialDistrict, widget.initialLocalBody);
+          initialCenter, widget.initialLocalBody);
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _districtController.dispose();
     _localBodyController.dispose();
     super.dispose();
   }
@@ -203,12 +198,6 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 16),
-                  PrimaryTextField(
-                    label: 'District',
-                    hint: 'Enter your district manually',
-                    controller: _districtController,
-                    isRequired: true,
-                  ),
                   const SizedBox(height: 12),
                   PrimaryTextField(
                     label: 'Local Body',
@@ -219,12 +208,7 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage> {
                   PrimaryButton(
                     text: 'Confirm Location',
                     onPressed: () {
-                      if (_districtController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter district')));
-                        return;
-                      }
                       Navigator.of(context).pop({
-                        'district': _districtController.text.trim(),
                         'localBody': _localBodyController.text.trim(),
                         'lat': mapState.center.latitude,
                         'lng': mapState.center.longitude,

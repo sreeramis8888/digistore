@@ -166,6 +166,7 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
                                   ? null
                                   : '₹ ${p.price}',
                               tags: p.tags,
+                              rawProduct: p,
                             );
                           },
                         ),

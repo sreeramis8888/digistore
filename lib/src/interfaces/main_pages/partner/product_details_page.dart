@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../components/advanced_network_image.dart';
+import '../../components/confirmation_dialog.dart';
+import '../../../data/providers/partner_products_provider.dart';
 import 'partner_product_page.dart';
 
-class ProductDetailsPage extends StatelessWidget {
+class ProductDetailsPage extends ConsumerWidget {
   final Map<String, dynamic> product;
 
   const ProductDetailsPage({super.key, required this.product});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
@@ -64,8 +67,29 @@ class ProductDetailsPage extends StatelessWidget {
                 color: Colors.red.shade400,
                 size: 18,
               ),
-              onPressed: () {
-                // Delete logic
+              onPressed: () async {
+                final confirm = await showConfirmationDialog(
+                  context: context,
+                  title: 'Delete Product',
+                  message: 'Are you sure you want to delete this product?',
+                  confirmText: 'Delete',
+                  isDestructive: true,
+                );
+
+                if (confirm == true && context.mounted) {
+                  try {
+                    await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id']);
+                    if (context.mounted) {
+                      Navigator.pop(context); // Go back to products list
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: $e')),
+                      );
+                    }
+                  }
+                }
               },
             ),
           ),
@@ -76,7 +100,7 @@ class ProductDetailsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AdvancedNetworkImage(
-              imageUrl: product['image'] ?? '',
+              imageUrl: (product['images'] != null && (product['images'] as List).isNotEmpty) ? product['images'][0] : (product['image'] ?? ''),
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -87,12 +111,12 @@ class ProductDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product['name'] ?? '',
+                    product['title'] ?? product['name'] ?? '',
                     style: kBodyTitleM.copyWith(fontSize: 24),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    product['price'] ?? '',
+                    product['price'] is num ? '₹ ${product['price']}' : (product['price']?.toString() ?? ''),
                     style: kBodyTitleL.copyWith(fontSize: 24),
                   ),
                   const SizedBox(height: 24),
