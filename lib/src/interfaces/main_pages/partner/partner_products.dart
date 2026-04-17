@@ -161,7 +161,7 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
                               name: p.title,
                               image: (p.images != null && p.images!.isNotEmpty)
                                   ? p.images![0]
-                                  : 'assets/png/shake.png',
+                                  : '',
                               price: '₹ ${p.price}',
                             );
                           },

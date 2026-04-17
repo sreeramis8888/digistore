@@ -44,6 +44,16 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
+      appBar: AppBar(
+        title: Text(
+          'History',
+          style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
+        ),
+        backgroundColor: kWhite,
+        surfaceTintColor: kWhite,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: SafeArea(
         child: historyState.isLoading
             ? const Center(child: LoadingAnimation())
@@ -62,28 +72,7 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              icon: const Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                color: kTextColor,
-                                size: 20,
-                              ),
-                            ),
-                            SizedBox(width: screenSize.responsivePadding(12)),
-                            Text(
-                              'History',
-                              style: kBodyTitleM.copyWith(
-                                color: const Color(0xFF373737),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(24)),
+                        SizedBox(height: screenSize.responsivePadding(8)),
                         Text(
                           "Performance Overview",
                           style: kSmallTitleB.copyWith(

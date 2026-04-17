@@ -229,6 +229,7 @@ class ApiProvider {
         return ApiResponse.error(message, streamedResponse.statusCode);
       }
     } catch (e, stackTrace) {
+      log(name: 'API PUT MULTIPART Error', '$e');
       await CrashlyticsService.logError(e, stackTrace);
       return ApiResponse.error('Failed to connect to the server: $e');
     }
