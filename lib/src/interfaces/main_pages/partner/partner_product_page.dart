@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -8,6 +10,7 @@ import '../../components/advanced_network_image.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/image_services.dart' as img_service;
 import '../../../data/services/toast_service.dart';
+import '../../../data/utils/remove_nulls.dart';
 import '../../components/partner/category_selection_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -34,8 +37,9 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   late TextEditingController _priceController;
   late TextEditingController _categoryController;
   late TextEditingController _tagsController;
+  List<String> _tags = [];
   String? _selectedCategoryId;
-  
+
   File? _pickedImage;
   bool _isLoading = false;
   bool _isActive = true;
@@ -44,10 +48,20 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product?['title']);
-    _descController = TextEditingController(text: widget.product?['description']);
-    _priceController = TextEditingController(text: widget.product?['price']?.toString());
-    _categoryController = TextEditingController(text: widget.product?['category']?['category']);
-    _tagsController = TextEditingController(text: (widget.product?['tags'] as List?)?.join(', '));
+    _descController = TextEditingController(
+      text: widget.product?['description'],
+    );
+    _priceController = TextEditingController(
+      text: widget.product?['price']?.toString(),
+    );
+    _categoryController = TextEditingController(
+      text: widget.product?['category']?['category'],
+    );
+    _tagsController = TextEditingController();
+    final initialTags = widget.product?['tags'];
+    if (initialTags is List) {
+      _tags = initialTags.map((e) => e.toString()).toList();
+    }
     _selectedCategoryId = widget.product?['category']?['_id'];
     _isActive = widget.product?['isActive'] ?? true;
   }
@@ -69,7 +83,9 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     );
 
     if (result is XFile) {
-      File compressedFile = await img_service.compressImageIfNeeded(File(result.path));
+      File compressedFile = await img_service.compressImageIfNeeded(
+        File(result.path),
+      );
       setState(() {
         _pickedImage = compressedFile;
       });
@@ -96,7 +112,11 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
 
   Future<void> _saveProduct() async {
     if (_nameController.text.trim().isEmpty) {
-      ToastService().showToast(context, 'Title is required', type: ToastType.error);
+      ToastService().showToast(
+        context,
+        'Title is required',
+        type: ToastType.error,
+      );
       return;
     }
 
@@ -104,28 +124,32 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     try {
       final api = ref.read(apiProvider);
       final partner = ref.read(partnerProvider);
-      
-      final body = <String, String>{
+
+      final rawBody = <String, dynamic>{
         'title': _nameController.text.trim(),
         'description': _descController.text.trim(),
         'price': _priceController.text.trim(),
-        'tags': _tagsController.text.trim(),
+        'tags': _tags.isNotEmpty ? jsonEncode(_tags) : null,
         'isActive': _isActive.toString(),
       };
-
+      
       if (_selectedCategoryId != null) {
-        body['category'] = _selectedCategoryId!;
+        rawBody['category'] = _selectedCategoryId!;
       }
 
       if (partner?.businessInfo?.storeLocation != null) {
         final loc = partner!.businessInfo!.storeLocation!;
         if (loc.coordinates != null && loc.coordinates!.length == 2) {
-          body['location'] = json.encode({
+          rawBody['location'] = json.encode({
             'type': 'Point',
             'coordinates': loc.coordinates,
           });
         }
       }
+
+      final cleanedBody = cleanMap(rawBody);
+      final body = cleanedBody.map((key, value) => MapEntry(key, value.toString()));
+      log('body: $body');
 
       List<http.MultipartFile>? files;
       if (_pickedImage != null) {
@@ -136,7 +160,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
             contentType: MediaType.parse(
               lookupMimeType(_pickedImage!.path) ?? 'image/jpeg',
             ),
-          )
+          ),
         ];
       }
 
@@ -169,7 +193,8 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: kWhite,
-        appBar: AppBar(scrolledUnderElevation: 0,
+        appBar: AppBar(
+          scrolledUnderElevation: 0,
           backgroundColor: kWhite,
           elevation: 0,
           leading: IconButton(
@@ -191,6 +216,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                 controller: _nameController,
                 label: 'Product name',
                 hint: 'Enter product name',
+                isRequired: true,
               ),
               const SizedBox(height: 20),
               PrimaryTextField(
@@ -207,10 +233,61 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                 type: TextFieldType.number,
               ),
               const SizedBox(height: 20),
-              PrimaryTextField(
-                controller: _tagsController,
-                label: 'Tags',
-                hint: 'e.g. food, pizza, vegetarian (comma separated)',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PrimaryTextField(
+                    controller: _tagsController,
+                    label: 'Tags',
+                    hint: 'Type a tag and press space',
+                    onChanged: (val) {
+                      if (val.endsWith(' ')) {
+                        final newTag = val.trim();
+                        if (newTag.isNotEmpty && !_tags.contains(newTag)) {
+                          setState(() {
+                            _tags.add(newTag);
+                          });
+                        }
+                        _tagsController.clear();
+                      }
+                    },
+                    onSubmitted: (val) {
+                      final newTag = val.trim();
+                      if (newTag.isNotEmpty && !_tags.contains(newTag)) {
+                        setState(() {
+                          _tags.add(newTag);
+                        });
+                      }
+                      _tagsController.clear();
+                    },
+                  ),
+                  if (_tags.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: _tags.map((tag) {
+                        return Chip(
+                          label: Text(
+                            tag,
+                            style: const TextStyle(color: kWhite),
+                          ),
+                          backgroundColor: kPrimaryColor,
+                          deleteIconColor: kWhite,
+                          onDeleted: () {
+                            setState(() {
+                              _tags.remove(tag);
+                            });
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(color: Colors.transparent),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: 20),
               GestureDetector(
@@ -246,28 +323,30 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                   ),
                   child: _pickedImage != null
                       ? Image.file(_pickedImage!, fit: BoxFit.cover)
-                      : (widget.product != null && widget.product!['images'] != null && (widget.product!['images'] as List).isNotEmpty)
-                          ? AdvancedNetworkImage(
-                              imageUrl: (widget.product!['images'] as List)[0],
-                              fit: BoxFit.cover,
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  color: Color(0xFF808080),
-                                  size: 30,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Add Image',
-                                  style: kSmallTitleL.copyWith(
-                                    color: const Color(0xFF808080),
-                                  ),
-                                ),
-                              ],
+                      : (widget.product != null &&
+                            widget.product!['images'] != null &&
+                            (widget.product!['images'] as List).isNotEmpty)
+                      ? AdvancedNetworkImage(
+                          imageUrl: (widget.product!['images'] as List)[0],
+                          fit: BoxFit.cover,
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.add_photo_alternate_outlined,
+                              color: Color(0xFF808080),
+                              size: 30,
                             ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add Image',
+                              style: kSmallTitleL.copyWith(
+                                color: const Color(0xFF808080),
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ],

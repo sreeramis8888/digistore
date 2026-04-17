@@ -34,7 +34,8 @@ class PartnerUploadedProducts extends StatelessWidget {
               index: index,
               name: p.title,
               image: (p.images != null && p.images!.isNotEmpty) ? p.images!.first : '',
-              price: '₹ ${p.price ?? 0}',
+              price: (p.price == null || p.price == 0) ? null : '₹ ${p.price}',
+              tags: p.tags,
             ),
           );
         },

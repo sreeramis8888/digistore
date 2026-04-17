@@ -5,7 +5,7 @@ import '../../components/advanced_network_image.dart';
 import 'partner_product_page.dart';
 
 class ProductDetailsPage extends StatelessWidget {
-  final Map<String, String> product;
+  final Map<String, dynamic> product;
 
   const ProductDetailsPage({super.key, required this.product});
 

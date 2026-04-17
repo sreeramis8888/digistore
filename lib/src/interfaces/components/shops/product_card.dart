@@ -12,6 +12,7 @@ class ProductCard extends ConsumerWidget {
   final String? image;
   final String? description;
   final String? price;
+  final List<String>? tags;
 
   const ProductCard({
     super.key,
@@ -20,20 +21,22 @@ class ProductCard extends ConsumerWidget {
     this.image,
     this.description,
     this.price,
+    this.tags,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
 
-    final product = (name != null && image != null && price != null)
+    final product = (name != null && image != null)
         ? {
-            'name': name ??'',
-            'image': image??'',
-            'price': price??'',
-            'description': description??'',
+            'name': name ?? '',
+            'image': image ?? '',
+            'price': price ?? '',
+            'description': description ?? '',
+            'tags': tags ?? [],
           }
-        : {'name': '', 'image': '', 'price': '', 'description': ''};
+        : {'name': '', 'image': '', 'price': '', 'description': '', 'tags': []};
 
     return GestureDetector(
       onTap: () {
@@ -61,7 +64,7 @@ class ProductCard extends ConsumerWidget {
           children: [
             Expanded(
               child: AdvancedNetworkImage(
-                imageUrl: product['image']!,
+                imageUrl: product['image'] as String,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 borderRadius: const BorderRadius.only(
@@ -76,16 +79,58 @@ class ProductCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product['name']!,
+                    product['name'] as String,
                     style: kSmallTitleB.copyWith(fontWeight: FontWeight.w500),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: screenSize.responsivePadding(4)),
-                  Text(
-                    product['price']!,
-                    style: kSmallTitleB.copyWith(fontWeight: FontWeight.w600),
-                  ),
+                  (price == null || price!.isEmpty || price == '₹ 0.0' || price == '₹ 0' || price == '₹ null')
+                      ? (tags != null && tags!.isNotEmpty)
+                          ? Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenSize.responsivePadding(8),
+                                vertical: screenSize.responsivePadding(4),
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFF3F4F6), Color(0xFFF9FAFB)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.local_offer_rounded,
+                                    size: 10,
+                                    color: Color(0xFF6B7280),
+                                  ),
+                                  SizedBox(width: screenSize.responsivePadding(4)),
+                                  Flexible(
+                                    child: Text(
+                                      tags!.join(', '),
+                                      style: kSmallerTitleM.copyWith(
+                                        color: const Color(0xFF4B5563),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 10,
+                                        height: 1.0,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink()
+                      : Text(
+                          product['price'] as String,
+                          style: kSmallTitleB.copyWith(fontWeight: FontWeight.w600),
+                        ),
                 ],
               ),
             ),

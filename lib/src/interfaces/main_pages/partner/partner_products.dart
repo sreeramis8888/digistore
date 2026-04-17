@@ -162,7 +162,10 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
                               image: (p.images != null && p.images!.isNotEmpty)
                                   ? p.images![0]
                                   : '',
-                              price: '₹ ${p.price}',
+                              price: (p.price == null || p.price == 0)
+                                  ? null
+                                  : '₹ ${p.price}',
+                              tags: p.tags,
                             );
                           },
                         ),
