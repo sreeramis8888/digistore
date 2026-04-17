@@ -96,12 +96,15 @@ class ProductDetailsPage extends StatelessWidget {
                     style: kBodyTitleL.copyWith(fontSize: 24),
                   ),
                   const SizedBox(height: 24),
-                  Text('Description', style: kSmallTitleM),
-                  const SizedBox(height: 8),
-                  Text(
-                        product['description'] ?? '',
-                    style: kSmallerTitleL.copyWith(color: Color(0xFF4E4E4E)),
-                  ),
+                  if (product['description'] != null &&
+                      product['description'].isNotEmpty) ...[
+                    Text('Description', style: kSmallTitleM),
+                    const SizedBox(height: 8),
+                    Text(
+                      product['description'] ?? '',
+                      style: kSmallerTitleL.copyWith(color: Color(0xFF4E4E4E)),
+                    ),
+                  ],
                 ],
               ),
             ),

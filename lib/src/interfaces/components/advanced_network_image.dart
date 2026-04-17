@@ -30,13 +30,13 @@ class AdvancedNetworkImage extends StatelessWidget {
       builder: (context, constraints) {
         final w = (width == null || !width!.isFinite)
             ? (constraints.maxWidth == double.infinity
-                ? 100.0
-                : constraints.maxWidth)
+                  ? 100.0
+                  : constraints.maxWidth)
             : width!;
         final h = (height == null || !height!.isFinite)
             ? (constraints.maxHeight == double.infinity
-                ? 100.0
-                : constraints.maxHeight)
+                  ? 100.0
+                  : constraints.maxHeight)
             : height!;
 
         if (cleanedUrl.isEmpty ||
@@ -94,7 +94,7 @@ class AdvancedNetworkImage extends StatelessWidget {
               opacity: 0.05,
               child: Icon(
                 errorIcon ?? Icons.storefront,
-                size: w * 0.7,
+                size: w * 0.5,
                 color: kPrimaryColor,
               ),
             ),
