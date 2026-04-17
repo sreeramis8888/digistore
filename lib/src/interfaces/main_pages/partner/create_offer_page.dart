@@ -141,16 +141,21 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     );
 
     if (result is List<XFile>) {
+      final remaining = 5 - _pickedImages.length;
+      List<File> newFiles = result.take(remaining).map((e) => File(e.path)).toList();
+      for (int i = 0; i < newFiles.length; i++) {
+        newFiles[i] = await img_service.compressImageIfNeeded(newFiles[i]);
+      }
       setState(() {
-        final remaining = 5 - _pickedImages.length;
-        _pickedImages.addAll(result.take(remaining).map((e) => File(e.path)));
+        _pickedImages.addAll(newFiles);
       });
     } else if (result is XFile) {
-      setState(() {
-        if (_pickedImages.length < 5) {
-          _pickedImages.add(File(result.path));
-        }
-      });
+      if (_pickedImages.length < 5) {
+        File compressedFile = await img_service.compressImageIfNeeded(File(result.path));
+        setState(() {
+          _pickedImages.add(compressedFile);
+        });
+      }
     }
   }
 

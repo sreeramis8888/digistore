@@ -25,6 +25,7 @@ import '../../../data/models/location_point.dart';
 import '../../components/add_specialty_dialog.dart';
 import '../../components/add_branch_dialog.dart';
 import '../../components/map_location_picker_page.dart';
+import '../../components/confirmation_dialog.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -208,14 +209,17 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
 
     if (result is XFile) {
+      File originalFile = File(result.path);
+      File compressedFile = await img_service.compressImageIfNeeded(originalFile);
+      
       setState(() {
         if (field == 'logo') {
-          _pickedLogo = File(result.path);
+          _pickedLogo = compressedFile;
           _profileImage = _pickedLogo;
         } else if (field == 'cover') {
-          _pickedCover = File(result.path);
+          _pickedCover = compressedFile;
         } else {
-          _pickedGallery.add(File(result.path));
+          _pickedGallery.add(compressedFile);
         }
       });
     }
@@ -1365,7 +1369,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 ),
                               ),
 
-                              _buildSectionHeader('Shop Images', showAdd: true),
+                              _buildSectionHeader(
+                                'Shop Images',
+                                showAdd: true,
+                                onAdd: () => _pickAndUploadImage('gallery'),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
@@ -1387,10 +1395,23 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                               top: 2,
                                               right: 2,
                                               child: GestureDetector(
-                                                onTap: () => setState(
-                                                  () => _businessImages
-                                                      .removeAt(entry.key),
-                                                ),
+                                                onTap: () async {
+                                                  final confirm =
+                                                      await showConfirmationDialog(
+                                                        context: context,
+                                                        title: 'Delete Image',
+                                                        message:
+                                                            'Are you sure you want to delete this shop image?',
+                                                        isDestructive: true,
+                                                        confirmText: 'Delete',
+                                                      );
+                                                  if (confirm == true) {
+                                                    setState(
+                                                      () => _businessImages
+                                                          .removeAt(entry.key),
+                                                    );
+                                                  }
+                                                },
                                                 child: Container(
                                                   padding: const EdgeInsets.all(
                                                     2,
@@ -1436,11 +1457,23 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                             top: -2,
                                             right: 8,
                                             child: GestureDetector(
-                                              onTap: () => setState(
-                                                () => _pickedGallery.removeAt(
-                                                  entry.key,
-                                                ),
-                                              ),
+                                              onTap: () async {
+                                                final confirm =
+                                                    await showConfirmationDialog(
+                                                      context: context,
+                                                      title: 'Remove Image',
+                                                      message:
+                                                          'Are you sure you want to remove this newly added image?',
+                                                      isDestructive: true,
+                                                      confirmText: 'Remove',
+                                                    );
+                                                if (confirm == true) {
+                                                  setState(
+                                                    () => _pickedGallery
+                                                        .removeAt(entry.key),
+                                                  );
+                                                }
+                                              },
                                               child: Container(
                                                 padding: const EdgeInsets.all(
                                                   2,

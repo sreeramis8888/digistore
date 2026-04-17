@@ -69,8 +69,9 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     );
 
     if (result is XFile) {
+      File compressedFile = await img_service.compressImageIfNeeded(File(result.path));
       setState(() {
-        _pickedImage = File(result.path);
+        _pickedImage = compressedFile;
       });
     }
   }

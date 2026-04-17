@@ -444,3 +444,37 @@ Future<bool> requestPermission(Permission setting) async {
       return false;
   }
 }
+
+Future<File> compressImageIfNeeded(File imageFile) async {
+  Uint8List imageBytes = await imageFile.readAsBytes();
+  log(
+    "Original image size: ${(imageBytes.lengthInBytes / 1024).toStringAsFixed(2)} KB",
+  );
+
+  final String extension = p.extension(imageFile.path);
+  final String? mimeType = lookupMimeType(imageFile.path, headerBytes: imageBytes);
+
+  log("Image extension: $extension");
+  log("Image MIME type: $mimeType");
+
+  if (imageBytes.lengthInBytes > 2 * 1024 * 1024) {
+    img.Image? decodedImage = img.decodeImage(imageBytes);
+
+    if (decodedImage != null) {
+      final resizedImage = img.copyResize(
+        decodedImage,
+        width: (decodedImage.width * 0.5).toInt(),
+      );
+
+      imageBytes = Uint8List.fromList(img.encodeJpg(resizedImage, quality: 80));
+
+      log(
+        "Compressed image size: ${(imageBytes.lengthInBytes / 1024).toStringAsFixed(2)} KB",
+      );
+
+      imageFile = await imageFile.writeAsBytes(imageBytes);
+    }
+  }
+  return imageFile;
+}
+
