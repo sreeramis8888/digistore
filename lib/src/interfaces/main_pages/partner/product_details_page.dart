@@ -78,7 +78,7 @@ class ProductDetailsPage extends ConsumerWidget {
 
                 if (confirm == true && context.mounted) {
                   try {
-                    await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id']);
+                    await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
                     if (context.mounted) {
                       Navigator.pop(context); // Go back to products list
                     }

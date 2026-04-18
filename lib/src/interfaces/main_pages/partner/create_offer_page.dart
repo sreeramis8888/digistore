@@ -374,7 +374,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
       // Ensure all values are strings and remove any unwanted empty fields
       final cleanedBody = MapUtils.cleanMap(body);
-      final finalBody = cleanedBody.map((key, value) => MapEntry(key, value.toString()));
+      final finalBody = cleanedBody.map(
+        (key, value) => MapEntry(key, value.toString()),
+      );
 
       List<http.MultipartFile>? files;
       if (_pickedImages.isNotEmpty) {
@@ -391,17 +393,36 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         );
       }
 
-      final response = await api.postMultipart('/offers', finalBody, files: files);
+      final isEdit = widget.offer != null;
+      final response = isEdit
+          ? await api.putMultipart(
+              '/offers/${widget.offer!['_id'] ?? widget.offer!['id']}',
+              finalBody,
+              files: files,
+            )
+          : await api.postMultipart('/offers', finalBody, files: files);
 
       if (response.success && mounted) {
         final newOffer = OfferModel.fromJson(response.data!['data']);
-        ref.read(offersProvider.notifier).addOffer(newOffer);
-        ToastService().showToast(context, 'Offer created successfully');
-        Navigator.pop(context);
+        if (isEdit) {
+          ref.read(offersProvider.notifier).updateOfferLocally(newOffer);
+        } else {
+          ref.read(offersProvider.notifier).addOffer(newOffer);
+        }
+        ToastService().showToast(
+          context,
+          'Offer ${isEdit ? 'updated' : 'created'} successfully',
+        );
+        if (isEdit) {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        } else {
+          Navigator.pop(context);
+        }
       } else if (mounted) {
         ToastService().showToast(
           context,
-          response.message ?? 'Failed to create offer',
+          response.message ?? 'Failed to ${isEdit ? 'update' : 'create'} offer',
           type: ToastType.error,
         );
       }
@@ -725,7 +746,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
             child: PrimaryButton(
               onPressed: _saveOffer,
               isLoading: _isLoading,
-              text: 'Save',
+              text: widget.offer != null ? 'Update' : 'Save',
               backgroundColor: kPrimaryColor,
               textColor: kWhite,
             ),

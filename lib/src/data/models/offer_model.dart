@@ -110,4 +110,38 @@ class OfferModel {
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'partnerId': partnerId?.toJson(),
+      'title': title,
+      'description': description,
+      'images': images,
+      'category': category,
+      'offerTypeCode': offerTypeCode,
+      'offerMetadata': offerMetadata,
+      'discountType': discountType,
+      'discountValue': discountValue,
+      'originalPrice': originalPrice,
+      'offerPrice': offerPrice,
+      'terms': terms,
+      'validFrom': validFrom?.toIso8601String(),
+      'validTo': validTo?.toIso8601String(),
+      'redemptionRules': redemptionRules?.toJson(),
+      'coverageAreas': coverageAreas?.toJson(),
+      'status': status,
+      'isPremium': isPremium,
+      'premiumPlacement': premiumPlacement?.toJson(),
+      'totalRedemptions': totalRedemptions,
+      'views': views,
+      'isActive': isActive,
+      'isDealOfDay': isDealOfDay,
+      'requiredTier': requiredTier,
+      'tags': tags,
+      'location': location?.toJson(),
+      'shareCount': shareCount,
+      'createdAt': createdAt?.toIso8601String(),
+    };
+  }
 }

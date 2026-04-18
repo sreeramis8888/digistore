@@ -133,6 +133,32 @@ class Offers extends _$Offers {
     );
   }
 
+  void removeOfferLocally(String id) {
+    state = state.copyWith(
+      offers: state.offers.where((o) => o.id != id).toList(),
+      totalCount: (state.totalCount > 0) ? state.totalCount - 1 : 0,
+    );
+  }
+
+  void updateOfferLocally(OfferModel updatedOffer) {
+    final index = state.offers.indexWhere((o) => o.id == updatedOffer.id);
+    if (index != -1) {
+      final newOffers = List<OfferModel>.from(state.offers);
+      newOffers[index] = updatedOffer;
+      state = state.copyWith(offers: newOffers);
+    }
+  }
+
+  Future<void> deleteOffer(String id) async {
+    final api = ref.read(apiProvider);
+    final response = await api.delete('/offers/$id');
+    if (response.success) {
+      removeOfferLocally(id);
+    } else {
+      throw Exception(response.message ?? 'Failed to delete offer');
+    }
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> generateRedemptionOtp(
     String offerId,
     String userPhone,

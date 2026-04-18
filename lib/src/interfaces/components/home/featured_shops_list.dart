@@ -35,9 +35,9 @@ class FeaturedShopsList extends ConsumerWidget {
           padding: EdgeInsets.symmetric(
             horizontal: screenSize.responsivePadding(16),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Wrap(
+            spacing: screenSize.responsivePadding(12),
+            runSpacing: screenSize.responsivePadding(12),
             children: shops!
                 .take(4)
                 .map((shop) => FeaturedShopCard(shop: shop))

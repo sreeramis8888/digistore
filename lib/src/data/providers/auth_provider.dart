@@ -8,6 +8,7 @@ import 'partner_provider.dart';
 import '../utils/global_variables.dart';
 import 'api_provider.dart';
 import 'user_type_provider.dart';
+import 'dart:io';
 import '../models/partner_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -37,6 +38,7 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
       final api = ref.read(apiProvider);
       final response = await api.post('/auth/send-otp', {
         'phone': phone,
+        'platform': Platform.isAndroid ? 'android' : 'ios',
       }, requireAuth: false);
 
       if (response.success && response.data?['success'] == true) {

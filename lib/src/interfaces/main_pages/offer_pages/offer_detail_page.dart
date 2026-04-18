@@ -11,6 +11,8 @@ import '../../../data/utils/date_formatter.dart';
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/services/toast_service.dart';
+import '../../components/confirmation_dialog.dart';
+import '../partner/create_offer_page.dart';
 
 class OfferDetailPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> args;
@@ -28,9 +30,14 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final String title = widget.args['title'] ?? '';
-    final String subtitle = widget.args['subtitle'] ?? '';
-    final String? imageUrl = widget.args['imageUrl'];
-    final String shopName = widget.args['shopName'] ?? 'HomeGoods';
+    final String subtitle = widget.args['subtitle'] ?? widget.args['description'] ?? '';
+    final String? imageUrl = widget.args['imageUrl'] ??
+        ((widget.args['images'] is List && (widget.args['images'] as List).isNotEmpty)
+            ? widget.args['images'][0]
+            : null);
+    final String shopName = widget.args['shopName'] ??
+        widget.args['partnerId']?['businessDetails']?['businessName'] ??
+        'HomeGoods';
     final IconData? icon = widget.args['icon'];
     final String? logoText = widget.args['logoText'];
     final Color? logoColor = widget.args['logoColor'];
@@ -55,6 +62,80 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         ),
         centerTitle: false,
         titleSpacing: 0,
+        actions: GlobalVariables.isPartner
+            ? [
+                Container(
+                  height: 32,
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CreateOfferPage(offer: widget.args),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: kPrimaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    child: Text(
+                      'Edit',
+                      style: kSmallTitleM.copyWith(color: kPrimaryColor),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  height: 32,
+                  width: 32,
+                  margin: const EdgeInsets.only(right: 16, top: 12, bottom: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red.shade300),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: Colors.red.shade400,
+                      size: 18,
+                    ),
+                    onPressed: () async {
+                      final confirm = await showConfirmationDialog(
+                        context: context,
+                        title: 'Delete Offer',
+                        message: 'Are you sure you want to delete this offer?',
+                        confirmText: 'Delete',
+                        isDestructive: true,
+                      );
+
+                      if (confirm == true && context.mounted) {
+                        try {
+                          await ref
+                              .read(offersProvider.notifier)
+                              .deleteOffer(widget.args['_id'] ?? widget.args['id'] ?? '');
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: SingleChildScrollView(
         child: Column(

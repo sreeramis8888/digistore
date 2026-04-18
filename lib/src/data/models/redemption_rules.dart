@@ -19,4 +19,13 @@ class RedemptionRules {
       applicableDays: json['applicableDays'] != null ? List<String>.from(json['applicableDays']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'maxTotalRedemptions': maxTotalRedemptions,
+      'maxPerUser': maxPerUser,
+      'minPurchaseAmount': minPurchaseAmount,
+      'applicableDays': applicableDays,
+    };
+  }
 }

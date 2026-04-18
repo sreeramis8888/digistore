@@ -16,4 +16,12 @@ class PremiumPlacement {
       endDate: json['endDate'] != null ? DateTime.tryParse(json['endDate']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'position': position,
+      'startDate': startDate?.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+    };
+  }
 }

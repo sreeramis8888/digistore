@@ -196,7 +196,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
 
       final isEdit = widget.product != null;
       final response = isEdit
-          ? await api.putMultipart('/products/${widget.product!['_id']}', body, files: files)
+          ? await api.putMultipart('/products/${widget.product!['_id'] ?? widget.product!['id']}', body, files: files)
           : await api.postMultipart('/products', body, files: files);
 
       if (response.success && mounted) {

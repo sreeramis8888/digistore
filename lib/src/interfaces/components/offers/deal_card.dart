@@ -21,6 +21,7 @@ class DealCard extends ConsumerWidget {
   final bool hideShopName;
   final List<String>? terms;
   final DateTime? validTo;
+  final OfferModel? rawOffer;
 
   const DealCard({
     super.key,
@@ -37,6 +38,7 @@ class DealCard extends ConsumerWidget {
     this.hideShopName = false,
     this.terms,
     this.validTo,
+    this.rawOffer,
   });
 
   factory DealCard.fromOffer(OfferModel offer, {double? width, EdgeInsetsGeometry? margin}) {
@@ -56,6 +58,7 @@ class DealCard extends ConsumerWidget {
       margin: margin,
       terms: offer.terms,
       validTo: offer.validTo,
+      rawOffer: offer,
     );
   }
 
@@ -67,7 +70,7 @@ class DealCard extends ConsumerWidget {
       onPressed: () {
         Navigator.of(context).pushNamed(
           'offerDetail',
-          arguments: {
+          arguments: rawOffer?.toJson() ?? {
             'id': id,
             'title': title,
             'subtitle': subtitle,
