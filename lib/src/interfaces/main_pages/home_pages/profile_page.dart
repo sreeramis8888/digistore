@@ -9,6 +9,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
+import '../../../data/providers/auth_provider.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../components/primary_button.dart';
 import '../history.dart';
@@ -294,11 +295,7 @@ class ProfilePage extends ConsumerWidget {
                   backgroundColor: kWhite,
                   textColor: kRed,
                   onPressed: () async {
-                    await ref.read(userProvider.notifier).clearUser();
-                    await ref.read(partnerProvider.notifier).clearPartner();
-                    ref.read(userTypeProvider.notifier).setUserType(UserType.customer);
-                    GlobalVariables.clear();
-                    GlobalVariables.setPartnerMode(false);
+                    await ref.read(authProvider.notifier).logout();
                     if (context.mounted) {
                       Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
                     }

@@ -7,6 +7,7 @@ import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/providers/user_type_provider.dart';
+import '../../../data/providers/auth_provider.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
 import '../../components/partner/partner_profile_header.dart';
@@ -177,11 +178,7 @@ class PartnerProfilePage extends ConsumerWidget {
                   ),
                   screenSize: screenSize,
                   onTap: () async {
-                    await ref.read(userProvider.notifier).clearUser();
-                    await ref.read(partnerProvider.notifier).clearPartner();
-                    ref.read(userTypeProvider.notifier).setUserType(UserType.customer);
-                    GlobalVariables.clear();
-                    GlobalVariables.setPartnerMode(false);
+                    await ref.read(authProvider.notifier).logout();
                     if (context.mounted) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,

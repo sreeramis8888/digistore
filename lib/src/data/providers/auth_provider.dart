@@ -101,6 +101,25 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
       return {'success': false, 'message': e.toString()};
     }
   }
+  Future<void> logout() async {
+    final storage = ref.read(secureStorageServiceProvider);
+    await storage.clearAll();
+    
+    // Reset global variables
+    GlobalVariables.clear();
+    GlobalVariables.setPartnerMode(false);
+    GlobalVariables.resetGuestMode();
+    
+    // Reset critical providers
+    ref.read(userTypeProvider.notifier).setUserType(UserType.customer);
+    
+    // List of providers to invalidate
+    // Many are auto-disposed or re-fetched on login, but explicit invalidation ensures freshness
+    ref.invalidate(userProvider);
+    ref.invalidate(partnerProvider);
+    
+    state = const AsyncData(null);
+  }
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AsyncValue<void>>(
