@@ -18,6 +18,7 @@ import 'package:intl/intl.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/providers/offers_provider.dart';
+import '../../../data/utils/map_utils.dart';
 
 class CreateOfferPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? offer;
@@ -363,13 +364,17 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         if (loc.coordinates != null && loc.coordinates!.length == 2) {
           body['location'] = json.encode({
             'type': 'Point',
-            'coordinates': loc.coordinates,
+            'coordinates': [loc.coordinates![0], loc.coordinates![1]],
           });
         }
       }
 
       if (_validFrom != null) body['validFrom'] = _validFrom!.toIso8601String();
       if (_validTo != null) body['validTo'] = _validTo!.toIso8601String();
+
+      // Ensure all values are strings and remove any unwanted empty fields
+      final cleanedBody = MapUtils.cleanMap(body);
+      final finalBody = cleanedBody.map((key, value) => MapEntry(key, value.toString()));
 
       List<http.MultipartFile>? files;
       if (_pickedImages.isNotEmpty) {
@@ -386,7 +391,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         );
       }
 
-      final response = await api.postMultipart('/offers', body, files: files);
+      final response = await api.postMultipart('/offers', finalBody, files: files);
 
       if (response.success && mounted) {
         final newOffer = OfferModel.fromJson(response.data!['data']);
