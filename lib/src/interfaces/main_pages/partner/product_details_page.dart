@@ -114,11 +114,13 @@ class ProductDetailsPage extends ConsumerWidget {
                     product['title'] ?? product['name'] ?? '',
                     style: kBodyTitleM.copyWith(fontSize: 24),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product['price'] is num ? '₹ ${product['price']}' : (product['price']?.toString() ?? ''),
-                    style: kBodyTitleL.copyWith(fontSize: 24),
-                  ),
+                  if (product['price'] != null && (product['price'] is num ? product['price'] > 0 : (product['price'].toString().trim().isNotEmpty && product['price'].toString().trim() != '0' && product['price'].toString().trim() != '0.0'))) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      product['price'] is num ? '₹ ${product['price']}' : (product['price']?.toString() ?? ''),
+                      style: kBodyTitleL.copyWith(fontSize: 24),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   if (product['description'] != null &&
                       product['description'].isNotEmpty) ...[

@@ -9,6 +9,21 @@ import '../utils/global_variables.dart';
 import 'api_provider.dart';
 import 'user_type_provider.dart';
 import '../models/partner_model.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'auth_provider.g.dart';
+
+@riverpod
+class Session extends _$Session {
+  @override
+  String build() {
+    return DateTime.now().toIso8601String();
+  }
+
+  void reset() {
+    state = DateTime.now().toIso8601String();
+  }
+}
 
 class AuthNotifier extends Notifier<AsyncValue<void>> {
   @override
@@ -65,11 +80,13 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
         if (token != null) {
           await storage.saveBearerToken(token);
         }
-        
+
         // Skip profile setup for partners by forcing onboardingComplete to true
         final userType = ref.read(userTypeProvider);
-        final effectiveOnboardingComplete = (userType == UserType.partner) ? true : onboardingComplete;
-        
+        final effectiveOnboardingComplete = (userType == UserType.partner)
+            ? true
+            : onboardingComplete;
+
         await storage.saveOnboardingComplete(effectiveOnboardingComplete);
         await storage.saveIsPartner(userType == UserType.partner);
         ref.read(userTypeProvider.notifier).setUserType(userType);
@@ -101,23 +118,15 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
       return {'success': false, 'message': e.toString()};
     }
   }
+
   Future<void> logout() async {
     final storage = ref.read(secureStorageServiceProvider);
     await storage.clearAll();
-    
-    // Reset global variables
     GlobalVariables.clear();
     GlobalVariables.setPartnerMode(false);
     GlobalVariables.resetGuestMode();
-    
-    // Reset critical providers
-    ref.read(userTypeProvider.notifier).setUserType(UserType.customer);
-    
-    // List of providers to invalidate
-    // Many are auto-disposed or re-fetched on login, but explicit invalidation ensures freshness
-    ref.invalidate(userProvider);
-    ref.invalidate(partnerProvider);
-    
+    ref.read(sessionProvider.notifier).reset();
+
     state = const AsyncData(null);
   }
 }

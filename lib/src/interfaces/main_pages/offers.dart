@@ -25,14 +25,10 @@ class OffersPage extends ConsumerStatefulWidget {
 }
 
 class _OffersPageState extends ConsumerState<OffersPage> {
-  String? _lastCategoryId;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(offersProvider.notifier).fetchOffers();
-    });
   }
 
   @override
@@ -53,14 +49,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       }
     });
 
-    if (categoryId != _lastCategoryId) {
-      _lastCategoryId = categoryId;
+    final offersState = ref.watch(offersProvider);
+
+    if (categoryId != offersState.currentCategoryId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(offersProvider.notifier).fetchOffers(categoryId: categoryId);
       });
     }
-
-    final offersState = ref.watch(offersProvider);
 
     return Scaffold(
       backgroundColor: kWhite,

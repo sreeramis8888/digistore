@@ -153,7 +153,7 @@ final class ClaimedRewardsProvider
   }
 }
 
-String _$claimedRewardsHash() => r'7de8af8cc87504e0b8da38c602213371f923906b';
+String _$claimedRewardsHash() => r'18c8330cfc7dbd59fb099bf4b3e924aacde3ed0d';
 
 final class ClaimedRewardsFamily extends $Family
     with

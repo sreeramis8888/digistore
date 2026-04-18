@@ -2,15 +2,19 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/transaction_model.dart';
 import '../models/redemption_model.dart';
 import 'api_provider.dart';
+import 'auth_provider.dart';
 
 part 'transactions_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<PaginatedTransactions> transactions(
   Ref ref, {
   int page = 1,
   int limit = 20,
 }) async {
+  // Watch session to ensure clean state on logout
+  ref.watch(sessionProvider);
+  
   final api = ref.watch(apiProvider);
 
   final queryParams = {'page': page.toString(), 'limit': limit.toString()};
@@ -27,12 +31,15 @@ Future<PaginatedTransactions> transactions(
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<PaginatedRedemptions> redemptions(
   Ref ref, {
   int page = 1,
   int limit = 20,
 }) async {
+  // Watch session to ensure clean state on logout
+  ref.watch(sessionProvider);
+  
   final api = ref.watch(apiProvider);
 
   final queryParams = {'page': page.toString(), 'limit': limit.toString()};

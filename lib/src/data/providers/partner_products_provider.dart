@@ -1,6 +1,9 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/product_model.dart';
 import 'api_provider.dart';
+import 'auth_provider.dart';
+
+part 'partner_products_provider.g.dart';
 
 class PartnerProductsState {
   final List<ProductModel> products;
@@ -38,9 +41,11 @@ class PartnerProductsState {
   }
 }
 
-class PartnerProductsNotifier extends Notifier<PartnerProductsState> {
+@Riverpod(keepAlive: true)
+class PartnerProducts extends _$PartnerProducts {
   @override
   PartnerProductsState build() {
+    ref.watch(sessionProvider);
     // Initial fetch
     Future.microtask(() => getProducts());
     return PartnerProductsState();
@@ -148,5 +153,4 @@ class PartnerProductsNotifier extends Notifier<PartnerProductsState> {
   }
 }
 
-final partnerProductsProvider =
-    NotifierProvider<PartnerProductsNotifier, PartnerProductsState>(PartnerProductsNotifier.new);
+

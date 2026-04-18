@@ -28,7 +28,7 @@ final class HomeDataProvider
         argument: null,
         retry: null,
         name: r'homeDataProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,4 +48,4 @@ final class HomeDataProvider
   }
 }
 
-String _$homeDataHash() => r'6b3d2950eed3f4831ae2782861c9acf6ed3fbe2d';
+String _$homeDataHash() => r'dcb83ebc1e017fdf5e23446635c08edfd01b3111';

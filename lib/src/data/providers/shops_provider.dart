@@ -3,6 +3,8 @@ import '../models/shop_model.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';
 
+import 'auth_provider.dart';
+
 part 'shops_provider.g.dart';
 
 class PaginatedShops {
@@ -19,7 +21,7 @@ class PaginatedShops {
   });
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<PaginatedShops> shops(
   Ref ref, {
   String? category,
@@ -27,6 +29,9 @@ Future<PaginatedShops> shops(
   int page = 1,
   int limit = 20,
 }) async {
+  // Watch session to ensure clean state on logout
+  ref.watch(sessionProvider);
+  
   final api = ref.watch(apiProvider);
   final user = ref.watch(userProvider);
 

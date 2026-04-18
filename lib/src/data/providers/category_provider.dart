@@ -2,10 +2,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/category_model.dart';
 import 'api_provider.dart';
 
+import 'auth_provider.dart';
+
 part 'category_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<CategoryModel>> categories(Ref ref) async {
+  // Watch session to ensure clean state on logout
+  ref.watch(sessionProvider);
+  
   final api = ref.watch(publicApiProvider);
   final response = await api.get('/categories', requireAuth: true);
 

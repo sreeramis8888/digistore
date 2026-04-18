@@ -1,7 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/redemption_model.dart';
 import '../models/product_model.dart'; // For PaginationModel
 import 'api_provider.dart';
+import 'auth_provider.dart';
+
+part 'partner_history_provider.g.dart';
 
 class PartnerHistoryData {
   final int totalCustomers;
@@ -61,9 +64,11 @@ class PartnerHistoryState {
   }
 }
 
-class PartnerHistoryNotifier extends Notifier<PartnerHistoryState> {
+@Riverpod(keepAlive: true)
+class PartnerHistory extends _$PartnerHistory {
   @override
   PartnerHistoryState build() {
+    ref.watch(sessionProvider);
     Future.microtask(() => getHistory());
     return PartnerHistoryState();
   }
@@ -127,5 +132,4 @@ class PartnerHistoryNotifier extends Notifier<PartnerHistoryState> {
   }
 }
 
-final partnerHistoryProvider =
-    NotifierProvider<PartnerHistoryNotifier, PartnerHistoryState>(PartnerHistoryNotifier.new);
+

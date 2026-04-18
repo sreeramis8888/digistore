@@ -1,9 +1,12 @@
 import 'dart:developer';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/offer_model.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';
 import 'user_type_provider.dart';
+import 'auth_provider.dart';
+
+part 'offers_provider.g.dart';
 
 class PaginatedOffers {
   final List<OfferModel> offers;
@@ -12,6 +15,7 @@ class PaginatedOffers {
   final int totalCount;
   final bool isLoading;
   final String? error;
+  final String? currentCategoryId;
 
   const PaginatedOffers({
     required this.offers,
@@ -20,6 +24,7 @@ class PaginatedOffers {
     required this.totalCount,
     this.isLoading = false,
     this.error,
+    this.currentCategoryId,
   });
 
   const PaginatedOffers.empty()
@@ -28,7 +33,8 @@ class PaginatedOffers {
       totalPages = 0,
       totalCount = 0,
       isLoading = false,
-      error = null;
+      error = null,
+      currentCategoryId = null;
 
   PaginatedOffers copyWith({
     List<OfferModel>? offers,
@@ -37,6 +43,7 @@ class PaginatedOffers {
     int? totalCount,
     bool? isLoading,
     String? error,
+    String? currentCategoryId,
   }) {
     return PaginatedOffers(
       offers: offers ?? this.offers,
@@ -45,13 +52,17 @@ class PaginatedOffers {
       totalCount: totalCount ?? this.totalCount,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
+      currentCategoryId: currentCategoryId ?? this.currentCategoryId,
     );
   }
 }
 
-class OffersNotifier extends Notifier<PaginatedOffers> {
+@Riverpod(keepAlive: true)
+class Offers extends _$Offers {
   @override
   PaginatedOffers build() {
+    ref.watch(sessionProvider);
+    Future.microtask(() => fetchOffers());
     return const PaginatedOffers.empty();
   }
 
@@ -104,6 +115,7 @@ class OffersNotifier extends Notifier<PaginatedOffers> {
           totalPages: pagination['pages'] as int? ?? 1,
           totalCount: pagination['total'] as int? ?? 0,
           isLoading: false,
+          currentCategoryId: categoryId,
         );
       } else {
         state = state.copyWith(isLoading: false, error: response.message);
@@ -159,7 +171,3 @@ class OffersNotifier extends Notifier<PaginatedOffers> {
     }
   }
 }
-
-final offersProvider = NotifierProvider<OffersNotifier, PaginatedOffers>(
-  OffersNotifier.new,
-);

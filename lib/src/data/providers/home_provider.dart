@@ -6,10 +6,15 @@ import 'api_provider.dart';
 import 'user_provider.dart';
 import 'user_type_provider.dart';
 
+import 'auth_provider.dart';
+
 part 'home_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<HomeResponseState?> homeData(Ref ref) async {
+  // Watch session to ensure clean state on logout
+  ref.watch(sessionProvider);
+  
   final userType = ref.watch(userTypeProvider);
   final api = ref.watch(apiProvider);
   final user = ref.watch(userProvider);

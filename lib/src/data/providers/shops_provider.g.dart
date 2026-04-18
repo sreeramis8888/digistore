@@ -27,7 +27,7 @@ final class ShopsProvider
   }) : super(
          retry: null,
          name: r'shopsProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -73,7 +73,7 @@ final class ShopsProvider
   }
 }
 
-String _$shopsHash() => r'8eabb4064050b204da02d9939eb5efdd551b37a8';
+String _$shopsHash() => r'd7837f4400e88835cca5b44edefc1f5f565c2274';
 
 final class ShopsFamily extends $Family
     with
@@ -87,7 +87,7 @@ final class ShopsFamily extends $Family
         name: r'shopsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   ShopsProvider call({

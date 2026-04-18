@@ -28,7 +28,7 @@ final class TransactionsProvider
   }) : super(
          retry: null,
          name: r'transactionsProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -66,7 +66,7 @@ final class TransactionsProvider
   }
 }
 
-String _$transactionsHash() => r'd8a4eddc7a1ad62f9c3ce59ec80067d48abb1842';
+String _$transactionsHash() => r'3ccd9d1d6c15566ae4749c844fa9a0e66c777288';
 
 final class TransactionsFamily extends $Family
     with
@@ -80,7 +80,7 @@ final class TransactionsFamily extends $Family
         name: r'transactionsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   TransactionsProvider call({int page = 1, int limit = 20}) =>
@@ -109,7 +109,7 @@ final class RedemptionsProvider
   }) : super(
          retry: null,
          name: r'redemptionsProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -147,7 +147,7 @@ final class RedemptionsProvider
   }
 }
 
-String _$redemptionsHash() => r'7cb972973d7702124069c7616ca978b9e8f62fbf';
+String _$redemptionsHash() => r'fd30b8ba0ef256cc9e4abcdbb4694db02d8c3507';
 
 final class RedemptionsFamily extends $Family
     with
@@ -161,7 +161,7 @@ final class RedemptionsFamily extends $Family
         name: r'redemptionsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   RedemptionsProvider call({int page = 1, int limit = 20}) =>
