@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:image_cropper/image_cropper.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/providers/partner_products_provider.dart';
@@ -109,6 +110,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     final result = await img_service.pickMedia(
       context: context,
       enableCrop: true,
+      cropRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
       showDocument: false,
     );
 
@@ -353,42 +355,44 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  width: double.infinity,
-                  height: 140,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: _pickedImage != null
-                      ? Image.file(_pickedImage!, fit: BoxFit.cover)
-                      : (widget.product != null &&
-                            widget.product!['images'] != null &&
-                            (widget.product!['images'] as List).isNotEmpty)
-                      ? AdvancedNetworkImage(
-                          imageUrl: (widget.product!['images'] as List)[0],
-                          fit: BoxFit.cover,
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.add_photo_alternate_outlined,
-                              color: Color(0xFF808080),
-                              size: 30,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Add Image',
-                              style: kSmallTitleL.copyWith(
-                                color: const Color(0xFF808080),
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: double.infinity,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: _pickedImage != null
+                        ? Image.file(_pickedImage!, fit: BoxFit.cover)
+                        : (widget.product != null &&
+                                widget.product!['images'] != null &&
+                                (widget.product!['images'] as List).isNotEmpty)
+                            ? AdvancedNetworkImage(
+                                imageUrl: (widget.product!['images'] as List)[0],
+                                fit: BoxFit.cover,
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.add_photo_alternate_outlined,
+                                    color: Color(0xFF808080),
+                                    size: 30,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Add Image',
+                                    style: kSmallTitleL.copyWith(
+                                      color: const Color(0xFF808080),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
+                  ),
                 ),
               ),
             ],

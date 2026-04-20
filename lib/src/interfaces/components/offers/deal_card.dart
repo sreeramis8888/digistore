@@ -12,6 +12,7 @@ class DealCard extends ConsumerWidget {
   final String title;
   final String subtitle;
   final String shopName;
+  final String? shopLogo;
   final String badgeText;
   final String? dealOfTheHour;
   final Color avatarColor;
@@ -29,6 +30,7 @@ class DealCard extends ConsumerWidget {
     required this.title,
     required this.subtitle,
     required this.shopName,
+    this.shopLogo,
     required this.badgeText,
     this.dealOfTheHour,
     required this.avatarColor,
@@ -41,7 +43,11 @@ class DealCard extends ConsumerWidget {
     this.rawOffer,
   });
 
-  factory DealCard.fromOffer(OfferModel offer, {double? width, EdgeInsetsGeometry? margin}) {
+  factory DealCard.fromOffer(
+    OfferModel offer, {
+    double? width,
+    EdgeInsetsGeometry? margin,
+  }) {
     final badgeText = offer.discountType == 'percentage'
         ? '${offer.discountValue?.toInt() ?? 0}%\nOFF'
         : '₹${offer.discountValue?.toInt() ?? 0}\nOFF';
@@ -51,6 +57,7 @@ class DealCard extends ConsumerWidget {
       title: offer.title ?? '',
       subtitle: offer.description ?? '',
       shopName: offer.partnerId?.businessDetails?.businessName ?? '',
+      shopLogo: offer.partnerId?.businessInfo?.businessLogo,
       badgeText: badgeText,
       avatarColor: kPrimaryLightColor,
       imageUrl: offer.images?.isNotEmpty == true ? offer.images![0] : null,
@@ -70,16 +77,19 @@ class DealCard extends ConsumerWidget {
       onPressed: () {
         Navigator.of(context).pushNamed(
           'offerDetail',
-          arguments: rawOffer?.toJson() ?? {
-            'id': id,
-            'title': title,
-            'subtitle': subtitle,
-            'shopName': shopName,
-            'imageUrl': imageUrl,
-            'description': subtitle,
-            'terms': terms,
-            'validTo': validTo?.toIso8601String(),
-          },
+          arguments:
+              rawOffer?.toJson() ??
+              {
+                'id': id,
+                'title': title,
+                'subtitle': subtitle,
+                'shopName': shopName,
+                'shopLogo': shopLogo,
+                'imageUrl': imageUrl,
+                'description': subtitle,
+                'terms': terms,
+                'validTo': validTo?.toIso8601String(),
+              },
         );
       },
       scaleFactor: 0.98,
@@ -96,9 +106,8 @@ class DealCard extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                SizedBox(
-                  height: screenSize.responsivePadding(120),
-                  width: double.infinity,
+                AspectRatio(
+                  aspectRatio: 16 / 9,
                   child: AdvancedNetworkImage(
                     imageUrl: imageUrl ?? '',
                     fit: BoxFit.cover,
@@ -188,10 +197,20 @@ class DealCard extends ConsumerWidget {
                     SizedBox(height: screenSize.responsivePadding(12)),
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: screenSize.responsivePadding(10),
-                          backgroundColor: avatarColor,
-                          child: Icon(Icons.store, size: 12, color: kWhite),
+                        Container(
+                          width: screenSize.responsivePadding(20),
+                          height: screenSize.responsivePadding(20),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: avatarColor,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: shopLogo != null
+                              ? AdvancedNetworkImage(
+                                  imageUrl: shopLogo!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Icon(Icons.store, size: 12, color: kWhite),
                         ),
                         SizedBox(width: screenSize.responsivePadding(8)),
                         Expanded(

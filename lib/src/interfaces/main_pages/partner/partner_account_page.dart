@@ -202,7 +202,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       enableCrop: true,
       cropRatio: field == 'logo'
           ? const CropAspectRatio(ratioX: 1, ratioY: 1)
-          : null,
+          : field == 'cover'
+              ? const CropAspectRatio(ratioX: 16, ratioY: 9)
+              : null,
       showDocument: false,
     );
 

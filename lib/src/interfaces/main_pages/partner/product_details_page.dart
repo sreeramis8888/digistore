@@ -99,11 +99,12 @@ class ProductDetailsPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdvancedNetworkImage(
-              imageUrl: (product['images'] != null && (product['images'] as List).isNotEmpty) ? product['images'][0] : (product['image'] ?? ''),
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: AdvancedNetworkImage(
+                imageUrl: (product['images'] != null && (product['images'] as List).isNotEmpty) ? product['images'][0] : (product['image'] ?? ''),
+                fit: BoxFit.cover,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),

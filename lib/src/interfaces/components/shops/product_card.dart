@@ -67,7 +67,8 @@ class ProductCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
+            AspectRatio(
+              aspectRatio: 16 / 9,
               child: AdvancedNetworkImage(
                 imageUrl: product['image'] as String,
                 fit: BoxFit.cover,

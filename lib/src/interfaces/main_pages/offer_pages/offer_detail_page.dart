@@ -38,6 +38,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final String shopName = widget.args['shopName'] ??
         widget.args['partnerId']?['businessDetails']?['businessName'] ??
         'HomeGoods';
+    final String? shopLogo = widget.args['shopLogo'] ??
+        widget.args['partnerId']?['businessInfo']?['businessLogo'];
     final IconData? icon = widget.args['icon'];
     final String? logoText = widget.args['logoText'];
     final Color? logoColor = widget.args['logoColor'];
@@ -143,9 +145,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
           children: [
             // Image Section
             if (imageUrl != null)
-              SizedBox(
-                width: double.infinity,
-                height: screenSize.responsivePadding(220),
+              AspectRatio(
+                aspectRatio: 16 / 9,
                 child: AdvancedNetworkImage(
                   imageUrl: imageUrl,
                   fit: BoxFit.cover,
@@ -196,9 +197,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           color: kPrimaryColor,
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: imageUrl != null
+                        child: shopLogo != null
                             ? AdvancedNetworkImage(
-                                imageUrl: imageUrl,
+                                imageUrl: shopLogo,
                                 fit: BoxFit.cover,
                               )
                             : const Icon(

@@ -9,6 +9,7 @@ import '../../../data/services/image_services.dart' as img_service;
 import '../../../data/services/toast_service.dart';
 import '../../components/partner/category_selection_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -140,7 +141,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     final result = await img_service.pickMedia(
       context: context,
       allowMultiple: true,
-      enableCrop: false,
+      enableCrop: true,
+      cropRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
       showDocument: false,
     );
 
