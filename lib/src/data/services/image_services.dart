@@ -19,7 +19,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 
-
 String extractImageUrl(String responseBody) {
   final responseJson = jsonDecode(responseBody);
   log(name: "image upload response", responseJson.toString());
@@ -171,7 +170,6 @@ class FileDownloadService {
   }
 }
 
-
 Future<File?> _compressVideo(File file) async {
   try {
     await VideoCompress.setLogLevel(0);
@@ -187,7 +185,6 @@ Future<File?> _compressVideo(File file) async {
     return null;
   }
 }
-
 
 Future<dynamic> pickMedia({
   required BuildContext context,
@@ -452,7 +449,10 @@ Future<File> compressImageIfNeeded(File imageFile) async {
   );
 
   final String extension = p.extension(imageFile.path);
-  final String? mimeType = lookupMimeType(imageFile.path, headerBytes: imageBytes);
+  final String? mimeType = lookupMimeType(
+    imageFile.path,
+    headerBytes: imageBytes,
+  );
 
   log("Image extension: $extension");
   log("Image MIME type: $mimeType");
@@ -477,4 +477,3 @@ Future<File> compressImageIfNeeded(File imageFile) async {
   }
   return imageFile;
 }
-

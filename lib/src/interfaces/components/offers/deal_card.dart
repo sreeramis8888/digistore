@@ -106,8 +106,9 @@ class DealCard extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
+                SizedBox(
+                  height: screenSize.responsivePadding(120),
+                  width: double.infinity,
                   child: AdvancedNetworkImage(
                     imageUrl: imageUrl ?? '',
                     fit: BoxFit.cover,
