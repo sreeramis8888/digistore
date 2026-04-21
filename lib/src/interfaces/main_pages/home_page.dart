@@ -33,28 +33,33 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: kWhite,
-      body: Column(
-        children: [
-          SizedBox(height: screenSize.responsivePadding(45)),
-          const HomeAppBar().fadeIn(),
-          SizedBox(height: screenSize.responsivePadding(16)),
-          const HomeSearchBar().fadeSlideInFromBottom(delayMilliseconds: 100),
-          Expanded(
-            child: homeDataAsync.when(
-              data: (state) {
-                if (state == null) {
-                  return const Center(child: Text('No data available'));
-                }
-                if (state is CustomerHomeState) {
-                  return _buildContent(context, ref, state.data, screenSize);
-                }
-                return const Center(child: Text('Invalid state'));
-              },
-              loading: () => const HomeShimmer(isPartner: false),
-              error: (err, stack) => Center(child: Text('Error: $err')),
-            ),
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(homeDataProvider.future),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: screenSize.responsivePadding(45)),
+              const HomeAppBar().fadeIn(),
+              SizedBox(height: screenSize.responsivePadding(16)),
+              const HomeSearchBar().fadeSlideInFromBottom(delayMilliseconds: 100),
+              homeDataAsync.when(
+                data: (state) {
+                  if (state == null) {
+                    return const Center(child: Text('No data available'));
+                  }
+                  if (state is CustomerHomeState) {
+                    return _buildContent(context, ref, state.data, screenSize);
+                  }
+                  return const Center(child: Text('Invalid state'));
+                },
+                loading: () => const HomeShimmer(isPartner: false),
+                error: (err, stack) => Center(child: Text('Error: $err')),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -69,64 +74,58 @@ class HomePage extends ConsumerWidget {
       return const Center(child: Text('No data available'));
     }
 
-    return RefreshIndicator(
-      onRefresh: () => ref.refresh(homeDataProvider.future),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: screenSize.responsivePadding(16)),
-            LoyaltyRewardCard(loyaltyCard: data.loyaltyCard),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            CategoryList(categories: data.categories),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            if (data.dealOfTheHour != null && data.dealOfTheHour!.isNotEmpty) ...[
-              DealsCarousel(
-                title: 'Deal of the Hour',
-                deals: data.dealOfTheHour!
-                    .map((offer) => DealCard.fromOffer(offer))
-                    .toList(),
-              ),
-              SizedBox(height: screenSize.responsivePadding(16)),
-            ],
-            FeaturedShopsList(shops: data.featuredShops),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            if (data.dealOfTheDay != null && data.dealOfTheDay!.isNotEmpty) ...[
-              DealsCarousel(
-                title: 'Deal of the Day',
-                deals: data.dealOfTheDay!
-                    .map((offer) => DealCard.fromOffer(offer))
-                    .toList(),
-              ),
-              SizedBox(height: screenSize.responsivePadding(16)),
-            ],
-            if (data.dealsOfDay != null && data.dealsOfDay!.isNotEmpty) ...[
-              DealsCarousel(
-                title: 'Specials for You',
-                deals: data.dealsOfDay!
-                    .map((offer) => DealCard.fromOffer(offer))
-                    .toList(),
-              ),
-              SizedBox(height: screenSize.responsivePadding(16)),
-            ],
-            BannerSection(banners: data.premiumBanners),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            if (data.dealOfTheMonth != null &&
-                data.dealOfTheMonth!.isNotEmpty) ...[
-              DealsCarousel(
-                title: 'Deal of the Month',
-                deals: data.dealOfTheMonth!
-                    .map((offer) => DealCard.fromOffer(offer))
-                    .toList(),
-              ),
-              SizedBox(height: screenSize.responsivePadding(16)),
-            ],
-            RewardsCarousel(rewards: data.rewardsPreview),
-            SizedBox(height: screenSize.responsivePadding(40)),
-          ],
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: screenSize.responsivePadding(16)),
+        LoyaltyRewardCard(loyaltyCard: data.loyaltyCard),
+        SizedBox(height: screenSize.responsivePadding(16)),
+        CategoryList(categories: data.categories),
+        SizedBox(height: screenSize.responsivePadding(16)),
+        if (data.dealOfTheHour != null && data.dealOfTheHour!.isNotEmpty) ...[
+          DealsCarousel(
+            title: 'Deal of the Hour',
+            deals: data.dealOfTheHour!
+                .map((offer) => DealCard.fromOffer(offer))
+                .toList(),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        FeaturedShopsList(shops: data.featuredShops),
+        SizedBox(height: screenSize.responsivePadding(16)),
+        if (data.dealOfTheDay != null && data.dealOfTheDay!.isNotEmpty) ...[
+          DealsCarousel(
+            title: 'Deal of the Day',
+            deals: data.dealOfTheDay!
+                .map((offer) => DealCard.fromOffer(offer))
+                .toList(),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        if (data.dealsOfDay != null && data.dealsOfDay!.isNotEmpty) ...[
+          DealsCarousel(
+            title: 'Specials for You',
+            deals: data.dealsOfDay!
+                .map((offer) => DealCard.fromOffer(offer))
+                .toList(),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        BannerSection(banners: data.premiumBanners),
+        SizedBox(height: screenSize.responsivePadding(16)),
+        if (data.dealOfTheMonth != null &&
+            data.dealOfTheMonth!.isNotEmpty) ...[
+          DealsCarousel(
+            title: 'Deal of the Month',
+            deals: data.dealOfTheMonth!
+                .map((offer) => DealCard.fromOffer(offer))
+                .toList(),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        RewardsCarousel(rewards: data.rewardsPreview),
+        SizedBox(height: screenSize.responsivePadding(40)),
+      ],
     );
   }
 }

@@ -16,14 +16,11 @@ class HomeShimmer extends ConsumerWidget {
     final baseColor = Colors.grey[200]!;
     final highlightColor = Colors.grey[50]!;
 
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: isPartner ? 0 : 0),
-        child: isPartner
-            ? _buildPartnerShimmer(screenSize, baseColor, highlightColor)
-            : _buildCustomerShimmer(screenSize, baseColor, highlightColor),
-      ),
+    return Padding(
+      padding: EdgeInsets.zero,
+      child: isPartner
+          ? _buildPartnerShimmer(screenSize, baseColor, highlightColor)
+          : _buildCustomerShimmer(screenSize, baseColor, highlightColor),
     );
   }
 

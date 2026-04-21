@@ -5,6 +5,8 @@ import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/shop_model.dart';
 
+import '../../../../src/data/utils/launch_url.dart';
+
 class ShopSocials extends ConsumerWidget {
   final ShopModel? shop;
 
@@ -13,29 +15,51 @@ class ShopSocials extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final socialLinks = shop?.businessInfo?.socialLinks;
+
+    if (socialLinks == null) return const SizedBox.shrink();
+
+    final hasInstagram = socialLinks.instagram?.isNotEmpty == true;
+    final hasFacebook = socialLinks.facebook?.isNotEmpty == true;
+    final hasYoutube = socialLinks.youtube?.isNotEmpty == true;
+
+    if (!hasInstagram && !hasFacebook && !hasYoutube) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Connect With Us', style: kBodyTitleM),
         SizedBox(height: screenSize.responsivePadding(12)),
-        Row(
+        Wrap(
+          spacing: screenSize.responsivePadding(12),
+          runSpacing: screenSize.responsivePadding(12),
           children: [
-            _SocialButton(
-              icon: Icons.camera_alt,
-              iconColor: Colors.purple,
-              label: 'Instagram',
-              onPressed: () {},
-              screenSize: screenSize,
-            ),
-            SizedBox(width: screenSize.responsivePadding(12)),
-            _SocialButton(
-              icon: Icons.facebook,
-              iconColor: Colors.blue,
-              label: 'Facebook',
-              onPressed: () {},
-              screenSize: screenSize,
-            ),
+            if (hasInstagram)
+              _SocialButton(
+                icon: Icons.camera_alt,
+                iconColor: const Color(0xFFE1306C),
+                label: 'Instagram',
+                onPressed: () => launchURL(socialLinks.instagram!),
+                screenSize: screenSize,
+              ),
+            if (hasFacebook)
+              _SocialButton(
+                icon: Icons.facebook,
+                iconColor: const Color(0xFF4267B2),
+                label: 'Facebook',
+                onPressed: () => launchURL(socialLinks.facebook!),
+                screenSize: screenSize,
+              ),
+            if (hasYoutube)
+              _SocialButton(
+                icon: Icons.play_circle_filled,
+                iconColor: const Color(0xFFFF0000),
+                label: 'YouTube',
+                onPressed: () => launchURL(socialLinks.youtube!),
+                screenSize: screenSize,
+              ),
           ],
         ),
       ],

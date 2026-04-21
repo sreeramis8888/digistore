@@ -89,6 +89,7 @@ class BusinessInfo {
   final String? contactEmail;
   final OperatingHours? operatingHours;
   final List<String>? specialties;
+  final SocialLinks? socialLinks;
 
   const BusinessInfo({
     this.businessLogo,
@@ -101,6 +102,7 @@ class BusinessInfo {
     this.contactEmail,
     this.operatingHours,
     this.specialties,
+    this.socialLinks,
   });
 
   factory BusinessInfo.fromJson(Map<String, dynamic> json) {
@@ -119,6 +121,29 @@ class BusinessInfo {
           ? OperatingHours.fromJson(json['operatingHours'] as Map<String, dynamic>)
           : null,
       specialties: json['specialties'] != null ? List<String>.from(json['specialties']) : null,
+      socialLinks: json['socialLinks'] != null 
+          ? SocialLinks.fromJson(json['socialLinks'] as Map<String, dynamic>) 
+          : null,
+    );
+  }
+}
+
+class SocialLinks {
+  final String? instagram;
+  final String? facebook;
+  final String? youtube;
+
+  const SocialLinks({
+    this.instagram,
+    this.facebook,
+    this.youtube,
+  });
+
+  factory SocialLinks.fromJson(Map<String, dynamic> json) {
+    return SocialLinks(
+      instagram: json['instagram'] as String?,
+      facebook: json['facebook'] as String?,
+      youtube: json['youtube'] as String?,
     );
   }
 }
