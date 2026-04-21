@@ -37,7 +37,7 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
       isLoading = true;
     });
 
-    final offerId = widget.args['id'] as String?;
+    final offerId = (widget.args['id'] ?? widget.args['_id']) as String?;
     if (offerId == null) {
       setState(() {
         isLoading = false;
@@ -83,9 +83,12 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final String title = widget.args['title'] ?? 'Offer';
-    final String subtitle = widget.args['subtitle'] ?? '';
-    final String? imageUrl = widget.args['imageUrl'];
+    final String title = widget.args['title'] ?? '';
+    final String subtitle = widget.args['subtitle'] ?? widget.args['description'] ?? '';
+    final String? imageUrl = widget.args['imageUrl'] ??
+        ((widget.args['images'] is List && (widget.args['images'] as List).isNotEmpty)
+            ? widget.args['images'][0]
+            : null);
 
     return Scaffold(
       backgroundColor: kWhite,

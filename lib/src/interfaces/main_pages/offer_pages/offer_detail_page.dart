@@ -278,15 +278,22 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         ? 'Initiate Redemption'
                         : 'Redeem Now',
                     onPressed: () {
+                      final offerDetails = {
+                        ...widget.args,
+                        'title': title,
+                        'subtitle': subtitle,
+                        'imageUrl': imageUrl,
+                        'id': widget.args['id'] ?? widget.args['_id'],
+                      };
                       if (GlobalVariables.isPartner) {
                         Navigator.of(context).pushNamed(
                           'partnerRedemption',
-                          arguments: widget.args,
+                          arguments: offerDetails,
                         );
                       } else {
-                           Navigator.of(context).pushNamed(
+                        Navigator.of(context).pushNamed(
                           'redemptionInstructions',
-                          arguments: widget.args,
+                          arguments: offerDetails,
                         );
                       }
                     },

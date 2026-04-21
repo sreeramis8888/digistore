@@ -7,6 +7,9 @@ import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/shop_model.dart';
 import '../../../../src/data/providers/reviews_provider.dart';
 import '../../../../src/data/models/review_model.dart';
+import '../../../../src/data/models/redemption_model.dart';
+import './add_review_sheet.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ShopReviews extends ConsumerWidget {
   final ShopModel? shop;
@@ -20,6 +23,8 @@ class ShopReviews extends ConsumerWidget {
     final shopId = shop?.id;
 
     final reviewsAsync = ref.watch(reviewsProvider(shopId: shopId));
+    final reviewsAction = ref.read(reviewsActionProvider.notifier);
+    final totalFetchedReviews = reviewsAsync.value?.total ?? reviewCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,9 +32,20 @@ class ShopReviews extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Customer Reviews ($reviewCount)', style: kBodyTitleM),
+            Text('Customer Reviews ($totalFetchedReviews)', style: kBodyTitleM),
             GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                final result = await showModalBottomSheet<bool>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddReviewSheet(shop: shop!),
+                );
+
+                if (result == true && shopId != null) {
+                  ref.invalidate(reviewsProvider(shopId: shopId));
+                }
+              },
               child: Text(
                 'Add Review',
                 style: kSmallTitleM.copyWith(color: kPrimaryColor),
@@ -77,7 +93,7 @@ class ShopReviews extends ConsumerWidget {
 
 class _ReviewCard extends StatelessWidget {
   final ReviewModel review;
-  final dynamic screenSize;
+  final ScreenSizeData screenSize;
 
   const _ReviewCard({required this.review, required this.screenSize});
 

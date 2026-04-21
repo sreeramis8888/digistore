@@ -9,17 +9,11 @@ part of 'reviews_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(reviews)
+@ProviderFor(Reviews)
 final reviewsProvider = ReviewsFamily._();
 
 final class ReviewsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<PaginatedReviews>,
-          PaginatedReviews,
-          FutureOr<PaginatedReviews>
-        >
-    with $FutureModifier<PaginatedReviews>, $FutureProvider<PaginatedReviews> {
+    extends $AsyncNotifierProvider<Reviews, PaginatedReviews> {
   ReviewsProvider._({
     required ReviewsFamily super.from,
     required ({String? shopId, int page, int limit}) super.argument,
@@ -43,20 +37,7 @@ final class ReviewsProvider
 
   @$internal
   @override
-  $FutureProviderElement<PaginatedReviews> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<PaginatedReviews> create(Ref ref) {
-    final argument = this.argument as ({String? shopId, int page, int limit});
-    return reviews(
-      ref,
-      shopId: argument.shopId,
-      page: argument.page,
-      limit: argument.limit,
-    );
-  }
+  Reviews create() => Reviews();
 
   @override
   bool operator ==(Object other) {
@@ -69,11 +50,14 @@ final class ReviewsProvider
   }
 }
 
-String _$reviewsHash() => r'69f5c931b476114d1cb2e32e63b718cba8596b5b';
+String _$reviewsHash() => r'184fcb409557103044f2d7238fe7c0251e43ca60';
 
 final class ReviewsFamily extends $Family
     with
-        $FunctionalFamilyOverride<
+        $ClassFamilyOverride<
+          Reviews,
+          AsyncValue<PaginatedReviews>,
+          PaginatedReviews,
           FutureOr<PaginatedReviews>,
           ({String? shopId, int page, int limit})
         > {
@@ -94,4 +78,36 @@ final class ReviewsFamily extends $Family
 
   @override
   String toString() => r'reviewsProvider';
+}
+
+abstract class _$Reviews extends $AsyncNotifier<PaginatedReviews> {
+  late final _$args = ref.$arg as ({String? shopId, int page, int limit});
+  String? get shopId => _$args.shopId;
+  int get page => _$args.page;
+  int get limit => _$args.limit;
+
+  FutureOr<PaginatedReviews> build({
+    String? shopId,
+    int page = 1,
+    int limit = 10,
+  });
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref =
+        this.ref as $Ref<AsyncValue<PaginatedReviews>, PaginatedReviews>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<PaginatedReviews>, PaginatedReviews>,
+              AsyncValue<PaginatedReviews>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(
+      ref,
+      () =>
+          build(shopId: _$args.shopId, page: _$args.page, limit: _$args.limit),
+    );
+  }
 }

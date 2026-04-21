@@ -28,7 +28,7 @@ final class CategoriesProvider
         argument: null,
         retry: null,
         name: r'categoriesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,4 +48,4 @@ final class CategoriesProvider
   }
 }
 
-String _$categoriesHash() => r'406b8cff5e0ecf191ea080ef70694a02d1fd4bf7';
+String _$categoriesHash() => r'2836eb7c874a6d935eade198a4f358db06b78b6c';

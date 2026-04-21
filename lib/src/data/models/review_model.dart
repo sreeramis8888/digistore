@@ -48,6 +48,22 @@ class PaginatedReviews {
     required this.pages,
   });
 
+  PaginatedReviews copyWith({
+    List<ReviewModel>? reviews,
+    int? page,
+    int? limit,
+    int? total,
+    int? pages,
+  }) {
+    return PaginatedReviews(
+      reviews: reviews ?? this.reviews,
+      page: page ?? this.page,
+      limit: limit ?? this.limit,
+      total: total ?? this.total,
+      pages: pages ?? this.pages,
+    );
+  }
+
   factory PaginatedReviews.fromJson(Map<String, dynamic> json) {
     return PaginatedReviews(
       reviews: (json['data'] as List? ?? [])

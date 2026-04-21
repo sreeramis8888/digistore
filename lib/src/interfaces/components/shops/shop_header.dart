@@ -7,6 +7,7 @@ import '../../../../src/data/models/shop_model.dart';
 import '../../../../src/data/providers/user_provider.dart';
 import '../../../../src/data/utils/location_utils.dart';
 import '../../../../src/data/utils/launch_url.dart';
+import '../../../../src/data/providers/reviews_provider.dart';
 import '../advanced_network_image.dart';
 
 class ShopHeader extends ConsumerWidget {
@@ -19,7 +20,12 @@ class ShopHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final rating = shop?.businessInfo?.rating ?? 0.0;
-    final totalSales = shop?.businessInfo?.totalReviews ?? 0;
+    final totalSalesRaw = shop?.businessInfo?.totalReviews ?? 0;
+    
+    // Watch reviews provider to get live total
+    final reviewsAsync = ref.watch(reviewsProvider(shopId: shop?.id));
+    final totalSales = reviewsAsync.value?.total ?? totalSalesRaw;
+
     final category = shop?.serviceCategories?.isNotEmpty == true ? shop!.serviceCategories!.first : 'General';
     final address = shop?.businessInfo?.storeLocation?.address ?? 'No address provided';
 

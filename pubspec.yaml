@@ -74,6 +74,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   loading_indicator: ^3.1.1
   flutter_map: ^8.3.0
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:

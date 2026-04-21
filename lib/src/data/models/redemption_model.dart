@@ -39,6 +39,8 @@ class RedemptionModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  final bool? hasReview;
+
   const RedemptionModel({
     this.id,
     this.publicUserId,
@@ -56,19 +58,20 @@ class RedemptionModel {
     this.redeemedAt,
     this.createdAt,
     this.updatedAt,
+    this.hasReview,
   });
 
   factory RedemptionModel.fromJson(Map<String, dynamic> json) {
     return RedemptionModel(
       id: json['_id'] as String?,
-      publicUserId: json['publicUserId'] != null
+      publicUserId: (json['publicUserId'] != null && json['publicUserId'] is Map)
           ? PublicUserModel.fromJson(
               json['publicUserId'] as Map<String, dynamic>)
           : null,
-      partnerId: json['partnerId'] != null && json['partnerId'] is Map
+      partnerId: (json['partnerId'] != null && json['partnerId'] is Map)
           ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>)
           : null,
-      offerId: json['offerId'] != null
+      offerId: (json['offerId'] != null && json['offerId'] is Map)
           ? OfferModel.fromJson(json['offerId'] as Map<String, dynamic>)
           : null,
       status: json['status'] as String?,
@@ -89,6 +92,29 @@ class RedemptionModel {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'])
           : null,
+      hasReview: json['hasReview'] as bool?,
+    );
+  }
+}
+
+class MyRedemptionsResponse {
+  final bool success;
+  final List<RedemptionModel> data;
+  final bool canSubmitReview;
+
+  MyRedemptionsResponse({
+    required this.success,
+    required this.data,
+    required this.canSubmitReview,
+  });
+
+  factory MyRedemptionsResponse.fromJson(Map<String, dynamic> json) {
+    return MyRedemptionsResponse(
+      success: json['success'] as bool? ?? false,
+      data: (json['data'] as List? ?? [])
+          .map((e) => RedemptionModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      canSubmitReview: json['canSubmitReview'] as bool? ?? false,
     );
   }
 }
