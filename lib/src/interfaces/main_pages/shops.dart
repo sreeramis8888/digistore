@@ -21,6 +21,8 @@ class ShopsPage extends ConsumerStatefulWidget {
 }
 
 class _ShopsPageState extends ConsumerState<ShopsPage> {
+  final Map<String, String> _distanceCache = {};
+
   Color _getCategoryColor(String? type) {
     switch (type) {
       case 'Restaurants & Cafes':
@@ -110,25 +112,49 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                 final ShopModel shop = paginated.shops[index];
                 final type = shop.businessDetails?.businessType;
                 final logo = shop.businessInfo?.businessLogo;
-                final address =
-                    shop.businessInfo?.storeLocation?.address ??
-                    shop.businessDetails?.businessType ??
-                    'No address provided';
 
-                String distance = '...';
+                String address = 'No address provided';
+                if (shop.businessDetails?.address != null) {
+                  address = shop.businessDetails!.address!;
+                  if (shop.businessDetails?.pincode != null) {
+                    address += ', ${shop.businessDetails!.pincode}';
+                  }
+                } else if (shop.businessInfo?.storeLocation?.address != null) {
+                  address = shop.businessInfo!.storeLocation!.address!;
+                }
+
+                String distance = '0 km';
+                final shopId = shop.id ?? index.toString();
                 final shopCoords =
                     shop.businessInfo?.storeLocation?.coordinates;
-                if (userLat != null &&
+
+                if (_distanceCache.containsKey(shopId)) {
+                  distance = _distanceCache[shopId]!;
+                } else if (userLat != null &&
                     userLng != null &&
                     shopCoords != null &&
                     shopCoords.length >= 2) {
-                  final d = LocationUtils.calculateDistance(
+                  final straightLineDistance = LocationUtils.calculateDistance(
                     userLat,
                     userLng,
                     shopCoords[1],
                     shopCoords[0],
                   );
-                  distance = '${d.toStringAsFixed(1)} km';
+                  distance = '~${straightLineDistance.toStringAsFixed(1)} km';
+
+                  LocationUtils.calculateRoadDistance(
+                    fromLat: userLat,
+                    fromLng: userLng,
+                    toLat: shopCoords[1],
+                    toLng: shopCoords[0],
+                  ).then((roadDistance) {
+                    if (mounted) {
+                      setState(() {
+                        _distanceCache[shopId] =
+                            '${roadDistance.toStringAsFixed(1)} km';
+                      });
+                    }
+                  });
                 }
 
                 return ShopGridCard(
