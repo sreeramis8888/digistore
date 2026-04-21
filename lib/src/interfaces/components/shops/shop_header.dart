@@ -84,7 +84,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       distanceLabel = ' ($_roadDistance km';
       if (_durationMinutes != null) {
         final minutes = _durationMinutes!.round();
-        distanceLabel += ', ~$minutes min';
+        distanceLabel += ', $minutes min';
       }
       distanceLabel += ')';
     } else if (_isCalculating) {
@@ -96,7 +96,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
         shopCoords[1], // lat
         shopCoords[0], // lng
       );
-      distanceLabel = ' (~${d.toStringAsFixed(1)} km)';
+      distanceLabel = ' (${d.toStringAsFixed(1)} km)';
     }
 
     return Column(

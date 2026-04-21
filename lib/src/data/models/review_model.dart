@@ -20,12 +20,13 @@ class ReviewModel {
   });
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
+    final userData = json['publicUserId'] ?? json['userId'];
     return ReviewModel(
       id: json['_id'] as String?,
-      userId: json['userId'] is Map ? json['userId']['_id'] as String? : json['userId'] as String?,
-      shopId: json['shopId'] as String?,
-      userName: json['userId'] is Map ? json['userId']['name'] as String? : json['userName'] as String?,
-      userPhoto: json['userId'] is Map ? json['userId']['profileImage'] as String? : json['userPhoto'] as String?,
+      userId: userData is Map ? userData['_id'] as String? : userData as String?,
+      shopId: json['partnerId'] as String? ?? json['shopId'] as String?,
+      userName: userData is Map ? userData['name'] as String? : json['userName'] as String?,
+      userPhoto: userData is Map ? userData['profileImage'] as String? : json['userPhoto'] as String?,
       rating: json['rating'] as num?,
       comment: json['comment'] as String?,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,

@@ -140,7 +140,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     shopCoords[1],
                     shopCoords[0],
                   );
-                  distance = '~${straightLineDistance.toStringAsFixed(1)} km';
+                  distance = '${straightLineDistance.toStringAsFixed(1)} km';
 
                   LocationUtils.calculateRoadDistance(
                     fromLat: userLat,
