@@ -4,16 +4,58 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'src/data/router/router.dart';
 import 'src/data/providers/screen_size_provider.dart';
 
+import 'dart:ui';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'firebase_options.dart';
+import 'src/data/services/notification_service/notification_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(
-    const ProviderScope(
-      child: ScreenSizeScope(
-        child: MyApp(),
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+  
+  await AwesomeNotifications().initialize(
+    null, 
+    [
+      NotificationChannel(
+        channelKey: 'channel_setgo',
+        channelName: 'Setgo Notifications',
+        channelDescription: 'Notification channel for Setgo app',
+        defaultColor: const Color(0xFF1e3a81),
+        ledColor: Colors.white,
+        importance: NotificationImportance.Max,
+        channelShowBadge: true,
+        playSound: true,
+        enableVibration: true,
+        enableLights: true,
+        criticalAlerts: true,
+        defaultRingtoneType: DefaultRingtoneType.Notification,
       ),
-    ),
+    ],
+    debug: true,
   );
+  
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onNotificationCreatedMethod:
+        NotificationController.onNotificationCreatedMethod,
+    onNotificationDisplayedMethod:
+        NotificationController.onNotificationDisplayedMethod,
+    onDismissActionReceivedMethod:
+        NotificationController.onDismissActionReceivedMethod,
+  );
+  runApp(const ProviderScope(child: ScreenSizeScope(child: MyApp())));
 }
 
 class MyApp extends StatelessWidget {

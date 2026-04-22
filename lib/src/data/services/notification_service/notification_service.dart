@@ -27,10 +27,10 @@ class NotificationService {
 
   NotificationService(this._ref, this._deepLinkService);
 
-  static const String _channelKey = 'channel_connect24';
-  static const String _channelName = 'Connect24 Notifications';
+  static const String _channelKey = 'channel_setgo';
+  static const String _channelName = 'Setgo Notifications';
   static const String _channelDescription =
-      'Notification channel for Connect24 app';
+      'Notification channel for Setgo app';
 
   static bool _isInitialized = false;
 
@@ -42,40 +42,10 @@ class NotificationService {
     try {
       debugPrint('🔔 Initializing Notification Service...');
 
-      // Initialize Awesome Notifications
-      await AwesomeNotifications().initialize(
-        null, // Use default app icon
-        [
-          NotificationChannel(
-            channelKey: _channelKey,
-            channelName: _channelName,
-            channelDescription: _channelDescription,
-            defaultColor: const Color(0xFF1e3a81),
-            ledColor: Colors.white,
-            importance: NotificationImportance.Max,
-            channelShowBadge: true,
-            playSound: true,
-            enableVibration: true,
-            enableLights: true,
-            criticalAlerts: true,
-            defaultRingtoneType: DefaultRingtoneType.Notification,
-          ),
-        ],
-        debug: true, // Enable debug for testing
-      );
-
-      debugPrint('✅ Awesome Notifications initialized');
-
-      // Set up notification listeners with top-level functions
-      // AwesomeNotifications().setListeners(
-      //   onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-      //   onNotificationCreatedMethod:
-      //       NotificationController.onNotificationCreatedMethod,
-      //   onNotificationDisplayedMethod:
-      //       NotificationController.onNotificationDisplayedMethod,
-      //   onDismissActionReceivedMethod:
-      //       NotificationController.onDismissActionReceivedMethod,
-      // );
+      // Channel is already initialized in main.dart
+      // Just verify it exists
+      final isAllowed = await AwesomeNotifications().isNotificationAllowed();
+      debugPrint('✅ Notification channel verified, allowed: $isAllowed');
 
       // Set up FCM handlers
       FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {

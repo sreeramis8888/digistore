@@ -13,7 +13,7 @@ import '../../components/partner/partner_uploaded_products.dart';
 
 import '../../../data/providers/home_provider.dart';
 import '../../../data/models/home_data.dart';
-import '../../components/shimmers/home_shimmer.dart';
+import '../../components/shimmers/partner_home_shimmer.dart';
 
 class PartnerHomePage extends ConsumerWidget {
   const PartnerHomePage({super.key});
@@ -128,7 +128,7 @@ class PartnerHomePage extends ConsumerWidget {
                   },
                   loading: () => const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: HomeShimmer(isPartner: true),
+                    child: PartnerHomeShimmer(),
                   ),
                   error: (e, s) => Center(child: Text('Error: $e')),
                 ),

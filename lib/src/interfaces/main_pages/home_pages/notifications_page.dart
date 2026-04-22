@@ -3,13 +3,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/notifications_provider.dart';
 
-class NotificationsPage extends ConsumerWidget {
+class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        ref.read(notificationsProvider.notifier).fetchNotifications(refresh: true));
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(notificationsProvider.notifier).fetchNotifications();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final notificationsState = ref.watch(notificationsProvider);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -26,48 +54,52 @@ class NotificationsPage extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-        children: [
-          _buildNotificationItem(
-            screenSize: screenSize,
-            title: 'Bill Approved 🎉',
-            time: '2 mins ago',
-            description:
-                "Your bill of ₹2,350 is approved. You've earned 235 base points!",
-            isUnread: true,
-          ),
-          _buildDivider(),
-          _buildNotificationItem(
-            screenSize: screenSize,
-            title: "You're Now a Gold Member!",
-            time: '2 days ago',
-            description: "Congratulations! You've unlocked Gold benefits.",
-          ),
-          _buildDivider(),
-          _buildNotificationItem(
-            screenSize: screenSize,
-            title: "Tier Progress Reminder",
-            time: '2 days ago',
-            description: "Earn 450 more points to reach Platinum status.",
-          ),
-          _buildDivider(),
-          _buildNotificationItem(
-            screenSize: screenSize,
-            title: "You're a Lucky Winner!",
-            time: '2 days ago',
-            description:
-                "Congratulations! You've won an iPhone 15 in the March Mega Lucky Draw. Tap to claim your prize.",
-          ),
-          _buildDivider(),
-          _buildNotificationItem(
-            screenSize: screenSize,
-            title: "You're Now a Gold Member!",
-            time: '2 days ago',
-            description: "Congratulations! You've unlocked Gold benefits.",
-          ),
-        ],
-      ),
+      body: notificationsState.isLoading && notificationsState.notifications.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : notificationsState.notifications.isEmpty
+              ? Center(
+                  child: Text(
+                    'No notifications yet',
+                    style: kSmallTitleL.copyWith(color: kSecondaryTextColor),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () => ref
+                      .read(notificationsProvider.notifier)
+                      .fetchNotifications(refresh: true),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                    itemCount: notificationsState.notifications.length +
+                        (notificationsState.hasMore ? 1 : 0),
+                    separatorBuilder: (context, index) => _buildDivider(),
+                    itemBuilder: (context, index) {
+                      if (index == notificationsState.notifications.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      final notification = notificationsState.notifications[index];
+                      return GestureDetector(
+                        onTap: () {
+                          if (!notification.read) {
+                            ref
+                                .read(notificationsProvider.notifier)
+                                .markAsRead(notification.id);
+                          }
+                        },
+                        child: _buildNotificationItem(
+                          screenSize: screenSize,
+                          title: notification.title,
+                          time: _formatTime(notification.createdAt),
+                          description: notification.message,
+                          isUnread: !notification.read,
+                        ),
+                      );
+                    },
+                  ),
+                ),
     );
   }
 
@@ -113,5 +145,14 @@ class NotificationsPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+    if (difference.inDays > 0) return '${difference.inDays} days ago';
+    if (difference.inHours > 0) return '${difference.inHours} hrs ago';
+    if (difference.inMinutes > 0) return '${difference.inMinutes} mins ago';
+    return 'Just now';
   }
 }

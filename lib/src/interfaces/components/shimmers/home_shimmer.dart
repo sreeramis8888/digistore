@@ -7,8 +7,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../home/section_title.dart';
 
 class HomeShimmer extends ConsumerWidget {
-  final bool isPartner;
-  const HomeShimmer({super.key, this.isPartner = false});
+  const HomeShimmer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,9 +17,7 @@ class HomeShimmer extends ConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.zero,
-      child: isPartner
-          ? _buildPartnerShimmer(screenSize, baseColor, highlightColor)
-          : _buildCustomerShimmer(screenSize, baseColor, highlightColor),
+      child: _buildCustomerShimmer(screenSize, baseColor, highlightColor),
     );
   }
 
@@ -118,94 +115,6 @@ class HomeShimmer extends ConsumerWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildPartnerShimmer(
-    ScreenSizeData screenSize,
-    Color base,
-    Color highlight,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: screenSize.responsivePadding(16)),
-        Text(
-          'Welcome Back!',
-          style: kSmallTitleSB.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(24)),
-        Text(
-          "Today's Overview",
-          style: kSmallTitleB.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 1.5,
-          children: List.generate(
-            3,
-            (index) => _shimmerRect(
-              double.infinity,
-              double.infinity,
-              base,
-              highlight,
-              radius: 16,
-            ),
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(24)),
-        Text(
-          "Quick Actions",
-          style: kSmallTitleB.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(
-            3,
-            (index) => Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == 2 ? 0 : screenSize.responsivePadding(16),
-                ),
-                child: _shimmerRect(
-                  double.infinity,
-                  screenSize.responsivePadding(100),
-                  base,
-                  highlight,
-                  radius: 16,
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(24)),
-        Text(
-          "Recently Uploaded Offers",
-          style: kSmallTitleB.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        _shimmerRect(double.infinity, 100, base, highlight, radius: 12),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        _shimmerRect(double.infinity, 100, base, highlight, radius: 12),
       ],
     );
   }

@@ -15,6 +15,7 @@ class ShopGridCard extends ConsumerWidget {
   final String rating;
   final Color avatarColor;
   final IconData avatarIcon;
+  final String? logoUrl;
   final String? imageUrl;
   final ShopModel? shop;
 
@@ -27,6 +28,7 @@ class ShopGridCard extends ConsumerWidget {
     required this.rating,
     required this.avatarColor,
     required this.avatarIcon,
+    this.logoUrl,
     this.imageUrl,
     this.shop,
   });
@@ -115,10 +117,20 @@ class ShopGridCard extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: screenSize.responsivePadding(12),
-                          backgroundColor: avatarColor,
-                          child: Icon(avatarIcon, size: 14, color: kWhite),
+                        Container(
+                          width: screenSize.responsivePadding(24),
+                          height: screenSize.responsivePadding(24),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: avatarColor,
+                          ),
+                          child: (logoUrl ?? shop?.businessInfo?.businessLogo) != null
+                              ? AdvancedNetworkImage(
+                                  imageUrl: logoUrl ?? shop!.businessInfo!.businessLogo!,
+                                  fit: BoxFit.cover,
+                                  borderRadius: BorderRadius.circular(screenSize.responsivePadding(12)),
+                                )
+                              : Icon(avatarIcon, size: 14, color: kWhite),
                         ),
                         SizedBox(width: screenSize.responsivePadding(8)),
                         Expanded(

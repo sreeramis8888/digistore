@@ -54,7 +54,7 @@ class HomePage extends ConsumerWidget {
                   }
                   return const Center(child: Text('Invalid state'));
                 },
-                loading: () => const HomeShimmer(isPartner: false),
+                loading: () => const HomeShimmer(),
                 error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ],

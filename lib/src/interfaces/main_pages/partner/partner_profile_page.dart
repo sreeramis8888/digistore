@@ -11,12 +11,58 @@ import '../../../data/providers/auth_provider.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
 import '../../components/partner/partner_profile_header.dart';
+import '../../animations/index.dart';
+import '../../../data/utils/notification_permission_helper.dart';
+import '../../../data/services/notification_service/notification_service.dart';
+import '../../../data/providers/notifications_provider.dart';
 
-class PartnerProfilePage extends ConsumerWidget {
+class PartnerProfilePage extends ConsumerStatefulWidget {
   const PartnerProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PartnerProfilePage> createState() => _PartnerProfilePageState();
+}
+
+class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
+  bool _isNotificationsEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkNotificationStatus();
+  }
+
+  Future<void> _checkNotificationStatus() async {
+    final isAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+    if (mounted) {
+      setState(() {
+        _isNotificationsEnabled = isAllowed;
+      });
+    }
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    if (value) {
+      final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
+      if (permissions) {
+        setState(() {
+          _isNotificationsEnabled = true;
+        });
+        final notifService = ref.read(notificationServiceProvider);
+        final token = await notifService.getToken();
+        if (token != null) {
+          ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+        }
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please disable notifications from system settings.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     return Scaffold(
       backgroundColor: kWhite,
@@ -71,6 +117,77 @@ class PartnerProfilePage extends ConsumerWidget {
                 ],
               ),
               SizedBox(height: screenSize.responsivePadding(16)),
+              
+              if (!_isNotificationsEnabled) ...[
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFD3DFFF)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1e3a81).withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                      vertical: screenSize.responsivePadding(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1e3a81).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.notifications_active_rounded,
+                            color: Color(0xFF1e3a81),
+                            size: 24,
+                          ),
+                        ),
+                        SizedBox(width: screenSize.responsivePadding(16)),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Push Notifications',
+                                style: kBodyTitleB.copyWith(color: kBlack),
+                              ),
+                              SizedBox(height: screenSize.responsivePadding(4)),
+                              Text(
+                                'Stay updated on offers & rewards',
+                                style: kSmallTitleL.copyWith(
+                                  color: const Color(0xFF6B7280),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch.adaptive(
+                          value: _isNotificationsEnabled,
+                          onChanged: _toggleNotifications,
+                          activeColor: const Color(0xFF1e3a81),
+                          activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                  ),
+                ).fadeSlideInFromBottom(delayMilliseconds: 150),
+                SizedBox(height: screenSize.responsivePadding(16)),
+              ],
+
               Container(
                 decoration: BoxDecoration(
                   color: kWhite,

@@ -6,7 +6,7 @@ class NotificationPermissionHelper {
   static Future<bool> requestAllPermissions(BuildContext context) async {
     final permissions = await requestUserPermissions(
       context,
-      channelKey: 'channel_connect24',
+      channelKey: 'channel_setgo',
       permissionList: [
         NotificationPermission.Alert,
         NotificationPermission.Sound,
@@ -70,74 +70,24 @@ class NotificationPermissionHelper {
       // Show a rationale to educate the user
       await showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xfffbfbfb),
-          title: const Text(
-            'Connect24 needs your permission',
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.notifications_active,
-                size: MediaQuery.of(context).size.height * 0.15,
-                color: const Color(0xFF1e3a81),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'To proceed, you need to enable the permissions above${channelKey?.isEmpty ?? true ? '' : ' on channel $channelKey'}:',
-                maxLines: 3,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 5),
-              Text(
-                lockedPermissions
-                    .join(', ')
-                    .replaceAll('NotificationPermission.', ''),
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Deny',
-                style: TextStyle(color: Colors.red, fontSize: 18),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Request the permission through native resources
-                await AwesomeNotifications().requestPermissionToSendNotifications(
-                  channelKey: channelKey,
-                  permissions: lockedPermissions,
-                );
-
-                // After the user come back, check if the permissions has successfully enabled
-                permissionsAllowed = await AwesomeNotifications().checkPermissionList(
-                  channelKey: channelKey,
-                  permissions: lockedPermissions,
-                );
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Allow',
-                style: TextStyle(
-                  color: Color(0xFF1e3a81),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
+        builder: (context) => _ModernPermissionDialog(
+          title: 'Setgo needs your permission',
+          message: 'To proceed, please enable the following permissions so you don\'t miss out on important updates.',
+          permissionList: lockedPermissions
+              .join(', ')
+              .replaceAll('NotificationPermission.', ''),
+          onAllow: () async {
+            await AwesomeNotifications().requestPermissionToSendNotifications(
+              channelKey: channelKey,
+              permissions: lockedPermissions,
+            );
+            permissionsAllowed = await AwesomeNotifications().checkPermissionList(
+              channelKey: channelKey,
+              permissions: lockedPermissions,
+            );
+            if (context.mounted) Navigator.pop(context);
+          },
+          onDeny: () => Navigator.pop(context),
         ),
       );
     }
@@ -153,55 +103,15 @@ class NotificationPermissionHelper {
     if (!isAllowed) {
       await showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xfffbfbfb),
-          title: const Text(
-            'Allow Notifications',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.notifications_outlined,
-                size: MediaQuery.of(context).size.height * 0.15,
-                color: const Color(0xFF1e3a81),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Connect24 would like to send you notifications',
-                maxLines: 2,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Don\'t Allow',
-                style: TextStyle(color: Colors.red, fontSize: 18),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                isAllowed = await AwesomeNotifications()
-                    .requestPermissionToSendNotifications();
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Allow',
-                style: TextStyle(
-                  color: Color(0xFF1e3a81),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
+        builder: (context) => _ModernPermissionDialog(
+          title: 'Allow Notifications',
+          message: 'Setgo would like to send you notifications for exclusive offers, deals, and updates.',
+          onAllow: () async {
+            isAllowed = await AwesomeNotifications()
+                .requestPermissionToSendNotifications();
+            if (context.mounted) Navigator.pop(context);
+          },
+          onDeny: () => Navigator.pop(context),
         ),
       );
     }
@@ -211,5 +121,130 @@ class NotificationPermissionHelper {
   /// Check if notifications are allowed
   static Future<bool> isNotificationAllowed() async {
     return await AwesomeNotifications().isNotificationAllowed();
+  }
+}
+
+class _ModernPermissionDialog extends StatelessWidget {
+  final String title;
+  final String message;
+  final String? permissionList;
+  final VoidCallback onAllow;
+  final VoidCallback onDeny;
+
+  const _ModernPermissionDialog({
+    required this.title,
+    required this.message,
+    this.permissionList,
+    required this.onAllow,
+    required this.onDeny,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 10,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1e3a81).withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.notifications_active_rounded,
+                color: Color(0xFF1e3a81),
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF111827),
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF6B7280),
+                height: 1.4,
+              ),
+            ),
+            if (permissionList != null && permissionList!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  permissionList!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF4B5563),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: onDeny,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      foregroundColor: const Color(0xFF6B7280),
+                    ),
+                    child: const Text(
+                      'Not Now',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: onAllow,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor: const Color(0xFF1e3a81),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Allow',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

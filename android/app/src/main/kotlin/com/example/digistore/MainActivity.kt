@@ -1,4 +1,4 @@
-package com.example.digistore
+package com.setgo
 
 import io.flutter.embedding.android.FlutterActivity
 

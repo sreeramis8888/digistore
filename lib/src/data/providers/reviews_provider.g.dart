@@ -50,7 +50,7 @@ final class ReviewsProvider
   }
 }
 
-String _$reviewsHash() => r'184fcb409557103044f2d7238fe7c0251e43ca60';
+String _$reviewsHash() => r'15dec4e59d39046b0b85a52610de9fead1083c9f';
 
 final class ReviewsFamily extends $Family
     with

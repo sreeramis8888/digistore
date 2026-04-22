@@ -10,6 +10,7 @@ import '../../main_pages/partner/partner_profile_page.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../animations/index.dart';
+import '../../../data/providers/notifications_provider.dart';
 
 class HomeAppBar extends ConsumerWidget {
   const HomeAppBar({super.key});
@@ -99,13 +100,37 @@ class HomeAppBar extends ConsumerWidget {
               Navigator.pushNamed(context, 'notifications');
             },
             scaleFactor: 1.1,
-            child: Container(
-              padding: EdgeInsets.all(screenSize.responsivePadding(10)),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: kBorder),
-              ),
-              child: SvgPicture.asset('assets/svg/bell.svg'),
+            child: Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: kBorder),
+                  ),
+                  child: SvgPicture.asset('assets/svg/bell.svg'),
+                ),
+                if (ref.watch(notificationsProvider).unreadCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: const BoxDecoration(
+                        color: kRed,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        ref.watch(notificationsProvider).unreadCount.toString(),
+                        style: const TextStyle(
+                          color: kWhite,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ).fadeIn(delayMilliseconds: 200),
         ],

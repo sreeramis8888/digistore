@@ -8,6 +8,7 @@ import '../../../data/providers/partner_provider.dart';
 import '../advanced_network_image.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../animations/index.dart';
+import '../../../data/providers/notifications_provider.dart';
 
 class PartnerHomeHeader extends ConsumerWidget {
   final ScreenSizeData screenSize;
@@ -84,15 +85,41 @@ class PartnerHomeHeader extends ConsumerWidget {
           ),
         ),
         InteractiveFeedbackButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, 'notifications');
+          },
           scaleFactor: 1.1,
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            child: const Icon(Icons.notifications_none, size: 24, color: kBlack),
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: const Icon(Icons.notifications_none, size: 24, color: kBlack),
+              ),
+              if (ref.watch(notificationsProvider).unreadCount > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: kRed,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      ref.watch(notificationsProvider).unreadCount.toString(),
+                      style: const TextStyle(
+                        color: kWhite,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ).fadeIn(delayMilliseconds: 200),
       ],

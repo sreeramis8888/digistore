@@ -163,7 +163,7 @@ class ApiProvider {
   Future<ApiResponse<Map<String, dynamic>>> put(
     String endpoint,
     Map<String, dynamic> data, {
-    bool requireAuth = false,
+    bool requireAuth = true,
   }) async {
     try {
       final headers = await _buildHeaders(requireAuth: requireAuth);

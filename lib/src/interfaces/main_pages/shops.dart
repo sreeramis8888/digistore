@@ -112,6 +112,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                 final ShopModel shop = paginated.shops[index];
                 final type = shop.businessDetails?.businessType;
                 final logo = shop.businessInfo?.businessLogo;
+                final coverImage = logo ??
+                    (shop.businessInfo?.businessImages?.isNotEmpty == true
+                        ? shop.businessInfo!.businessImages!.first
+                        : null);
 
                 String address = 'No address provided';
                 if (shop.businessDetails?.address != null) {
@@ -166,11 +170,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   rating: shop.businessInfo?.rating?.toString() ?? '0.0',
                   avatarColor: _getCategoryColor(type),
                   avatarIcon: _getCategoryIcon(type),
-                  imageUrl:
-                      logo ??
-                      (shop.businessInfo?.businessImages?.isNotEmpty == true
-                          ? shop.businessInfo!.businessImages!.first
-                          : null),
+                  logoUrl: logo,
+                  imageUrl: coverImage,
                   shop: shop,
                 ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
               },

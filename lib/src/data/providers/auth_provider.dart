@@ -11,6 +11,8 @@ import 'user_type_provider.dart';
 import 'dart:io';
 import '../models/partner_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../utils/notification_permission_helper.dart';
+import '../services/notification_service/notification_service.dart';
 
 part 'auth_provider.g.dart';
 
@@ -35,11 +37,23 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
   Future<bool> sendOtp(String phone) async {
     state = const AsyncLoading();
     try {
-      final api = ref.read(apiProvider);
-      final response = await api.post('/auth/send-otp', {
+      final notificationsAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+      String? fcmToken;
+      if (notificationsAllowed) {
+        final notifService = ref.read(notificationServiceProvider);
+        fcmToken = await notifService.getToken();
+      }
+
+      final payload = {
         'phone': phone,
         'platform': Platform.isAndroid ? 'android' : 'ios',
-      }, requireAuth: false);
+      };
+      if (fcmToken != null) {
+        payload['fcmToken'] = fcmToken;
+      }
+
+      final api = ref.read(apiProvider);
+      final response = await api.post('/auth/send-otp', payload, requireAuth: false);
 
       if (response.success && response.data?['success'] == true) {
         state = const AsyncData(null);
