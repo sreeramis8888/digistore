@@ -53,6 +53,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          TextButton(
+            onPressed: () =>
+                ref.read(notificationsProvider.notifier).markAllAsRead(),
+            child: Text(
+              'Mark all as read',
+              style: kSmallTitleB.copyWith(color: kPrimaryColor),
+            ),
+          ),
+          SizedBox(width: screenSize.responsivePadding(8)),
+        ],
       ),
       body: notificationsState.isLoading && notificationsState.notifications.isEmpty
           ? const Center(child: CircularProgressIndicator())

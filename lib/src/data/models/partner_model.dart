@@ -1,6 +1,7 @@
 import 'business_details.dart';
 import 'business_info.dart';
 import 'coverage_areas.dart';
+import 'device_model.dart';
 
 class PartnerModel {
   final String? id;
@@ -22,6 +23,7 @@ class PartnerModel {
   final PartnerDocuments? documents;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final List<DeviceModel>? devices;
 
   const PartnerModel({
     this.id,
@@ -43,6 +45,7 @@ class PartnerModel {
     this.documents,
     this.createdAt,
     this.updatedAt,
+    this.devices,
   });
 
   factory PartnerModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +77,9 @@ class PartnerModel {
       documents: json['documents'] != null ? PartnerDocuments.fromJson(json['documents'] as Map<String, dynamic>) : null,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
+      devices: json['devices'] != null
+          ? (json['devices'] as List<dynamic>).map((e) => DeviceModel.fromJson(e as Map<String, dynamic>)).toList()
+          : null,
     );
   }
 
@@ -98,6 +104,7 @@ class PartnerModel {
       'documents': documents?.toJson(),
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'devices': devices?.map((e) => e.toJson()).toList(),
     };
   }
 }

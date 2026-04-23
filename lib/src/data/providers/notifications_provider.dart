@@ -152,16 +152,17 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
     }
   }
 
-  Future<void> registerDeviceToken(String fcmToken) async {
+  Future<bool> registerDeviceToken(String fcmToken) async {
     try {
       final api = ref.read(apiProvider);
-      await api.put('/notifications/device-token', {
+      final response = await api.put('/notifications/device-token', {
         'fcmToken': fcmToken,
         'platform': Platform.isAndroid ? 'android' : 'ios',
         'appVersion': '1.0.0',
       });
+      return response.success;
     } catch (e) {
-      // Ignore
+      return false;
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'device_model.dart';
+
 class UserModel {
   final String? id;
   final String? phone;
@@ -21,6 +23,7 @@ class UserModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
+  final List<DeviceModel>? devices;
 
   const UserModel({
     this.id,
@@ -45,6 +48,7 @@ class UserModel {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.devices,
   });
 
   factory UserModel.fromJson(Map<String, dynamic>? json) {
@@ -73,6 +77,9 @@ class UserModel {
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt'])?.toLocal() : null,
+      devices: json['devices'] != null
+          ? (json['devices'] as List<dynamic>).map((e) => DeviceModel.fromJson(e as Map<String, dynamic>)).toList()
+          : null,
     );
   }
 
@@ -100,6 +107,7 @@ class UserModel {
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'deletedAt': deletedAt?.toIso8601String(),
+      'devices': devices?.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -126,6 +134,7 @@ class UserModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    List<DeviceModel>? devices,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -150,6 +159,7 @@ class UserModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      devices: devices ?? this.devices,
     );
   }
 }

@@ -25,6 +25,9 @@ class PartnerProfilePage extends ConsumerStatefulWidget {
 
 class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
   bool _isNotificationsEnabled = false;
+  bool _isTokenRegistered = false;
+  bool _isHiding = false;
+  String? _currentFcmToken;
 
   @override
   void initState() {
@@ -34,9 +37,20 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
 
   Future<void> _checkNotificationStatus() async {
     final isAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+    final notifService = ref.read(notificationServiceProvider);
+    final token = await notifService.getToken();
+    final partner = ref.read(partnerProvider);
+
+    bool isRegistered = false;
+    if (token != null && partner?.devices != null) {
+      isRegistered = partner!.devices!.any((d) => d.fcmToken == token);
+    }
+
     if (mounted) {
       setState(() {
-        _isNotificationsEnabled = isAllowed;
+        _isNotificationsEnabled = isAllowed && isRegistered;
+        _isTokenRegistered = isRegistered;
+        _currentFcmToken = token;
       });
     }
   }
@@ -45,13 +59,32 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
     if (value) {
       final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
       if (permissions) {
-        setState(() {
-          _isNotificationsEnabled = true;
-        });
         final notifService = ref.read(notificationServiceProvider);
         final token = await notifService.getToken();
         if (token != null) {
-          ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          final success = await ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          if (success && mounted) {
+            setState(() {
+              _isNotificationsEnabled = true;
+            });
+
+            await Future.delayed(const Duration(seconds: 1));
+
+            if (mounted) {
+              setState(() {
+                _isHiding = true;
+              });
+
+              await Future.delayed(const Duration(milliseconds: 600));
+
+              if (mounted) {
+                setState(() {
+                  _isTokenRegistered = true;
+                  _isHiding = false;
+                });
+              }
+            }
+          }
         }
       }
     } else {
@@ -118,75 +151,94 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
               ),
               SizedBox(height: screenSize.responsivePadding(16)),
               
-              if (!_isNotificationsEnabled) ...[
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFD3DFFF)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1e3a81).withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                switchOutCurve: Curves.easeInOutBack,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation,
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        axisAlignment: -1,
+                        child: child,
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                      vertical: screenSize.responsivePadding(12),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1e3a81).withOpacity(0.1),
-                            shape: BoxShape.circle,
+                  );
+                },
+                child: (!_isTokenRegistered && !_isHiding)
+                    ? Container(
+                        key: const ValueKey('notif_card_partner'),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          child: const Icon(
-                            Icons.notifications_active_rounded,
-                            color: Color(0xFF1e3a81),
-                            size: 24,
-                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFD3DFFF)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1e3a81).withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: screenSize.responsivePadding(16)),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenSize.responsivePadding(16),
+                            vertical: screenSize.responsivePadding(12),
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                'Push Notifications',
-                                style: kBodyTitleB.copyWith(color: kBlack),
-                              ),
-                              SizedBox(height: screenSize.responsivePadding(4)),
-                              Text(
-                                'Stay updated on offers & rewards',
-                                style: kSmallTitleL.copyWith(
-                                  color: const Color(0xFF6B7280),
-                                  fontSize: 12,
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1e3a81).withOpacity(0.1),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(
+                                  Icons.notifications_active_rounded,
+                                  color: Color(0xFF1e3a81),
+                                  size: 24,
+                                ),
+                              ),
+                              SizedBox(width: screenSize.responsivePadding(16)),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Push Notifications',
+                                      style: kBodyTitleB.copyWith(color: kBlack),
+                                    ),
+                                    SizedBox(height: screenSize.responsivePadding(4)),
+                                    Text(
+                                      'Stay updated on offers & rewards',
+                                      style: kSmallTitleL.copyWith(
+                                        color: const Color(0xFF6B7280),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch.adaptive(
+                                value: _isNotificationsEnabled,
+                                onChanged: _toggleNotifications,
+                                activeColor: const Color(0xFF1e3a81),
+                                activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
                               ),
                             ],
                           ),
                         ),
-                        Switch.adaptive(
-                          value: _isNotificationsEnabled,
-                          onChanged: _toggleNotifications,
-                          activeColor: const Color(0xFF1e3a81),
-                          activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
-                        ),
-                      ],
-                    ),
-                  ),
-                ).fadeSlideInFromBottom(delayMilliseconds: 150),
+                      ).fadeSlideInFromBottom(delayMilliseconds: 150)
+                    : const SizedBox.shrink(),
+              ),
+              if (!_isTokenRegistered && !_isHiding)
                 SizedBox(height: screenSize.responsivePadding(16)),
-              ],
 
               Container(
                 decoration: BoxDecoration(

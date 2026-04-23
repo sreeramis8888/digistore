@@ -26,6 +26,9 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool _isNotificationsEnabled = false;
+  bool _isTokenRegistered = false;
+  bool _isHiding = false;
+  String? _currentFcmToken;
 
   @override
   void initState() {
@@ -35,9 +38,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Future<void> _checkNotificationStatus() async {
     final isAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+    final notifService = ref.read(notificationServiceProvider);
+    final token = await notifService.getToken();
+    final user = ref.read(userProvider);
+
+    bool isRegistered = false;
+    if (token != null && user?.devices != null) {
+      isRegistered = user!.devices!.any((d) => d.fcmToken == token);
+    }
+
     if (mounted) {
       setState(() {
-        _isNotificationsEnabled = isAllowed;
+        _isNotificationsEnabled = isAllowed && isRegistered;
+        _isTokenRegistered = isRegistered;
+        _currentFcmToken = token;
       });
     }
   }
@@ -46,13 +60,32 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (value) {
       final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
       if (permissions) {
-        setState(() {
-          _isNotificationsEnabled = true;
-        });
         final notifService = ref.read(notificationServiceProvider);
         final token = await notifService.getToken();
         if (token != null) {
-          ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          final success = await ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          if (success && mounted) {
+            setState(() {
+              _isNotificationsEnabled = true;
+            });
+
+            await Future.delayed(const Duration(seconds: 1));
+
+            if (mounted) {
+              setState(() {
+                _isHiding = true;
+              });
+
+              await Future.delayed(const Duration(milliseconds: 600));
+
+              if (mounted) {
+                setState(() {
+                  _isTokenRegistered = true;
+                  _isHiding = false;
+                });
+              }
+            }
+          }
         }
       }
     } else {
@@ -279,75 +312,94 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               SizedBox(height: screenSize.responsivePadding(20)),
 
               // Notifications settings card
-              if (!_isNotificationsEnabled) ...[
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFD3DFFF)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1e3a81).withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                switchOutCurve: Curves.easeInOutBack,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation,
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        axisAlignment: -1,
+                        child: child,
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                      vertical: screenSize.responsivePadding(12),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1e3a81).withOpacity(0.1),
-                            shape: BoxShape.circle,
+                  );
+                },
+                child: (!_isTokenRegistered && !_isHiding)
+                    ? Container(
+                        key: const ValueKey('notif_card'),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          child: const Icon(
-                            Icons.notifications_active_rounded,
-                            color: Color(0xFF1e3a81),
-                            size: 24,
-                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFD3DFFF)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1e3a81).withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: screenSize.responsivePadding(16)),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenSize.responsivePadding(16),
+                            vertical: screenSize.responsivePadding(12),
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                'Push Notifications',
-                                style: kBodyTitleB.copyWith(color: kBlack),
-                              ),
-                              SizedBox(height: screenSize.responsivePadding(4)),
-                              Text(
-                                'Stay updated on offers & rewards',
-                                style: kSmallTitleL.copyWith(
-                                  color: const Color(0xFF6B7280),
-                                  fontSize: 12,
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1e3a81).withOpacity(0.1),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(
+                                  Icons.notifications_active_rounded,
+                                  color: Color(0xFF1e3a81),
+                                  size: 24,
+                                ),
+                              ),
+                              SizedBox(width: screenSize.responsivePadding(16)),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Push Notifications',
+                                      style: kBodyTitleB.copyWith(color: kBlack),
+                                    ),
+                                    SizedBox(height: screenSize.responsivePadding(4)),
+                                    Text(
+                                      'Stay updated on offers & rewards',
+                                      style: kSmallTitleL.copyWith(
+                                        color: const Color(0xFF6B7280),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch.adaptive(
+                                value: _isNotificationsEnabled,
+                                onChanged: _toggleNotifications,
+                                activeColor: const Color(0xFF1e3a81),
+                                activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
                               ),
                             ],
                           ),
                         ),
-                        Switch.adaptive(
-                          value: _isNotificationsEnabled,
-                          onChanged: _toggleNotifications,
-                          activeColor: const Color(0xFF1e3a81),
-                          activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
-                        ),
-                      ],
-                    ),
-                  ),
-                ).fadeSlideInFromBottom(delayMilliseconds: 150),
+                      ).fadeSlideInFromBottom(delayMilliseconds: 150)
+                    : const SizedBox.shrink(),
+              ),
+              if (!_isTokenRegistered && !_isHiding)
                 SizedBox(height: screenSize.responsivePadding(20)),
-              ],
 
               // Second Card
               Container(
