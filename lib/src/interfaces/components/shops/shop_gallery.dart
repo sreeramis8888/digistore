@@ -13,7 +13,7 @@ class ShopGallery extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (images.isEmpty) return const SizedBox();
-    
+
     final screenSize = ref.watch(screenSizeProvider);
     final displayCount = images.length > 4 ? 4 : images.length;
 
@@ -23,35 +23,42 @@ class ShopGallery extends ConsumerWidget {
         Text('Gallery', style: kBodyTitleM),
         SizedBox(height: screenSize.responsivePadding(12)),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: List.generate(displayCount, (index) {
             final isLast = index == 3 && images.length > 4;
-            return SizedBox(
-              width: screenSize.responsivePadding(75),
-              height: screenSize.responsivePadding(75),
-              child: Stack(
-                fit: StackFit.loose,
-                children: [
-                  AdvancedNetworkImage(
-                    imageUrl: images[index],
-                    fit: BoxFit.cover,
-                    borderRadius: BorderRadius.circular(8),
-                    width: screenSize.responsivePadding(75),
-                    height: screenSize.responsivePadding(75),
-                  ),
-                  if (isLast)
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.black.withOpacity(0.5),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '+${images.length - 3} more',
-                        style: kSmallTitleSB.copyWith(color: kWhite),
-                      ),
+
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index != displayCount - 1
+                    ? screenSize.responsivePadding(8)
+                    : 0,
+              ),
+              child: SizedBox(
+                width: screenSize.responsivePadding(75),
+                height: screenSize.responsivePadding(75),
+                child: Stack(
+                  children: [
+                    AdvancedNetworkImage(
+                      imageUrl: images[index],
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(8),
+                      width: screenSize.responsivePadding(75),
+                      height: screenSize.responsivePadding(75),
                     ),
-                ],
+                    if (isLast)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '+${images.length - 3} more',
+                          style: kSmallTitleSB.copyWith(color: kWhite),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             );
           }),

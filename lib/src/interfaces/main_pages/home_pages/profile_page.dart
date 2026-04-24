@@ -25,7 +25,7 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingObserver {
-  bool _isNotificationsEnabled = false;
+  bool _isNotificationsEnabled = true;
   bool _isTokenRegistered = true;
   bool _isHiding = false;
   String? _currentFcmToken;
