@@ -1,5 +1,6 @@
 import 'business_details.dart';
 import 'business_info.dart';
+import 'coverage_areas.dart';
 
 class ShopModel {
   final String? id;
@@ -44,16 +45,3 @@ class ShopModel {
   }
 }
 
-class CoverageAreas {
-  final List<String>? districts;
-  final List<String>? cities;
-
-  const CoverageAreas({this.districts, this.cities});
-
-  factory CoverageAreas.fromJson(Map<String, dynamic> json) {
-    return CoverageAreas(
-      districts: json['districts'] != null ? List<String>.from(json['districts']) : null,
-      cities: json['cities'] != null ? List<String>.from(json['cities']) : null,
-    );
-  }
-}

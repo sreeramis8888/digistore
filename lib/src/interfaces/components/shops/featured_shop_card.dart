@@ -6,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../advanced_network_image.dart';
 
-import '../../../data/models/featured_shop.dart';
+import '../../../data/models/shop_model.dart';
 
 class FeaturedShopCard extends ConsumerWidget {
-  final FeaturedShop shop;
+  final ShopModel shop;
 
   const FeaturedShopCard({super.key, required this.shop});
 
@@ -19,7 +19,7 @@ class FeaturedShopCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pushNamed('shopDetail', arguments: shop.toShopModel());
+        Navigator.of(context).pushNamed('shopDetail', arguments: shop);
       },
       child: SizedBox(
         width: screenSize.responsivePadding(76),

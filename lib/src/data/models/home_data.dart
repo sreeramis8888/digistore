@@ -2,7 +2,7 @@ import 'loyalty_card.dart';
 import 'banner_model.dart';
 import 'category_model.dart';
 import 'offer_model.dart';
-import 'featured_shop.dart';
+import 'shop_model.dart';
 import 'reward_model.dart';
 import 'partner_home_data.dart';
 
@@ -15,7 +15,7 @@ class HomeData {
   final List<OfferModel>? dealOfTheDay;
   final List<OfferModel>? dealOfTheMonth;
   final List<OfferModel>? nearbyOffers;
-  final List<FeaturedShop>? featuredShops;
+  final List<ShopModel>? featuredShops;
   final List<RewardModel>? rewardsPreview;
   final List<OfferModel>? upcomingDeals;
 
@@ -58,7 +58,7 @@ class HomeData {
           ? (json['nearbyOffers'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
           : null,
       featuredShops: json['featuredShops'] != null
-          ? (json['featuredShops'] as List).map((e) => FeaturedShop.fromJson(e as Map<String, dynamic>)).toList()
+          ? (json['featuredShops'] as List).map((e) => ShopModel.fromJson(e as Map<String, dynamic>)).toList()
           : null,
       rewardsPreview: json['rewardsPreview'] != null
           ? (json['rewardsPreview'] as List).map((e) => RewardModel.fromJson(e as Map<String, dynamic>)).toList()

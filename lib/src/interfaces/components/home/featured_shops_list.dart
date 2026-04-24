@@ -5,10 +5,10 @@ import '../../../data/router/nav_router.dart';
 import 'section_title.dart';
 import '../shops/featured_shop_card.dart';
 
-import '../../../data/models/featured_shop.dart';
+import '../../../data/models/shop_model.dart';
 
 class FeaturedShopsList extends ConsumerWidget {
-  final List<FeaturedShop>? shops;
+  final List<ShopModel>? shops;
   const FeaturedShopsList({super.key, this.shops});
 
   @override
