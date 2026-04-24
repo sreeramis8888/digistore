@@ -13,12 +13,18 @@ class LoyaltyRewardCard extends ConsumerWidget {
   final LoyaltyCard? loyaltyCard;
   const LoyaltyRewardCard({super.key, this.loyaltyCard});
 
-  void _showBenefitsDialog(BuildContext context, ScreenSizeData screenSize, bool isSilver) {
+  void _showBenefitsDialog(
+    BuildContext context,
+    ScreenSizeData screenSize,
+    bool isSilver,
+  ) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(24)),
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: screenSize.responsivePadding(24),
+        ),
         child: Container(
           decoration: BoxDecoration(
             color: kWhite,
@@ -51,14 +57,18 @@ class LoyaltyRewardCard extends ConsumerWidget {
                 child: Column(
                   children: [
                     SvgPicture.asset(
-                      isSilver ? 'assets/svg/silver_coin.svg' : 'assets/svg/gold_icon.svg',
+                      isSilver
+                          ? 'assets/svg/silver_coin.svg'
+                          : 'assets/svg/gold_icon.svg',
                       height: 60,
                     ).fadeScaleUp(),
                     SizedBox(height: screenSize.responsivePadding(16)),
                     Text(
                       '${loyaltyCard?.tier} Tier Benefits',
                       style: kSubHeadingSB.copyWith(
-                        color: isSilver ? const Color(0xFF757575) : const Color(0xFFE67E22),
+                        color: isSilver
+                            ? const Color(0xFF757575)
+                            : const Color(0xFFE67E22),
                         fontSize: 20,
                       ),
                     ).fadeIn(delayMilliseconds: 100),
@@ -70,35 +80,48 @@ class LoyaltyRewardCard extends ConsumerWidget {
                 child: Column(
                   children: [
                     if (loyaltyCard?.tierBenefits != null)
-                      ...loyaltyCard!.tierBenefits!.asMap().entries.map((entry) {
+                      ...loyaltyCard!.tierBenefits!.asMap().entries.map((
+                        entry,
+                      ) {
                         return Padding(
-                          padding: EdgeInsets.only(bottom: screenSize.responsivePadding(16)),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: isSilver ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.check_rounded,
-                                  size: 16,
-                                  color: isSilver ? const Color(0xFF2E7D32) : const Color(0xFFEF6C00),
-                                ),
-                              ),
-                              SizedBox(width: screenSize.responsivePadding(12)),
-                              Expanded(
-                                child: Text(
-                                  entry.value,
-                                  style: kSmallTitleL.copyWith(
-                                    color: kTextColor,
-                                    fontSize: 14,
+                          padding: EdgeInsets.only(
+                            bottom: screenSize.responsivePadding(16),
+                          ),
+                          child:
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: isSilver
+                                          ? const Color(0xFFE8F5E9)
+                                          : const Color(0xFFFFF3E0),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.check_rounded,
+                                      size: 16,
+                                      color: isSilver
+                                          ? const Color(0xFF2E7D32)
+                                          : const Color(0xFFEF6C00),
+                                    ),
                                   ),
-                                ),
+                                  SizedBox(
+                                    width: screenSize.responsivePadding(12),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      entry.value,
+                                      style: kSmallTitleL.copyWith(
+                                        color: kTextColor,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ).fadeSlideInFromLeft(
+                                delayMilliseconds: 200 + (entry.key * 100),
                               ),
-                            ],
-                          ).fadeSlideInFromLeft(delayMilliseconds: 200 + (entry.key * 100)),
                         );
                       }),
                     SizedBox(height: screenSize.responsivePadding(16)),
@@ -122,7 +145,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
     if (loyaltyCard == null) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
     final isSilver = loyaltyCard?.tier?.toLowerCase() == 'silver';
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -151,7 +174,9 @@ class LoyaltyRewardCard extends ConsumerWidget {
                     child: Transform.flip(
                       flipX: true,
                       child: Image.asset(
-                        isSilver ? 'assets/png/loyalty_card_silver_bg.png' : 'assets/png/loyalty_card_bg.png',
+                        isSilver
+                            ? 'assets/png/loyalty_card_silver_bg.png'
+                            : 'assets/png/loyalty_card_bg.png',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -178,7 +203,12 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Row(
                           children: [
-                            SvgPicture.asset(isSilver ? 'assets/svg/silver_coin.svg' : 'assets/svg/coin.svg', height: 24),
+                            SvgPicture.asset(
+                              isSilver
+                                  ? 'assets/svg/silver_coin.svg'
+                                  : 'assets/svg/coin.svg',
+                              height: 24,
+                            ),
                             SizedBox(width: screenSize.responsivePadding(8)),
                             Text(
                               '${loyaltyCard?.pointsBalance ?? 0} points',
@@ -191,40 +221,40 @@ class LoyaltyRewardCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: screenSize.responsivePadding(20)),
-                    Container(
-                      height: 12,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: FractionallySizedBox(
-                          widthFactor: (loyaltyCard?.pointsBalance ?? 0) /
-                              (loyaltyCard?.totalPointsEarned ?? 1000).clamp(1, double.infinity),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF4FACFD),
-                              border: Border.all(
-                                color: const Color(0xFFA8A8A8),
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: kWhite.withOpacity(0.45),
-                                  blurRadius: 2,
-                                  blurStyle: BlurStyle.outer,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                     SizedBox(height: screenSize.responsivePadding(10)),
+                    // Container(
+                    //   height: 12,
+                    //   width: double.infinity,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.white.withOpacity(0.4),
+                    //     borderRadius: BorderRadius.circular(10),
+                    //   ),
+                    //   child: Align(
+                    //     alignment: Alignment.centerLeft,
+                    //     child: FractionallySizedBox(
+                    //       widthFactor: (loyaltyCard?.pointsBalance ?? 0) /
+                    //           (loyaltyCard?.totalPointsEarned ?? 1000).clamp(1, double.infinity),
+                    //       child: Container(
+                    //         decoration: BoxDecoration(
+                    //           color: const Color(0xFF4FACFD),
+                    //           border: Border.all(
+                    //             color: const Color(0xFFA8A8A8),
+                    //             width: 1,
+                    //           ),
+                    //           borderRadius: BorderRadius.circular(10),
+                    //           boxShadow: [
+                    //             BoxShadow(
+                    //               color: kWhite.withOpacity(0.45),
+                    //               blurRadius: 2,
+                    //               blurStyle: BlurStyle.outer,
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    // SizedBox(height: screenSize.responsivePadding(10)),
                     Text(
                       'Points earned',
                       style: kSmallerTitleM.copyWith(color: kWhite),
@@ -232,7 +262,8 @@ class LoyaltyRewardCard extends ConsumerWidget {
                     SizedBox(height: screenSize.responsivePadding(10)),
                     Center(
                       child: InteractiveFeedbackButton(
-                        onPressed: () => _showBenefitsDialog(context, screenSize, isSilver),
+                        onPressed: () =>
+                            _showBenefitsDialog(context, screenSize, isSilver),
                         scaleFactor: 0.9,
                         child: Container(
                           padding: EdgeInsets.symmetric(
@@ -315,14 +346,18 @@ class LoyaltyRewardCard extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SvgPicture.asset(
-                          isSilver ? 'assets/svg/silver_coin.svg' : 'assets/svg/gold_icon.svg',
+                          isSilver
+                              ? 'assets/svg/silver_coin.svg'
+                              : 'assets/svg/gold_icon.svg',
                           height: 25,
                         ),
                         SizedBox(width: screenSize.responsivePadding(4)),
                         Text(
                           (loyaltyCard?.tier ?? 'BRONZE').toUpperCase(),
                           style: kBodyTitleSB.copyWith(
-                            color: isSilver ? const Color(0xFF757575) : const Color(0xFFE67E22),
+                            color: isSilver
+                                ? const Color(0xFF757575)
+                                : const Color(0xFFE67E22),
                           ),
                         ),
                       ],
