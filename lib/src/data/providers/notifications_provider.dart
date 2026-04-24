@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../models/app_notification_model.dart';
 import 'api_provider.dart';
+import 'user_provider.dart';
+import 'partner_provider.dart';
+import 'user_type_provider.dart';
 
 class NotificationsState {
   final List<AppNotificationModel> notifications;
@@ -160,6 +163,16 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
         'platform': Platform.isAndroid ? 'android' : 'ios',
         'appVersion': '1.0.0',
       });
+
+      if (response.success) {
+        final userType = ref.read(userTypeProvider);
+        if (userType == UserType.customer) {
+          await ref.read(userProvider.notifier).getProfile();
+        } else {
+          await ref.read(partnerProvider.notifier).getPartnerProfile();
+        }
+      }
+
       return response.success;
     } catch (e) {
       return false;

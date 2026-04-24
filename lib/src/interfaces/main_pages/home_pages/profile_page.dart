@@ -24,16 +24,30 @@ class ProfilePage extends ConsumerStatefulWidget {
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends ConsumerState<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingObserver {
   bool _isNotificationsEnabled = false;
-  bool _isTokenRegistered = false;
+  bool _isTokenRegistered = true;
   bool _isHiding = false;
   String? _currentFcmToken;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkNotificationStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkNotificationStatus();
+    }
   }
 
   Future<void> _checkNotificationStatus() async {
@@ -56,6 +70,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
+  void _syncWithProvider() {
+    final user = ref.read(userProvider);
+    if (_currentFcmToken != null && user?.devices != null) {
+      final isRegistered = user!.devices!.any((d) => d.fcmToken == _currentFcmToken);
+      if (isRegistered != _isTokenRegistered && !_isHiding) {
+        setState(() {
+          _isTokenRegistered = isRegistered;
+          if (isRegistered) _isNotificationsEnabled = true;
+        });
+      }
+    }
+  }
+
   Future<void> _toggleNotifications(bool value) async {
     if (value) {
       final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
@@ -67,6 +94,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           if (success && mounted) {
             setState(() {
               _isNotificationsEnabled = true;
+              _currentFcmToken = token;
             });
 
             await Future.delayed(const Duration(seconds: 1));
@@ -131,6 +159,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(userProvider, (previous, next) {
+      _syncWithProvider();
+    });
     final screenSize = ref.watch(screenSizeProvider);
     final user = ref.watch(userProvider);
     final name = (user?.name != null && user!.name!.isNotEmpty)
@@ -328,7 +359,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                   );
                 },
-                child: (!_isTokenRegistered && !_isHiding)
+                child: (!(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding)
                     ? Container(
                         key: const ValueKey('notif_card'),
                         decoration: BoxDecoration(
@@ -398,7 +429,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ).fadeSlideInFromBottom(delayMilliseconds: 150)
                     : const SizedBox.shrink(),
               ),
-              if (!_isTokenRegistered && !_isHiding)
+              if (!(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding)
                 SizedBox(height: screenSize.responsivePadding(20)),
 
               // Second Card
