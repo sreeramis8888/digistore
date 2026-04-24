@@ -18,8 +18,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        ref.read(notificationsProvider.notifier).fetchNotifications(refresh: true));
+    Future.microtask(
+      () => ref
+          .read(notificationsProvider.notifier)
+          .fetchNotifications(refresh: true),
+    );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
@@ -65,52 +68,55 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           SizedBox(width: screenSize.responsivePadding(8)),
         ],
       ),
-      body: notificationsState.isLoading && notificationsState.notifications.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+      body:
+          notificationsState.isLoading &&
+              notificationsState.notifications.isEmpty
+          ? Center(child: LoadingAnimation())
           : notificationsState.notifications.isEmpty
-              ? Center(
-                  child: Text(
-                    'No notifications yet',
-                    style: kSmallTitleL.copyWith(color: kSecondaryTextColor),
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () => ref
-                      .read(notificationsProvider.notifier)
-                      .fetchNotifications(refresh: true),
-                  child: ListView.separated(
-                    controller: _scrollController,
-                    padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-                    itemCount: notificationsState.notifications.length +
-                        (notificationsState.hasMore ? 1 : 0),
-                    separatorBuilder: (context, index) => _buildDivider(),
-                    itemBuilder: (context, index) {
-                      if (index == notificationsState.notifications.length) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
+          ? Center(
+              child: Text(
+                'No notifications yet',
+                style: kSmallTitleL.copyWith(color: kSecondaryTextColor),
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: () => ref
+                  .read(notificationsProvider.notifier)
+                  .fetchNotifications(refresh: true),
+              child: ListView.separated(
+                controller: _scrollController,
+                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                itemCount:
+                    notificationsState.notifications.length +
+                    (notificationsState.hasMore ? 1 : 0),
+                separatorBuilder: (context, index) => _buildDivider(),
+                itemBuilder: (context, index) {
+                  if (index == notificationsState.notifications.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Center(child: LoadingAnimation()),
+                    );
+                  }
+                  final notification = notificationsState.notifications[index];
+                  return GestureDetector(
+                    onTap: () {
+                      if (!notification.read) {
+                        ref
+                            .read(notificationsProvider.notifier)
+                            .markAsRead(notification.id);
                       }
-                      final notification = notificationsState.notifications[index];
-                      return GestureDetector(
-                        onTap: () {
-                          if (!notification.read) {
-                            ref
-                                .read(notificationsProvider.notifier)
-                                .markAsRead(notification.id);
-                          }
-                        },
-                        child: _buildNotificationItem(
-                          screenSize: screenSize,
-                          title: notification.title,
-                          time: _formatTime(notification.createdAt),
-                          description: notification.message,
-                          isUnread: !notification.read,
-                        ),
-                      );
                     },
-                  ),
-                ),
+                    child: _buildNotificationItem(
+                      screenSize: screenSize,
+                      title: notification.title,
+                      time: _formatTime(notification.createdAt),
+                      description: notification.message,
+                      isUnread: !notification.read,
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 
