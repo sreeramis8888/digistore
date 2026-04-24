@@ -19,9 +19,7 @@ class FeaturedShopCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(
-          context,
-        ).pushNamed('shopDetail', arguments: shop.businessDetails?.businessName ?? '');
+        Navigator.of(context).pushNamed('shopDetail', arguments: shop.toShopModel());
       },
       child: SizedBox(
         width: screenSize.responsivePadding(76),
