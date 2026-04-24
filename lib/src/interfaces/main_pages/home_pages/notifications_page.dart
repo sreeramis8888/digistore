@@ -1,3 +1,4 @@
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -119,7 +120,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             ),
     );
   }
-//test
+
   Widget _buildDivider() {
     return const Divider(color: Color(0xFFF0F0F0), height: 1, thickness: 1);
   }

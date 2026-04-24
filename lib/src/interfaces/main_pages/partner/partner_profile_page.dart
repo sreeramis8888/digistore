@@ -23,7 +23,8 @@ class PartnerProfilePage extends ConsumerStatefulWidget {
   ConsumerState<PartnerProfilePage> createState() => _PartnerProfilePageState();
 }
 
-class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with WidgetsBindingObserver {
+class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
+    with WidgetsBindingObserver {
   bool _isNotificationsEnabled = true;
   bool _isTokenRegistered = true;
   bool _isHiding = false;
@@ -50,7 +51,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
   }
 
   Future<void> _checkNotificationStatus() async {
-    final isAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+    final isAllowed =
+        await NotificationPermissionHelper.isNotificationAllowed();
     final notifService = ref.read(notificationServiceProvider);
     final token = await notifService.getToken();
     final partner = ref.read(partnerProvider);
@@ -72,7 +74,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
   void _syncWithProvider() {
     final partner = ref.read(partnerProvider);
     if (_currentFcmToken != null && partner?.devices != null) {
-      final isRegistered = partner!.devices!.any((d) => d.fcmToken == _currentFcmToken);
+      final isRegistered = partner!.devices!.any(
+        (d) => d.fcmToken == _currentFcmToken,
+      );
       if (isRegistered != _isTokenRegistered && !_isHiding) {
         setState(() {
           _isTokenRegistered = isRegistered;
@@ -84,12 +88,15 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
 
   Future<void> _toggleNotifications(bool value) async {
     if (value) {
-      final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
+      final permissions =
+          await NotificationPermissionHelper.requestAllPermissions(context);
       if (permissions) {
         final notifService = ref.read(notificationServiceProvider);
         final token = await notifService.getToken();
         if (token != null) {
-          final success = await ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          final success = await ref
+              .read(notificationsProvider.notifier)
+              .registerDeviceToken(token);
           if (success && mounted) {
             setState(() {
               _isNotificationsEnabled = true;
@@ -117,7 +124,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please disable notifications from system settings.')),
+        const SnackBar(
+          content: Text('Please disable notifications from system settings.'),
+        ),
       );
     }
   }
@@ -131,6 +140,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         backgroundColor: kWhite,
         elevation: 0,
         centerTitle: false,
@@ -169,7 +179,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                     screenSize: screenSize,
                     title: 'Products',
                     iconData: Icons.inventory_2_outlined,
-                    onTap: () => Navigator.pushNamed(context, 'partnerProducts'),
+                    onTap: () =>
+                        Navigator.pushNamed(context, 'partnerProducts'),
                   ),
                   SizedBox(width: screenSize.responsivePadding(12)),
                   PartnerActionCard(
@@ -181,7 +192,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                 ],
               ),
               SizedBox(height: screenSize.responsivePadding(16)),
-              
+
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
                 switchOutCurve: Curves.easeInOutBack,
@@ -198,7 +209,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                     ),
                   );
                 },
-                child: (!(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding)
+                child:
+                    (!(_isTokenRegistered && _isNotificationsEnabled) &&
+                        !_isHiding)
                     ? Container(
                         key: const ValueKey('notif_card_partner'),
                         decoration: BoxDecoration(
@@ -227,7 +240,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1e3a81).withOpacity(0.1),
+                                  color: const Color(
+                                    0xFF1e3a81,
+                                  ).withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -243,9 +258,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                                   children: [
                                     Text(
                                       'Push Notifications',
-                                      style: kBodyTitleB.copyWith(color: kBlack),
+                                      style: kBodyTitleB.copyWith(
+                                        color: kBlack,
+                                      ),
                                     ),
-                                    SizedBox(height: screenSize.responsivePadding(4)),
+                                    SizedBox(
+                                      height: screenSize.responsivePadding(4),
+                                    ),
                                     Text(
                                       'Stay updated on offers & rewards',
                                       style: kSmallTitleL.copyWith(
@@ -260,7 +279,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                                 value: _isNotificationsEnabled,
                                 onChanged: _toggleNotifications,
                                 activeColor: const Color(0xFF1e3a81),
-                                activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
+                                activeTrackColor: const Color(
+                                  0xFF1e3a81,
+                                ).withOpacity(0.3),
                               ),
                             ],
                           ),
@@ -268,7 +289,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                       ).fadeSlideInFromBottom(delayMilliseconds: 150)
                     : const SizedBox.shrink(),
               ),
-              if (!(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding)
+              if (!(_isTokenRegistered && _isNotificationsEnabled) &&
+                  !_isHiding)
                 SizedBox(height: screenSize.responsivePadding(16)),
 
               Container(
@@ -371,11 +393,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> with Wi
                 ),
                 child: PartnerMenuItem(
                   title: 'Logout',
-                  icon: const Icon(
-                    Icons.logout_rounded,
-                    color: kRed,
-                    size: 22,
-                  ),
+                  icon: const Icon(Icons.logout_rounded, color: kRed, size: 22),
                   screenSize: screenSize,
                   onTap: () async {
                     await ref.read(authProvider.notifier).logout();

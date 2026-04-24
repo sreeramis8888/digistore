@@ -158,31 +158,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   }
                 },
               ),
-              SizedBox(height: screenSize.responsivePadding(24)),
-              Text(
-                'or',
-                style: kSmallTitleL.copyWith(color: Color(0xFF808080)),
-              ),
-              SizedBox(height: screenSize.responsivePadding(24)),
-              Row(
-                children: [
-                  Expanded(
-                    child: SocialLoginButton(
-                      text: 'Login with Google',
-                      iconPath: 'assets/svg/google_logo.svg', // Fallback needed
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(width: screenSize.responsivePadding(16)),
-                  Expanded(
-                    child: SocialLoginButton(
-                      text: 'Login with Apple',
-                      iconPath: 'assets/svg/apple_logo.svg', // Fallback needed
-                      onTap: () {},
-                    ),
-                  ),
-                ],
-              ),
+              //   SizedBox(height: screenSize.responsivePadding(24)),
+              //   Text(
+              //     'or',
+              //     style: kSmallTitleL.copyWith(color: Color(0xFF808080)),
+              //   ),
+              //   SizedBox(height: screenSize.responsivePadding(24)),
+              //   Row(
+              //     children: [
+              //       Expanded(
+              //         child: SocialLoginButton(
+              //           text: 'Login with Google',
+              //           iconPath: 'assets/svg/google_logo.svg', // Fallback needed
+              //           onTap: () {},
+              //         ),
+              //       ),
+              //       SizedBox(width: screenSize.responsivePadding(16)),
+              //       Expanded(
+              //         child: SocialLoginButton(
+              //           text: 'Login with Apple',
+              //           iconPath: 'assets/svg/apple_logo.svg', // Fallback needed
+              //           onTap: () {},
+              //         ),
+              //       ),
+              //     ],
+              //   ),
             ],
           ),
         ),

@@ -57,7 +57,7 @@ dependencies:
   riverpod_annotation: ^4.0.2
   hive_flutter: ^1.1.0
   open_file: ^3.5.11
-  firebase_crashlytics: ^5.0.7
+  firebase_crashlytics: ^5.2.0 
   flutter_riverpod: ^3.2.1
   app_links: ^7.0.0
   path: ^1.9.1

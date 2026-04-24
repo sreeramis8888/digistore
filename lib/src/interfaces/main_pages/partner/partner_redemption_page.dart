@@ -20,8 +20,16 @@ class PartnerRedemptionPage extends ConsumerStatefulWidget {
 }
 
 class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
+  final FocusNode _phoneFocusNode = FocusNode();
   String phoneNumber = '';
   bool isLoading = false;
+  String? generatedOtp;
+
+  @override
+  void dispose() {
+    _phoneFocusNode.dispose();
+    super.dispose();
+  }
 
   Future<void> _generateOtp() async {
     if (phoneNumber.isEmpty) {
@@ -33,6 +41,15 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
       return;
     }
 
+    if (generatedOtp != null) {
+      Navigator.of(context).pushReplacementNamed(
+        'redemptionOtp',
+        arguments: {...widget.args, 'phone': phoneNumber},
+      );
+      return;
+    }
+
+    _phoneFocusNode.unfocus();
     setState(() {
       isLoading = true;
     });
@@ -55,16 +72,24 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
         .generateRedemptionOtp(offerId, phoneNumber);
 
     if (response.success && response.data != null) {
+      final otp = response.data!['data']?['otp']?.toString();
+      setState(() {
+        generatedOtp = otp;
+        isLoading = false;
+      });
+
       if (mounted) {
         ToastService().showToast(
           context,
           response.data!['data']['message'] ?? 'OTP sent successfully',
           type: ToastType.success,
         );
-        Navigator.of(context).pushReplacementNamed(
-          'redemptionOtp',
-          arguments: {...widget.args, 'phone': phoneNumber},
-        );
+        if (generatedOtp == null) {
+          Navigator.of(context).pushReplacementNamed(
+            'redemptionOtp',
+            arguments: {...widget.args, 'phone': phoneNumber},
+          );
+        }
       }
     } else {
       setState(() {
@@ -105,8 +130,10 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             horizontal: screenSize.responsivePadding(24),
           ),
@@ -183,6 +210,7 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
               ),
               SizedBox(height: screenSize.responsivePadding(32)),
               IntlPhoneField(
+                focusNode: _phoneFocusNode,
                 disableLengthCheck: true,
                 initialCountryCode: 'IN',
                 flagsButtonMargin: EdgeInsets.zero,
@@ -221,15 +249,44 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
               ),
               SizedBox(height: screenSize.responsivePadding(32)),
               PrimaryButton(
-                text: 'Generate OTP',
+                text: generatedOtp != null ? 'Proceed to Verify' : 'Generate OTP',
                 isLoading: isLoading,
                 onPressed: _generateOtp,
               ),
+              if (generatedOtp != null) ...[
+                SizedBox(height: screenSize.responsivePadding(16)),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kPrimaryColor.withOpacity(0.1)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Testing OTP',
+                        style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
+                      ),
+                      SizedBox(height: screenSize.responsivePadding(4)),
+                      Text(
+                        generatedOtp!,
+                        style: kLargeTitleB.copyWith(
+                          color: kPrimaryColor,
+                          letterSpacing: 4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               SizedBox(height: screenSize.responsivePadding(24)),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
