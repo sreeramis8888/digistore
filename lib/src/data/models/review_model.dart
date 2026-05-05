@@ -29,7 +29,7 @@ class ReviewModel {
       userPhoto: userData is Map ? userData['profileImage'] as String? : json['userPhoto'] as String?,
       rating: json['rating'] as num?,
       comment: json['comment'] as String?,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
     );
   }
 }

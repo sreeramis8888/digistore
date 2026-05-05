@@ -27,7 +27,7 @@ class TransactionModel {
       amount: json['amount'] as int?,
       balance: json['balance'] as int?,
       description: json['description'] as String?,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
       source: json['source'] != null ? TransactionSource.fromJson(json['source'] as Map<String, dynamic>) : null,
     );
   }

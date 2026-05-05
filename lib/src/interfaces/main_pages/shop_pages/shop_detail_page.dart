@@ -22,18 +22,10 @@ class ShopDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final currentShopName = shop?.businessDetails?.businessName ?? shopName ?? 'Unknown Shop';
-
-    final fallbackImages = const [
-      'assets/png/swinging_spoon.png',
-      'assets/png/good.png',
-      'assets/png/chill_bite.png',
-      'assets/png/vibe.png',
-    ];
-    
-    final heroImage = shop?.businessInfo?.businessLogo ?? 
-        (shop?.businessInfo?.businessImages?.isNotEmpty == true 
-            ? shop!.businessInfo!.businessImages!.first 
-            : fallbackImages[currentShopName.hashCode.abs() % fallbackImages.length]);
+    final heroImage = shop?.businessInfo?.businessLogo ??
+        (shop?.businessInfo?.businessImages?.isNotEmpty == true
+            ? shop!.businessInfo!.businessImages!.first
+            : null);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -63,10 +55,21 @@ class ShopDetailPage extends ConsumerWidget {
                 margin: EdgeInsets.only(
                   top: MediaQuery.paddingOf(context).top + kToolbarHeight,
                 ),
-                child: AdvancedNetworkImage(
-                  imageUrl: heroImage,
-                  fit: BoxFit.cover,
-                ),
+                child: heroImage != null
+                    ? AdvancedNetworkImage(
+                        imageUrl: heroImage,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        color: const Color(0xFFF0F0F0),
+                        child: const Center(
+                          child: Icon(
+                            Icons.store,
+                            size: 64,
+                            color: Color(0xFFCCCCCC),
+                          ),
+                        ),
+                      ),
               ),
             ),
           ),

@@ -12,8 +12,8 @@ class PremiumPlacement {
   factory PremiumPlacement.fromJson(Map<String, dynamic> json) {
     return PremiumPlacement(
       position: json['position'] as String?,
-      startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate']) : null,
-      endDate: json['endDate'] != null ? DateTime.tryParse(json['endDate']) : null,
+      startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate'])?.toLocal() : null,
+      endDate: json['endDate'] != null ? DateTime.tryParse(json['endDate'])?.toLocal() : null,
     );
   }
 

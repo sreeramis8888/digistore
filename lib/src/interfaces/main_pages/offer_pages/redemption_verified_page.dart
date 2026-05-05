@@ -108,7 +108,7 @@ class RedemptionVerifiedPage extends ConsumerWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-                      child: _buildDetailRow('Category', 'Daily Needs', true),
+                      child: _buildDetailRow('Category', '', true),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(

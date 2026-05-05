@@ -266,7 +266,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                                       height: screenSize.responsivePadding(4),
                                     ),
                                     Text(
-                                      'Stay updated on offers & rewards',
+                                      'Stay updated on sales & redemptions',
                                       style: kSmallTitleL.copyWith(
                                         color: const Color(0xFF6B7280),
                                         fontSize: 12,

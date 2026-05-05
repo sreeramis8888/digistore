@@ -1,3 +1,4 @@
+import 'package:digistore/src/data/router/nav_router.dart';
 import 'package:digistore/src/interfaces/animations/index.dart';
 import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import '../../data/providers/screen_size_provider.dart';
 
 import '../../data/providers/offers_provider.dart';
 import '../../data/providers/category_provider.dart';
-import '../../data/router/nav_router.dart';
 import '../components/empty_state.dart';
 import '../components/primary_button.dart';
 import 'partner/create_offer_page.dart';
@@ -25,12 +25,6 @@ class OffersPage extends ConsumerStatefulWidget {
 }
 
 class _OffersPageState extends ConsumerState<OffersPage> {
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
@@ -102,53 +96,271 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               const OffersFilterChips(),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
-                child: offersState.isLoading
-                    ? GridView.builder(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenSize.responsivePadding(16),
-                        ),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: screenSize.responsivePadding(16),
-                          crossAxisSpacing: screenSize.responsivePadding(16),
-                          childAspectRatio: aspectRatio,
-                        ),
-                        itemCount: 6,
-                        itemBuilder: (context, index) =>
-                            CardShimmers.dealCardShimmer(screenSize),
-                      )
-                    : offersState.offers.isEmpty
-                    ? EmptyState(
-                        imagePath: 'assets/png/empty_offers.png',
-                        title: GlobalVariables.isPartner
-                            ? 'No offer created yet'
-                            : 'No offers found',
-                        subtitle: GlobalVariables.isPartner
-                            ? 'You haven\'t created any offers yet. Start by creating your first deal!'
-                            : 'Check back later for exciting new deals and discounts in this category.',
-                      ).fadeIn()
-                    : GridView.builder(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenSize.responsivePadding(16),
-                        ),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: screenSize.responsivePadding(16),
-                          crossAxisSpacing: screenSize.responsivePadding(16),
-                          childAspectRatio: aspectRatio,
-                        ),
-                        itemCount: offersState.offers.length,
-                        itemBuilder: (context, index) {
-                          final o = offersState.offers[index];
-                          return DealCard.fromOffer(o).fadeSlideInFromBottom(
-                            delayMilliseconds: index * 50,
-                          );
-                        },
-                      ),
+              child: _buildBody(
+                context,
+                offersState: offersState,
+                aspectRatio: aspectRatio,
+                screenSize: screenSize,
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context, {
+    required PaginatedOffers offersState,
+    required double aspectRatio,
+    required screenSize,
+  }) {
+    // Partner view — simple grid, no split
+    if (GlobalVariables.isPartner) {
+      if (offersState.isLoading) {
+        return _shimmerGrid(screenSize, aspectRatio);
+      }
+      if (offersState.offers.isEmpty) {
+        return RefreshIndicator(
+          onRefresh: () async {
+            await ref.read(offersProvider.notifier).fetchOffers();
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: EmptyState(
+                  imagePath: 'assets/png/empty_offers.png',
+                  title: 'No offer created yet',
+                  subtitle:
+                      'You haven\'t created any offers yet. Start by creating your first deal!',
+                ).fadeIn(),
+              ),
+            ],
+          ),
+        );
+      }
+      return RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(offersProvider.notifier).fetchOffers();
+        },
+        child: _offersGrid(offersState.offers, aspectRatio, screenSize),
+      );
+    }
+
+    // Customer view — two sections
+    final hasNearby = offersState.offers.isNotEmpty;
+    final hasExplore = offersState.exploreOffers.isNotEmpty;
+    final isLoadingNearby = offersState.isLoading;
+    final isLoadingExplore = offersState.isExploreLoading;
+
+    if (isLoadingNearby && !hasNearby) {
+      return _shimmerGrid(screenSize, aspectRatio);
+    }
+
+    if (!hasNearby && !hasExplore && !isLoadingExplore) {
+      return RefreshIndicator(
+        onRefresh: () async {
+          await ref
+              .read(offersProvider.notifier)
+              .fetchOffers(categoryId: offersState.currentCategoryId);
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                imagePath: 'assets/png/empty_offers.png',
+                title: 'No offers found',
+                subtitle:
+                    'Check back later for exciting new deals and discounts in this category.',
+              ).fadeIn(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref
+            .read(offersProvider.notifier)
+            .fetchOffers(categoryId: offersState.currentCategoryId);
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+        // ── Offers Near You ──────────────────────────────────────────
+        if (hasNearby || isLoadingNearby) ...[
+          SliverToBoxAdapter(
+            child: _sectionHeader(
+              'Offers Near You',
+              screenSize,
+            ),
+          ),
+          if (isLoadingNearby && !hasNearby)
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                  childCount: 4,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (_, index) {
+                    final o = offersState.offers[index];
+                    return DealCard.fromOffer(o).fadeSlideInFromBottom(
+                      delayMilliseconds: index * 50,
+                    );
+                  },
+                  childCount: offersState.offers.length,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: screenSize.responsivePadding(24.0)),
+          ),
+        ],
+
+        // ── Explore More Offers ──────────────────────────────────────
+        SliverToBoxAdapter(
+          child: _sectionHeader('Explore More Offers', screenSize),
+        ),
+        if (isLoadingExplore && !hasExplore)
+          SliverPadding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16.0),
+            ),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                childCount: 4,
+              ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: screenSize.responsivePadding(16.0),
+                crossAxisSpacing: screenSize.responsivePadding(16.0),
+                childAspectRatio: aspectRatio,
+              ),
+            ),
+          )
+        else if (!hasExplore)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(screenSize.responsivePadding(32.0)),
+              child: Center(
+                child: Text(
+                  'No more offers to explore.',
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                ),
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16.0),
+            ),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (_, index) {
+                  final o = offersState.exploreOffers[index];
+                  return DealCard.fromOffer(o).fadeSlideInFromBottom(
+                    delayMilliseconds: index * 50,
+                  );
+                },
+                childCount: offersState.exploreOffers.length,
+              ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: screenSize.responsivePadding(16.0),
+                crossAxisSpacing: screenSize.responsivePadding(16.0),
+                childAspectRatio: aspectRatio,
+              ),
+            ),
+          ),
+
+        SliverToBoxAdapter(
+          child: SizedBox(height: screenSize.responsivePadding(24.0)),
+        ),
+      ],
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String title, screenSize) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        screenSize.responsivePadding(16.0),
+        0,
+        screenSize.responsivePadding(16.0),
+        screenSize.responsivePadding(12.0),
+      ),
+      child: Text(
+        title,
+        style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
+      ),
+    );
+  }
+
+  Widget _shimmerGrid(screenSize, double aspectRatio) {
+    return GridView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenSize.responsivePadding(16.0),
+      ),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: screenSize.responsivePadding(16.0),
+        crossAxisSpacing: screenSize.responsivePadding(16.0),
+        childAspectRatio: aspectRatio,
+      ),
+      itemCount: 6,
+      itemBuilder: (_, __) => CardShimmers.dealCardShimmer(screenSize),
+    );
+  }
+
+  Widget _offersGrid(offers, double aspectRatio, screenSize) {
+    return GridView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenSize.responsivePadding(16.0),
+      ),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: screenSize.responsivePadding(16.0),
+        crossAxisSpacing: screenSize.responsivePadding(16.0),
+        childAspectRatio: aspectRatio,
+      ),
+      itemCount: offers.length,
+      itemBuilder: (_, index) {
+        final o = offers[index];
+        return DealCard.fromOffer(o).fadeSlideInFromBottom(
+          delayMilliseconds: index * 50,
+        );
+      },
     );
   }
 }

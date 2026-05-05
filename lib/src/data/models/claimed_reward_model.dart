@@ -6,11 +6,11 @@ class ClaimedRewardModel {
   final String? publicUserId;
   final int? pointsSpent;
   final String? status;
-  final String? validUntil;
+  final DateTime? validUntil;
   final String? partnerId;
-  final String? redeemedAt;
-  final String? createdAt;
-  final String? updatedAt;
+  final DateTime? redeemedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
   final String? couponCode;
 
   const ClaimedRewardModel({
@@ -36,11 +36,11 @@ class ClaimedRewardModel {
       publicUserId: json['publicUserId'] as String?,
       pointsSpent: json['pointsSpent'] as int?,
       status: json['status'] as String?,
-      validUntil: json['validUntil'] as String?,
+      validUntil: json['validUntil'] != null ? DateTime.tryParse(json['validUntil'])?.toLocal() : null,
       partnerId: json['partnerId'] as String?,
-      redeemedAt: json['redeemedAt'] as String?,
-      createdAt: json['createdAt'] as String?,
-      updatedAt: json['updatedAt'] as String?,
+      redeemedAt: json['redeemedAt'] != null ? DateTime.tryParse(json['redeemedAt'])?.toLocal() : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
       couponCode: json['couponCode'] as String?,
     );
   }

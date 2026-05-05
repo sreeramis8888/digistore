@@ -7,7 +7,6 @@ import '../../data/constants/style_constants.dart';
 import '../../data/providers/screen_size_provider.dart';
 import '../../data/providers/rewards_provider.dart';
 import '../components/rewards/reward_card.dart';
-
 import '../components/empty_state.dart';
 
 class RewardsPage extends ConsumerStatefulWidget {
@@ -19,6 +18,11 @@ class RewardsPage extends ConsumerStatefulWidget {
 
 class _RewardsPageState extends ConsumerState<RewardsPage> {
   String? selectedCategory = 'All';
+
+  Future<void> _onRefresh() async {
+    ref.invalidate(rewardsProvider);
+    await ref.read(rewardsProvider(category: selectedCategory).future);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +45,45 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
         scrolledUnderElevation: 0,
       ),
       body: SafeArea(
-        child: rewardsAsync.when(
-          data: (paginated) {
-            if (paginated.rewards.isEmpty) {
-              return const EmptyState(
-                imagePath: 'assets/png/empty_rewards.png',
-                title: 'No rewards available',
-                subtitle:
-                    'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: rewardsAsync.when(
+            data: (paginated) {
+              if (paginated.rewards.isEmpty) {
+                return CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: const EmptyState(
+                        imagePath: 'assets/png/empty_rewards.png',
+                        title: 'No rewards available',
+                        subtitle:
+                            'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return GridView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16),
+                  crossAxisSpacing: screenSize.responsivePadding(16),
+                  childAspectRatio: aspectRatio,
+                ),
+                itemCount: paginated.rewards.length,
+                itemBuilder: (context, index) {
+                  final reward = paginated.rewards[index];
+                  return RewardCard.fromReward(reward).fadeScaleUp(
+                    delayMilliseconds: index * 50,
+                  );
+                },
               );
-            }
-            return GridView.builder(
+            },
+            loading: () => GridView.builder(
               padding: EdgeInsets.all(screenSize.responsivePadding(16)),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -59,32 +91,24 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                 crossAxisSpacing: screenSize.responsivePadding(16),
                 childAspectRatio: aspectRatio,
               ),
-              itemCount: paginated.rewards.length,
-              itemBuilder: (context, index) {
-                final reward = paginated.rewards[index];
-                return RewardCard.fromReward(reward).fadeScaleUp(
-                  delayMilliseconds: index * 50,
-                );
-              },
-            );
-          },
-          loading: () => GridView.builder(
-            padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: screenSize.responsivePadding(16),
-              crossAxisSpacing: screenSize.responsivePadding(16),
-              childAspectRatio: aspectRatio,
+              itemCount: 6,
+              itemBuilder: (context, index) =>
+                  CardShimmers.rewardCardShimmer(screenSize),
             ),
-            itemCount: 6,
-            itemBuilder: (context, index) =>
-                CardShimmers.rewardCardShimmer(screenSize),
-          ),
-          error: (e, s) => const EmptyState(
-            imagePath: 'assets/png/empty_rewards.png',
-            title: 'No rewards available',
-            subtitle:
-                'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
+            error: (e, s) => CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: const EmptyState(
+                    imagePath: 'assets/png/empty_rewards.png',
+                    title: 'No rewards available',
+                    subtitle:
+                        'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

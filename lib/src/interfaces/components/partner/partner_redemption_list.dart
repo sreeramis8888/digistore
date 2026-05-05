@@ -29,8 +29,8 @@ class PartnerRedemptionList extends StatelessWidget {
         final statusColor = isCompleted
             ? const Color(0xFF139F5A)
             : const Color(0xFFEB4335);
-        
-        final formattedDate = redemption.redeemedAt != null 
+
+        final formattedDate = redemption.redeemedAt != null
             ? DateFormat('hh:mm a, dd MMM').format(redemption.redeemedAt!)
             : 'N/A';
 
@@ -61,7 +61,8 @@ class PartnerRedemptionList extends StatelessWidget {
                       width: 50,
                       height: 50,
                       child: AdvancedNetworkImage(
-                        imageUrl: (offer?.images != null && offer!.images!.isNotEmpty)
+                        imageUrl:
+                            (offer?.images != null && offer!.images!.isNotEmpty)
                             ? offer.images![0]
                             : '',
                         fit: BoxFit.cover,

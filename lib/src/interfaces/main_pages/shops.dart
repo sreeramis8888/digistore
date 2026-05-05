@@ -11,8 +11,6 @@ import '../../data/models/shop_model.dart';
 import '../../data/utils/location_utils.dart';
 import '../components/shops/shop_grid_card.dart';
 
-import '../components/empty_state.dart';
-
 class ShopsPage extends ConsumerStatefulWidget {
   const ShopsPage({super.key});
 
@@ -22,6 +20,26 @@ class ShopsPage extends ConsumerStatefulWidget {
 
 class _ShopsPageState extends ConsumerState<ShopsPage> {
   final Map<String, String> _distanceCache = {};
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(allShopsProvider.notifier).loadMore();
+    }
+  }
 
   Color _getCategoryColor(String? type) {
     switch (type) {
@@ -65,6 +83,76 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     }
   }
 
+  Widget _buildShopCard(
+    ShopModel shop,
+    int index,
+    double? userLat,
+    double? userLng,
+    screenSize,
+  ) {
+    final type = shop.businessDetails?.businessType;
+    final logo = shop.businessInfo?.businessLogo;
+    final coverImage = logo ??
+        (shop.businessInfo?.businessImages?.isNotEmpty == true
+            ? shop.businessInfo!.businessImages!.first
+            : null);
+
+    String address = 'No address provided';
+    if (shop.businessDetails?.address != null) {
+      address = shop.businessDetails!.address!;
+      if (shop.businessDetails?.pincode != null) {
+        address += ', ${shop.businessDetails!.pincode}';
+      }
+    } else if (shop.businessInfo?.storeLocation?.address != null) {
+      address = shop.businessInfo!.storeLocation!.address!;
+    }
+
+    String distance = '0 km';
+    final shopId = shop.id ?? index.toString();
+    final shopCoords = shop.businessInfo?.storeLocation?.coordinates;
+
+    if (_distanceCache.containsKey(shopId)) {
+      distance = _distanceCache[shopId]!;
+    } else if (userLat != null &&
+        userLng != null &&
+        shopCoords != null &&
+        shopCoords.length >= 2) {
+      final straightLineDistance = LocationUtils.calculateDistance(
+        userLat,
+        userLng,
+        shopCoords[1],
+        shopCoords[0],
+      );
+      distance = '${straightLineDistance.toStringAsFixed(1)} km';
+
+      LocationUtils.calculateRoadDistance(
+        fromLat: userLat,
+        fromLng: userLng,
+        toLat: shopCoords[1],
+        toLng: shopCoords[0],
+      ).then((roadDistance) {
+        if (mounted) {
+          setState(() {
+            _distanceCache[shopId] = '${roadDistance.toStringAsFixed(1)} km';
+          });
+        }
+      });
+    }
+
+    return ShopGridCard(
+      category: shop.serviceCategories?.first ?? 'Other',
+      shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
+      address: address,
+      distance: distance,
+      rating: shop.businessInfo?.rating?.toString() ?? '0.0',
+      avatarColor: _getCategoryColor(type),
+      avatarIcon: _getCategoryIcon(type),
+      logoUrl: logo,
+      imageUrl: coverImage,
+      shop: shop,
+    ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
@@ -72,7 +160,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     final itemHeight = screenSize.responsivePadding(230);
     final aspectRatio = itemWidth / itemHeight;
 
-    final shopsAsync = ref.watch(shopsProvider());
+    final nearbyState = ref.watch(shopsProvider);
+    final exploreState = ref.watch(allShopsProvider);
     final user = ref.watch(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
@@ -89,113 +178,207 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
         scrolledUnderElevation: 0,
       ),
       body: SafeArea(
-        child: shopsAsync.when(
-          data: (paginated) {
-            if (paginated.shops.isEmpty) {
-              return const EmptyState(
-                imagePath: 'assets/png/empty_shops.png',
-                title: 'No shops found',
-                subtitle:
-                    'We couldn\'t find any shops in your area. Try a different category or change your location.',
-              );
-            }
-            return GridView.builder(
-              padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(16),
-                crossAxisSpacing: screenSize.responsivePadding(16),
-                childAspectRatio: aspectRatio,
-              ),
-              itemCount: paginated.shops.length,
-              itemBuilder: (context, index) {
-                final ShopModel shop = paginated.shops[index];
-                final type = shop.businessDetails?.businessType;
-                final logo = shop.businessInfo?.businessLogo;
-                final coverImage = logo ??
-                    (shop.businessInfo?.businessImages?.isNotEmpty == true
-                        ? shop.businessInfo!.businessImages!.first
-                        : null);
-
-                String address = 'No address provided';
-                if (shop.businessDetails?.address != null) {
-                  address = shop.businessDetails!.address!;
-                  if (shop.businessDetails?.pincode != null) {
-                    address += ', ${shop.businessDetails!.pincode}';
-                  }
-                } else if (shop.businessInfo?.storeLocation?.address != null) {
-                  address = shop.businessInfo!.storeLocation!.address!;
-                }
-
-                String distance = '0 km';
-                final shopId = shop.id ?? index.toString();
-                final shopCoords =
-                    shop.businessInfo?.storeLocation?.coordinates;
-
-                if (_distanceCache.containsKey(shopId)) {
-                  distance = _distanceCache[shopId]!;
-                } else if (userLat != null &&
-                    userLng != null &&
-                    shopCoords != null &&
-                    shopCoords.length >= 2) {
-                  final straightLineDistance = LocationUtils.calculateDistance(
-                    userLat,
-                    userLng,
-                    shopCoords[1],
-                    shopCoords[0],
-                  );
-                  distance = '${straightLineDistance.toStringAsFixed(1)} km';
-
-                  LocationUtils.calculateRoadDistance(
-                    fromLat: userLat,
-                    fromLng: userLng,
-                    toLat: shopCoords[1],
-                    toLng: shopCoords[0],
-                  ).then((roadDistance) {
-                    if (mounted) {
-                      setState(() {
-                        _distanceCache[shopId] =
-                            '${roadDistance.toStringAsFixed(1)} km';
-                      });
-                    }
-                  });
-                }
-
-                return ShopGridCard(
-                  category: shop.serviceCategories?.first ?? 'Other',
-                  shopName:
-                      shop.businessDetails?.businessName ?? 'Unnamed Shop',
-                  address: address,
-                  distance: distance,
-                  rating: shop.businessInfo?.rating?.toString() ?? '0.0',
-                  avatarColor: _getCategoryColor(type),
-                  avatarIcon: _getCategoryIcon(type),
-                  logoUrl: logo,
-                  imageUrl: coverImage,
-                  shop: shop,
-                ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
-              },
-            );
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.read(shopsProvider.notifier).refresh();
+            await ref.read(allShopsProvider.notifier).refresh();
           },
-          loading: () => GridView.builder(
-            padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: screenSize.responsivePadding(16),
-              crossAxisSpacing: screenSize.responsivePadding(16),
-              childAspectRatio: aspectRatio,
-            ),
-            itemCount: 6,
-            itemBuilder: (context, index) =>
-                CardShimmers.shopCardShimmer(screenSize),
-          ),
-          error: (e, s) => const EmptyState(
-            imagePath: 'assets/png/empty_shops.png',
-            title: 'No shops found',
-            subtitle:
-                'We couldn\'t find any shops in your area. Try a different category or change your location.',
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // ── Shops Nearby ─────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: _sectionHeader('Shops Nearby', screenSize),
+              ),
+              if (nearbyState.isLoading)
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                  ),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, __) => CardShimmers.shopCardShimmer(screenSize),
+                      childCount: 4,
+                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: screenSize.responsivePadding(16),
+                      crossAxisSpacing: screenSize.responsivePadding(16),
+                      childAspectRatio: aspectRatio,
+                    ),
+                  ),
+                )
+              else if (nearbyState.error != null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                      vertical: screenSize.responsivePadding(8),
+                    ),
+                    child: Text(
+                      'Could not load nearby shops.',
+                      style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                    ),
+                  ),
+                )
+              else if (nearbyState.shops.isEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                      vertical: screenSize.responsivePadding(8),
+                    ),
+                    child: Text(
+                      'No shops found near your location.',
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                  ),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, index) => _buildShopCard(
+                        nearbyState.shops[index],
+                        index,
+                        userLat,
+                        userLng,
+                        screenSize,
+                      ),
+                      childCount: nearbyState.shops.length,
+                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: screenSize.responsivePadding(16),
+                      crossAxisSpacing: screenSize.responsivePadding(16),
+                      childAspectRatio: aspectRatio,
+                    ),
+                  ),
+                ),
+
+              SliverToBoxAdapter(
+                child: SizedBox(height: screenSize.responsivePadding(24)),
+              ),
+
+              // ── Explore More Shops ────────────────────────────────────
+              SliverToBoxAdapter(
+                child: _sectionHeader('Explore More Shops', screenSize),
+              ),
+              if (exploreState.isLoading)
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                  ),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, __) => CardShimmers.shopCardShimmer(screenSize),
+                      childCount: 4,
+                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: screenSize.responsivePadding(16),
+                      crossAxisSpacing: screenSize.responsivePadding(16),
+                      childAspectRatio: aspectRatio,
+                    ),
+                  ),
+                )
+              else if (exploreState.error != null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(screenSize.responsivePadding(32)),
+                    child: Center(
+                      child: Text(
+                        'Could not load shops.',
+                        style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                      ),
+                    ),
+                  ),
+                )
+              else ...[
+                () {
+                  final nearbyIds = nearbyState.shops.map((s) => s.id).toSet();
+                  final exploreShops = exploreState.shops
+                      .where((s) => !nearbyIds.contains(s.id))
+                      .toList();
+
+                  if (exploreShops.isEmpty) {
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.all(screenSize.responsivePadding(32)),
+                        child: Center(
+                          child: Text(
+                            'No more shops to explore.',
+                            style: kSmallerTitleL.copyWith(
+                              color: kSecondaryTextColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                    ),
+                    sliver: SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                        (_, index) => _buildShopCard(
+                          exploreShops[index],
+                          index,
+                          userLat,
+                          userLng,
+                          screenSize,
+                        ),
+                        childCount: exploreShops.length,
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: screenSize.responsivePadding(16),
+                        crossAxisSpacing: screenSize.responsivePadding(16),
+                        childAspectRatio: aspectRatio,
+                      ),
+                    ),
+                  );
+                }(),
+                if (exploreState.isLoadingMore)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
+              ],
+
+              SliverToBoxAdapter(
+                child: SizedBox(height: screenSize.responsivePadding(24)),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String title, screenSize) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        screenSize.responsivePadding(16.0),
+        screenSize.responsivePadding(8.0),
+        screenSize.responsivePadding(16.0),
+        screenSize.responsivePadding(12.0),
+      ),
+      child: Text(
+        title,
+        style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
       ),
     );
   }

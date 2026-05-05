@@ -9,97 +9,104 @@ part of 'shops_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(shops)
-final shopsProvider = ShopsFamily._();
+@ProviderFor(Shops)
+final shopsProvider = ShopsProvider._();
 
-final class ShopsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<PaginatedShops>,
-          PaginatedShops,
-          FutureOr<PaginatedShops>
-        >
-    with $FutureModifier<PaginatedShops>, $FutureProvider<PaginatedShops> {
-  ShopsProvider._({
-    required ShopsFamily super.from,
-    required ({String? category, String? search, int page, int limit})
-    super.argument,
-  }) : super(
-         retry: null,
-         name: r'shopsProvider',
-         isAutoDispose: false,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
+final class ShopsProvider extends $NotifierProvider<Shops, ShopsState> {
+  ShopsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shopsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$shopsHash();
 
-  @override
-  String toString() {
-    return r'shopsProvider'
-        ''
-        '$argument';
-  }
-
   @$internal
   @override
-  $FutureProviderElement<PaginatedShops> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  Shops create() => Shops();
 
-  @override
-  FutureOr<PaginatedShops> create(Ref ref) {
-    final argument =
-        this.argument
-            as ({String? category, String? search, int page, int limit});
-    return shops(
-      ref,
-      category: argument.category,
-      search: argument.search,
-      page: argument.page,
-      limit: argument.limit,
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShopsState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShopsState>(value),
     );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ShopsProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
   }
 }
 
-String _$shopsHash() => r'd7837f4400e88835cca5b44edefc1f5f565c2274';
+String _$shopsHash() => r'0da796440f71f6764222c53af3cd613359c812dc';
 
-final class ShopsFamily extends $Family
-    with
-        $FunctionalFamilyOverride<
-          FutureOr<PaginatedShops>,
-          ({String? category, String? search, int page, int limit})
-        > {
-  ShopsFamily._()
+abstract class _$Shops extends $Notifier<ShopsState> {
+  ShopsState build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<ShopsState, ShopsState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ShopsState, ShopsState>,
+              ShopsState,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(AllShops)
+final allShopsProvider = AllShopsProvider._();
+
+final class AllShopsProvider extends $NotifierProvider<AllShops, ShopsState> {
+  AllShopsProvider._()
     : super(
+        from: null,
+        argument: null,
         retry: null,
-        name: r'shopsProvider',
+        name: r'allShopsProvider',
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: false,
       );
 
-  ShopsProvider call({
-    String? category,
-    String? search,
-    int page = 1,
-    int limit = 20,
-  }) => ShopsProvider._(
-    argument: (category: category, search: search, page: page, limit: limit),
-    from: this,
-  );
-
   @override
-  String toString() => r'shopsProvider';
+  String debugGetCreateSourceHash() => _$allShopsHash();
+
+  @$internal
+  @override
+  AllShops create() => AllShops();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShopsState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShopsState>(value),
+    );
+  }
+}
+
+String _$allShopsHash() => r'b940d1cbc95822f414b694eaebacc79ff3428ea1';
+
+abstract class _$AllShops extends $Notifier<ShopsState> {
+  ShopsState build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<ShopsState, ShopsState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ShopsState, ShopsState>,
+              ShopsState,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
 }

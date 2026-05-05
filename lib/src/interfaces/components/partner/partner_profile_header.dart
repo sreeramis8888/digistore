@@ -15,10 +15,11 @@ class PartnerProfileHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final partner = ref.watch(partnerProvider);
-    final businessName = partner?.businessDetails?.businessName ?? 'Partners Shop';
+    final businessName =
+        partner?.businessDetails?.businessName ?? 'Partners Shop';
     final location = partner?.businessDetails?.address ?? 'Location';
     final logo = partner?.businessInfo?.businessLogo;
-    final tagline = partner?.businessInfo?.tagline ?? 'Daily Needs';
+    final tagline = partner?.businessInfo?.tagline ?? '';
 
     return Container(
       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
@@ -62,23 +63,27 @@ class PartnerProfileHeader extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: kPrimaryLightColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        tagline,
-                        style: kSmallTitleL.copyWith(
-                          fontSize: 10,
-                          color: kSecondaryColor,
+                    if (tagline.isNotEmpty &&
+                        tagline.toLowerCase() != '' &&
+                        tagline.toLowerCase() != 'null') ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: kPrimaryLightColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          tagline,
+                          style: kSmallTitleL.copyWith(
+                            fontSize: 10,
+                            color: kSecondaryColor,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),

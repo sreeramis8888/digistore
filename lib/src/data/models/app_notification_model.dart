@@ -19,7 +19,7 @@ class AppNotificationModel {
       title: json['title'] ?? '',
       message: json['message'] ?? json['body'] ?? '',
       read: json['read'] ?? false,
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '')?.toLocal() ?? DateTime.now(),
     );
   }
 }

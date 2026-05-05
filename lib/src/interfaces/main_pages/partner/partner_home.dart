@@ -96,32 +96,36 @@ class PartnerHomePage extends ConsumerWidget {
                             SizedBox(height: screenSize.responsivePadding(16)),
                             PartnerQuickActions(screenSize: screenSize),
                             SizedBox(height: screenSize.responsivePadding(24)),
-                            Text(
-                              "Recently Uploaded Offers",
-                              style: kSmallTitleB.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                            if (data.recentOffers != null && data.recentOffers!.isNotEmpty) ...[
+                              Text(
+                                "Recently Uploaded Offers",
+                                style: kSmallTitleB.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(16)),
-                            PartnerRecentOffers(
-                              screenSize: screenSize,
-                              offers: data.recentOffers,
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(24)),
-                            Text(
-                              "Uploaded Products",
-                              style: kSmallTitleB.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                              SizedBox(height: screenSize.responsivePadding(16)),
+                              PartnerRecentOffers(
+                                screenSize: screenSize,
+                                offers: data.recentOffers,
                               ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(16)),
-                            PartnerUploadedProducts(
-                              screenSize: screenSize,
-                              products: data.recentProducts,
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(40)),
+                              SizedBox(height: screenSize.responsivePadding(24)),
+                            ],
+                            if (data.recentProducts != null && data.recentProducts!.isNotEmpty) ...[
+                              Text(
+                                "Uploaded Products",
+                                style: kSmallTitleB.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(height: screenSize.responsivePadding(16)),
+                              PartnerUploadedProducts(
+                                screenSize: screenSize,
+                                products: data.recentProducts,
+                              ),
+                              SizedBox(height: screenSize.responsivePadding(40)),
+                            ],
                           ],
                         ),
                     );

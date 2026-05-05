@@ -17,6 +17,12 @@ class PaginatedOffers {
   final String? error;
   final String? currentCategoryId;
 
+  // Explore (no-location) section
+  final List<OfferModel> exploreOffers;
+  final int explorePage;
+  final int exploreTotalPages;
+  final bool isExploreLoading;
+
   const PaginatedOffers({
     required this.offers,
     required this.page,
@@ -25,6 +31,10 @@ class PaginatedOffers {
     this.isLoading = false,
     this.error,
     this.currentCategoryId,
+    this.exploreOffers = const [],
+    this.explorePage = 1,
+    this.exploreTotalPages = 0,
+    this.isExploreLoading = false,
   });
 
   const PaginatedOffers.empty()
@@ -34,7 +44,11 @@ class PaginatedOffers {
       totalCount = 0,
       isLoading = false,
       error = null,
-      currentCategoryId = null;
+      currentCategoryId = null,
+      exploreOffers = const [],
+      explorePage = 1,
+      exploreTotalPages = 0,
+      isExploreLoading = false;
 
   PaginatedOffers copyWith({
     List<OfferModel>? offers,
@@ -44,6 +58,10 @@ class PaginatedOffers {
     bool? isLoading,
     String? error,
     String? currentCategoryId,
+    List<OfferModel>? exploreOffers,
+    int? explorePage,
+    int? exploreTotalPages,
+    bool? isExploreLoading,
   }) {
     return PaginatedOffers(
       offers: offers ?? this.offers,
@@ -53,6 +71,10 @@ class PaginatedOffers {
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       currentCategoryId: currentCategoryId ?? this.currentCategoryId,
+      exploreOffers: exploreOffers ?? this.exploreOffers,
+      explorePage: explorePage ?? this.explorePage,
+      exploreTotalPages: exploreTotalPages ?? this.exploreTotalPages,
+      isExploreLoading: isExploreLoading ?? this.isExploreLoading,
     );
   }
 }
@@ -109,7 +131,7 @@ class Offers extends _$Offers {
             .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        state = PaginatedOffers(
+        state = state.copyWith(
           offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
           page: pagination['page'] as int? ?? 1,
           totalPages: pagination['pages'] as int? ?? 1,
@@ -123,6 +145,66 @@ class Offers extends _$Offers {
     } catch (e, stack) {
       log('Error fetching offers: $e', stackTrace: stack);
       state = state.copyWith(isLoading: false, error: 'Parsing error: $e');
+    }
+
+    // Also refresh explore offers in parallel when doing a full refresh
+    if (isRefresh) {
+      _fetchExploreOffers(categoryId: categoryId);
+    }
+  }
+
+  Future<void> _fetchExploreOffers({
+    String? categoryId,
+    bool isRefresh = true,
+  }) async {
+    state = state.copyWith(isExploreLoading: true);
+
+    try {
+      final api = ref.read(apiProvider);
+      final user = ref.read(userProvider);
+
+      // No lat/lng — fetch all offers regardless of location
+      final queryParams = <String, String>{
+        'page': isRefresh ? '1' : (state.explorePage + 1).toString(),
+        'limit': '20',
+      };
+
+      if (categoryId != null && categoryId != 'All' && categoryId.isNotEmpty) {
+        queryParams['category'] = categoryId;
+      }
+
+      if (user?.currentTier?.name != null) {
+        queryParams['tier'] = user!.currentTier!.name!;
+      }
+
+      final response = await api.get('/offers', queryParams: queryParams);
+
+      if (response.success && response.data != null) {
+        final List<dynamic> data = response.data!['data'] as List<dynamic>;
+        final pagination = response.data!['pagination'];
+        final newOffers = data
+            .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        // Exclude offers already shown in the nearby section
+        final nearbyIds = state.offers.map((o) => o.id).toSet();
+        final filteredOffers =
+            newOffers.where((o) => !nearbyIds.contains(o.id)).toList();
+
+        state = state.copyWith(
+          exploreOffers: isRefresh
+              ? filteredOffers
+              : [...state.exploreOffers, ...filteredOffers],
+          explorePage: pagination['page'] as int? ?? 1,
+          exploreTotalPages: pagination['pages'] as int? ?? 1,
+          isExploreLoading: false,
+        );
+      } else {
+        state = state.copyWith(isExploreLoading: false);
+      }
+    } catch (e, stack) {
+      log('Error fetching explore offers: $e', stackTrace: stack);
+      state = state.copyWith(isExploreLoading: false);
     }
   }
 

@@ -166,7 +166,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         _shopAddressCtrl.text = result['localBody'] as String;
         _lat = result['lat'] as double;
         _lng = result['lng'] as double;
-        _mapLocationCtrl.text = '${_locationCtrl.text}, ${_shopAddressCtrl.text}';
+        _mapLocationCtrl.text =
+            '${_locationCtrl.text}, ${_shopAddressCtrl.text}';
       });
     }
   }
@@ -203,15 +204,17 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       cropRatio: field == 'logo'
           ? const CropAspectRatio(ratioX: 1, ratioY: 1)
           : field == 'cover'
-              ? const CropAspectRatio(ratioX: 16, ratioY: 9)
-              : null,
+          ? const CropAspectRatio(ratioX: 16, ratioY: 9)
+          : null,
       showDocument: false,
     );
 
     if (result is XFile) {
       File originalFile = File(result.path);
-      File compressedFile = await img_service.compressImageIfNeeded(originalFile);
-      
+      File compressedFile = await img_service.compressImageIfNeeded(
+        originalFile,
+      );
+
       setState(() {
         if (field == 'logo') {
           _pickedLogo = compressedFile;
@@ -528,12 +531,13 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         child: Row(
           children: [
             SizedBox(
-              width: 80,
+              width: 65,
               child: Text(
                 day,
                 style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
               ),
             ),
+            const SizedBox(width: 12),
             if (isOpen) ...[
               Expanded(
                 child: GestureDetector(
@@ -548,23 +552,39 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             dialBackgroundColor: kField,
                             dialHandColor: kPrimaryColor,
                             dialTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kWhite
+                                  : kTextColor,
                             ),
                             hourMinuteColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kField,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kPrimaryColor
+                                  : kField,
                             ),
                             hourMinuteTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kWhite
+                                  : kTextColor,
                             ),
                             dayPeriodColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kPrimaryLightColor : kField,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kPrimaryLightColor
+                                  : kField,
                             ),
                             dayPeriodTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kSecondaryTextColor,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kPrimaryColor
+                                  : kSecondaryTextColor,
                             ),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            hourMinuteShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            dayPeriodShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            hourMinuteShape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            dayPeriodShape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             entryModeIconColor: kPrimaryColor,
                           ),
                           colorScheme: const ColorScheme.light(
@@ -574,7 +594,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             onSurface: kTextColor,
                           ),
                           textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(foregroundColor: kPrimaryColor),
+                            style: TextButton.styleFrom(
+                              foregroundColor: kPrimaryColor,
+                            ),
                           ),
                         ),
                         child: child!,
@@ -587,7 +609,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                      color: kWhite,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     alignment: Alignment.center,
@@ -600,7 +622,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: GestureDetector(
                   onTap: () async {
@@ -614,23 +636,39 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             dialBackgroundColor: kField,
                             dialHandColor: kPrimaryColor,
                             dialTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kWhite
+                                  : kTextColor,
                             ),
                             hourMinuteColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kField,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kPrimaryColor
+                                  : kField,
                             ),
                             hourMinuteTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kWhite : kTextColor,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kWhite
+                                  : kTextColor,
                             ),
                             dayPeriodColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kPrimaryLightColor : kField,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kPrimaryLightColor
+                                  : kField,
                             ),
                             dayPeriodTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected) ? kPrimaryColor : kSecondaryTextColor,
+                              (s) => s.contains(WidgetState.selected)
+                                  ? kPrimaryColor
+                                  : kSecondaryTextColor,
                             ),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            hourMinuteShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            dayPeriodShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            hourMinuteShape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            dayPeriodShape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             entryModeIconColor: kPrimaryColor,
                           ),
                           colorScheme: const ColorScheme.light(
@@ -640,7 +678,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             onSurface: kTextColor,
                           ),
                           textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(foregroundColor: kPrimaryColor),
+                            style: TextButton.styleFrom(
+                              foregroundColor: kPrimaryColor,
+                            ),
                           ),
                         ),
                         child: child!,
@@ -653,7 +693,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                      color: kWhite,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     alignment: Alignment.center,
@@ -675,12 +715,12 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               const Expanded(child: SizedBox()),
             ],
-            const SizedBox(width: 16),
-            SizedBox(
-              height: 24,
+            const SizedBox(width: 12),
+            Transform.scale(
+              scale: 0.75,
               child: CupertinoSwitch(
                 value: isOpen,
                 onChanged: (v) => _updateDayStatus(day, isOpen: v),
@@ -696,12 +736,13 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         child: Row(
           children: [
             SizedBox(
-              width: 100,
+              width: 85,
               child: Text(
                 day,
                 style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
               ),
             ),
+            const SizedBox(width: 12),
             if (isOpen) ...[
               Expanded(
                 child: Center(
@@ -957,7 +998,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             ],
                           ),
                         ),
-
+                        SizedBox(height: screenSize.responsivePadding(32)),
                         Container(
                           margin: const EdgeInsets.only(bottom: 24),
                           decoration: BoxDecoration(
@@ -985,6 +1026,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 height: 1,
                                 thickness: 1,
                                 color: Color(0xFFF3F4F6),
+                                indent: 16,
+                                endIndent: 16,
                               ),
                               if (isEditMode) ...[
                                 Padding(
@@ -994,11 +1037,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     controller: _mobileCtrl,
                                     readOnly: true,
                                   ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
@@ -1011,11 +1049,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 _buildReadOnlyRow(
                                   'Mobile Number',
                                   _mobileCtrl.text,
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
                                 ),
                                 _buildReadOnlyRow(
                                   'Location',
@@ -1053,6 +1086,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 height: 1,
                                 thickness: 1,
                                 color: Color(0xFFF3F4F6),
+                                indent: 16,
+                                endIndent: 16,
                               ),
                               if (isEditMode) ...[
                                 Padding(
@@ -1061,11 +1096,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     label: 'Shop Name',
                                     controller: _shopNameCtrl,
                                   ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
@@ -1079,22 +1109,12 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     ),
                                   ),
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: PrimaryTextField(
                                     label: 'Contact Number',
                                     controller: _contactNumCtrl,
                                   ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
@@ -1103,11 +1123,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     controller: _whatsappCtrl,
                                   ),
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: PrimaryTextField(
@@ -1115,22 +1130,12 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     controller: _shopAddressCtrl,
                                   ),
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: PrimaryTextField(
                                     label: 'Pincode',
                                     controller: _pincodeCtrl,
                                   ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(16),
@@ -1155,59 +1160,24 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   'Shop Name',
                                   _shopNameCtrl.text,
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow(
                                   'Category',
                                   _categoryCtrl.text,
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
                                 ),
                                 _buildReadOnlyRow(
                                   'Contact Number',
                                   _contactNumCtrl.text,
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow(
                                   'WhatsApp Number',
                                   _whatsappCtrl.text,
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow('PAN Number', _panCtrl.text),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow(
                                   'Shop Address',
                                   _shopAddressCtrl.text,
                                 ),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow('Pincode', _pincodeCtrl.text),
-                                const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF3F4F6),
-                                ),
                                 _buildReadOnlyRow(
                                   'Google Map Location',
                                   _mapLocationCtrl.text,
@@ -1521,24 +1491,29 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                               ),
 
                               _buildSectionHeader('Working Hours'),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: isEditMode
-                                      ? const Color(0xFFFFF7F7)
-                                      : Colors
-                                            .transparent, // faint background not quite visible in image, let's keep transparent as there is none.
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                                child: Column(
-                                  children: [
-                                    _buildWorkingHourRow('Monday'),
-                                    _buildWorkingHourRow('Tuesday'),
-                                    _buildWorkingHourRow('Wednesday'),
-                                    _buildWorkingHourRow('Thursday'),
-                                    _buildWorkingHourRow('Friday'),
-                                    _buildWorkingHourRow('Saturday'),
-                                    _buildWorkingHourRow('Sunday'),
-                                  ],
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: isEditMode
+                                        ? const Color(0xFFFFF7F7)
+                                        : Colors.transparent,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      _buildWorkingHourRow('Monday'),
+                                      _buildWorkingHourRow('Tuesday'),
+                                      _buildWorkingHourRow('Wednesday'),
+                                      _buildWorkingHourRow('Thursday'),
+                                      _buildWorkingHourRow('Friday'),
+                                      _buildWorkingHourRow('Saturday'),
+                                      _buildWorkingHourRow('Sunday'),
+                                    ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),

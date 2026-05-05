@@ -84,13 +84,13 @@ class RedemptionModel {
       otpVerified: json['otpVerified'] as bool?,
       initiatedBy: json['initiatedBy'] as String?,
       redeemedAt: json['redeemedAt'] != null
-          ? DateTime.tryParse(json['redeemedAt'])
+          ? DateTime.tryParse(json['redeemedAt'])?.toLocal()
           : null,
       createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
+          ? DateTime.tryParse(json['createdAt'])?.toLocal()
           : null,
       updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'])
+          ? DateTime.tryParse(json['updatedAt'])?.toLocal()
           : null,
       hasReview: json['hasReview'] as bool?,
     );

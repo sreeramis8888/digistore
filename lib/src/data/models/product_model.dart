@@ -67,10 +67,10 @@ class ProductModel {
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isActive: json['isActive'] as bool?,
       createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
+          ? DateTime.tryParse(json['createdAt'])?.toLocal()
           : null,
       updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'])
+          ? DateTime.tryParse(json['updatedAt'])?.toLocal()
           : null,
     );
   }

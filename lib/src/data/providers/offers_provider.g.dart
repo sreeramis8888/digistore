@@ -40,7 +40,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
   }
 }
 
-String _$offersHash() => r'ec21229ebfe6b615168e497e0aafb956f5f9d44f';
+String _$offersHash() => r'09fc328d497736561d747a44deda43eaf1322185';
 
 abstract class _$Offers extends $Notifier<PaginatedOffers> {
   PaginatedOffers build();

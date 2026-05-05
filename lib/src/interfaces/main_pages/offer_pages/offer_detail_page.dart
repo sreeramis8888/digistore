@@ -37,7 +37,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
             : null);
     final String shopName = widget.args['shopName'] ??
         widget.args['partnerId']?['businessDetails']?['businessName'] ??
-        'HomeGoods';
+        '';
     final String? shopLogo = widget.args['shopLogo'] ??
         widget.args['partnerId']?['businessInfo']?['businessLogo'];
     final IconData? icon = widget.args['icon'];

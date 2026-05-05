@@ -24,23 +24,35 @@ class PartnerOverviewCards extends StatelessWidget {
       children: [
         _overviewCard(
           "Total\nCustomers",
-          (totalCustomers ?? 0).toString(),
+          _formatValue(totalCustomers ?? 0),
           "assets/svg/total_customers.svg",
         ),
         SizedBox(width: screenSize.responsivePadding(12)),
         _overviewCard(
           "Your\nCommission",
-          "₹${(commissionAmount ?? 0).toStringAsFixed(1)}",
+          "₹${_formatValue(commissionAmount ?? 0)}",
           "assets/svg/your_commission.svg",
         ),
         SizedBox(width: screenSize.responsivePadding(12)),
         _overviewCard(
           "Total Sales\nvia Setgo",
-          (totalSalesViaSetgo ?? 0).toString(),
+          _formatValue(totalSalesViaSetgo ?? 0),
           "assets/svg/total_sales.svg",
         ),
       ],
     );
+  }
+
+  String _formatValue(num value) {
+    if (value >= 100000) {
+      final lakhs = value / 100000;
+      return lakhs % 1 == 0 ? '${lakhs.toInt()}L' : '${lakhs.toStringAsFixed(1)}L';
+    } else if (value >= 1000) {
+      final k = value / 1000;
+      return k % 1 == 0 ? '${k.toInt()}k' : '${k.toStringAsFixed(1)}k';
+    } else {
+      return value is double ? value.toStringAsFixed(1) : value.toString();
+    }
   }
 
   Widget _overviewCard(String title, String value, String svgAsset) {
@@ -52,6 +64,11 @@ class PartnerOverviewCards extends StatelessWidget {
         ),
         child: Stack(
           children: [
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: SvgPicture.asset(svgAsset, fit: BoxFit.contain),
+            ),
             Padding(
               padding: EdgeInsets.all(screenSize.responsivePadding(12)),
               child: Column(
@@ -76,11 +93,6 @@ class PartnerOverviewCards extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: SvgPicture.asset(svgAsset, fit: BoxFit.contain),
             ),
           ],
         ),

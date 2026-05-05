@@ -8,7 +8,6 @@ import '../components/history/wallet_header.dart';
 import '../components/history/transaction_tile.dart';
 import '../../data/providers/transactions_provider.dart';
 import '../../data/providers/screen_size_provider.dart';
-
 import '../components/empty_state.dart';
 
 class HistoryPage extends ConsumerWidget {
@@ -16,6 +15,7 @@ class HistoryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenSize = ref.watch(screenSizeProvider);
     final transactionsAsync = ref.watch(transactionsProvider());
 
     return Scaffold(
@@ -34,39 +34,60 @@ class HistoryPage extends ConsumerWidget {
           children: [
             const WalletHeader(),
             Expanded(
-              child: transactionsAsync.when(
-                data: (paginated) {
-                  if (paginated.transactions.isEmpty) {
-                    return const EmptyState(
-                      imagePath: 'assets/png/empty_history.png',
-                      title: 'No transaction history',
-                      subtitle:
-                          'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: paginated.transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = paginated.transactions[index];
-                      return TransactionTile.fromTransaction(transaction)
-                          .fadeSlideInFromLeft(
-                        delayMilliseconds: index * 40,
-                      );
-                    },
-                  );
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(transactionsProvider);
+                  await ref.read(transactionsProvider().future);
                 },
-                loading: () => ListView.builder(
-                  itemCount: 8,
-                  itemBuilder: (context, index) {
-                    final screenSize = ref.watch(screenSizeProvider);
-                    return CardShimmers.transactionTileShimmer(screenSize);
+                child: transactionsAsync.when(
+                  data: (paginated) {
+                    if (paginated.transactions.isEmpty) {
+                      return CustomScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: const EmptyState(
+                              imagePath: 'assets/png/empty_history.png',
+                              title: 'No transaction history',
+                              subtitle:
+                                  'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: paginated.transactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = paginated.transactions[index];
+                        return TransactionTile.fromTransaction(transaction)
+                            .fadeSlideInFromLeft(
+                          delayMilliseconds: index * 40,
+                        );
+                      },
+                    );
                   },
-                ),
-                error: (e, s) => const EmptyState(
-                  imagePath: 'assets/png/empty_history.png',
-                  title: 'No transaction history',
-                  subtitle:
-                      'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                  loading: () => ListView.builder(
+                    itemCount: 8,
+                    itemBuilder: (context, index) =>
+                        CardShimmers.transactionTileShimmer(screenSize),
+                  ),
+                  error: (e, s) => CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: const EmptyState(
+                          imagePath: 'assets/png/empty_history.png',
+                          title: 'No transaction history',
+                          subtitle:
+                              'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
