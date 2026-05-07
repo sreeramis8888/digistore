@@ -129,14 +129,16 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage> {
                 FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: mapState.center,
+                    initialCenter: (widget.initialLat != null && widget.initialLng != null)
+                        ? LatLng(widget.initialLat!, widget.initialLng!)
+                        : mapState.center,
                     initialZoom: 15.0,
                     onMapEvent: _onMapEvent,
                   ),
                   children: [
                     TileLayer(
                       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.setgo.digistore',
+                      userAgentPackageName: 'com.setgo',
                     ),
                   ],
                 ),

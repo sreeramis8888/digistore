@@ -23,7 +23,6 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
   final FocusNode _phoneFocusNode = FocusNode();
   String phoneNumber = '';
   bool isLoading = false;
-  String? generatedOtp;
 
   @override
   void dispose() {
@@ -37,14 +36,6 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
         context,
         'Enter customer phone number',
         type: ToastType.warning,
-      );
-      return;
-    }
-
-    if (generatedOtp != null) {
-      Navigator.of(context).pushReplacementNamed(
-        'redemptionOtp',
-        arguments: {...widget.args, 'phone': phoneNumber},
       );
       return;
     }
@@ -71,25 +62,21 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
         .read(offersProvider.notifier)
         .generateRedemptionOtp(offerId, phoneNumber);
 
-    if (response.success && response.data != null) {
-      final otp = response.data!['data']?['otp']?.toString();
+    if (response.success) {
       setState(() {
-        generatedOtp = otp;
         isLoading = false;
       });
 
       if (mounted) {
         ToastService().showToast(
           context,
-          response.data!['data']['message'] ?? 'OTP sent successfully',
+          response.data?['data']?['message'] ?? 'OTP sent successfully',
           type: ToastType.success,
         );
-        if (generatedOtp == null) {
-          Navigator.of(context).pushReplacementNamed(
-            'redemptionOtp',
-            arguments: {...widget.args, 'phone': phoneNumber},
-          );
-        }
+        Navigator.of(context).pushReplacementNamed(
+          'redemptionOtp',
+          arguments: {...widget.args, 'phone': phoneNumber},
+        );
       }
     } else {
       setState(() {
@@ -249,38 +236,10 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
               ),
               SizedBox(height: screenSize.responsivePadding(32)),
               PrimaryButton(
-                text: generatedOtp != null ? 'Proceed to Verify' : 'Generate OTP',
+                text: 'Generate OTP',
                 isLoading: isLoading,
                 onPressed: _generateOtp,
               ),
-              if (generatedOtp != null) ...[
-                SizedBox(height: screenSize.responsivePadding(16)),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-                  decoration: BoxDecoration(
-                    color: kPrimaryColor.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: kPrimaryColor.withOpacity(0.1)),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Testing OTP',
-                        style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
-                      ),
-                      SizedBox(height: screenSize.responsivePadding(4)),
-                      Text(
-                        generatedOtp!,
-                        style: kLargeTitleB.copyWith(
-                          color: kPrimaryColor,
-                          letterSpacing: 4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
               SizedBox(height: screenSize.responsivePadding(24)),
             ],
           ),

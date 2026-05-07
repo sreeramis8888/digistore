@@ -47,14 +47,11 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
         ),
       );
 
-  void initLocation(LatLng? initialCenter, String? initialLocalBody) {
+  Future<void> initLocation(LatLng? initialCenter, String? initialLocalBody) async {
     if (initialCenter != null) {
-      state = state.copyWith(
-        center: initialCenter,
-        localBody: initialLocalBody ?? '',
-      );
+      await updateLocation(initialCenter);
     } else {
-      determineCurrentLocation();
+      await determineCurrentLocation();
     }
   }
 

@@ -42,7 +42,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   late TextEditingController _ownerNameCtrl;
   late TextEditingController _mobileCtrl;
   late TextEditingController _emailCtrl;
-  late TextEditingController _locationCtrl;
 
   late TextEditingController _shopNameCtrl;
   late TextEditingController _categoryCtrl;
@@ -89,9 +88,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _emailCtrl = TextEditingController(
       text: partner?.businessInfo?.email ?? '',
     );
-    _locationCtrl = TextEditingController(
-      text: partner?.businessDetails?.address ?? '',
-    );
 
     _shopNameCtrl = TextEditingController(
       text: partner?.businessDetails?.businessName ?? '',
@@ -115,7 +111,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       text: partner?.businessDetails?.pincode ?? '',
     );
     _mapLocationCtrl = TextEditingController(
-      text: partner?.businessDetails?.address ?? '',
+      text: (partner?.businessInfo?.storeLocation?.coordinates != null && partner!.businessInfo!.storeLocation!.coordinates!.length >= 2) ? 'Location Selected' : 'Not Selected',
     );
 
     _taglineCtrl = TextEditingController(
@@ -156,18 +152,16 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         builder: (context) => MapLocationPickerPage(
           initialLat: _lat,
           initialLng: _lng,
-          initialLocalBody: _shopAddressCtrl.text,
+          initialLocalBody: null,
         ),
       ),
     );
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        _shopAddressCtrl.text = result['localBody'] as String;
         _lat = result['lat'] as double;
         _lng = result['lng'] as double;
-        _mapLocationCtrl.text =
-            '${_locationCtrl.text}, ${_shopAddressCtrl.text}';
+        _mapLocationCtrl.text = 'Location Selected';
       });
     }
   }
@@ -177,7 +171,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _ownerNameCtrl.dispose();
     _mobileCtrl.dispose();
     _emailCtrl.dispose();
-    _locationCtrl.dispose();
 
     _shopNameCtrl.dispose();
     _categoryCtrl.dispose();
@@ -1038,21 +1031,10 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     readOnly: true,
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: PrimaryTextField(
-                                    label: 'Location',
-                                    controller: _locationCtrl,
-                                  ),
-                                ),
                               ] else ...[
                                 _buildReadOnlyRow(
                                   'Mobile Number',
                                   _mobileCtrl.text,
-                                ),
-                                _buildReadOnlyRow(
-                                  'Location',
-                                  _locationCtrl.text,
                                 ),
                               ],
                             ],
@@ -1574,7 +1556,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 ? LocationPoint(
                                     type: 'Point',
                                     coordinates: [_lng!, _lat!],
-                                    address: _mapLocationCtrl.text,
                                   )
                                 : currentPartner.businessInfo?.storeLocation,
                             operatingHours: _operatingHours,
