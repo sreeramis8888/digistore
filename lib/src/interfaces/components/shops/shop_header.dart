@@ -93,8 +93,8 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       final d = LocationUtils.calculateDistance(
         userLat,
         userLng,
-        shopCoords[1], // lat
-        shopCoords[0], // lng
+        shopCoords[1], 
+        shopCoords[0], 
       );
       distanceLabel = ' (${d.toStringAsFixed(1)} km)';
     }

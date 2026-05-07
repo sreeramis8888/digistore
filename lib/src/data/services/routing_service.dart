@@ -29,7 +29,8 @@ class RoutingService {
       );
 
       if (road.distance > 0) {
-        return road.distance / 1000;
+        // routing_client_dart returns distance in kilometers
+        return road.distance;
       }
 
       return null;
@@ -60,7 +61,8 @@ class RoutingService {
       );
 
       if (road.distance > 0 && road.duration > 0) {
-        final distanceInKm = road.distance / 1000;
+        // routing_client_dart returns distance in km and duration in seconds
+        final distanceInKm = road.distance;
         final durationInMinutes = road.duration / 60;
 
         return {

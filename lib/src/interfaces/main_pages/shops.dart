@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/animations/index.dart';
+
 import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +10,7 @@ import '../../data/providers/user_provider.dart';
 import '../../data/models/shop_model.dart';
 import '../../data/utils/location_utils.dart';
 import '../components/shops/shop_grid_card.dart';
+import '../components/loading_indicator.dart';
 
 class ShopsPage extends ConsumerStatefulWidget {
   const ShopsPage({super.key});
@@ -150,7 +151,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       logoUrl: logo,
       imageUrl: coverImage,
       shop: shop,
-    ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+    );
   }
 
   @override
@@ -352,7 +353,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     child: Padding(
                       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
                       child: const Center(
-                        child: CircularProgressIndicator(),
+                        child: LoadingAnimation(loadingColor: kPrimaryColor),
                       ),
                     ),
                   ),
