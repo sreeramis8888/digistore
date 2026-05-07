@@ -1,4 +1,4 @@
-
+import 'dart:async';
 import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +22,8 @@ class ShopsPage extends ConsumerStatefulWidget {
 class _ShopsPageState extends ConsumerState<ShopsPage> {
   final Map<String, String> _distanceCache = {};
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -32,7 +34,17 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      ref.read(shopsProvider.notifier).updateSearch(query);
+      ref.read(allShopsProvider.notifier).updateSearch(query);
+    });
   }
 
   void _onScroll() {
@@ -188,6 +200,48 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
+              // ── Search Bar ──────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    screenSize.responsivePadding(16),
+                    screenSize.responsivePadding(16),
+                    screenSize.responsivePadding(16),
+                    screenSize.responsivePadding(8),
+                  ),
+                  child: Container(
+                    height: screenSize.responsivePadding(54),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(20),
+                    ),
+                    decoration: BoxDecoration(
+                      color: kField,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
+                        SizedBox(width: screenSize.responsivePadding(12)),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _onSearchChanged,
+                            style: kSmallerTitleL.copyWith(color: kBlack),
+                            decoration: InputDecoration(
+                              hintText: "Search for 'shops'",
+                              hintStyle: kSmallerTitleL.copyWith(color: kBlack.withOpacity(.5)),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
               // ── Shops Nearby ─────────────────────────────────────────
               SliverToBoxAdapter(
                 child: _sectionHeader('Shops Nearby', screenSize),

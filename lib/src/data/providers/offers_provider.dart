@@ -22,6 +22,7 @@ class PaginatedOffers {
   final int explorePage;
   final int exploreTotalPages;
   final bool isExploreLoading;
+  final String searchQuery;
 
   const PaginatedOffers({
     required this.offers,
@@ -35,6 +36,7 @@ class PaginatedOffers {
     this.explorePage = 1,
     this.exploreTotalPages = 0,
     this.isExploreLoading = false,
+    this.searchQuery = '',
   });
 
   const PaginatedOffers.empty()
@@ -48,7 +50,8 @@ class PaginatedOffers {
       exploreOffers = const [],
       explorePage = 1,
       exploreTotalPages = 0,
-      isExploreLoading = false;
+      isExploreLoading = false,
+      searchQuery = '';
 
   PaginatedOffers copyWith({
     List<OfferModel>? offers,
@@ -62,6 +65,7 @@ class PaginatedOffers {
     int? explorePage,
     int? exploreTotalPages,
     bool? isExploreLoading,
+    String? searchQuery,
   }) {
     return PaginatedOffers(
       offers: offers ?? this.offers,
@@ -75,6 +79,7 @@ class PaginatedOffers {
       explorePage: explorePage ?? this.explorePage,
       exploreTotalPages: exploreTotalPages ?? this.exploreTotalPages,
       isExploreLoading: isExploreLoading ?? this.isExploreLoading,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 }
@@ -88,9 +93,15 @@ class Offers extends _$Offers {
     return const PaginatedOffers.empty();
   }
 
-  Future<void> fetchOffers({String? categoryId, bool isRefresh = true}) async {
+  Future<void> fetchOffers({String? categoryId, String? search, bool isRefresh = true}) async {
+    final currentSearch = search ?? state.searchQuery;
+
     if (isRefresh) {
-      state = state.copyWith(isLoading: true, error: null);
+      state = state.copyWith(
+        isLoading: true,
+        error: null,
+        searchQuery: currentSearch,
+      );
     }
 
     try {
@@ -116,6 +127,10 @@ class Offers extends _$Offers {
 
       if (categoryId != null && categoryId != 'All' && categoryId.isNotEmpty) {
         queryParams['category'] = categoryId;
+      }
+
+      if (currentSearch.isNotEmpty) {
+        queryParams['search'] = currentSearch;
       }
 
       if (user?.currentTier?.name != null) {
@@ -173,6 +188,10 @@ class Offers extends _$Offers {
         queryParams['category'] = categoryId;
       }
 
+      if (state.searchQuery.isNotEmpty) {
+        queryParams['search'] = state.searchQuery;
+      }
+
       if (user?.currentTier?.name != null) {
         queryParams['tier'] = user!.currentTier!.name!;
       }
@@ -206,6 +225,11 @@ class Offers extends _$Offers {
       log('Error fetching explore offers: $e', stackTrace: stack);
       state = state.copyWith(isExploreLoading: false);
     }
+  }
+
+  void updateSearch(String query) {
+    if (state.searchQuery == query) return;
+    fetchOffers(search: query, isRefresh: true);
   }
 
   void addOffer(OfferModel offer) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:digistore/src/data/router/nav_router.dart';
 import 'package:digistore/src/interfaces/animations/index.dart';
 import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
@@ -25,6 +26,23 @@ class OffersPage extends ConsumerStatefulWidget {
 }
 
 class _OffersPageState extends ConsumerState<OffersPage> {
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      ref.read(offersProvider.notifier).updateSearch(query);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
@@ -89,11 +107,49 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       body: SafeArea(
         child: Column(
           children: [
-            if (GlobalVariables.isPartner) ...[
-              SizedBox(height: screenSize.responsivePadding(16)),
-              const HomeSearchBar(hintText: "Search for 'offers'"),
-            ] else
-              const OffersFilterChips(),
+            if (!GlobalVariables.isPartner) const OffersFilterChips(),
+            SizedBox(height: screenSize.responsivePadding(16)),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16),
+              ),
+              child: Container(
+                height: screenSize.responsivePadding(54),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(20),
+                ),
+                decoration: BoxDecoration(
+                  color: kField,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.search,
+                      color: Color(0xFF7D848D),
+                      size: 24,
+                    ),
+                    SizedBox(width: screenSize.responsivePadding(12)),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: _onSearchChanged,
+                        style: kSmallerTitleL.copyWith(color: kBlack),
+                        decoration: InputDecoration(
+                          hintText: "Search for 'offers'",
+                          hintStyle: kSmallerTitleL.copyWith(
+                            color: kBlack.withOpacity(.5),
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
               child: _buildBody(
@@ -192,15 +248,59 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-        // ── Offers Near You ──────────────────────────────────────────
-        if (hasNearby || isLoadingNearby) ...[
-          SliverToBoxAdapter(
-            child: _sectionHeader(
-              'Offers Near You',
-              screenSize,
+          // ── Offers Near You ──────────────────────────────────────────
+          if (hasNearby || isLoadingNearby) ...[
+            SliverToBoxAdapter(
+              child: _sectionHeader('Offers Near You', screenSize),
             ),
+            if (isLoadingNearby && !hasNearby)
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16.0),
+                ),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                    childCount: 4,
+                  ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: screenSize.responsivePadding(16.0),
+                    crossAxisSpacing: screenSize.responsivePadding(16.0),
+                    childAspectRatio: aspectRatio,
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16.0),
+                ),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate((_, index) {
+                    final o = offersState.offers[index];
+                    return DealCard.fromOffer(
+                      o,
+                    ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+                  }, childCount: offersState.offers.length),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: screenSize.responsivePadding(16.0),
+                    crossAxisSpacing: screenSize.responsivePadding(16.0),
+                    childAspectRatio: aspectRatio,
+                  ),
+                ),
+              ),
+            SliverToBoxAdapter(
+              child: SizedBox(height: screenSize.responsivePadding(24.0)),
+            ),
+          ],
+
+          // ── Explore More Offers ──────────────────────────────────────
+          SliverToBoxAdapter(
+            child: _sectionHeader('Explore More Offers', screenSize),
           ),
-          if (isLoadingNearby && !hasNearby)
+          if (isLoadingExplore && !hasExplore)
             SliverPadding(
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.responsivePadding(16.0),
@@ -218,21 +318,30 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 ),
               ),
             )
+          else if (!hasExplore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(screenSize.responsivePadding(32.0)),
+                child: Center(
+                  child: Text(
+                    'No more offers to explore.',
+                    style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                  ),
+                ),
+              ),
+            )
           else
             SliverPadding(
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.responsivePadding(16.0),
               ),
               sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                  (_, index) {
-                    final o = offersState.offers[index];
-                    return DealCard.fromOffer(o).fadeSlideInFromBottom(
-                      delayMilliseconds: index * 50,
-                    );
-                  },
-                  childCount: offersState.offers.length,
-                ),
+                delegate: SliverChildBuilderDelegate((_, index) {
+                  final o = offersState.exploreOffers[index];
+                  return DealCard.fromOffer(
+                    o,
+                  ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+                }, childCount: offersState.exploreOffers.length),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: screenSize.responsivePadding(16.0),
@@ -241,73 +350,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 ),
               ),
             ),
+
           SliverToBoxAdapter(
             child: SizedBox(height: screenSize.responsivePadding(24.0)),
           ),
         ],
-
-        // ── Explore More Offers ──────────────────────────────────────
-        SliverToBoxAdapter(
-          child: _sectionHeader('Explore More Offers', screenSize),
-        ),
-        if (isLoadingExplore && !hasExplore)
-          SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16.0),
-            ),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (_, i) => CardShimmers.dealCardShimmer(screenSize),
-                childCount: 4,
-              ),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(16.0),
-                crossAxisSpacing: screenSize.responsivePadding(16.0),
-                childAspectRatio: aspectRatio,
-              ),
-            ),
-          )
-        else if (!hasExplore)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(screenSize.responsivePadding(32.0)),
-              child: Center(
-                child: Text(
-                  'No more offers to explore.',
-                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
-                ),
-              ),
-            ),
-          )
-        else
-          SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16.0),
-            ),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (_, index) {
-                  final o = offersState.exploreOffers[index];
-                  return DealCard.fromOffer(o).fadeSlideInFromBottom(
-                    delayMilliseconds: index * 50,
-                  );
-                },
-                childCount: offersState.exploreOffers.length,
-              ),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(16.0),
-                crossAxisSpacing: screenSize.responsivePadding(16.0),
-                childAspectRatio: aspectRatio,
-              ),
-            ),
-          ),
-
-        SliverToBoxAdapter(
-          child: SizedBox(height: screenSize.responsivePadding(24.0)),
-        ),
-      ],
       ),
     );
   }
@@ -357,9 +404,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       itemCount: offers.length,
       itemBuilder: (_, index) {
         final o = offers[index];
-        return DealCard.fromOffer(o).fadeSlideInFromBottom(
-          delayMilliseconds: index * 50,
-        );
+        return DealCard.fromOffer(
+          o,
+        ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
       },
     );
   }
