@@ -51,12 +51,12 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
 
   void _onScroll() {
     final exploreState = ref.read(allShopsProvider);
-    
+
     // Don't trigger if already loading or no more pages
     if (exploreState.isLoadingMore) return;
     if (exploreState.pagination == null) return;
     if (exploreState.pagination!.page >= exploreState.pagination!.pages) return;
-    
+
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       ref.read(allShopsProvider.notifier).loadMore();
@@ -114,7 +114,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   ) {
     final type = shop.businessDetails?.businessType;
     final logo = shop.businessInfo?.businessLogo;
-    final coverImage = logo ??
+    final coverImage =
+        logo ??
         (shop.businessInfo?.businessImages?.isNotEmpty == true
             ? shop.businessInfo!.businessImages!.first
             : null);
@@ -201,6 +202,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
+          color: kPrimaryColor,
           onRefresh: () async {
             ref.read(shopsProvider.notifier).refresh();
             await ref.read(allShopsProvider.notifier).refresh();
@@ -209,7 +211,6 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              // ── Search Bar ──────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -229,7 +230,11 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
+                        const Icon(
+                          Icons.search,
+                          color: Color(0xFF7D848D),
+                          size: 24,
+                        ),
                         SizedBox(width: screenSize.responsivePadding(12)),
                         Expanded(
                           child: TextField(
@@ -240,7 +245,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                             style: kSmallerTitleL.copyWith(color: kBlack),
                             decoration: InputDecoration(
                               hintText: "Search for 'shops'",
-                              hintStyle: kSmallerTitleL.copyWith(color: kBlack.withOpacity(.5)),
+                              hintStyle: kSmallerTitleL.copyWith(
+                                color: kBlack.withOpacity(.5),
+                              ),
                               border: InputBorder.none,
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
@@ -252,8 +259,6 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   ),
                 ),
               ),
-
-              // ── Shops Nearby ─────────────────────────────────────────
               SliverToBoxAdapter(
                 child: _sectionHeader('Shops Nearby', screenSize),
               ),
@@ -284,7 +289,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     ),
                     child: Text(
                       'Could not load nearby shops.',
-                      style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                      ),
                     ),
                   ),
                 )
@@ -331,8 +338,6 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
               SliverToBoxAdapter(
                 child: SizedBox(height: screenSize.responsivePadding(24)),
               ),
-
-              // ── Explore More Shops ────────────────────────────────────
               SliverToBoxAdapter(
                 child: _sectionHeader('Explore More Shops', screenSize),
               ),
@@ -361,7 +366,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     child: Center(
                       child: Text(
                         'Could not load shops.',
-                        style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                        style: kSmallerTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
                       ),
                     ),
                   ),
@@ -376,7 +383,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   if (exploreShops.isEmpty) {
                     return SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.all(screenSize.responsivePadding(32)),
+                        padding: EdgeInsets.all(
+                          screenSize.responsivePadding(32),
+                        ),
                         child: Center(
                           child: Text(
                             'No more shops to explore.',

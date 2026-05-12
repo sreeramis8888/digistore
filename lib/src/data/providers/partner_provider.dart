@@ -43,6 +43,8 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
     PartnerModel updatedPartner, {
     List<http.MultipartFile>? files,
     String? uploadField,
+    bool? deleteLogo,
+    bool? deleteCover,
   }) async {
     final api = ref.read(apiProvider);
 
@@ -67,6 +69,14 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
         body['uploadField'] = uploadField;
       }
 
+      if (deleteLogo == true) {
+        body['deleteLogo'] = 'true';
+      }
+
+      if (deleteCover == true) {
+        body['deleteCover'] = 'true';
+      }
+
       response = await api.putMultipart(
         '/profile',
         body,
@@ -75,6 +85,15 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
       );
     } else {
       final cleanedData = MapUtils.cleanMap(updatedPartner.toJson());
+      
+      if (deleteLogo == true) {
+        cleanedData['deleteLogo'] = true;
+      }
+
+      if (deleteCover == true) {
+        cleanedData['deleteCover'] = true;
+      }
+
       response = await api.put('/profile', cleanedData, requireAuth: true);
     }
 

@@ -7,6 +7,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_products_provider.dart';
 import '../../components/shops/product_card.dart';
 import '../../components/primary_button.dart';
+import '../../components/shimmers/card_shimmers.dart';
 import 'partner_product_page.dart';
 
 class PartnerProductsPage extends ConsumerStatefulWidget {
@@ -122,12 +123,28 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
               SizedBox(height: screenSize.responsivePadding(24)),
               Expanded(
                 child: productsState.isLoading
-                    ? const Center(child: LoadingAnimation())
+                    ? GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.only(
+                          bottom: screenSize.responsivePadding(24),
+                        ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: 0.8,
+                        ),
+                        itemCount: 6,
+                        itemBuilder: (context, index) {
+                          return CardShimmers.productCardShimmer(screenSize);
+                        },
+                      )
                     : productsState.error != null
                     ? Center(child: Text(productsState.error!))
                     : productsState.products.isEmpty
                     ? const Center(child: Text('No products found'))
                     : RefreshIndicator(
+                        color: kPrimaryColor,
                         onRefresh: () => ref
                             .read(partnerProductsProvider.notifier)
                             .refresh(),
@@ -153,7 +170,7 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
                               (productsState.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == productsState.products.length) {
-                              return const Center(child: LoadingAnimation());
+                              return CardShimmers.productCardShimmer(screenSize);
                             }
                             final p = productsState.products[index];
                             return ProductCard(

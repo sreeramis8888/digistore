@@ -12,6 +12,7 @@ import '../../../data/providers/user_type_provider.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../components/primary_button.dart';
+import '../../components/confirmation_dialog.dart';
 import '../history.dart';
 import '../../../data/utils/notification_permission_helper.dart';
 import '../../../data/services/notification_service/notification_service.dart';
@@ -495,9 +496,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                   backgroundColor: kWhite,
                   textColor: kRed,
                   onPressed: () async {
-                    await ref.read(authProvider.notifier).logout();
-                    if (context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
+                    final confirmed = await showConfirmationDialog(
+                      context: context,
+                      title: 'Logout',
+                      message: 'Are you sure you want to logout from your account?',
+                      confirmText: 'Logout',
+                      cancelText: 'Cancel',
+                      isDestructive: true,
+                      icon: Icons.logout_rounded,
+                    );
+
+                    if (confirmed == true) {
+                      await ref.read(authProvider.notifier).logout();
+                      if (context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
+                      }
                     }
                   },
                 ).fadeSlideInFromBottom(delayMilliseconds: 300),

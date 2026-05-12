@@ -35,9 +35,6 @@ class _OffersPageState extends ConsumerState<OffersPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchOffers();
-    });
   }
 
   @override
@@ -62,7 +59,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
 
     if (categoriesAsync.hasValue) {
       final categories = categoriesAsync.value!;
-      if (currentIndex != null && currentIndex > 0 && currentIndex <= categories.length) {
+      if (currentIndex != null &&
+          currentIndex > 0 &&
+          currentIndex <= categories.length) {
         categoryId = categories[currentIndex - 1].id;
       }
     }
@@ -195,10 +194,15 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     // Partner view — simple grid, no split
     if (GlobalVariables.isPartner) {
       if (offersState.isLoading && offersState.offers.isEmpty) {
-        return _shimmerGrid(screenSize, aspectRatio, key: const ValueKey('partner_shimmer'));
+        return _shimmerGrid(
+          screenSize,
+          aspectRatio,
+          key: const ValueKey('partner_shimmer'),
+        );
       }
       if (offersState.offers.isEmpty) {
         return RefreshIndicator(
+          color: kPrimaryColor,
           key: const ValueKey('partner_empty'),
           onRefresh: () async {
             await ref.read(offersProvider.notifier).fetchOffers();
@@ -220,6 +224,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         );
       }
       return RefreshIndicator(
+        color: kPrimaryColor,
         key: ValueKey('partner_grid_${offersState.currentCategoryId ?? 'all'}'),
         onRefresh: () async {
           await ref.read(offersProvider.notifier).fetchOffers();
@@ -235,11 +240,16 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final isLoadingExplore = offersState.isExploreLoading;
 
     if (isLoadingNearby && !hasNearby) {
-      return _shimmerGrid(screenSize, aspectRatio, key: const ValueKey('customer_shimmer'));
+      return _shimmerGrid(
+        screenSize,
+        aspectRatio,
+        key: const ValueKey('customer_shimmer'),
+      );
     }
 
     if (!hasNearby && !hasExplore && !isLoadingExplore) {
       return RefreshIndicator(
+        color: kPrimaryColor,
         key: const ValueKey('customer_empty'),
         onRefresh: () async {
           await ref
@@ -264,7 +274,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     }
 
     return RefreshIndicator(
-      key: ValueKey('customer_content_${offersState.currentCategoryId ?? 'all'}'),
+      color: kPrimaryColor,
+      key: ValueKey(
+        'customer_content_${offersState.currentCategoryId ?? 'all'}',
+      ),
       onRefresh: () async {
         await ref
             .read(offersProvider.notifier)
@@ -395,7 +408,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     );
   }
 
-  Widget _shimmerGrid(ScreenSizeData screenSize, double aspectRatio, {Key? key}) {
+  Widget _shimmerGrid(
+    ScreenSizeData screenSize,
+    double aspectRatio, {
+    Key? key,
+  }) {
     return GridView.builder(
       key: key,
       padding: EdgeInsets.symmetric(
@@ -412,7 +429,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     );
   }
 
-  Widget _offersGrid(List<OfferModel> offers, double aspectRatio, ScreenSizeData screenSize) {
+  Widget _offersGrid(
+    List<OfferModel> offers,
+    double aspectRatio,
+    ScreenSizeData screenSize,
+  ) {
     return GridView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16.0),

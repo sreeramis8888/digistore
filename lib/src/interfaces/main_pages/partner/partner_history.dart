@@ -7,6 +7,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_history_provider.dart';
 import '../../components/partner/partner_overview_cards.dart';
 import '../../components/partner/partner_redemption_list.dart';
+import '../../components/shimmers/card_shimmers.dart';
 
 class PartnerHistoryPage extends ConsumerStatefulWidget {
   const PartnerHistoryPage({super.key});
@@ -56,10 +57,11 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
       ),
       body: SafeArea(
         child: historyState.isLoading
-            ? const Center(child: LoadingAnimation())
+            ? CardShimmers.partnerHistoryShimmer(screenSize)
             : historyState.error != null
             ? Center(child: Text(historyState.error!))
             : RefreshIndicator(
+                color: kPrimaryColor,
                 onRefresh: () =>
                     ref.read(partnerHistoryProvider.notifier).refresh(),
                 child: SingleChildScrollView(
@@ -108,7 +110,7 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
                             padding: EdgeInsets.symmetric(
                               vertical: screenSize.responsivePadding(16),
                             ),
-                            child: const Center(child: LoadingAnimation()),
+                            child: CardShimmers.partnerRedemptionItemShimmer(screenSize),
                           ),
                         SizedBox(height: screenSize.responsivePadding(40)),
                       ],

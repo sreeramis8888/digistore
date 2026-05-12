@@ -81,6 +81,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               ),
             )
           : RefreshIndicator(
+              color: kPrimaryColor,
               onRefresh: () => ref
                   .read(notificationsProvider.notifier)
                   .fetchNotifications(refresh: true),

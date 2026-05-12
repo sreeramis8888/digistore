@@ -223,4 +223,130 @@ class CardShimmers {
       ),
     );
   }
+
+  static Widget productCardShimmer(ScreenSizeData screenSize) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F6F6),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+              child: _shimmerRect(
+                double.infinity,
+                double.infinity,
+                radius: 0,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _shimmerRect(double.infinity, 14, radius: 4),
+                SizedBox(height: screenSize.responsivePadding(8)),
+                _shimmerRect(screenSize.width * 0.15, 14, radius: 4),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget partnerRedemptionItemShimmer(ScreenSizeData screenSize) {
+    return Container(
+      padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F6F6),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _shimmerRect(50, 50, radius: 8),
+              SizedBox(width: screenSize.responsivePadding(12)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _shimmerRect(120, 16, radius: 4),
+                    SizedBox(height: screenSize.responsivePadding(4)),
+                    _shimmerRect(80, 12, radius: 4),
+                  ],
+                ),
+              ),
+              _shimmerRect(60, 12, radius: 4),
+            ],
+          ),
+          SizedBox(height: screenSize.responsivePadding(10)),
+          const Divider(color: Color(0xFFDFDFDF), height: .5),
+          SizedBox(height: screenSize.responsivePadding(10)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _shimmerRect(100, 10, radius: 2),
+              _shimmerRect(60, 10, radius: 2),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget partnerHistoryShimmer(ScreenSizeData screenSize) {
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: screenSize.responsivePadding(8)),
+            _shimmerRect(180, 16, radius: 4),
+            SizedBox(height: screenSize.responsivePadding(16)),
+            Row(
+              children: [
+                Expanded(child: _shimmerRect(double.infinity, 100, radius: 16)),
+                SizedBox(width: screenSize.responsivePadding(12)),
+                Expanded(child: _shimmerRect(double.infinity, 100, radius: 16)),
+                SizedBox(width: screenSize.responsivePadding(12)),
+                Expanded(child: _shimmerRect(double.infinity, 100, radius: 16)),
+              ],
+            ),
+            SizedBox(height: screenSize.responsivePadding(24)),
+            _shimmerRect(140, 14, radius: 4),
+            SizedBox(height: screenSize.responsivePadding(12)),
+            ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: 4,
+              separatorBuilder: (context, index) =>
+                  SizedBox(height: screenSize.responsivePadding(12)),
+              itemBuilder: (context, index) {
+                return partnerRedemptionItemShimmer(screenSize);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

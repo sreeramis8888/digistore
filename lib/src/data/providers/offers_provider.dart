@@ -93,8 +93,13 @@ class Offers extends _$Offers {
     return const PaginatedOffers.empty();
   }
 
-  Future<void> fetchOffers({String? categoryId, String? search, bool isRefresh = true}) async {
+  Future<void> fetchOffers({
+    String? categoryId,
+    String? search,
+    bool isRefresh = true,
+  }) async {
     final currentSearch = search ?? state.searchQuery;
+    final currentUserType = ref.read(userTypeProvider);
 
     if (isRefresh) {
       final isCategoryChange = categoryId != state.currentCategoryId;
@@ -104,14 +109,15 @@ class Offers extends _$Offers {
         searchQuery: currentSearch,
         offers: isCategoryChange ? [] : state.offers,
         exploreOffers: isCategoryChange ? [] : state.exploreOffers,
-        currentCategoryId: isCategoryChange ? categoryId : state.currentCategoryId,
+        currentCategoryId: isCategoryChange
+            ? categoryId
+            : state.currentCategoryId,
       );
     }
 
     try {
       final api = ref.read(apiProvider);
       final user = ref.read(userProvider);
-      final userType = ref.read(userTypeProvider);
 
       final lat = user?.location?.coordinates?.lat;
       final lng = user?.location?.coordinates?.lng;
@@ -124,7 +130,7 @@ class Offers extends _$Offers {
       if (lat != null && lng != null) {
         queryParams['lat'] = lat.toString();
         queryParams['lng'] = lng.toString();
-      } else if (userType == UserType.customer) {
+      } else if (currentUserType == UserType.customer) {
         state = const PaginatedOffers.empty();
         return;
       }
@@ -166,8 +172,7 @@ class Offers extends _$Offers {
       state = state.copyWith(isLoading: false, error: 'Parsing error: $e');
     }
 
-    // Also refresh explore offers in parallel when doing a full refresh
-    if (isRefresh) {
+    if (isRefresh && currentUserType == UserType.customer) {
       _fetchExploreOffers(categoryId: categoryId);
     }
   }
@@ -211,8 +216,9 @@ class Offers extends _$Offers {
 
         // Exclude offers already shown in the nearby section
         final nearbyIds = state.offers.map((o) => o.id).toSet();
-        final filteredOffers =
-            newOffers.where((o) => !nearbyIds.contains(o.id)).toList();
+        final filteredOffers = newOffers
+            .where((o) => !nearbyIds.contains(o.id))
+            .toList();
 
         state = state.copyWith(
           exploreOffers: isRefresh

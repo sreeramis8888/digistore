@@ -279,7 +279,7 @@ class ApiProvider {
 
   Future<ApiResponse<Map<String, dynamic>>> delete(
     String endpoint, {
-    bool requireAuth = false,
+    bool requireAuth = true,
   }) async {
     try {
       final headers = await _buildHeaders(requireAuth: requireAuth);

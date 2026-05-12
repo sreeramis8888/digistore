@@ -11,6 +11,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
 import '../../components/partner/partner_profile_header.dart';
+import '../../components/confirmation_dialog.dart';
 import '../../animations/index.dart';
 import '../../../data/utils/notification_permission_helper.dart';
 import '../../../data/services/notification_service/notification_service.dart';
@@ -396,13 +397,25 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                   icon: const Icon(Icons.logout_rounded, color: kRed, size: 22),
                   screenSize: screenSize,
                   onTap: () async {
-                    await ref.read(authProvider.notifier).logout();
-                    if (context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        'login',
-                        (route) => false,
-                      );
+                    final confirmed = await showConfirmationDialog(
+                      context: context,
+                      title: 'Logout',
+                      message: 'Are you sure you want to logout from your account?',
+                      confirmText: 'Logout',
+                      cancelText: 'Cancel',
+                      isDestructive: true,
+                      icon: Icons.logout_rounded,
+                    );
+
+                    if (confirmed == true) {
+                      await ref.read(authProvider.notifier).logout();
+                      if (context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          'login',
+                          (route) => false,
+                        );
+                      }
                     }
                   },
                 ),

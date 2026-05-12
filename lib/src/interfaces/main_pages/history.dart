@@ -35,6 +35,7 @@ class HistoryPage extends ConsumerWidget {
             const WalletHeader(),
             Expanded(
               child: RefreshIndicator(
+                color: kPrimaryColor,
                 onRefresh: () async {
                   ref.invalidate(transactionsProvider);
                   await ref.read(transactionsProvider().future);
@@ -62,10 +63,9 @@ class HistoryPage extends ConsumerWidget {
                       itemCount: paginated.transactions.length,
                       itemBuilder: (context, index) {
                         final transaction = paginated.transactions[index];
-                        return TransactionTile.fromTransaction(transaction)
-                            .fadeSlideInFromLeft(
-                          delayMilliseconds: index * 40,
-                        );
+                        return TransactionTile.fromTransaction(
+                          transaction,
+                        ).fadeSlideInFromLeft(delayMilliseconds: index * 40);
                       },
                     );
                   },

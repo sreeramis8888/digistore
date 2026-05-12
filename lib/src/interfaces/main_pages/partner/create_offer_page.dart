@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../components/primary_button.dart';
@@ -310,10 +311,65 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   }
 
   Future<void> _saveOffer() async {
+    // Validate required fields
     if (_titleController.text.trim().isEmpty) {
       ToastService().showToast(
         context,
-        'Title is required',
+        'Offer title is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_descController.text.trim().isEmpty) {
+      ToastService().showToast(
+        context,
+        'Description is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_categoryController.text.trim().isEmpty || _selectedCategoryId == null) {
+      ToastService().showToast(
+        context,
+        'Category is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_tags.isEmpty) {
+      ToastService().showToast(
+        context,
+        'At least one tag is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_validFrom == null || _validTo == null) {
+      ToastService().showToast(
+        context,
+        'Valid From and Valid To dates are required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_validFrom!.isAfter(_validTo!)) {
+      ToastService().showToast(
+        context,
+        'Valid From date must be before Valid To date',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_pickedImages.isEmpty && widget.offer == null) {
+      ToastService().showToast(
+        context,
+        'At least one offer image is required',
         type: ToastType.error,
       );
       return;
@@ -466,6 +522,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 controller: _titleController,
                 label: 'Offer title',
                 hint: 'Enter offer title',
+                isRequired: true,
               ),
               const SizedBox(height: 20),
               PrimaryTextField(
@@ -473,6 +530,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 label: 'Description',
                 hint: 'Enter offer description',
                 maxLines: 4,
+                isRequired: true,
               ),
               const SizedBox(height: 20),
               GestureDetector(
@@ -483,6 +541,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     label: 'Category',
                     hint: 'Select offer category',
                     suffixIcon: const Icon(Icons.keyboard_arrow_down),
+                    isRequired: true,
                   ),
                 ),
               ),
@@ -523,6 +582,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     controller: _tagsController,
                     label: 'Tags',
                     hint: 'Type a tag and press space',
+                    isRequired: true,
                     onChanged: (val) {
                       if (val.endsWith(' ')) {
                         final newTag = val.trim();
@@ -587,6 +647,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                             Icons.calendar_today_outlined,
                             size: 18,
                           ),
+                          isRequired: true,
                         ),
                       ),
                     ),
@@ -604,6 +665,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                             Icons.calendar_today_outlined,
                             size: 18,
                           ),
+                          isRequired: true,
                         ),
                       ),
                     ),
@@ -662,81 +724,97 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 );
               }),
               const SizedBox(height: 10),
-              Text(
-                'Offer Images',
-                style: kSmallTitleM.copyWith(
-                  color: const Color(0xFF0A0A0A),
-                  fontWeight: FontWeight.w500,
-                ),
+              Row(
+                children: [
+                  Text(
+                    'Offer Images',
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF0A0A0A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: _pickImages,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFE5E5E5)),
-                        ),
-                        child: const Icon(
-                          Icons.add_a_photo_outlined,
-                          color: kSecondaryTextColor,
-                        ),
+              CarouselSlider(
+                options: CarouselOptions(
+                  height: 100,
+                  viewportFraction: 0.32,
+                  enableInfiniteScroll: false,
+                  padEnds: false,
+                ),
+                items: [
+                  GestureDetector(
+                    onTap: _pickImages,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 12),
+                      width: double.infinity,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE5E5E5)),
+                      ),
+                      child: const Icon(
+                        Icons.add_a_photo_outlined,
+                        color: kSecondaryTextColor,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    ...List.generate(_pickedImages.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: Image.file(
-                                _pickedImages[index],
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _pickedImages.removeAt(index);
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: kWhite,
-                                    size: 14,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                  ),
+                  ...List.generate(_pickedImages.length, (index) {
+                    return Stack(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(right: 12),
+                          width: double.infinity,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Image.file(
+                            _pickedImages[index],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
                         ),
-                      );
-                    }),
-                  ],
-                ),
+                        Positioned(
+                          top: 4,
+                          right: 16,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _pickedImages.removeAt(index);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: kWhite,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ],
               ),
               const SizedBox(height: 32),
             ],

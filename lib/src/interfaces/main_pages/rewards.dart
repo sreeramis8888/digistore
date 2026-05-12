@@ -46,6 +46,7 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
+          color: kPrimaryColor,
           onRefresh: _onRefresh,
           child: rewardsAsync.when(
             data: (paginated) {
@@ -77,9 +78,9 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                 itemCount: paginated.rewards.length,
                 itemBuilder: (context, index) {
                   final reward = paginated.rewards[index];
-                  return RewardCard.fromReward(reward).fadeScaleUp(
-                    delayMilliseconds: index * 50,
-                  );
+                  return RewardCard.fromReward(
+                    reward,
+                  ).fadeScaleUp(delayMilliseconds: index * 50);
                 },
               );
             },

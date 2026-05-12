@@ -58,6 +58,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: kWhite,
       body: RefreshIndicator(
+        color: kPrimaryColor,
         onRefresh: () => ref.refresh(homeDataProvider.future),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -82,7 +83,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
+                      const Icon(
+                        Icons.search,
+                        color: Color(0xFF7D848D),
+                        size: 24,
+                      ),
                       SizedBox(width: screenSize.responsivePadding(12)),
                       Expanded(
                         child: TextField(
@@ -93,7 +98,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                           style: kSmallerTitleL.copyWith(color: kBlack),
                           decoration: InputDecoration(
                             hintText: "Search for 'services'",
-                            hintStyle: kSmallerTitleL.copyWith(color: kBlack.withOpacity(.5)),
+                            hintStyle: kSmallerTitleL.copyWith(
+                              color: kBlack.withOpacity(.5),
+                            ),
                             border: InputBorder.none,
                             isDense: true,
                             contentPadding: EdgeInsets.zero,
@@ -136,13 +143,44 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     final q = _searchQuery.trim();
 
-    final categories = data.categories?.where((c) => q.isEmpty || (c.name?.toLowerCase().contains(q) ?? false)).toList();
-    final dealOfTheHour = data.dealOfTheHour?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
-    final dealOfTheDay = data.dealOfTheDay?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
-    final dealsOfDay = data.dealsOfDay?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
-    final dealOfTheMonth = data.dealOfTheMonth?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
-    final featuredShops = data.featuredShops?.where((s) => q.isEmpty || (s.businessDetails?.businessName?.toLowerCase().contains(q) ?? false)).toList();
-    final rewardsPreview = data.rewardsPreview?.where((r) => q.isEmpty || (r.title?.toLowerCase().contains(q) ?? false)).toList();
+    final categories = data.categories
+        ?.where(
+          (c) => q.isEmpty || (c.name?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
+    final dealOfTheHour = data.dealOfTheHour
+        ?.where(
+          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
+    final dealOfTheDay = data.dealOfTheDay
+        ?.where(
+          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
+    final dealsOfDay = data.dealsOfDay
+        ?.where(
+          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
+    final dealOfTheMonth = data.dealOfTheMonth
+        ?.where(
+          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
+    final featuredShops = data.featuredShops
+        ?.where(
+          (s) =>
+              q.isEmpty ||
+              (s.businessDetails?.businessName?.toLowerCase().contains(q) ??
+                  false),
+        )
+        .toList();
+    final rewardsPreview = data.rewardsPreview
+        ?.where(
+          (r) => q.isEmpty || (r.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

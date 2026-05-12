@@ -27,6 +27,7 @@ class PartnerHomePage extends ConsumerWidget {
       backgroundColor: kWhite,
       body: SafeArea(
         child: RefreshIndicator(
+          color: kPrimaryColor,
           onRefresh: () => ref.refresh(homeDataProvider.future),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),

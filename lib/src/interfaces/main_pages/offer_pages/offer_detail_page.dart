@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -25,6 +26,7 @@ class OfferDetailPage extends ConsumerStatefulWidget {
 
 class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
   bool isRedeeming = false;
+  int _currentImageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,14 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         ((widget.args['images'] is List && (widget.args['images'] as List).isNotEmpty)
             ? widget.args['images'][0]
             : null);
+
+    List<String> images = [];
+    if (widget.args['images'] is List && (widget.args['images'] as List).isNotEmpty) {
+      images = (widget.args['images'] as List).map((e) => e.toString()).toList();
+    } else if (imageUrl != null) {
+      images = [imageUrl];
+    }
+
     final String shopName = widget.args['shopName'] ??
         widget.args['partnerId']?['businessDetails']?['businessName'] ??
         '';
@@ -144,14 +154,59 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image Section
-            if (imageUrl != null)
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: AdvancedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  borderRadius: BorderRadius.zero,
-                ),
+            if (images.isNotEmpty)
+              Column(
+                children: [
+                  CarouselSlider(
+                    options: CarouselOptions(
+                      aspectRatio: 16 / 9,
+                      viewportFraction: 1.0,
+                      enableInfiniteScroll: images.length > 1,
+                      autoPlay: images.length > 1,
+                      autoPlayInterval: const Duration(seconds: 4),
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentImageIndex = index;
+                        });
+                      },
+                    ),
+                    items: images.map((img) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: AdvancedNetworkImage(
+                              imageUrl: img,
+                              fit: BoxFit.cover,
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  if (images.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: images.asMap().entries.map((entry) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: _currentImageIndex == entry.key ? 20.0 : 8.0,
+                            height: 8.0,
+                            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4.0),
+                              color: _currentImageIndex == entry.key
+                                  ? kPrimaryColor
+                                  : const Color(0xFFE5E7EB),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                ],
               )
             else
               Container(
