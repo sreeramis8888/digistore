@@ -23,6 +23,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   final Map<String, String> _distanceCache = {};
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   Timer? _debounce;
 
   @override
@@ -35,6 +36,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -48,6 +50,13 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   }
 
   void _onScroll() {
+    final exploreState = ref.read(allShopsProvider);
+    
+    // Don't trigger if already loading or no more pages
+    if (exploreState.isLoadingMore) return;
+    if (exploreState.pagination == null) return;
+    if (exploreState.pagination!.page >= exploreState.pagination!.pages) return;
+    
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       ref.read(allShopsProvider.notifier).loadMore();
@@ -225,6 +234,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                         Expanded(
                           child: TextField(
                             controller: _searchController,
+                            focusNode: _searchFocusNode,
+                            onTapOutside: (event) => _searchFocusNode.unfocus(),
                             onChanged: _onSearchChanged,
                             style: kSmallerTitleL.copyWith(color: kBlack),
                             decoration: InputDecoration(

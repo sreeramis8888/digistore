@@ -25,63 +25,76 @@ class PartnerHomeHeader extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        InteractiveFeedbackButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PartnerProfilePage(),
-              ),
-            );
-          },
-          scaleFactor: 0.98,
-          child: Row(
-            children: [
-              Container(
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
+        Expanded(
+          child: InteractiveFeedbackButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PartnerProfilePage(),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: AdvancedNetworkImage(
-                    imageUrl: logo ?? '',
-                    fit: BoxFit.cover,
+              );
+            },
+            scaleFactor: 0.98,
+            child: Row(
+              children: [
+                Container(
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    color: kWhite,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
-                ),
-              ).fadeIn(),
-              SizedBox(width: screenSize.responsivePadding(12)),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(businessName, style: kSubHeadingSB),
-                  Row(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: AdvancedNetworkImage(
+                      imageUrl: logo ?? '',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ).fadeIn(),
+                SizedBox(width: screenSize.responsivePadding(12)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 14,
-                        color: Color(0xFF6B7280),
-                      ),
-                      const SizedBox(width: 4),
                       Text(
-                        location,
-                        style: kSmallTitleL.copyWith(
-                          color: const Color(0xFF616161),
-                        ),
+                        businessName,
+                        style: kSubHeadingSB,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      const Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 16,
-                        color: Color(0xFF6B7280),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: Color(0xFF6B7280),
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              location,
+                              style: kSmallTitleL.copyWith(
+                                color: const Color(0xFF616161),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 16,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
-              ).fadeSlideInFromLeft(delayMilliseconds: 100),
-            ],
+                  ).fadeSlideInFromLeft(delayMilliseconds: 100),
+                ),
+              ],
+            ),
           ),
         ),
         InteractiveFeedbackButton(

@@ -19,11 +19,35 @@ import '../../data/providers/home_provider.dart';
 import '../../data/models/home_data.dart';
 import 'partner/partner_home.dart';
 
-class HomePage extends ConsumerWidget {
+import '../../data/constants/style_constants.dart';
+
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query.toLowerCase();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final homeDataAsync = ref.watch(homeDataProvider);
 
@@ -43,7 +67,43 @@ class HomePage extends ConsumerWidget {
               SizedBox(height: screenSize.responsivePadding(45)),
               const HomeAppBar().fadeIn(),
               SizedBox(height: screenSize.responsivePadding(16)),
-              const HomeSearchBar().fadeSlideInFromBottom(delayMilliseconds: 100),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16),
+                ),
+                child: Container(
+                  height: screenSize.responsivePadding(54),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(20),
+                  ),
+                  decoration: BoxDecoration(
+                    color: kField,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
+                      SizedBox(width: screenSize.responsivePadding(12)),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          onTapOutside: (event) => _searchFocusNode.unfocus(),
+                          onChanged: _onSearchChanged,
+                          style: kSmallerTitleL.copyWith(color: kBlack),
+                          decoration: InputDecoration(
+                            hintText: "Search for 'services'",
+                            hintStyle: kSmallerTitleL.copyWith(color: kBlack.withOpacity(.5)),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).fadeSlideInFromBottom(delayMilliseconds: 100),
+              ),
               homeDataAsync.when(
                 data: (state) {
                   if (state == null) {
@@ -74,56 +134,72 @@ class HomePage extends ConsumerWidget {
       return const Center(child: Text('No data available'));
     }
 
+    final q = _searchQuery.trim();
+
+    final categories = data.categories?.where((c) => q.isEmpty || (c.name?.toLowerCase().contains(q) ?? false)).toList();
+    final dealOfTheHour = data.dealOfTheHour?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
+    final dealOfTheDay = data.dealOfTheDay?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
+    final dealsOfDay = data.dealsOfDay?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
+    final dealOfTheMonth = data.dealOfTheMonth?.where((o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false)).toList();
+    final featuredShops = data.featuredShops?.where((s) => q.isEmpty || (s.businessDetails?.businessName?.toLowerCase().contains(q) ?? false)).toList();
+    final rewardsPreview = data.rewardsPreview?.where((r) => q.isEmpty || (r.title?.toLowerCase().contains(q) ?? false)).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: screenSize.responsivePadding(16)),
         LoyaltyRewardCard(loyaltyCard: data.loyaltyCard),
         SizedBox(height: screenSize.responsivePadding(16)),
-        CategoryList(categories: data.categories),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        if (data.dealOfTheHour != null && data.dealOfTheHour!.isNotEmpty) ...[
+        if (categories != null && categories.isNotEmpty) ...[
+          CategoryList(categories: categories),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        if (dealOfTheHour != null && dealOfTheHour.isNotEmpty) ...[
           DealsCarousel(
             title: 'Deal of the Hour',
-            deals: data.dealOfTheHour!
+            deals: dealOfTheHour
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        FeaturedShopsList(shops: data.featuredShops),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        if (data.dealOfTheDay != null && data.dealOfTheDay!.isNotEmpty) ...[
+        if (featuredShops != null && featuredShops.isNotEmpty) ...[
+          FeaturedShopsList(shops: featuredShops),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        if (dealOfTheDay != null && dealOfTheDay.isNotEmpty) ...[
           DealsCarousel(
             title: 'Deal of the Day',
-            deals: data.dealOfTheDay!
+            deals: dealOfTheDay
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        if (data.dealsOfDay != null && data.dealsOfDay!.isNotEmpty) ...[
+        if (dealsOfDay != null && dealsOfDay.isNotEmpty) ...[
           DealsCarousel(
             title: 'Specials for You',
-            deals: data.dealsOfDay!
+            deals: dealsOfDay
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        BannerSection(banners: data.premiumBanners),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        if (data.dealOfTheMonth != null &&
-            data.dealOfTheMonth!.isNotEmpty) ...[
+        if (data.premiumBanners != null && data.premiumBanners!.isNotEmpty) ...[
+          BannerSection(banners: data.premiumBanners),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        if (dealOfTheMonth != null && dealOfTheMonth.isNotEmpty) ...[
           DealsCarousel(
             title: 'Deal of the Month',
-            deals: data.dealOfTheMonth!
+            deals: dealOfTheMonth
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        RewardsCarousel(rewards: data.rewardsPreview),
+        if (rewardsPreview != null && rewardsPreview.isNotEmpty)
+          RewardsCarousel(rewards: rewardsPreview),
         SizedBox(height: screenSize.responsivePadding(40)),
       ],
     );

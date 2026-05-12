@@ -1,21 +1,23 @@
 import 'dart:async';
-import 'package:digistore/src/data/router/nav_router.dart';
-import 'package:digistore/src/interfaces/animations/index.dart';
-import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
-import '../components/offers/offers_filter_chips.dart';
-import '../components/offers/deal_card.dart';
-import '../../data/utils/global_variables.dart';
-import '../components/home/home_search_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/providers/screen_size_provider.dart';
-
-import '../../data/providers/offers_provider.dart';
+import '../../data/models/offer_model.dart';
 import '../../data/providers/category_provider.dart';
+import '../../data/providers/offers_provider.dart';
+import '../../data/providers/screen_size_provider.dart';
+import '../../data/router/nav_router.dart';
+import '../../data/utils/global_variables.dart';
+import '../animations/index.dart';
 import '../components/empty_state.dart';
+import '../components/home/home_search_bar.dart';
+import '../components/loading_indicator.dart';
+import '../components/offers/deal_card.dart';
+import '../components/offers/offers_filter_chips.dart';
 import '../components/primary_button.dart';
+import '../components/shimmers/card_shimmers.dart';
 import 'partner/create_offer_page.dart';
 
 class OffersPage extends ConsumerStatefulWidget {
@@ -27,11 +29,21 @@ class OffersPage extends ConsumerStatefulWidget {
 
 class _OffersPageState extends ConsumerState<OffersPage> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchOffers();
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -43,31 +55,35 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     });
   }
 
+  void _fetchOffers({int? index}) {
+    final currentIndex = index ?? ref.read(selectedOffersCategoryProvider);
+    final categoriesAsync = ref.read(categoriesProvider);
+    String? categoryId;
+
+    if (categoriesAsync.hasValue) {
+      final categories = categoriesAsync.value!;
+      if (currentIndex != null && currentIndex > 0 && currentIndex <= categories.length) {
+        categoryId = categories[currentIndex - 1].id;
+      }
+    }
+
+    ref.read(offersProvider.notifier).fetchOffers(categoryId: categoryId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenSize = ref.watch(screenSizeProvider);
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
-    final itemHeight = screenSize.responsivePadding(235);
-    final aspectRatio = itemWidth / itemHeight;
-
-    final selectedCategoryIndex = ref.watch(selectedOffersCategoryProvider);
-    final categoriesAsync = ref.watch(categoriesProvider);
-
-    String? categoryId;
-    categoriesAsync.whenData((categories) {
-      if (selectedCategoryIndex > 0 &&
-          selectedCategoryIndex <= categories.length) {
-        categoryId = categories[selectedCategoryIndex - 1].id;
+    ref.listen<int>(selectedOffersCategoryProvider, (previous, next) {
+      if (previous != next) {
+        _fetchOffers(index: next);
       }
     });
 
+    final screenSize = ref.watch(screenSizeProvider);
     final offersState = ref.watch(offersProvider);
 
-    if (categoryId != offersState.currentCategoryId) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(offersProvider.notifier).fetchOffers(categoryId: categoryId);
-      });
-    }
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final itemHeight = screenSize.responsivePadding(260);
+    final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -133,6 +149,8 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                     Expanded(
                       child: TextField(
                         controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onTapOutside: (event) => _searchFocusNode.unfocus(),
                         onChanged: _onSearchChanged,
                         style: kSmallerTitleL.copyWith(color: kBlack),
                         decoration: InputDecoration(
@@ -152,11 +170,14 @@ class _OffersPageState extends ConsumerState<OffersPage> {
             ),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
-              child: _buildBody(
-                context,
-                offersState: offersState,
-                aspectRatio: aspectRatio,
-                screenSize: screenSize,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _buildBody(
+                  context,
+                  offersState: offersState,
+                  aspectRatio: aspectRatio,
+                  screenSize: screenSize,
+                ),
               ),
             ),
           ],
@@ -169,15 +190,16 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     BuildContext context, {
     required PaginatedOffers offersState,
     required double aspectRatio,
-    required screenSize,
+    required ScreenSizeData screenSize,
   }) {
     // Partner view — simple grid, no split
     if (GlobalVariables.isPartner) {
-      if (offersState.isLoading) {
-        return _shimmerGrid(screenSize, aspectRatio);
+      if (offersState.isLoading && offersState.offers.isEmpty) {
+        return _shimmerGrid(screenSize, aspectRatio, key: const ValueKey('partner_shimmer'));
       }
       if (offersState.offers.isEmpty) {
         return RefreshIndicator(
+          key: const ValueKey('partner_empty'),
           onRefresh: () async {
             await ref.read(offersProvider.notifier).fetchOffers();
           },
@@ -198,6 +220,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         );
       }
       return RefreshIndicator(
+        key: ValueKey('partner_grid_${offersState.currentCategoryId ?? 'all'}'),
         onRefresh: () async {
           await ref.read(offersProvider.notifier).fetchOffers();
         },
@@ -212,11 +235,12 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final isLoadingExplore = offersState.isExploreLoading;
 
     if (isLoadingNearby && !hasNearby) {
-      return _shimmerGrid(screenSize, aspectRatio);
+      return _shimmerGrid(screenSize, aspectRatio, key: const ValueKey('customer_shimmer'));
     }
 
     if (!hasNearby && !hasExplore && !isLoadingExplore) {
       return RefreshIndicator(
+        key: const ValueKey('customer_empty'),
         onRefresh: () async {
           await ref
               .read(offersProvider.notifier)
@@ -240,6 +264,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     }
 
     return RefreshIndicator(
+      key: ValueKey('customer_content_${offersState.currentCategoryId ?? 'all'}'),
       onRefresh: () async {
         await ref
             .read(offersProvider.notifier)
@@ -279,9 +304,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate((_, index) {
                     final o = offersState.offers[index];
-                    return DealCard.fromOffer(
-                      o,
-                    ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+                    return DealCard.fromOffer(o);
                   }, childCount: offersState.offers.length),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -338,9 +361,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate((_, index) {
                   final o = offersState.exploreOffers[index];
-                  return DealCard.fromOffer(
-                    o,
-                  ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+                  return DealCard.fromOffer(o);
                 }, childCount: offersState.exploreOffers.length),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -359,7 +380,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     );
   }
 
-  Widget _sectionHeader(String title, screenSize) {
+  Widget _sectionHeader(String title, ScreenSizeData screenSize) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         screenSize.responsivePadding(16.0),
@@ -374,8 +395,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     );
   }
 
-  Widget _shimmerGrid(screenSize, double aspectRatio) {
+  Widget _shimmerGrid(ScreenSizeData screenSize, double aspectRatio, {Key? key}) {
     return GridView.builder(
+      key: key,
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16.0),
       ),
@@ -390,7 +412,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     );
   }
 
-  Widget _offersGrid(offers, double aspectRatio, screenSize) {
+  Widget _offersGrid(List<OfferModel> offers, double aspectRatio, ScreenSizeData screenSize) {
     return GridView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16.0),
@@ -404,9 +426,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       itemCount: offers.length,
       itemBuilder: (_, index) {
         final o = offers[index];
-        return DealCard.fromOffer(
-          o,
-        ).fadeSlideInFromBottom(delayMilliseconds: index * 50);
+        return DealCard.fromOffer(o);
       },
     );
   }

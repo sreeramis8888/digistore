@@ -97,10 +97,14 @@ class Offers extends _$Offers {
     final currentSearch = search ?? state.searchQuery;
 
     if (isRefresh) {
+      final isCategoryChange = categoryId != state.currentCategoryId;
       state = state.copyWith(
         isLoading: true,
         error: null,
         searchQuery: currentSearch,
+        offers: isCategoryChange ? [] : state.offers,
+        exploreOffers: isCategoryChange ? [] : state.exploreOffers,
+        currentCategoryId: isCategoryChange ? categoryId : state.currentCategoryId,
       );
     }
 
