@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ class CategoryList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (categories == null || categories!.isEmpty) return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
+    final padding = screenSize.responsivePadding(16);
 
     final categoryIcons = {
       'Restaurants & Cafes': 'assets/svg/food.svg',
@@ -34,31 +36,36 @@ class CategoryList extends ConsumerWidget {
             ref.read(selectedIndexProvider.notifier).updateIndex(1);
           },
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
-          child: Row(
-            children: categories!.asMap().entries.map((entry) {
-              final index = entry.key;
-              final category = entry.value;
-              return Padding(
-                padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
-                child: InteractiveFeedbackButton(
-                  onPressed: () {
-                    ref.read(selectedOffersCategoryProvider.notifier).state = index + 1;
-                    ref.read(selectedIndexProvider.notifier).updateIndex(1);
-                  },
-                  scaleFactor: 0.95,
-                  child: CategoryCard(
-                    category: {
-                      'name': category.name ?? '',
-                      'icon': categoryIcons[category.name] ?? 'assets/svg/daily_needs.svg',
-                    },
-                  ),
-                ),
-              );
-            }).toList(),
+        CarouselSlider.builder(
+          itemCount: categories!.length,
+          options: CarouselOptions(
+            height: screenSize.responsivePadding(125),
+            viewportFraction: 0.28,
+            enableInfiniteScroll: false,
+            padEnds: false,
           ),
+          itemBuilder: (context, index, realIndex) {
+            final category = categories![index];
+            return Padding(
+              padding: EdgeInsets.only(
+                left: index == 0 ? padding : padding / 2,
+                right: index == categories!.length - 1 ? padding : padding / 2,
+              ),
+              child: InteractiveFeedbackButton(
+                onPressed: () {
+                  ref.read(selectedOffersCategoryProvider.notifier).state = index + 1;
+                  ref.read(selectedIndexProvider.notifier).updateIndex(1);
+                },
+                scaleFactor: 0.95,
+                child: CategoryCard(
+                  category: {
+                    'name': category.name ?? '',
+                    'icon': categoryIcons[category.name] ?? 'assets/svg/daily_needs.svg',
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

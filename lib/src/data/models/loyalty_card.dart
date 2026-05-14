@@ -4,6 +4,8 @@ class LoyaltyCard {
   final int? totalPointsEarned;
   final String? tier;
   final List<String>? tierBenefits;
+  final int? remainingPointsToNextTier;
+  final String? nextTier;
 
   const LoyaltyCard({
     this.name,
@@ -11,6 +13,8 @@ class LoyaltyCard {
     this.totalPointsEarned,
     this.tier,
     this.tierBenefits,
+    this.remainingPointsToNextTier,
+    this.nextTier,
   });
 
   factory LoyaltyCard.fromJson(Map<String, dynamic> json) {
@@ -19,7 +23,11 @@ class LoyaltyCard {
       pointsBalance: json['pointsBalance'] as int?,
       totalPointsEarned: json['totalPointsEarned'] as int?,
       tier: json['tier'] as String?,
-      tierBenefits: json['tierBenefits'] != null ? List<String>.from(json['tierBenefits']) : null,
+      tierBenefits: json['tierBenefits'] != null
+          ? List<String>.from(json['tierBenefits'])
+          : null,
+      remainingPointsToNextTier: json['remainingPointsToNextTier'] as int?,
+      nextTier: json['nextTier'] as String?,
     );
   }
 }

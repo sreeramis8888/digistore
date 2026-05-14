@@ -7,7 +7,9 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
 import '../../components/location_selection_bottom_sheet.dart';
+import '../../components/confirmation_dialog.dart';
 import '../../../data/providers/user_provider.dart';
+import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/secure_storage_service.dart';
 
 class ProfileSetupPage extends ConsumerStatefulWidget {
@@ -66,8 +68,49 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: screenSize.responsivePadding(24)),
-              // Logo and Slogan
+              SizedBox(height: screenSize.responsivePadding(12)),
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () async {
+                    final confirm = await showConfirmationDialog(
+                      context: context,
+                      title: 'Logout',
+                      message: 'Are you sure you want to log out?',
+                      confirmText: 'Logout',
+                      isDestructive: true,
+                      icon: Icons.logout_rounded,
+                    );
+                    if (confirm == true && context.mounted) {
+                      await ref.read(authProvider.notifier).logout();
+                      Navigator.of(context).pushNamedAndRemoveUntil('login', (route) => false);
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(12),
+                      vertical: screenSize.responsivePadding(6),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF0F0),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: const Color(0xFFFFD6D6)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.logout_rounded, color: Color(0xFFE53935), size: 14),
+                        SizedBox(width: screenSize.responsivePadding(4)),
+                        Text(
+                          'Logout',
+                          style: kSmallTitleSB.copyWith(color: const Color(0xFFE53935), fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: screenSize.responsivePadding(8)),
               Align(
                 alignment: Alignment.center,
                 child: Column(
@@ -222,6 +265,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                               secureStorageServiceProvider,
                             );
                             await storage.saveOnboardingComplete(true);
+                            await storage.clearRegistrationData();
 
                             if (context.mounted) {
                               Navigator.of(context).pushNamedAndRemoveUntil(

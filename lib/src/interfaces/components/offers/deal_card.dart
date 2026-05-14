@@ -189,7 +189,7 @@ class DealCard extends ConsumerWidget {
                         style: kSmallerTitleL.copyWith(
                           color: kSecondaryTextColor,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

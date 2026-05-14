@@ -222,42 +222,66 @@ class LoyaltyRewardCard extends ConsumerWidget {
                       ],
                     ),
                     SizedBox(height: screenSize.responsivePadding(10)),
-                    // Container(
-                    //   height: 12,
-                    //   width: double.infinity,
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.white.withOpacity(0.4),
-                    //     borderRadius: BorderRadius.circular(10),
-                    //   ),
-                    //   child: Align(
-                    //     alignment: Alignment.centerLeft,
-                    //     child: FractionallySizedBox(
-                    //       widthFactor: (loyaltyCard?.pointsBalance ?? 0) /
-                    //           (loyaltyCard?.totalPointsEarned ?? 1000).clamp(1, double.infinity),
-                    //       child: Container(
-                    //         decoration: BoxDecoration(
-                    //           color: const Color(0xFF4FACFD),
-                    //           border: Border.all(
-                    //             color: const Color(0xFFA8A8A8),
-                    //             width: 1,
-                    //           ),
-                    //           borderRadius: BorderRadius.circular(10),
-                    //           boxShadow: [
-                    //             BoxShadow(
-                    //               color: kWhite.withOpacity(0.45),
-                    //               blurRadius: 2,
-                    //               blurStyle: BlurStyle.outer,
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(height: screenSize.responsivePadding(10)),
-                    Text(
-                      'Points earned',
-                      style: kSmallerTitleM.copyWith(color: kWhite),
+                    Builder(
+                      builder: (context) {
+                        final isHighestTier = loyaltyCard?.nextTier == null || loyaltyCard!.nextTier!.isEmpty;
+                        
+                        double progress = 1.0;
+                        if (!isHighestTier) {
+                          final totalEarned = (loyaltyCard?.totalPointsEarned ?? 0).toDouble();
+                          final remaining = (loyaltyCard?.remainingPointsToNextTier ?? 0).toDouble();
+                          final target = totalEarned + remaining;
+                          if (target > 0) {
+                            progress = (totalEarned / target).clamp(0.0, 1.0);
+                          } else {
+                            progress = 0.0;
+                          }
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 12,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: FractionallySizedBox(
+                                  widthFactor: progress,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF4FACFD),
+                                      border: Border.all(
+                                        color: const Color(0xFFA8A8A8),
+                                        width: 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: kWhite.withOpacity(0.45),
+                                          blurRadius: 2,
+                                          blurStyle: BlurStyle.outer,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: screenSize.responsivePadding(10)),
+                            Text(
+                              isHighestTier 
+                                  ? 'Highest tier reached'
+                                  : '${loyaltyCard?.remainingPointsToNextTier ?? 0} points more to reach ${loyaltyCard?.nextTier} Tier',
+                              style: kSmallerTitleM.copyWith(color: kWhite),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     SizedBox(height: screenSize.responsivePadding(10)),
                     Center(

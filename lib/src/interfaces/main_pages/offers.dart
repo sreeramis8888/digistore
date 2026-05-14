@@ -12,8 +12,6 @@ import '../../data/router/nav_router.dart';
 import '../../data/utils/global_variables.dart';
 import '../animations/index.dart';
 import '../components/empty_state.dart';
-import '../components/home/home_search_bar.dart';
-import '../components/loading_indicator.dart';
 import '../components/offers/deal_card.dart';
 import '../components/offers/offers_filter_chips.dart';
 import '../components/primary_button.dart';
@@ -81,7 +79,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final offersState = ref.watch(offersProvider);
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
-    final itemHeight = screenSize.responsivePadding(260);
+    final itemHeight = screenSize.responsivePadding(230);
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
@@ -286,7 +284,6 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          // ── Offers Near You ──────────────────────────────────────────
           if (hasNearby || isLoadingNearby) ...[
             SliverToBoxAdapter(
               child: _sectionHeader('Offers Near You', screenSize),
