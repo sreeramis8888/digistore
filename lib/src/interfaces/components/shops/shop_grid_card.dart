@@ -1,4 +1,3 @@
-
 import 'package:digistore/src/interfaces/components/advanced_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,10 +37,9 @@ class ShopGridCard extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pushNamed(
-          'shopDetail',
-          arguments: shop ?? shopName,
-        );
+        Navigator.of(
+          context,
+        ).pushNamed('shopDetail', arguments: shop ?? shopName);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -94,6 +92,9 @@ class ShopGridCard extends ConsumerWidget {
                   top: 0,
                   left: 0,
                   child: Container(
+                    constraints: BoxConstraints(
+                      maxWidth: screenSize.responsivePadding(130),
+                    ),
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.responsivePadding(12),
                       vertical: screenSize.responsivePadding(4),
@@ -107,6 +108,8 @@ class ShopGridCard extends ConsumerWidget {
                     ),
                     child: Text(
                       category,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: kSmallerTitleSB.copyWith(
                         color: kWhite,
                         fontSize: 10,
@@ -132,11 +135,17 @@ class ShopGridCard extends ConsumerWidget {
                             shape: BoxShape.circle,
                             color: avatarColor,
                           ),
-                          child: (logoUrl ?? shop?.businessInfo?.businessLogo) != null
+                          child:
+                              (logoUrl ?? shop?.businessInfo?.businessLogo) !=
+                                  null
                               ? AdvancedNetworkImage(
-                                  imageUrl: logoUrl ?? shop!.businessInfo!.businessLogo!,
+                                  imageUrl:
+                                      logoUrl ??
+                                      shop!.businessInfo!.businessLogo!,
                                   fit: BoxFit.cover,
-                                  borderRadius: BorderRadius.circular(screenSize.responsivePadding(12)),
+                                  borderRadius: BorderRadius.circular(
+                                    screenSize.responsivePadding(12),
+                                  ),
                                 )
                               : Icon(avatarIcon, size: 14, color: kWhite),
                         ),
@@ -187,7 +196,8 @@ class ShopGridCard extends ConsumerWidget {
                         Row(
                           children: [
                             Text(
-                              rating,
+                              double.tryParse(rating)?.toStringAsFixed(1) ??
+                                  rating,
                               style: kSmallerTitleL.copyWith(
                                 color: kSecondaryTextColor,
                               ),

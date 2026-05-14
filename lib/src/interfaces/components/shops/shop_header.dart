@@ -187,7 +187,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             Row(
               children: [
                 Text(
-                  rating.toString(),
+                  rating.toStringAsFixed(1),
                   style: kBodyTitleM.copyWith(color: const Color(0xFF4E4E4E)),
                 ),
                 SizedBox(width: screenSize.responsivePadding(4)),

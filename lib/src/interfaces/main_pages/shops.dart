@@ -113,11 +113,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     screenSize,
   ) {
     final type = shop.businessDetails?.businessType;
-    final logo = shop.businessInfo?.businessLogo;
     final coverImage =
-        logo ??
-        (shop.businessInfo?.businessImages?.isNotEmpty == true
-            ? shop.businessInfo!.businessImages!.first
+        shop.businessInfo?.coverImage ??
+        (shop.businessInfo?.businessLogo != null
+            ? shop.businessInfo!.businessLogo!
             : null);
 
     String address = 'No address provided';
@@ -170,7 +169,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       rating: shop.businessInfo?.rating?.toString() ?? '0.0',
       avatarColor: _getCategoryColor(type),
       avatarIcon: _getCategoryIcon(type),
-      logoUrl: logo,
+      logoUrl: coverImage,
       imageUrl: coverImage,
       shop: shop,
     );

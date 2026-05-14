@@ -66,20 +66,24 @@ class PartnerProfileHeader extends ConsumerWidget {
                     if (tagline.isNotEmpty &&
                         tagline.toLowerCase() != '' &&
                         tagline.toLowerCase() != 'null') ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: kPrimaryLightColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          tagline,
-                          style: kSmallTitleL.copyWith(
-                            fontSize: 10,
-                            color: kSecondaryColor,
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kPrimaryLightColor,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            tagline,
+                            style: kSmallTitleL.copyWith(
+                              fontSize: 10,
+                              color: kSecondaryColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
@@ -95,10 +99,14 @@ class PartnerProfileHeader extends ConsumerWidget {
                       color: Color(0xFF6B7280),
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      location,
-                      style: kSmallTitleL.copyWith(
-                        color: const Color(0xFF616161),
+                    Flexible(
+                      child: Text(
+                        location,
+                        style: kSmallTitleL.copyWith(
+                          color: const Color(0xFF616161),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const Icon(

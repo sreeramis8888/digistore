@@ -145,7 +145,7 @@ class _ReviewCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Text(review.rating?.toString() ?? '0.0', style: kSmallTitleM),
+                  Text(review.rating?.toStringAsFixed(1) ?? '0.0', style: kSmallTitleM),
                   SizedBox(width: screenSize.responsivePadding(4)),
                   const Icon(Icons.star, color: Color(0xFFFFD700), size: 14),
                 ],

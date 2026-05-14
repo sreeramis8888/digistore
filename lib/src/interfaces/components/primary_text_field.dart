@@ -10,6 +10,7 @@ class PrimaryTextField extends StatefulWidget {
   final TextEditingController? controller;
   final TextFieldType type;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
   final bool obscureText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -27,6 +28,7 @@ class PrimaryTextField extends StatefulWidget {
     this.controller,
     this.type = TextFieldType.text,
     this.validator,
+    this.focusNode,
     this.obscureText = false,
     this.prefixIcon,
     this.suffixIcon,
@@ -90,6 +92,7 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
         ],
         TextFormField(
           controller: widget.controller,
+          focusNode: widget.focusNode,
           keyboardType: _getKeyboardType(),
           obscureText: _isObscured,
           validator: widget.validator,

@@ -65,6 +65,11 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
         if (cleaned.isNotEmpty) body['businessInfo'] = json.encode(cleaned);
       }
 
+      final tags = updatedPartner.tags;
+      if (tags != null && tags.isNotEmpty) {
+        body['tags'] = json.encode(tags);
+      }
+
       if (uploadField != null) {
         body['uploadField'] = uploadField;
       }

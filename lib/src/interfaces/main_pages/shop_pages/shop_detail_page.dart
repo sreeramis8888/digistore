@@ -21,8 +21,10 @@ class ShopDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final currentShopName = shop?.businessDetails?.businessName ?? shopName ?? 'Unknown Shop';
-    final heroImage = shop?.businessInfo?.businessLogo ??
+    final currentShopName =
+        shop?.businessDetails?.businessName ?? shopName ?? 'Unknown Shop';
+    final heroImage =
+        shop?.businessInfo?.coverImage ??
         (shop?.businessInfo?.businessImages?.isNotEmpty == true
             ? shop!.businessInfo!.businessImages!.first
             : null);
@@ -83,7 +85,8 @@ class ShopDetailPage extends ConsumerWidget {
                   SizedBox(height: screenSize.responsivePadding(16)),
                   ShopAbout(shop: shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  if (shop?.businessInfo?.businessImages != null && shop!.businessInfo!.businessImages!.length > 1) ...[
+                  if (shop?.businessInfo?.businessImages != null &&
+                      shop!.businessInfo!.businessImages!.length > 1) ...[
                     ShopGallery(images: shop!.businessInfo!.businessImages!),
                     SizedBox(height: screenSize.responsivePadding(20)),
                   ],

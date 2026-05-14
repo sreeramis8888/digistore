@@ -72,6 +72,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   late TextEditingController _youtubeCtrl;
 
   List<String> _specialties = [];
+  List<String> _tags = [];
   List<BusinessBranch> _branches = [];
   List<String> _businessImages = [];
   OperatingHours? _operatingHours;
@@ -84,6 +85,10 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   bool _deletedLogo = false;
 
   bool _isLoading = false;
+
+  bool _isAddingTag = false;
+  final TextEditingController _tagInputCtrl = TextEditingController();
+  final FocusNode _tagFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -150,6 +155,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
 
     _specialties = List.from(partner?.businessInfo?.specialties ?? []);
+    _tags = List.from(partner?.tags ?? []);
     _branches = List.from(partner?.businessInfo?.branches ?? []);
     _businessImages = List.from(partner?.businessInfo?.businessImages ?? []);
     _operatingHours = partner?.businessInfo?.operatingHours;
@@ -204,6 +210,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _instagramCtrl.dispose();
     _facebookCtrl.dispose();
     _youtubeCtrl.dispose();
+    _tagInputCtrl.dispose();
+    _tagFocusNode.dispose();
     super.dispose();
   }
 
@@ -359,6 +367,31 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     final result = await showAddBranchDialog(context);
     if (result != null && mounted) {
       setState(() => _branches.add(result));
+    }
+  }
+
+  void _submitTag() {
+    final val = _tagInputCtrl.text.trim();
+    if (val.isNotEmpty) {
+      if (!_tags.contains(val)) {
+        setState(() {
+          _tags.add(val);
+          _tagInputCtrl.clear();
+        });
+        _tagFocusNode.requestFocus();
+      } else {
+        ToastService().showToast(
+          context,
+          'Tag already added',
+          type: ToastType.warning,
+        );
+        _tagInputCtrl.clear();
+      }
+    } else {
+      setState(() {
+        _isAddingTag = false;
+        _tagInputCtrl.clear();
+      });
     }
   }
 
@@ -1698,6 +1731,70 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 ),
 
                                 _buildSectionHeader(
+                                  'Tags',
+                                  showAdd: !_isAddingTag,
+                                  onAdd: () {
+                                    setState(() => _isAddingTag = true);
+                                    _tagFocusNode.requestFocus();
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AnimatedSize(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeOutBack,
+                                        child: _isAddingTag && isEditMode
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(bottom: 16),
+                                                child: PrimaryTextField(
+                                                  label: 'New Tag',
+                                                  controller: _tagInputCtrl,
+                                                  focusNode: _tagFocusNode,
+                                                  hint: 'Type and press space to add...',
+                                                  onChanged: (val) {
+                                                    if (val.endsWith(' ')) {
+                                                      _submitTag();
+                                                    }
+                                                  },
+                                                  onSubmitted: (val) => _submitTag(),
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            ..._tags.map(
+                                              (t) => AnimatedScale(
+                                                scale: 1.0,
+                                                duration: const Duration(milliseconds: 200),
+                                                child: _buildRemovableChip(
+                                                  t,
+                                                  onDelete: () => setState(() => _tags.remove(t)),
+                                                ),
+                                              ),
+                                            ),
+                                            if (_tags.isEmpty && !_isAddingTag)
+                                              Text(
+                                                'No tags added',
+                                                style: kSmallTitleL.copyWith(color: kGrey),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                _buildSectionHeader(
                                   'Social Media',
                                   showAdd: false,
                                 ),
@@ -2342,6 +2439,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                           ),
                           serviceCategories: currentPartner.serviceCategories,
                           coverageAreas: currentPartner.coverageAreas,
+                          tags: _tags,
                           isActive: currentPartner.isActive,
                           isFeatured: currentPartner.isFeatured,
                           verificationStatus: currentPartner.verificationStatus,
