@@ -15,23 +15,33 @@ import '../../components/offers/deal_card.dart';
 import '../../components/shops/product_card.dart';
 import '../../../data/providers/shops_provider.dart';
 
-class ShopDetailPage extends ConsumerWidget {
+import '../../components/shops/shop_branches.dart';
+import '../../../../src/data/models/business_info.dart';
+
+class ShopDetailPage extends ConsumerStatefulWidget {
   final String? shopName;
   final ShopModel? shop;
 
   const ShopDetailPage({super.key, this.shopName, this.shop});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShopDetailPage> createState() => _ShopDetailPageState();
+}
+
+class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
+  BusinessBranch? _selectedBranch;
+
+  @override
+  Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final currentShopName =
-        shop?.businessDetails?.businessName ?? shopName ?? 'Unknown Shop';
+        widget.shop?.businessDetails?.businessName ?? widget.shopName ?? 'Unknown Shop';
     final heroImage =
-        shop?.businessInfo?.coverImage ??
-        (shop?.businessInfo?.businessImages?.isNotEmpty == true
-            ? shop!.businessInfo!.businessImages!.first
+        widget.shop?.businessInfo?.coverImage ??
+        (widget.shop?.businessInfo?.businessImages?.isNotEmpty == true
+            ? widget.shop!.businessInfo!.businessImages!.first
             : null);
-    final shopId = shop?.id ?? '';
+    final shopId = widget.shop?.id ?? '';
     final offersAsync = shopId.isNotEmpty ? ref.watch(shopOffersProvider(shopId)) : null;
     final productsAsync = shopId.isNotEmpty ? ref.watch(shopProductsProvider(shopId)) : null;
 
@@ -87,20 +97,40 @@ class ShopDetailPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ShopHeader(shopName: currentShopName, shop: shop),
+                  ShopHeader(
+                    shopName: currentShopName,
+                    shop: widget.shop,
+                    selectedBranch: _selectedBranch,
+                  ),
                   SizedBox(height: screenSize.responsivePadding(16)),
-                  ShopAbout(shop: shop),
+                  if (widget.shop?.businessInfo?.branches != null &&
+                      widget.shop!.businessInfo!.branches!.isNotEmpty) ...[
+                    ShopBranches(
+                      branches: widget.shop!.businessInfo!.branches!,
+                      selectedBranch: _selectedBranch,
+                      onBranchSelected: (branch) {
+                        setState(() {
+                          _selectedBranch = branch;
+                        });
+                      },
+                    ),
+                    SizedBox(height: screenSize.responsivePadding(16)),
+                  ],
+                  ShopAbout(shop: widget.shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  if (shop?.businessInfo?.businessImages != null &&
-                      shop!.businessInfo!.businessImages!.length > 1) ...[
-                    ShopGallery(images: shop!.businessInfo!.businessImages!),
+                  if (widget.shop?.businessInfo?.businessImages != null &&
+                      widget.shop!.businessInfo!.businessImages!.length > 1) ...[
+                    ShopGallery(images: widget.shop!.businessInfo!.businessImages!),
                     SizedBox(height: screenSize.responsivePadding(20)),
                   ],
-                  ShopAddress(shop: shop),
+                  ShopAddress(
+                    shop: widget.shop,
+                    selectedBranch: _selectedBranch,
+                  ),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  ShopReviews(shop: shop),
+                  ShopReviews(shop: widget.shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  ShopSocials(shop: shop),
+                  ShopSocials(shop: widget.shop),
                   SizedBox(height: screenSize.responsivePadding(32)),
                   if (offersAsync != null)
                     offersAsync.when(

@@ -10,11 +10,14 @@ import '../../../../src/data/utils/launch_url.dart';
 import '../../../../src/data/providers/reviews_provider.dart';
 import '../advanced_network_image.dart';
 
+import '../../../../src/data/models/business_info.dart';
+
 class ShopHeader extends ConsumerStatefulWidget {
   final String shopName;
   final ShopModel? shop;
+  final BusinessBranch? selectedBranch;
 
-  const ShopHeader({super.key, required this.shopName, this.shop});
+  const ShopHeader({super.key, required this.shopName, this.shop, this.selectedBranch});
 
   @override
   ConsumerState<ShopHeader> createState() => _ShopHeaderState();
@@ -31,11 +34,24 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     _calculateRoadDistance();
   }
 
+  @override
+  void didUpdateWidget(ShopHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedBranch != widget.selectedBranch) {
+      _calculateRoadDistance();
+    }
+  }
+
   Future<void> _calculateRoadDistance() async {
     final user = ref.read(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
-    final shopCoords = widget.shop?.businessInfo?.storeLocation?.coordinates;
+    final shopCoords = widget.selectedBranch?.location?.coordinates ?? widget.shop?.businessInfo?.storeLocation?.coordinates;
+
+    setState(() {
+      _roadDistance = null;
+      _durationMinutes = null;
+    });
 
     if (userLat != null &&
         userLng != null &&
@@ -75,7 +91,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final category = widget.shop?.serviceCategories?.isNotEmpty == true
         ? widget.shop!.serviceCategories!.first
         : 'General';
-    final address =
+    final address = widget.selectedBranch?.address ?? 
         widget.shop?.businessDetails?.address ??
         widget.shop?.businessInfo?.storeLocation?.address ??
         'No address provided';
@@ -83,7 +99,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final user = ref.watch(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
-    final shopCoords = widget.shop?.businessInfo?.storeLocation?.coordinates;
+    final shopCoords = widget.selectedBranch?.location?.coordinates ?? widget.shop?.businessInfo?.storeLocation?.coordinates;
 
     String distanceLabel = '';
     if (_roadDistance != null) {
@@ -171,20 +187,38 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             ),
             SizedBox(width: screenSize.responsivePadding(4)),
             Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: kSmallTitleL.copyWith(color: const Color(0xFF4E4E4E)),
-                  children: [
-                    TextSpan(text: address),
-                    if (distanceLabel.isNotEmpty)
-                      TextSpan(
-                        text: distanceLabel,
-                        style: kSmallTitleSB.copyWith(color: kPrimaryColor),
-                      ),
-                  ],
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.1),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: RichText(
+                  key: ValueKey('$address$distanceLabel'),
+                  text: TextSpan(
+                    style: kSmallTitleL.copyWith(color: const Color(0xFF4E4E4E)),
+                    children: [
+                      TextSpan(text: address),
+                      if (distanceLabel.isNotEmpty)
+                        TextSpan(
+                          text: distanceLabel,
+                          style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                        ),
+                    ],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -210,7 +244,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                final phone = widget.shop?.businessInfo?.contactPhone;
+                final phone = widget.selectedBranch?.phone ?? widget.shop?.businessInfo?.contactPhone;
                 if (phone != null && phone.isNotEmpty) {
                   launchPhone(phone);
                 }

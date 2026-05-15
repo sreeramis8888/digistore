@@ -6,13 +6,16 @@ import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/shop_model.dart';
 import '../../../../src/data/utils/launch_url.dart';
 
+import '../../../../src/data/models/business_info.dart';
+
 class ShopAddress extends ConsumerWidget {
   final ShopModel? shop;
+  final BusinessBranch? selectedBranch;
 
-  const ShopAddress({super.key, this.shop});
+  const ShopAddress({super.key, this.shop, this.selectedBranch});
 
   void _openDirections() {
-    final shopCoords = shop?.businessInfo?.storeLocation?.coordinates;
+    final shopCoords = selectedBranch?.location?.coordinates ?? shop?.businessInfo?.storeLocation?.coordinates;
     if (shopCoords != null && shopCoords.length >= 2) {
       final lat = shopCoords[1];
       final lng = shopCoords[0];
@@ -23,12 +26,17 @@ class ShopAddress extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final location = shop?.businessInfo?.storeLocation;
+    final location = selectedBranch?.location ?? shop?.businessInfo?.storeLocation;
     
     String addressText = 'No address provided';
     String? cityStateText;
     
-    if (shop?.businessDetails?.address != null) {
+    if (selectedBranch != null && selectedBranch!.address != null) {
+      addressText = selectedBranch!.address!;
+      if (location?.city != null || location?.state != null || location?.pincode != null) {
+        cityStateText = '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'.trim();
+      }
+    } else if (shop?.businessDetails?.address != null && selectedBranch == null) {
       addressText = shop!.businessDetails!.address!;
       if (shop?.businessDetails?.pincode != null) {
         cityStateText = 'Pincode: ${shop?.businessDetails?.pincode}';
@@ -38,7 +46,7 @@ class ShopAddress extends ConsumerWidget {
       if (location.city != null || location.state != null || location.pincode != null) {
         cityStateText = '${location.city ?? ''} ${location.state ?? ''} ${location.pincode ?? ''}'.trim();
       }
-    } else if (shop?.coverageAreas?.districts?.isNotEmpty == true) {
+    } else if (shop?.coverageAreas?.districts?.isNotEmpty == true && selectedBranch == null) {
       addressText = shop!.coverageAreas!.districts!.join(', ');
     }
 
@@ -47,17 +55,40 @@ class ShopAddress extends ConsumerWidget {
       children: [
         Text('Location', style: kBodyTitleM),
         SizedBox(height: screenSize.responsivePadding(12)),
-        Text(
-          addressText,
-          style: kSmallTitleR.copyWith(color: kSecondaryTextColor, height: 1.5),
-        ),
-        if (cityStateText != null && cityStateText.isNotEmpty) ...[
-          SizedBox(height: screenSize.responsivePadding(4)),
-          Text(
-            cityStateText,
-            style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 0.1),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: Column(
+            key: ValueKey(addressText),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                addressText,
+                style: kSmallTitleR.copyWith(color: kSecondaryTextColor, height: 1.5),
+              ),
+              if (cityStateText != null && cityStateText!.isNotEmpty) ...[
+                SizedBox(height: screenSize.responsivePadding(4)),
+                Text(
+                  cityStateText!,
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                ),
+              ],
+            ],
           ),
-        ],
+        ),
         SizedBox(height: screenSize.responsivePadding(12)),
         InkWell(
           onTap: _openDirections,
@@ -85,10 +116,14 @@ class ShopAddress extends ConsumerWidget {
                     style: kSmallTitleM.copyWith(color: kPrimaryColor),
                   ),
                   SizedBox(height: screenSize.responsivePadding(4)),
-                  Text(
-                    shop?.businessDetails?.businessName ?? 'Shop Location',
-                    style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
-                    textAlign: TextAlign.center,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    child: Text(
+                      selectedBranch?.name ?? shop?.businessDetails?.businessName ?? 'Shop Location',
+                      key: ValueKey(selectedBranch?.name ?? shop?.businessDetails?.businessName),
+                      style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ],
               ),
