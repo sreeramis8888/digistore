@@ -37,9 +37,12 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final userLng = user?.location?.coordinates?.lng;
     final shopCoords = widget.shop?.businessInfo?.storeLocation?.coordinates;
 
-    if (userLat != null && userLng != null && shopCoords != null && shopCoords.length >= 2) {
+    if (userLat != null &&
+        userLng != null &&
+        shopCoords != null &&
+        shopCoords.length >= 2) {
       setState(() => _isCalculating = true);
-      
+
       final result = await LocationUtils.calculateRoadDistanceAndDuration(
         fromLat: userLat,
         fromLng: userLng,
@@ -64,14 +67,17 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final screenSize = ref.watch(screenSizeProvider);
     final rating = widget.shop?.businessInfo?.rating ?? 0.0;
     final totalSalesRaw = widget.shop?.businessInfo?.totalReviews ?? 0;
-    
+
     // Watch reviews provider to get live total
     final reviewsAsync = ref.watch(reviewsProvider(shopId: widget.shop?.id));
-    final totalSales = reviewsAsync.value?.total ?? totalSalesRaw;
-
-    final category = widget.shop?.serviceCategories?.isNotEmpty == true ? widget.shop!.serviceCategories!.first : 'General';
-    final address = widget.shop?.businessDetails?.address ?? 
-        widget.shop?.businessInfo?.storeLocation?.address ?? 
+    final fetchedSales = reviewsAsync.value?.total ?? 0;
+    final totalSales = fetchedSales > 0 ? fetchedSales : totalSalesRaw;
+    final category = widget.shop?.serviceCategories?.isNotEmpty == true
+        ? widget.shop!.serviceCategories!.first
+        : 'General';
+    final address =
+        widget.shop?.businessDetails?.address ??
+        widget.shop?.businessInfo?.storeLocation?.address ??
         'No address provided';
 
     final user = ref.watch(userProvider);
@@ -89,12 +95,15 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       distanceLabel += ')';
     } else if (_isCalculating) {
       distanceLabel = ' (calculating...)';
-    } else if (userLat != null && userLng != null && shopCoords != null && shopCoords.length >= 2) {
+    } else if (userLat != null &&
+        userLng != null &&
+        shopCoords != null &&
+        shopCoords.length >= 2) {
       final d = LocationUtils.calculateDistance(
         userLat,
         userLng,
-        shopCoords[1], 
-        shopCoords[0], 
+        shopCoords[1],
+        shopCoords[0],
       );
       distanceLabel = ' (${d.toStringAsFixed(1)} km)';
     }
@@ -122,7 +131,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             SizedBox(width: screenSize.responsivePadding(12)),
             Expanded(
               child: Text(
-                widget.shopName, 
+                widget.shopName,
                 style: kBodyTitleM.copyWith(fontSize: 24),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

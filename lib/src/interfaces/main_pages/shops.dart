@@ -38,6 +38,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     _searchController.dispose();
     _searchFocusNode.dispose();
     _debounce?.cancel();
+    // Clear search state when leaving the page
+    ref.read(shopsProvider.notifier).updateSearch('');
+    ref.read(allShopsProvider.notifier).updateSearch('');
     super.dispose();
   }
 

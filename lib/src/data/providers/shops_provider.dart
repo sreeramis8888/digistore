@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/shop_model.dart';
-import '../models/product_model.dart'; // For PaginationModel
+import '../models/product_model.dart';
+import '../models/offer_model.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';
 import 'auth_provider.dart';
@@ -239,4 +240,28 @@ class AllShops extends _$AllShops {
     if (state.searchQuery == query) return;
     getShops(page: 1, search: query);
   }
+}
+
+@riverpod
+Future<List<OfferModel>> shopOffers(Ref ref, String shopId) async {
+  if (shopId.isEmpty) return [];
+  final api = ref.read(apiProvider);
+  final response = await api.get('/shops/$shopId/offers', requireAuth: false);
+  if (response.success && response.data != null) {
+    final data = response.data!['data'] as List<dynamic>? ?? [];
+    return data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+  return [];
+}
+
+@riverpod
+Future<List<ProductModel>> shopProducts(Ref ref, String shopId) async {
+  if (shopId.isEmpty) return [];
+  final api = ref.read(apiProvider);
+  final response = await api.get('/shops/$shopId/products', requireAuth: false);
+  if (response.success && response.data != null) {
+    final data = response.data!['data'] as List<dynamic>? ?? [];
+    return data.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+  return [];
 }

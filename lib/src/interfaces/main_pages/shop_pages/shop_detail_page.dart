@@ -11,6 +11,9 @@ import '../../components/shops/shop_gallery.dart';
 import '../../components/shops/shop_address.dart';
 import '../../components/shops/shop_reviews.dart';
 import '../../components/shops/shop_socials.dart';
+import '../../components/offers/deal_card.dart';
+import '../../components/shops/product_card.dart';
+import '../../../data/providers/shops_provider.dart';
 
 class ShopDetailPage extends ConsumerWidget {
   final String? shopName;
@@ -28,6 +31,9 @@ class ShopDetailPage extends ConsumerWidget {
         (shop?.businessInfo?.businessImages?.isNotEmpty == true
             ? shop!.businessInfo!.businessImages!.first
             : null);
+    final shopId = shop?.id ?? '';
+    final offersAsync = shopId.isNotEmpty ? ref.watch(shopOffersProvider(shopId)) : null;
+    final productsAsync = shopId.isNotEmpty ? ref.watch(shopProductsProvider(shopId)) : null;
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -96,6 +102,80 @@ class ShopDetailPage extends ConsumerWidget {
                   SizedBox(height: screenSize.responsivePadding(20)),
                   ShopSocials(shop: shop),
                   SizedBox(height: screenSize.responsivePadding(32)),
+                  if (offersAsync != null)
+                    offersAsync.when(
+                      data: (offers) {
+                        if (offers.isEmpty) return const SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Offers', style: kBodyTitleM),
+                            SizedBox(height: screenSize.responsivePadding(16)),
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.75,
+                                crossAxisSpacing: screenSize.responsivePadding(12),
+                                mainAxisSpacing: screenSize.responsivePadding(12),
+                              ),
+                              itemCount: offers.length,
+                              itemBuilder: (context, index) {
+                                return DealCard.fromOffer(
+                                  offers[index],
+                                  margin: EdgeInsets.zero,
+                                );
+                              },
+                            ),
+                            SizedBox(height: screenSize.responsivePadding(32)),
+                          ],
+                        );
+                      },
+                      loading: () => const Center(child: CircularProgressIndicator(color: kPrimaryColor)),
+                      error: (e, s) => const SizedBox.shrink(),
+                    ),
+                  if (productsAsync != null)
+                    productsAsync.when(
+                      data: (products) {
+                        if (products.isEmpty) return const SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Products', style: kBodyTitleM),
+                            SizedBox(height: screenSize.responsivePadding(16)),
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.75,
+                                crossAxisSpacing: screenSize.responsivePadding(12),
+                                mainAxisSpacing: screenSize.responsivePadding(12),
+                              ),
+                              itemCount: products.length,
+                              itemBuilder: (context, index) {
+                                final product = products[index];
+                                return ProductCard(
+                                  index: index,
+                                  name: product.title,
+                                  image: product.images?.isNotEmpty == true ? product.images!.first : null,
+                                  description: product.description,
+                                  price: '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
+                                  tags: product.tags,
+                                  rawProduct: product,
+                                );
+                              },
+                            ),
+                            SizedBox(height: screenSize.responsivePadding(32)),
+                          ],
+                        );
+                      },
+                      loading: () => const Center(child: CircularProgressIndicator(color: kPrimaryColor)),
+                      error: (e, s) => const SizedBox.shrink(),
+                    ),
                 ],
               ),
             ),

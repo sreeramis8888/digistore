@@ -221,6 +221,7 @@ class ApiProvider {
       final decoded = json.decode(responseBody);
       log(name: 'API PUT MULTIPART data ', '$decoded');
       log(name: 'API PUT MULTIPART message', '${decoded['message']}');
+      log(name: 'API PUT MULTIPART body', '${decoded['body']}');
       if (streamedResponse.statusCode >= 200 &&
           streamedResponse.statusCode < 300) {
         return ApiResponse.success(decoded, streamedResponse.statusCode);

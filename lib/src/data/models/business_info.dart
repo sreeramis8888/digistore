@@ -59,7 +59,7 @@ class BusinessInfo {
       specialties: json['specialties'] != null ? List<String>.from(json['specialties']) : null,
       yearsOfExperience: json['yearsOfExperience'] as int?,
       rating: (json['rating'] as num?)?.toDouble(),
-      totalReviews: json['totalReviews'] as int?,
+      totalReviews: json['reviewCount'] as int? ?? json['totalReviews'] as int?,
       contactPhone: json['contactPhone'] as String?,
       otpPhone: json['otpPhone'] as String?,
       whatsappNumber: json['whatsappNumber'] as String?,

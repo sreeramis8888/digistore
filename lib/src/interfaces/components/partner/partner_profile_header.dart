@@ -5,6 +5,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_provider.dart';
+import '../../../data/utils/interactive_feedback_button.dart';
 import '../advanced_network_image.dart';
 
 class PartnerProfileHeader extends ConsumerWidget {
@@ -120,8 +121,8 @@ class PartnerProfileHeader extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () {
+          InteractiveFeedbackButton(
+            onPressed: () {
               Navigator.pushNamed(
                 context,
                 'partnerAccount',

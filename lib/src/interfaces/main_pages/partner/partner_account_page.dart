@@ -229,7 +229,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
     final result = await img_service.pickMedia(
       context: context,
-      enableCrop: true,
+      allowMultiple: field == 'gallery',
+      enableCrop: field != 'gallery',
       cropRatio: field == 'logo'
           ? const CropAspectRatio(ratioX: 1, ratioY: 1)
           : field == 'cover'
@@ -256,6 +257,30 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
           _pickedGallery.add(compressedFile);
         }
       });
+    } else if (result is List<XFile>) {
+      // Handle multiple images for gallery
+      final currentTotal = _businessImages.length + _pickedGallery.length;
+      final availableSlots = 10 - currentTotal;
+      
+      if (result.length > availableSlots) {
+        ToastService().showToast(
+          context,
+          'Only $availableSlots more image(s) can be added',
+          type: ToastType.warning,
+        );
+      }
+
+      final imagesToAdd = result.take(availableSlots).toList();
+      
+      for (final xFile in imagesToAdd) {
+        File originalFile = File(xFile.path);
+        File compressedFile = await img_service.compressImageIfNeeded(
+          originalFile,
+        );
+        setState(() {
+          _pickedGallery.add(compressedFile);
+        });
+      }
     }
   }
 

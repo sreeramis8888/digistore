@@ -24,8 +24,8 @@ class ShopReviews extends ConsumerWidget {
 
     final reviewsAsync = ref.watch(reviewsProvider(shopId: shopId));
     final reviewsAction = ref.read(reviewsActionProvider.notifier);
-    final totalFetchedReviews = reviewsAsync.value?.total ?? reviewCount;
-
+    final fetchedTotal = reviewsAsync.value?.total ?? 0;
+    final totalFetchedReviews = fetchedTotal > 0 ? fetchedTotal : reviewCount;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
