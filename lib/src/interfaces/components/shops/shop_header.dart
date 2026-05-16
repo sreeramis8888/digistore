@@ -43,6 +43,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
   }
 
   Future<void> _calculateRoadDistance() async {
+    if (!mounted) return;
     final user = ref.read(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;

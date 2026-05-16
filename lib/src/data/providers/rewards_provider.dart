@@ -6,46 +6,145 @@ import 'user_provider.dart';
 
 part 'rewards_provider.g.dart';
 
-@riverpod
-Future<PaginatedRewards> rewards(
-  Ref ref, {
-  int page = 1,
-  int limit = 10,
-  String? category,
-}) async {
-  final api = ref.watch(apiProvider);
-  final user = ref.watch(userProvider);
+class RewardsState {
+  final List<RewardModel> rewards;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final int page;
+  final int pages;
+  final String? category;
 
-  final queryParams = {
-    'page': page.toString(),
-    'limit': limit.toString(),
-  };
+  RewardsState({
+    this.rewards = const [],
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.page = 1,
+    this.pages = 1,
+    this.category,
+  });
 
-  final coords = user?.location?.coordinates;
-  if (coords != null) {
-    queryParams['lat'] = coords.lat.toString();
-    queryParams['lng'] = coords.lng.toString();
+  RewardsState copyWith({
+    List<RewardModel>? rewards,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    int? page,
+    int? pages,
+    String? category,
+  }) {
+    return RewardsState(
+      rewards: rewards ?? this.rewards,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: error ?? this.error,
+      page: page ?? this.page,
+      pages: pages ?? this.pages,
+      category: category ?? this.category,
+    );
+  }
+}
+
+@Riverpod(keepAlive: true)
+class RewardsList extends _$RewardsList {
+  @override
+  RewardsState build() {
+    ref.watch(userProvider);
+    Future.microtask(() => getRewards());
+    return RewardsState();
   }
 
-  final tier = user?.currentTier?.name;
-  if (tier != null) {
-    queryParams['tier'] = tier;
+  Future<void> getRewards({int page = 1, String? category}) async {
+    final currentCategory = category ?? state.category;
+
+    if (page == 1) {
+      state = state.copyWith(
+        isLoading: true,
+        error: null,
+        category: currentCategory,
+        rewards: category != null ? [] : state.rewards,
+      );
+    } else {
+      state = state.copyWith(isLoadingMore: true, error: null);
+    }
+
+    try {
+      final api = ref.read(apiProvider);
+      final user = ref.read(userProvider);
+      
+      final queryParams = {
+        'page': page.toString(),
+        'limit': '10',
+      };
+
+      final coords = user?.location?.coordinates;
+      if (coords != null) {
+        queryParams['lat'] = coords.lat.toString();
+        queryParams['lng'] = coords.lng.toString();
+      }
+
+      final tier = user?.currentTier?.name;
+      if (tier != null) {
+        queryParams['tier'] = tier;
+      }
+
+      if (currentCategory != null && currentCategory != 'All' && currentCategory.isNotEmpty) {
+        queryParams['category'] = currentCategory;
+      }
+
+      final response = await api.get(
+        '/rewards',
+        queryParams: queryParams,
+        requireAuth: false,
+      );
+
+      if (response.success && response.data != null) {
+        final paginated = PaginatedRewards.fromJson(response.data!);
+        
+        if (page == 1) {
+          state = state.copyWith(
+            rewards: paginated.rewards,
+            page: paginated.page,
+            pages: paginated.pages,
+            isLoading: false,
+          );
+        } else {
+          state = state.copyWith(
+            rewards: [...state.rewards, ...paginated.rewards],
+            page: paginated.page,
+            pages: paginated.pages,
+            isLoadingMore: false,
+          );
+        }
+      } else {
+        state = state.copyWith(
+          error: response.message ?? 'Failed to fetch rewards',
+          isLoading: false,
+          isLoadingMore: false,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+        isLoadingMore: false,
+      );
+    }
   }
 
-  if (category != null && category != 'All' && category.isNotEmpty) {
-    queryParams['category'] = category;
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || state.page >= state.pages) return;
+    await getRewards(page: state.page + 1);
   }
 
-  final response = await api.get(
-    '/rewards',
-    queryParams: queryParams,
-    requireAuth: false,
-  );
+  Future<void> refresh() async {
+    await getRewards(page: 1);
+  }
 
-  if (response.success && response.data != null) {
-    return PaginatedRewards.fromJson(response.data!);
-  } else {
-    throw Exception(response.message ?? 'Failed to fetch rewards');
+  void updateCategory(String? category) {
+    if (state.category == category) return;
+    getRewards(page: 1, category: category);
   }
 }
 

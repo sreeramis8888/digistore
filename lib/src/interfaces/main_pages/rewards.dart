@@ -1,4 +1,5 @@
 import 'package:digistore/src/interfaces/animations/index.dart';
+import 'package:digistore/src/interfaces/components/loading_indicator.dart';
 import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,10 +19,29 @@ class RewardsPage extends ConsumerStatefulWidget {
 
 class _RewardsPageState extends ConsumerState<RewardsPage> {
   String? selectedCategory = 'All';
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(rewardsListProvider.notifier).loadMore();
+    }
+  }
 
   Future<void> _onRefresh() async {
-    ref.invalidate(rewardsProvider);
-    await ref.read(rewardsProvider(category: selectedCategory).future);
+    await ref.read(rewardsListProvider.notifier).refresh();
   }
 
   @override
@@ -31,7 +51,7 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
     final itemHeight = screenSize.responsivePadding(200);
     final aspectRatio = itemWidth / itemHeight;
 
-    final rewardsAsync = ref.watch(rewardsProvider(category: selectedCategory));
+    final state = ref.watch(rewardsListProvider);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -48,9 +68,40 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
         child: RefreshIndicator(
           color: kPrimaryColor,
           onRefresh: _onRefresh,
-          child: rewardsAsync.when(
-            data: (paginated) {
-              if (paginated.rewards.isEmpty) {
+          child: Builder(
+            builder: (context) {
+              if (state.isLoading && state.rewards.isEmpty) {
+                return GridView.builder(
+                  padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: screenSize.responsivePadding(16),
+                    crossAxisSpacing: screenSize.responsivePadding(16),
+                    childAspectRatio: aspectRatio,
+                  ),
+                  itemCount: 6,
+                  itemBuilder: (context, index) =>
+                      CardShimmers.rewardCardShimmer(screenSize),
+                );
+              }
+
+              if (state.error != null && state.rewards.isEmpty) {
+                return CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: EmptyState(
+                        imagePath: 'assets/png/empty_rewards.png',
+                        title: 'Oops!',
+                        subtitle: state.error ?? 'Failed to load rewards',
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              if (state.rewards.isEmpty) {
                 return CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
@@ -66,50 +117,52 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                   ],
                 );
               }
-              return GridView.builder(
+
+              return CustomScrollView(
+                controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: screenSize.responsivePadding(16),
-                  crossAxisSpacing: screenSize.responsivePadding(16),
-                  childAspectRatio: aspectRatio,
-                ),
-                itemCount: paginated.rewards.length,
-                itemBuilder: (context, index) {
-                  final reward = paginated.rewards[index];
-                  return RewardCard.fromReward(
-                    reward,
-                  ).fadeScaleUp(delayMilliseconds: index * 50);
-                },
+                slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: screenSize.responsivePadding(16),
+                        crossAxisSpacing: screenSize.responsivePadding(16),
+                        childAspectRatio: aspectRatio,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final reward = state.rewards[index];
+                          return RewardCard.fromReward(reward).fadeScaleUp(
+                            delayMilliseconds: (index % 10) * 50,
+                          );
+                        },
+                        childCount: state.rewards.length,
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: screenSize.responsivePadding(16),
+                        bottom: screenSize.responsivePadding(32),
+                      ),
+                      child: Center(
+                        child: state.isLoadingMore
+                            ? const LoadingAnimation()
+                            : (state.page >= state.pages && state.rewards.isNotEmpty)
+                                ? Text(
+                                    'No more rewards',
+                                    style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                                  )
+                                : const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
-            loading: () => GridView.builder(
-              padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(16),
-                crossAxisSpacing: screenSize.responsivePadding(16),
-                childAspectRatio: aspectRatio,
-              ),
-              itemCount: 6,
-              itemBuilder: (context, index) =>
-                  CardShimmers.rewardCardShimmer(screenSize),
-            ),
-            error: (e, s) => CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: const EmptyState(
-                    imagePath: 'assets/png/empty_rewards.png',
-                    title: 'No rewards available',
-                    subtitle:
-                        'New rewards are added regularly. Keep earning points to redeem them for exciting gift cards and vouchers!',
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

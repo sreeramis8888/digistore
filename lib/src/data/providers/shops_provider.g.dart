@@ -166,7 +166,7 @@ final class ShopOffersProvider
   }
 }
 
-String _$shopOffersHash() => r'970bceebcedf871e6d2170335622649dd168545a';
+String _$shopOffersHash() => r'022a41e74b795d0905a48d99b96a4898b5392642';
 
 final class ShopOffersFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<OfferModel>>, String> {
@@ -243,7 +243,7 @@ final class ShopProductsProvider
   }
 }
 
-String _$shopProductsHash() => r'c5a5fab48e7e345c22b91c94fda7b0097fb8d2a4';
+String _$shopProductsHash() => r'11a9409e69a5f7e6c8c8a270ec0262f164f1286b';
 
 final class ShopProductsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<ProductModel>>, String> {

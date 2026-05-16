@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
@@ -16,14 +17,14 @@ class ShopSocials extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final socialLinks = shop?.businessInfo?.socialLinks;
+    final websiteUrl = shop?.businessInfo?.websiteUrl;
 
-    if (socialLinks == null) return const SizedBox.shrink();
+    final hasWebsite = websiteUrl?.isNotEmpty == true;
+    final hasInstagram = socialLinks?.instagram?.isNotEmpty == true;
+    final hasFacebook = socialLinks?.facebook?.isNotEmpty == true;
+    final hasYoutube = socialLinks?.youtube?.isNotEmpty == true;
 
-    final hasInstagram = socialLinks.instagram?.isNotEmpty == true;
-    final hasFacebook = socialLinks.facebook?.isNotEmpty == true;
-    final hasYoutube = socialLinks.youtube?.isNotEmpty == true;
-
-    if (!hasInstagram && !hasFacebook && !hasYoutube) {
+    if (!hasWebsite && !hasInstagram && !hasFacebook && !hasYoutube) {
       return const SizedBox.shrink();
     }
 
@@ -36,28 +37,32 @@ class ShopSocials extends ConsumerWidget {
           spacing: screenSize.responsivePadding(12),
           runSpacing: screenSize.responsivePadding(12),
           children: [
+            if (hasWebsite)
+              _SocialButton(
+                svgAsset: 'assets/svg/website.svg',
+                label: 'Website',
+                onPressed: () => launchURL(websiteUrl!),
+                screenSize: screenSize,
+              ),
             if (hasInstagram)
               _SocialButton(
-                icon: Icons.camera_alt,
-                iconColor: const Color(0xFFE1306C),
+                svgAsset: 'assets/svg/instagram.svg',
                 label: 'Instagram',
-                onPressed: () => launchURL(socialLinks.instagram!),
+                onPressed: () => launchURL(socialLinks!.instagram!),
                 screenSize: screenSize,
               ),
             if (hasFacebook)
               _SocialButton(
-                icon: Icons.facebook,
-                iconColor: const Color(0xFF4267B2),
+                svgAsset: 'assets/svg/facebook.svg',
                 label: 'Facebook',
-                onPressed: () => launchURL(socialLinks.facebook!),
+                onPressed: () => launchURL(socialLinks!.facebook!),
                 screenSize: screenSize,
               ),
             if (hasYoutube)
               _SocialButton(
-                icon: Icons.play_circle_filled,
-                iconColor: const Color(0xFFFF0000),
+                svgAsset: 'assets/svg/youtube.svg',
                 label: 'YouTube',
-                onPressed: () => launchURL(socialLinks.youtube!),
+                onPressed: () => launchURL(socialLinks!.youtube!),
                 screenSize: screenSize,
               ),
           ],
@@ -68,15 +73,13 @@ class ShopSocials extends ConsumerWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
+  final String svgAsset;
   final String label;
   final VoidCallback onPressed;
   final ScreenSizeData screenSize;
 
   const _SocialButton({
-    required this.icon,
-    required this.iconColor,
+    required this.svgAsset,
     required this.label,
     required this.onPressed,
     required this.screenSize,
@@ -86,7 +89,11 @@ class _SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, color: iconColor, size: 18),
+      icon: SvgPicture.asset(
+        svgAsset,
+        width: 18,
+        height: 18,
+      ),
       label: Text(label, style: kSmallTitleM),
       style: OutlinedButton.styleFrom(
         backgroundColor: const Color(0xFFF9F9F9),
