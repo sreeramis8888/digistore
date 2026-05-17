@@ -24,10 +24,11 @@ import '../../../data/models/business_details.dart';
 import '../../../data/models/business_info.dart';
 import '../../../data/models/location_point.dart';
 import '../../components/add_specialty_dialog.dart';
-import '../../components/add_branch_dialog.dart';
+import 'add_branch_page.dart';
 import '../../components/map_location_picker_page.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/full_screen_gallery.dart';
+import '../../components/operating_hours_editor.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -328,56 +329,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
-  void _updateDayStatus(
-    String day, {
-    bool? isOpen,
-    String? open,
-    String? close,
-  }) {
-    final current = _operatingHours ?? const OperatingHours();
-    DayStatus? status;
-    switch (day) {
-      case 'Monday':
-        status = current.monday;
-        break;
-      case 'Tuesday':
-        status = current.tuesday;
-        break;
-      case 'Wednesday':
-        status = current.wednesday;
-        break;
-      case 'Thursday':
-        status = current.thursday;
-        break;
-      case 'Friday':
-        status = current.friday;
-        break;
-      case 'Saturday':
-        status = current.saturday;
-        break;
-      case 'Sunday':
-        status = current.sunday;
-        break;
-    }
 
-    final newStatus = DayStatus(
-      isOpen: isOpen ?? status?.isOpen ?? false,
-      open: open ?? status?.open ?? '09:00 AM',
-      close: close ?? status?.close ?? '09:00 PM',
-    );
-
-    setState(() {
-      _operatingHours = OperatingHours(
-        monday: day == 'Monday' ? newStatus : current.monday,
-        tuesday: day == 'Tuesday' ? newStatus : current.tuesday,
-        wednesday: day == 'Wednesday' ? newStatus : current.wednesday,
-        thursday: day == 'Thursday' ? newStatus : current.thursday,
-        friday: day == 'Friday' ? newStatus : current.friday,
-        saturday: day == 'Saturday' ? newStatus : current.saturday,
-        sunday: day == 'Sunday' ? newStatus : current.sunday,
-      );
-    });
-  }
 
   void _showAddSpecialtyDialog() async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -389,9 +341,29 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
   void _showAddBranchDialog() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final result = await showAddBranchDialog(context);
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddBranchPage(),
+      ),
+    );
     if (result != null && mounted) {
       setState(() => _branches.add(result));
+    }
+  }
+
+  void _editBranch(int index, BusinessBranch branch) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddBranchPage(initialBranch: branch),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _branches[index] = result;
+      });
     }
   }
 
@@ -578,299 +550,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
-  Widget _buildWorkingHourRow(String day) {
-    final current = _operatingHours ?? const OperatingHours();
-    DayStatus? status;
-    switch (day) {
-      case 'Monday':
-        status = current.monday;
-        break;
-      case 'Tuesday':
-        status = current.tuesday;
-        break;
-      case 'Wednesday':
-        status = current.wednesday;
-        break;
-      case 'Thursday':
-        status = current.thursday;
-        break;
-      case 'Friday':
-        status = current.friday;
-        break;
-      case 'Saturday':
-        status = current.saturday;
-        break;
-      case 'Sunday':
-        status = current.sunday;
-        break;
-    }
 
-    bool isOpen = status?.isOpen ?? false;
-    String start = status?.open ?? '09:00 AM';
-    String end = status?.close ?? '09:00 PM';
-
-    if (isEditMode) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 65,
-              child: Text(
-                day,
-                style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
-              ),
-            ),
-            const SizedBox(width: 12),
-            if (isOpen) ...[
-              Expanded(
-                child: GestureDetector(
-                  onTap: () async {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    final time = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                      builder: (context, child) => Theme(
-                        data: Theme.of(context).copyWith(
-                          timePickerTheme: TimePickerThemeData(
-                            backgroundColor: kWhite,
-                            dialBackgroundColor: kField,
-                            dialHandColor: kPrimaryColor,
-                            dialTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kWhite
-                                  : kTextColor,
-                            ),
-                            hourMinuteColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kPrimaryColor
-                                  : kField,
-                            ),
-                            hourMinuteTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kWhite
-                                  : kTextColor,
-                            ),
-                            dayPeriodColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kPrimaryLightColor
-                                  : kField,
-                            ),
-                            dayPeriodTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kPrimaryColor
-                                  : kSecondaryTextColor,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            hourMinuteShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            dayPeriodShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            entryModeIconColor: kPrimaryColor,
-                          ),
-                          colorScheme: const ColorScheme.light(
-                            primary: kPrimaryColor,
-                            onPrimary: kWhite,
-                            surface: kWhite,
-                            onSurface: kTextColor,
-                          ),
-                          textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(
-                              foregroundColor: kPrimaryColor,
-                            ),
-                          ),
-                        ),
-                        child: child!,
-                      ),
-                    );
-                    if (time != null && mounted) {
-                      _updateDayStatus(day, open: time.format(context));
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: kWhite,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      start,
-                      style: kSmallTitleL.copyWith(
-                        color: const Color(0xFF373737),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () async {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    final time = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                      builder: (context, child) => Theme(
-                        data: Theme.of(context).copyWith(
-                          timePickerTheme: TimePickerThemeData(
-                            backgroundColor: kWhite,
-                            dialBackgroundColor: kField,
-                            dialHandColor: kPrimaryColor,
-                            dialTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kWhite
-                                  : kTextColor,
-                            ),
-                            hourMinuteColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kPrimaryColor
-                                  : kField,
-                            ),
-                            hourMinuteTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kWhite
-                                  : kTextColor,
-                            ),
-                            dayPeriodColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kPrimaryLightColor
-                                  : kField,
-                            ),
-                            dayPeriodTextColor: WidgetStateColor.resolveWith(
-                              (s) => s.contains(WidgetState.selected)
-                                  ? kPrimaryColor
-                                  : kSecondaryTextColor,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            hourMinuteShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            dayPeriodShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            entryModeIconColor: kPrimaryColor,
-                          ),
-                          colorScheme: const ColorScheme.light(
-                            primary: kPrimaryColor,
-                            onPrimary: kWhite,
-                            surface: kWhite,
-                            onSurface: kTextColor,
-                          ),
-                          textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(
-                              foregroundColor: kPrimaryColor,
-                            ),
-                          ),
-                        ),
-                        child: child!,
-                      ),
-                    );
-                    if (time != null && mounted) {
-                      _updateDayStatus(day, close: time.format(context));
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: kWhite,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      end,
-                      style: kSmallTitleL.copyWith(
-                        color: const Color(0xFF373737),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ] else ...[
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'Closed',
-                    style: TextStyle(color: Colors.red, fontSize: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(child: SizedBox()),
-            ],
-            const SizedBox(width: 12),
-            Transform.scale(
-              scale: 0.75,
-              child: CupertinoSwitch(
-                value: isOpen,
-                onChanged: (v) => _updateDayStatus(day, isOpen: v),
-                activeTrackColor: kPrimaryColor,
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 85,
-              child: Text(
-                day,
-                style: kSmallTitleL.copyWith(color: const Color(0xFF373737)),
-              ),
-            ),
-            const SizedBox(width: 12),
-            if (isOpen) ...[
-              Expanded(
-                child: Center(
-                  child: Text(
-                    start,
-                    style: kSmallTitleL.copyWith(
-                      color: const Color(0xFF373737),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    end,
-                    style: kSmallTitleL.copyWith(
-                      color: const Color(0xFF373737),
-                    ),
-                  ),
-                ),
-              ),
-            ] else ...[
-              const Expanded(
-                flex: 2,
-                child: Center(
-                  child: Text(
-                    'Closed',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(width: 40),
-          ],
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1694,29 +1374,164 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [
-                                        ..._branches.map(
-                                          (branch) => _buildRemovableChip(
-                                            branch.name ?? '',
-                                            onDelete: () => setState(
-                                              () => _branches.remove(branch),
+                                  child: Column(
+                                    children: [
+                                      if (_branches.isEmpty)
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(vertical: 24),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF9FAFB),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'No branches added',
+                                              style: kSmallTitleL.copyWith(
+                                                color: const Color(0xFF6B7280),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        if (_branches.isEmpty)
-                                          Text(
-                                            'No branches added',
-                                            style: kSmallTitleL.copyWith(
-                                              color: kGrey,
+                                        )
+                                      else
+                                        ..._branches.asMap().entries.map((entry) {
+                                          final index = entry.key;
+                                          final branch = entry.value;
+                                          return Container(
+                                            margin: const EdgeInsets.only(bottom: 12),
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: kWhite,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: const Color(0xFFE5E7EB)),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.02),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                      ],
-                                    ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Row(
+                                                        children: [
+                                                          Container(
+                                                            padding: const EdgeInsets.all(8),
+                                                            decoration: BoxDecoration(
+                                                              color: kPrimaryLightColor,
+                                                              borderRadius: BorderRadius.circular(8),
+                                                            ),
+                                                            child: const Icon(
+                                                              Icons.store_mall_directory_outlined,
+                                                              color: kPrimaryColor,
+                                                              size: 20,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 12),
+                                                          Expanded(
+                                                            child: Text(
+                                                              branch.name ?? 'Branch',
+                                                              style: kBodyTitleM.copyWith(
+                                                                fontWeight: FontWeight.w700,
+                                                                color: const Color(0xFF111827),
+                                                              ),
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: branch.isActive == true ? const Color(0xFFDEF7EC) : const Color(0xFFFDE8E8),
+                                                        borderRadius: BorderRadius.circular(20),
+                                                      ),
+                                                      child: Text(
+                                                        branch.isActive == true ? 'Active' : 'Inactive',
+                                                        style: kSmallTitleL.copyWith(
+                                                          color: branch.isActive == true ? const Color(0xFF03543F) : const Color(0xFF9B1C1C),
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 10,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                if (branch.address?.isNotEmpty == true) ...[
+                                                  const SizedBox(height: 12),
+                                                  Row(
+                                                    children: [
+                                                      const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF6B7280)),
+                                                      const SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          branch.address!,
+                                                          style: kSmallTitleM.copyWith(color: const Color(0xFF4B5563)),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                                if (branch.phone?.isNotEmpty == true) ...[
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    children: [
+                                                      const Icon(Icons.phone_outlined, size: 16, color: Color(0xFF6B7280)),
+                                                      const SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          branch.phone!,
+                                                          style: kSmallTitleM.copyWith(color: const Color(0xFF4B5563)),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                                if (isEditMode) ...[
+                                                  const SizedBox(height: 16),
+                                                  const Divider(height: 1, color: Color(0xFFF3F4F6)),
+                                                  const SizedBox(height: 12),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: () => _editBranch(index, branch),
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(Icons.edit_outlined, size: 16, color: kPrimaryColor),
+                                                            const SizedBox(width: 4),
+                                                            Text('Edit', style: kSmallTitleM.copyWith(color: kPrimaryColor, fontWeight: FontWeight.w600)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 24),
+                                                      GestureDetector(
+                                                        onTap: () => setState(() => _branches.removeAt(index)),
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(Icons.delete_outline, size: 16, color: Colors.red),
+                                                            const SizedBox(width: 4),
+                                                            Text('Delete', style: kSmallTitleM.copyWith(color: Colors.red, fontWeight: FontWeight.w600)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                    ],
                                   ),
                                 ),
 
@@ -2348,13 +2163,15 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     ),
                                     child: Column(
                                       children: [
-                                        _buildWorkingHourRow('Monday'),
-                                        _buildWorkingHourRow('Tuesday'),
-                                        _buildWorkingHourRow('Wednesday'),
-                                        _buildWorkingHourRow('Thursday'),
-                                        _buildWorkingHourRow('Friday'),
-                                        _buildWorkingHourRow('Saturday'),
-                                        _buildWorkingHourRow('Sunday'),
+                                        OperatingHoursEditor(
+                                          operatingHours: _operatingHours,
+                                          isEditMode: isEditMode,
+                                          onChanged: (newHours) {
+                                            setState(() {
+                                              _operatingHours = newHours;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ),

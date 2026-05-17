@@ -33,14 +33,19 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   }
 
   @override
+  void deactivate() {
+    // Clear search state when leaving the page — ref is still safe here
+    ref.read(shopsProvider.notifier).updateSearch('');
+    ref.read(allShopsProvider.notifier).updateSearch('');
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
     _debounce?.cancel();
-    // Clear search state when leaving the page
-    ref.read(shopsProvider.notifier).updateSearch('');
-    ref.read(allShopsProvider.notifier).updateSearch('');
     super.dispose();
   }
 

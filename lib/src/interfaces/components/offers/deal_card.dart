@@ -13,7 +13,7 @@ class DealCard extends ConsumerWidget {
   final String subtitle;
   final String shopName;
   final String? shopLogo;
-  final String badgeText;
+  final String? badgeText;
   final String? dealOfTheHour;
   final Color avatarColor;
   final EdgeInsetsGeometry? margin;
@@ -31,7 +31,7 @@ class DealCard extends ConsumerWidget {
     required this.subtitle,
     required this.shopName,
     this.shopLogo,
-    required this.badgeText,
+    this.badgeText,
     this.dealOfTheHour,
     required this.avatarColor,
     this.margin,
@@ -48,9 +48,12 @@ class DealCard extends ConsumerWidget {
     double? width,
     EdgeInsetsGeometry? margin,
   }) {
-    final badgeText = offer.discountType == 'percentage'
-        ? '${offer.discountValue?.toInt() ?? 0}%\nOFF'
-        : '₹${offer.discountValue?.toInt() ?? 0}\nOFF';
+    final discountValue = offer.discountValue?.toInt() ?? 0;
+    final badgeText = discountValue == 0
+        ? null
+        : offer.discountType == 'percentage'
+            ? '$discountValue%\nOFF'
+            : '₹$discountValue\nOFF';
 
     return DealCard(
       id: offer.id,
@@ -121,7 +124,9 @@ class DealCard extends ConsumerWidget {
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: Container(
+                  child: badgeText == null
+                      ? const SizedBox.shrink()
+                      : Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.responsivePadding(8),
                       vertical: screenSize.responsivePadding(6),
@@ -134,7 +139,7 @@ class DealCard extends ConsumerWidget {
                       ),
                     ),
                     child: Text(
-                      badgeText,
+                      badgeText!,
                       style: kSmallerTitleM.copyWith(
                         color: kWhite,
                         fontSize: 10,

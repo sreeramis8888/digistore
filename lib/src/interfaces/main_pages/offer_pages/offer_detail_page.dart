@@ -11,6 +11,7 @@ import '../../../data/utils/date_formatter.dart';
 
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/user_provider.dart';
+import '../../../data/providers/user_type_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../components/confirmation_dialog.dart';
 import '../partner/create_offer_page.dart';
@@ -31,24 +32,36 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final userType = ref.watch(userTypeProvider);
+    final isPartner = userType == UserType.partner || GlobalVariables.isPartner;
+    final String offerStatus = widget.args['status'] ?? 'active';
+    final bool isOfferActive = offerStatus.toLowerCase() == 'active';
     final String title = widget.args['title'] ?? '';
-    final String subtitle = widget.args['subtitle'] ?? widget.args['description'] ?? '';
-    final String? imageUrl = widget.args['imageUrl'] ??
-        ((widget.args['images'] is List && (widget.args['images'] as List).isNotEmpty)
+    final String subtitle =
+        widget.args['subtitle'] ?? widget.args['description'] ?? '';
+    final String? imageUrl =
+        widget.args['imageUrl'] ??
+        ((widget.args['images'] is List &&
+                (widget.args['images'] as List).isNotEmpty)
             ? widget.args['images'][0]
             : null);
 
     List<String> images = [];
-    if (widget.args['images'] is List && (widget.args['images'] as List).isNotEmpty) {
-      images = (widget.args['images'] as List).map((e) => e.toString()).toList();
+    if (widget.args['images'] is List &&
+        (widget.args['images'] as List).isNotEmpty) {
+      images = (widget.args['images'] as List)
+          .map((e) => e.toString())
+          .toList();
     } else if (imageUrl != null) {
       images = [imageUrl];
     }
 
-    final String shopName = widget.args['shopName'] ??
+    final String shopName =
+        widget.args['shopName'] ??
         widget.args['partnerId']?['businessDetails']?['businessName'] ??
         '';
-    final String? shopLogo = widget.args['shopLogo'] ??
+    final String? shopLogo =
+        widget.args['shopLogo'] ??
         widget.args['partnerId']?['businessInfo']?['businessLogo'];
     final IconData? icon = widget.args['icon'];
     final String? logoText = widget.args['logoText'];
@@ -131,7 +144,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         try {
                           await ref
                               .read(offersProvider.notifier)
-                              .deleteOffer(widget.args['_id'] ?? widget.args['id'] ?? '');
+                              .deleteOffer(
+                                widget.args['_id'] ?? widget.args['id'] ?? '',
+                              );
                           if (context.mounted) {
                             Navigator.pop(context);
                           }
@@ -329,9 +344,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                   PrimaryButton(
                     textSize: 14,
                     isLoading: isRedeeming,
-                    text: GlobalVariables.isPartner
-                        ? 'Initiate Redemption'
-                        : 'Redeem Now',
+                    isEnabled: isPartner ? isOfferActive : true,
+                    text: isPartner ? 'Initiate Redemption' : 'Redeem Now',
                     onPressed: () {
                       final offerDetails = {
                         ...widget.args,
@@ -340,7 +354,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         'imageUrl': imageUrl,
                         'id': widget.args['id'] ?? widget.args['_id'],
                       };
-                      if (GlobalVariables.isPartner) {
+                      if (isPartner) {
                         Navigator.of(context).pushNamed(
                           'partnerRedemption',
                           arguments: offerDetails,
@@ -353,6 +367,21 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                       }
                     },
                   ),
+                  if (isPartner) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Status: ',
+                          style: kSmallTitleM.copyWith(
+                            color: kSecondaryTextColor,
+                          ),
+                        ),
+                        _buildStatusChip(offerStatus),
+                      ],
+                    ),
+                  ],
                   SizedBox(
                     height: MediaQuery.of(context).padding.bottom > 0
                         ? MediaQuery.of(context).padding.bottom
@@ -389,6 +418,56 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color bgColor;
+    Color textColor;
+    String displayStatus = status.replaceAll('_', ' ').toUpperCase();
+
+    switch (status.toLowerCase()) {
+      case 'active':
+        bgColor = const Color(0xFFDEF7EC);
+        textColor = const Color(0xFF03543F);
+        break;
+      case 'pending_approval':
+        bgColor = const Color(0xFFFEF3C7);
+        textColor = const Color(0xFF92400E);
+        break;
+      case 'paused':
+        bgColor = const Color(0xFFE5E7EB);
+        textColor = const Color(0xFF374151);
+        break;
+      case 'expired':
+        bgColor = const Color(0xFFFEE2E2);
+        textColor = const Color(0xFF991B1B);
+        break;
+      case 'rejected':
+        bgColor = const Color(0xFFFDE8E8);
+        textColor = const Color(0xFF9B1C1C);
+        break;
+      case 'draft':
+      default:
+        bgColor = const Color(0xFFF3F4F6);
+        textColor = const Color(0xFF4B5563);
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        displayStatus,
+        style: kSmallTitleL.copyWith(
+          color: textColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
+        ),
+      ),
     );
   }
 }

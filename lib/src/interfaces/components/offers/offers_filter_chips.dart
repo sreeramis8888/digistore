@@ -1,5 +1,4 @@
 import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
-import 'package:digistore/src/interfaces/animations/index.dart';
 import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,7 +100,7 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
                     ),
                   ),
                 ),
-              ).fadeIn(delayMilliseconds: index * 40);
+              );
             },
           ),
         );

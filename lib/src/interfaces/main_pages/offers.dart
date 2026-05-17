@@ -29,6 +29,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   Timer? _debounce;
+  int? _lastFetchedCategoryIndex;
 
   @override
   void initState() {
@@ -69,14 +70,26 @@ class _OffersPageState extends ConsumerState<OffersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentCategoryIndex = ref.watch(selectedOffersCategoryProvider);
+    final offersState = ref.watch(offersProvider);
+    final screenSize = ref.watch(screenSizeProvider);
+
     ref.listen<int>(selectedOffersCategoryProvider, (previous, next) {
       if (previous != next) {
+        _lastFetchedCategoryIndex = next;
         _fetchOffers(index: next);
       }
     });
 
-    final screenSize = ref.watch(screenSizeProvider);
-    final offersState = ref.watch(offersProvider);
+    // Fetch if the selected category hasn't been fetched yet.
+    // Covers: first mount, and returning to this tab after home-page
+    // category navigation set the index while the page was not visible.
+    if (_lastFetchedCategoryIndex != currentCategoryIndex) {
+      _lastFetchedCategoryIndex = currentCategoryIndex;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _fetchOffers(index: currentCategoryIndex);
+      });
+    }
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
     final itemHeight = screenSize.responsivePadding(230);
@@ -167,14 +180,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
             ),
             SizedBox(height: screenSize.responsivePadding(16)),
             Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: _buildBody(
-                  context,
-                  offersState: offersState,
-                  aspectRatio: aspectRatio,
-                  screenSize: screenSize,
-                ),
+              child: _buildBody(
+                context,
+                offersState: offersState,
+                aspectRatio: aspectRatio,
+                screenSize: screenSize,
               ),
             ),
           ],

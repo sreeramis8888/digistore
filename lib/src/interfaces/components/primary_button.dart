@@ -79,7 +79,7 @@ class PrimaryButton extends StatelessWidget {
                             child: Text(
                               text,
                               style: kSmallTitleR.copyWith(
-                                color: !isEnabled ? kGrey : (textColor ?? kWhite),
+                                color: !isEnabled ? kWhite : (textColor ?? kWhite),
                                 fontWeight: FontWeight.w600,
                                 fontSize: (icon != null || trailingIcon != null)
                                     ? textSize
