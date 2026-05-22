@@ -122,7 +122,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   return const Center(child: Text('Invalid state'));
                 },
                 loading: () => const HomeShimmer(),
-                error: (err, stack) => Center(child: Text('Error: $err')),
+                error: (err, stack) => Center(child: Text('No Data Available')),
               ),
             ],
           ),

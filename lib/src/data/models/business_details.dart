@@ -18,7 +18,9 @@ class BusinessDetails {
   factory BusinessDetails.fromJson(Map<String, dynamic> json) {
     return BusinessDetails(
       businessName: json['businessName'] as String?,
-      businessType: json['businessType'] as String?,
+      businessType: json['businessType'] is Map
+          ? (json['businessType'] as Map<String, dynamic>)['name'] as String?
+          : json['businessType'] as String?,
       registrationNumber: json['registrationNumber'] as String?,
       gstNumber: json['gstNumber'] as String?,
       address: json['address'] as String?,
