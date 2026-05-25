@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../data/constants/color_constants.dart';
 import '../data/router/nav_router.dart';
+import '../data/services/deep_link_service.dart';
+import '../data/providers/notifications_provider.dart';
 import 'main_pages/home_page.dart';
 import 'main_pages/offers.dart';
 import 'main_pages/shops.dart';
@@ -21,7 +23,7 @@ class NavBar extends ConsumerStatefulWidget {
   ConsumerState<NavBar> createState() => _NavBarState();
 }
 
-class _NavBarState extends ConsumerState<NavBar> {
+class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
   static const List<String> _inactiveIcons = [
     'assets/svg/inactive_home.svg',
     'assets/svg/inactive_offer.svg',
@@ -105,6 +107,29 @@ class _NavBarState extends ConsumerState<NavBar> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationsProvider.notifier).fetchUnreadCount();
+      final deepLinkService = ref.read(deepLinkServiceProvider);
+      if (deepLinkService.pendingDeepLink != null) {
+        final pending = deepLinkService.pendingDeepLink!;
+        deepLinkService.clearPendingDeepLink();
+        deepLinkService.handleDeepLink(pending);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(notificationsProvider.notifier).fetchUnreadCount();
+    }
   }
 
   @override

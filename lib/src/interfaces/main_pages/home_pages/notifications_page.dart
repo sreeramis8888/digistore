@@ -19,11 +19,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => ref
+    Future.microtask(() async {
+      await ref
           .read(notificationsProvider.notifier)
-          .fetchNotifications(refresh: true),
-    );
+          .fetchNotifications(refresh: true);
+      await ref
+          .read(notificationsProvider.notifier)
+          .markAllAsRead();
+    });
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {

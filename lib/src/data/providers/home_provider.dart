@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../models/home_data.dart';
+import '../models/home_data_model.dart';
 import '../models/partner_home_data.dart';
 import 'api_provider.dart';
 import 'user_provider.dart';

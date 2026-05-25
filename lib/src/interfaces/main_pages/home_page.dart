@@ -16,7 +16,7 @@ import '../components/shimmers/home_shimmer.dart';
 import '../../data/utils/global_variables.dart';
 
 import '../../data/providers/home_provider.dart';
-import '../../data/models/home_data.dart';
+import '../../data/models/home_data_model.dart';
 import 'partner/partner_home.dart';
 
 import '../../data/constants/style_constants.dart';

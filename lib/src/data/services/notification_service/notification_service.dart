@@ -6,6 +6,7 @@ import 'package:digistore/src/data/services/deep_link_service.dart';
 import 'package:digistore/src/data/services/navigation_service.dart';
 import 'package:digistore/src/interfaces/components/in_app_notification_overlay.dart';
 import 'package:flutter/material.dart';
+import 'package:digistore/src/data/providers/notifications_provider.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   final deepLinkService = ref.watch(deepLinkServiceProvider);
@@ -70,6 +71,9 @@ class NotificationService {
 
   void _handleForegroundMessage(RemoteMessage message) {
     log("Notification received in FOREGROUND: ${message.data}");
+    
+    // Refresh unread count when message is received
+    _ref.read(notificationsProvider.notifier).fetchUnreadCount();
 
     try {
       if (message.notification != null) {
@@ -143,6 +147,9 @@ class NotificationService {
 
   void _handleMessageOpenedApp(RemoteMessage message) {
     try {
+      // Refresh unread count when app is opened via notification
+      _ref.read(notificationsProvider.notifier).fetchUnreadCount();
+
       String? deepLink;
       if (message.data.containsKey('screen')) {
         final screen = message.data['screen'];
@@ -164,6 +171,7 @@ class NotificationService {
           .getInitialMessage();
       if (initialMessage != null) {
         debugPrint('Handling initial message');
+        _ref.read(notificationsProvider.notifier).fetchUnreadCount();
         _handleMessageOpenedApp(initialMessage);
       }
     } catch (e) {

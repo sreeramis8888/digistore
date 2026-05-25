@@ -9,6 +9,8 @@ import '../../../data/services/secure_storage_service.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
+import '../../../data/services/notification_service/notification_service.dart';
+import '../../../data/services/deep_link_service.dart';
 import 'login_page.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -35,6 +37,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    // Initialize notification and deep link handling
+    ref.read(deepLinkServiceProvider).initialize();
+    ref.read(notificationServiceProvider).initialize();
 
     _entranceController = AnimationController(
       vsync: this,

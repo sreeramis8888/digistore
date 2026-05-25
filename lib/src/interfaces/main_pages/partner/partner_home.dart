@@ -12,7 +12,7 @@ import '../../components/partner/partner_recent_offers.dart';
 import '../../components/partner/partner_uploaded_products.dart';
 
 import '../../../data/providers/home_provider.dart';
-import '../../../data/models/home_data.dart';
+import '../../../data/models/home_data_model.dart';
 import '../../components/shimmers/partner_home_shimmer.dart';
 
 class PartnerHomePage extends ConsumerWidget {
