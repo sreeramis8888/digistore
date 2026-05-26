@@ -1,3 +1,5 @@
+import 'package:digistore/src/utils/safe_parser.dart';
+import 'category_model.dart';
 import 'partner_model.dart';
 import 'redemption_rules.dart';
 import 'coverage_areas.dart';
@@ -10,7 +12,7 @@ class OfferModel {
   final String? title;
   final String? description;
   final List<String>? images;
-  final String? category;
+  final CategoryModel? category;
   final String? offerTypeCode;
   final Map<String, dynamic>? offerMetadata;
   final String? discountType;
@@ -70,13 +72,11 @@ class OfferModel {
   factory OfferModel.fromJson(Map<String, dynamic> json) {
     return OfferModel(
       id: json['_id'] as String?,
-      partnerId: (json['partnerId'] != null && json['partnerId'] is Map<String, dynamic>)
-          ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>)
-          : null,
+      partnerId: SafeParser.parseObject(json['partnerId'], PartnerModel.fromJson),
       title: json['title'] as String?,
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
-      category: json['category'] as String?,
+      category: SafeParser.parseObject(json['category'], CategoryModel.fromJson),
       offerTypeCode: json['offerTypeCode'] as String?,
       offerMetadata: json['offerMetadata'] as Map<String, dynamic>?,
       discountType: json['discountType'] as String?,
@@ -86,26 +86,18 @@ class OfferModel {
       terms: json['terms'] != null ? List<String>.from(json['terms']) : null,
       validFrom: json['validFrom'] != null ? DateTime.tryParse(json['validFrom'])?.toLocal() : null,
       validTo: json['validTo'] != null ? DateTime.tryParse(json['validTo'])?.toLocal() : null,
-      redemptionRules: json['redemptionRules'] != null
-          ? RedemptionRules.fromJson(json['redemptionRules'] as Map<String, dynamic>)
-          : null,
-      coverageAreas: json['coverageAreas'] != null
-          ? CoverageAreas.fromJson(json['coverageAreas'] as Map<String, dynamic>)
-          : null,
+      redemptionRules: SafeParser.parseObject(json['redemptionRules'], RedemptionRules.fromJson),
+      coverageAreas: SafeParser.parseObject(json['coverageAreas'], CoverageAreas.fromJson),
       status: json['status'] as String?,
       isPremium: json['isPremium'] as bool?,
-      premiumPlacement: json['premiumPlacement'] != null
-          ? PremiumPlacement.fromJson(json['premiumPlacement'] as Map<String, dynamic>)
-          : null,
+      premiumPlacement: SafeParser.parseObject(json['premiumPlacement'], PremiumPlacement.fromJson),
       totalRedemptions: json['totalRedemptions'] as int?,
       views: json['views'] as int?,
       isActive: json['isActive'] as bool?,
       isDealOfDay: json['isDealOfDay'] as bool?,
       requiredTier: json['requiredTier'] as String?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
-      location: json['location'] != null
-          ? LocationPoint.fromJson(json['location'] as Map<String, dynamic>)
-          : null,
+      location: SafeParser.parseObject(json['location'], LocationPoint.fromJson),
       shareCount: json['shareCount'] as int?,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
     );
@@ -118,7 +110,7 @@ class OfferModel {
       'title': title,
       'description': description,
       'images': images,
-      'category': category,
+      'category': category?.toJson(),
       'offerTypeCode': offerTypeCode,
       'offerMetadata': offerMetadata,
       'discountType': discountType,

@@ -1,3 +1,4 @@
+import 'package:digistore/src/utils/safe_parser.dart';
 import 'location_point.dart';
 
 class BusinessInfo {
@@ -64,13 +65,13 @@ class BusinessInfo {
       otpPhone: json['otpPhone'] as String?,
       whatsappNumber: json['whatsappNumber'] as String?,
       websiteUrl: json['websiteUrl'] as String?,
-      storeLocation: json['storeLocation'] != null ? LocationPoint.fromJson(json['storeLocation'] as Map<String, dynamic>) : null,
-      operatingHours: json['operatingHours'] != null ? OperatingHours.fromJson(json['operatingHours'] as Map<String, dynamic>) : null,
-      socialLinks: json['socialLinks'] != null ? SocialLinks.fromJson(json['socialLinks'] as Map<String, dynamic>) : null,
+      storeLocation: SafeParser.parseObject(json['storeLocation'], LocationPoint.fromJson),
+      operatingHours: SafeParser.parseObject(json['operatingHours'], OperatingHours.fromJson),
+      socialLinks: SafeParser.parseObject(json['socialLinks'], SocialLinks.fromJson),
       videoUrl: json['videoUrl'] as String?,
       achievements: json['achievements'] != null ? List<String>.from(json['achievements']) : null,
-      faqs: (json['faqs'] as List?)?.map((e) => BusinessFAQ.fromJson(e as Map<String, dynamic>)).toList(),
-      branches: (json['branches'] as List?)?.map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>)).toList(),
+      faqs: SafeParser.parseList(json['faqs'], BusinessFAQ.fromJson),
+      branches: SafeParser.parseList(json['branches'], BusinessBranch.fromJson),
       ownerName: json['ownerName'] as String?,
       email: json['email'] as String?,
     );
@@ -125,13 +126,13 @@ class OperatingHours {
 
   factory OperatingHours.fromJson(Map<String, dynamic> json) {
     return OperatingHours(
-      monday: json['monday'] != null ? DayStatus.fromJson(json['monday'] as Map<String, dynamic>) : null,
-      tuesday: json['tuesday'] != null ? DayStatus.fromJson(json['tuesday'] as Map<String, dynamic>) : null,
-      wednesday: json['wednesday'] != null ? DayStatus.fromJson(json['wednesday'] as Map<String, dynamic>) : null,
-      thursday: json['thursday'] != null ? DayStatus.fromJson(json['thursday'] as Map<String, dynamic>) : null,
-      friday: json['friday'] != null ? DayStatus.fromJson(json['friday'] as Map<String, dynamic>) : null,
-      saturday: json['saturday'] != null ? DayStatus.fromJson(json['saturday'] as Map<String, dynamic>) : null,
-      sunday: json['sunday'] != null ? DayStatus.fromJson(json['sunday'] as Map<String, dynamic>) : null,
+      monday: SafeParser.parseObject(json['monday'], DayStatus.fromJson),
+      tuesday: SafeParser.parseObject(json['tuesday'], DayStatus.fromJson),
+      wednesday: SafeParser.parseObject(json['wednesday'], DayStatus.fromJson),
+      thursday: SafeParser.parseObject(json['thursday'], DayStatus.fromJson),
+      friday: SafeParser.parseObject(json['friday'], DayStatus.fromJson),
+      saturday: SafeParser.parseObject(json['saturday'], DayStatus.fromJson),
+      sunday: SafeParser.parseObject(json['sunday'], DayStatus.fromJson),
     );
   }
 
@@ -239,8 +240,8 @@ class BusinessBranch {
       name: json['name'] as String?,
       address: json['address'] as String?,
       phone: json['phone'] as String?,
-      location: json['location'] != null ? LocationPoint.fromJson(json['location'] as Map<String, dynamic>) : null,
-      operatingHours: json['operatingHours'] != null ? OperatingHours.fromJson(json['operatingHours'] as Map<String, dynamic>) : null,
+      location: SafeParser.parseObject(json['location'], LocationPoint.fromJson),
+      operatingHours: SafeParser.parseObject(json['operatingHours'], OperatingHours.fromJson),
       isActive: json['isActive'] as bool?,
     );
   }

@@ -262,7 +262,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       // Handle multiple images for gallery
       final currentTotal = _businessImages.length + _pickedGallery.length;
       final availableSlots = 10 - currentTotal;
-      
+
       if (result.length > availableSlots) {
         ToastService().showToast(
           context,
@@ -272,7 +272,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       }
 
       final imagesToAdd = result.take(availableSlots).toList();
-      
+
       for (final xFile in imagesToAdd) {
         File originalFile = File(xFile.path);
         File compressedFile = await img_service.compressImageIfNeeded(
@@ -329,8 +329,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
-
-
   void _showAddSpecialtyDialog() async {
     FocusManager.instance.primaryFocus?.unfocus();
     final result = await showAddSpecialtyDialog(context);
@@ -343,9 +341,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     FocusManager.instance.primaryFocus?.unfocus();
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AddBranchPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddBranchPage()),
     );
     if (result != null && mounted) {
       setState(() => _branches.add(result));
@@ -549,8 +545,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       ),
     );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -979,57 +973,57 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             ),
                           ),
                           SizedBox(height: screenSize.responsivePadding(32)),
-                          if (false)
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 24),
-                              decoration: BoxDecoration(
-                                color: kWhite,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: const Color(0xFFE5E7EB),
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Personal Informations',
-                                          style: kSmallTitleM.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: kBlack,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                    thickness: 1,
-                                    color: Color(0xFFF3F4F6),
-                                    indent: 16,
-                                    endIndent: 16,
-                                  ),
-                                  if (isEditMode) ...[
-                                    Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: PrimaryTextField(
-                                        label: 'Mobile Number',
-                                        controller: _mobileCtrl,
-                                        readOnly: true,
-                                      ),
-                                    ),
-                                  ] else ...[
-                                    _buildReadOnlyRow(
-                                      'Mobile Number',
-                                      _mobileCtrl.text,
-                                    ),
-                                  ],
-                                ],
+
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 24),
+                            decoration: BoxDecoration(
+                              color: kWhite,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFFE5E7EB),
                               ),
                             ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Personal Informations',
+                                        style: kSmallTitleM.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: kBlack,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Color(0xFFF3F4F6),
+                                  indent: 16,
+                                  endIndent: 16,
+                                ),
+                                if (isEditMode) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: PrimaryTextField(
+                                      label: 'Mobile Number',
+                                      controller: _mobileCtrl,
+                                      readOnly: true,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  _buildReadOnlyRow(
+                                    'Mobile Number',
+                                    _mobileCtrl.text,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
 
                           Container(
                             margin: const EdgeInsets.only(bottom: 24),
@@ -1379,11 +1373,17 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                       if (_branches.isEmpty)
                                         Container(
                                           width: double.infinity,
-                                          padding: const EdgeInsets.symmetric(vertical: 24),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 24,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFF9FAFB),
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(0xFFE5E7EB),
+                                            ),
                                           ),
                                           child: Center(
                                             child: Text(
@@ -1395,102 +1395,187 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           ),
                                         )
                                       else
-                                        ..._branches.asMap().entries.map((entry) {
+                                        ..._branches.asMap().entries.map((
+                                          entry,
+                                        ) {
                                           final index = entry.key;
                                           final branch = entry.value;
                                           return Container(
-                                            margin: const EdgeInsets.only(bottom: 12),
+                                            margin: const EdgeInsets.only(
+                                              bottom: 12,
+                                            ),
                                             padding: const EdgeInsets.all(16),
                                             decoration: BoxDecoration(
                                               color: kWhite,
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: const Color(0xFFE5E7EB)),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: const Color(0xFFE5E7EB),
+                                              ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.black.withOpacity(0.02),
+                                                  color: Colors.black
+                                                      .withOpacity(0.02),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 2),
                                                 ),
                                               ],
                                             ),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
                                                     Expanded(
                                                       child: Row(
                                                         children: [
                                                           Container(
-                                                            padding: const EdgeInsets.all(8),
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  8,
+                                                                ),
                                                             decoration: BoxDecoration(
-                                                              color: kPrimaryLightColor,
-                                                              borderRadius: BorderRadius.circular(8),
+                                                              color:
+                                                                  kPrimaryLightColor,
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
                                                             ),
                                                             child: const Icon(
-                                                              Icons.store_mall_directory_outlined,
-                                                              color: kPrimaryColor,
+                                                              Icons
+                                                                  .store_mall_directory_outlined,
+                                                              color:
+                                                                  kPrimaryColor,
                                                               size: 20,
                                                             ),
                                                           ),
-                                                          const SizedBox(width: 12),
+                                                          const SizedBox(
+                                                            width: 12,
+                                                          ),
                                                           Expanded(
                                                             child: Text(
-                                                              branch.name ?? 'Branch',
+                                                              branch.name ??
+                                                                  'Branch',
                                                               style: kBodyTitleM.copyWith(
-                                                                fontWeight: FontWeight.w700,
-                                                                color: const Color(0xFF111827),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color:
+                                                                    const Color(
+                                                                      0xFF111827,
+                                                                    ),
                                                               ),
                                                               maxLines: 1,
-                                                              overflow: TextOverflow.ellipsis,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                             ),
                                                           ),
                                                         ],
                                                       ),
                                                     ),
                                                     Container(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4,
+                                                          ),
                                                       decoration: BoxDecoration(
-                                                        color: branch.isActive == true ? const Color(0xFFDEF7EC) : const Color(0xFFFDE8E8),
-                                                        borderRadius: BorderRadius.circular(20),
+                                                        color:
+                                                            branch.isActive ==
+                                                                true
+                                                            ? const Color(
+                                                                0xFFDEF7EC,
+                                                              )
+                                                            : const Color(
+                                                                0xFFFDE8E8,
+                                                              ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              20,
+                                                            ),
                                                       ),
                                                       child: Text(
-                                                        branch.isActive == true ? 'Active' : 'Inactive',
+                                                        branch.isActive == true
+                                                            ? 'Active'
+                                                            : 'Inactive',
                                                         style: kSmallTitleL.copyWith(
-                                                          color: branch.isActive == true ? const Color(0xFF03543F) : const Color(0xFF9B1C1C),
-                                                          fontWeight: FontWeight.w600,
+                                                          color:
+                                                              branch.isActive ==
+                                                                  true
+                                                              ? const Color(
+                                                                  0xFF03543F,
+                                                                )
+                                                              : const Color(
+                                                                  0xFF9B1C1C,
+                                                                ),
+                                                          fontWeight:
+                                                              FontWeight.w600,
                                                           fontSize: 10,
                                                         ),
                                                       ),
                                                     ),
                                                   ],
                                                 ),
-                                                if (branch.address?.isNotEmpty == true) ...[
+                                                if (branch
+                                                        .address
+                                                        ?.isNotEmpty ==
+                                                    true) ...[
                                                   const SizedBox(height: 12),
                                                   Row(
                                                     children: [
-                                                      const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF6B7280)),
+                                                      const Icon(
+                                                        Icons
+                                                            .location_on_outlined,
+                                                        size: 16,
+                                                        color: Color(
+                                                          0xFF6B7280,
+                                                        ),
+                                                      ),
                                                       const SizedBox(width: 8),
                                                       Expanded(
                                                         child: Text(
                                                           branch.address!,
-                                                          style: kSmallTitleM.copyWith(color: const Color(0xFF4B5563)),
+                                                          style: kSmallTitleM
+                                                              .copyWith(
+                                                                color:
+                                                                    const Color(
+                                                                      0xFF4B5563,
+                                                                    ),
+                                                              ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ],
-                                                if (branch.phone?.isNotEmpty == true) ...[
+                                                if (branch.phone?.isNotEmpty ==
+                                                    true) ...[
                                                   const SizedBox(height: 8),
                                                   Row(
                                                     children: [
-                                                      const Icon(Icons.phone_outlined, size: 16, color: Color(0xFF6B7280)),
+                                                      const Icon(
+                                                        Icons.phone_outlined,
+                                                        size: 16,
+                                                        color: Color(
+                                                          0xFF6B7280,
+                                                        ),
+                                                      ),
                                                       const SizedBox(width: 8),
                                                       Expanded(
                                                         child: Text(
                                                           branch.phone!,
-                                                          style: kSmallTitleM.copyWith(color: const Color(0xFF4B5563)),
+                                                          style: kSmallTitleM
+                                                              .copyWith(
+                                                                color:
+                                                                    const Color(
+                                                                      0xFF4B5563,
+                                                                    ),
+                                                              ),
                                                         ),
                                                       ),
                                                     ],
@@ -1498,29 +1583,75 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                                 ],
                                                 if (isEditMode) ...[
                                                   const SizedBox(height: 16),
-                                                  const Divider(height: 1, color: Color(0xFFF3F4F6)),
+                                                  const Divider(
+                                                    height: 1,
+                                                    color: Color(0xFFF3F4F6),
+                                                  ),
                                                   const SizedBox(height: 12),
                                                   Row(
-                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
                                                     children: [
                                                       GestureDetector(
-                                                        onTap: () => _editBranch(index, branch),
+                                                        onTap: () =>
+                                                            _editBranch(
+                                                              index,
+                                                              branch,
+                                                            ),
                                                         child: Row(
                                                           children: [
-                                                            const Icon(Icons.edit_outlined, size: 16, color: kPrimaryColor),
-                                                            const SizedBox(width: 4),
-                                                            Text('Edit', style: kSmallTitleM.copyWith(color: kPrimaryColor, fontWeight: FontWeight.w600)),
+                                                            const Icon(
+                                                              Icons
+                                                                  .edit_outlined,
+                                                              size: 16,
+                                                              color:
+                                                                  kPrimaryColor,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Text(
+                                                              'Edit',
+                                                              style: kSmallTitleM
+                                                                  .copyWith(
+                                                                    color:
+                                                                        kPrimaryColor,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
                                                       const SizedBox(width: 24),
                                                       GestureDetector(
-                                                        onTap: () => setState(() => _branches.removeAt(index)),
+                                                        onTap: () => setState(
+                                                          () => _branches
+                                                              .removeAt(index),
+                                                        ),
                                                         child: Row(
                                                           children: [
-                                                            const Icon(Icons.delete_outline, size: 16, color: Colors.red),
-                                                            const SizedBox(width: 4),
-                                                            Text('Delete', style: kSmallTitleM.copyWith(color: Colors.red, fontWeight: FontWeight.w600)),
+                                                            const Icon(
+                                                              Icons
+                                                                  .delete_outline,
+                                                              size: 16,
+                                                              color: Colors.red,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Text(
+                                                              'Delete',
+                                                              style: kSmallTitleM
+                                                                  .copyWith(
+                                                                    color: Colors
+                                                                        .red,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
@@ -1583,25 +1714,32 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                     horizontal: 16,
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       AnimatedSize(
-                                        duration: const Duration(milliseconds: 300),
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
                                         curve: Curves.easeOutBack,
                                         child: _isAddingTag && isEditMode
                                             ? Padding(
-                                                padding: const EdgeInsets.only(bottom: 16),
+                                                padding: const EdgeInsets.only(
+                                                  bottom: 16,
+                                                ),
                                                 child: PrimaryTextField(
                                                   label: 'New Tag',
                                                   controller: _tagInputCtrl,
                                                   focusNode: _tagFocusNode,
-                                                  hint: 'Type and press space to add...',
+                                                  hint:
+                                                      'Type and press space to add...',
                                                   onChanged: (val) {
                                                     if (val.endsWith(' ')) {
                                                       _submitTag();
                                                     }
                                                   },
-                                                  onSubmitted: (val) => _submitTag(),
+                                                  onSubmitted: (val) =>
+                                                      _submitTag(),
                                                 ),
                                               )
                                             : const SizedBox.shrink(),
@@ -1615,17 +1753,23 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                             ..._tags.map(
                                               (t) => AnimatedScale(
                                                 scale: 1.0,
-                                                duration: const Duration(milliseconds: 200),
+                                                duration: const Duration(
+                                                  milliseconds: 200,
+                                                ),
                                                 child: _buildRemovableChip(
                                                   t,
-                                                  onDelete: () => setState(() => _tags.remove(t)),
+                                                  onDelete: () => setState(
+                                                    () => _tags.remove(t),
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                             if (_tags.isEmpty && !_isAddingTag)
                                               Text(
                                                 'No tags added',
-                                                style: kSmallTitleL.copyWith(color: kGrey),
+                                                style: kSmallTitleL.copyWith(
+                                                  color: kGrey,
+                                                ),
                                               ),
                                           ],
                                         ),
@@ -1733,10 +1877,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                               'assets/svg/instagram.svg',
                                               width: 16,
                                               height: 16,
-                                              colorFilter: const ColorFilter.mode(
-                                                Color(0xFFE4405F),
-                                                BlendMode.srcIn,
-                                              ),
+                                              colorFilter:
+                                                  const ColorFilter.mode(
+                                                    Color(0xFFE4405F),
+                                                    BlendMode.srcIn,
+                                                  ),
                                             ),
                                           ),
                                         if (_facebookCtrl.text.isNotEmpty)
@@ -1747,10 +1892,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                               'assets/svg/facebook.svg',
                                               width: 16,
                                               height: 16,
-                                              colorFilter: const ColorFilter.mode(
-                                                Color(0xFF1877F2),
-                                                BlendMode.srcIn,
-                                              ),
+                                              colorFilter:
+                                                  const ColorFilter.mode(
+                                                    Color(0xFF1877F2),
+                                                    BlendMode.srcIn,
+                                                  ),
                                             ),
                                           ),
                                         if (_youtubeCtrl.text.isNotEmpty)
@@ -1761,10 +1907,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                               'assets/svg/youtube.svg',
                                               width: 16,
                                               height: 16,
-                                              colorFilter: const ColorFilter.mode(
-                                                Color(0xFFFF0000),
-                                                BlendMode.srcIn,
-                                              ),
+                                              colorFilter:
+                                                  const ColorFilter.mode(
+                                                    Color(0xFFFF0000),
+                                                    BlendMode.srcIn,
+                                                  ),
                                             ),
                                           ),
                                         if (_websiteUrlCtrl.text.isNotEmpty)
@@ -1775,10 +1922,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                               'assets/svg/website.svg',
                                               width: 16,
                                               height: 16,
-                                              colorFilter: const ColorFilter.mode(
-                                                Color(0xFF4285F4),
-                                                BlendMode.srcIn,
-                                              ),
+                                              colorFilter:
+                                                  const ColorFilter.mode(
+                                                    Color(0xFF4285F4),
+                                                    BlendMode.srcIn,
+                                                  ),
                                             ),
                                           ),
                                       ],
@@ -1992,21 +2140,31 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                                       opaque: false,
                                                       pageBuilder: (context, _, __) {
                                                         return FullScreenGallery(
-                                                          images: _businessImages,
-                                                          initialIndex: entry.key,
+                                                          images:
+                                                              _businessImages,
+                                                          initialIndex:
+                                                              entry.key,
                                                         );
                                                       },
-                                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                        return FadeTransition(
-                                                          opacity: animation,
-                                                          child: child,
-                                                        );
-                                                      },
+                                                      transitionsBuilder:
+                                                          (
+                                                            context,
+                                                            animation,
+                                                            secondaryAnimation,
+                                                            child,
+                                                          ) {
+                                                            return FadeTransition(
+                                                              opacity:
+                                                                  animation,
+                                                              child: child,
+                                                            );
+                                                          },
                                                     ),
                                                   );
                                                 },
                                                 child: Hero(
-                                                  tag: 'gallery_image_${entry.value}_${entry.key}',
+                                                  tag:
+                                                      'gallery_image_${entry.value}_${entry.key}',
                                                   child: _buildShopImage(
                                                     imageUrl: entry.value,
                                                   ),

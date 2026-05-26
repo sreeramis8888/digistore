@@ -1,3 +1,4 @@
+import '../../utils/safe_parser.dart';
 import 'loyalty_card.dart';
 import 'banner_model.dart';
 import 'category_model.dart';
@@ -35,37 +36,17 @@ class HomeData {
 
   factory HomeData.fromJson(Map<String, dynamic> json) {
     return HomeData(
-      loyaltyCard: json['loyaltyCard'] != null ? LoyaltyCard.fromJson(json['loyaltyCard'] as Map<String, dynamic>) : null,
-      premiumBanners: json['premiumBanners'] != null
-          ? (json['premiumBanners'] as List).map((e) => BannerModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      categories: json['categories'] != null
-          ? (json['categories'] as List).map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      dealsOfDay: json['dealsOfDay'] != null
-          ? (json['dealsOfDay'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      dealOfTheHour: json['dealOfTheHour'] != null
-          ? (json['dealOfTheHour'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      dealOfTheDay: json['dealOfTheDay'] != null
-          ? (json['dealOfTheDay'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      dealOfTheMonth: json['dealOfTheMonth'] != null
-          ? (json['dealOfTheMonth'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      nearbyOffers: json['nearbyOffers'] != null
-          ? (json['nearbyOffers'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      featuredShops: json['featuredShops'] != null
-          ? (json['featuredShops'] as List).map((e) => ShopModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      rewardsPreview: json['rewardsPreview'] != null
-          ? (json['rewardsPreview'] as List).map((e) => RewardModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      upcomingDeals: json['upcomingDeals'] != null
-          ? (json['upcomingDeals'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
+      loyaltyCard: SafeParser.parseObject(json['loyaltyCard'], LoyaltyCard.fromJson),
+      premiumBanners: SafeParser.parseList(json['premiumBanners'], BannerModel.fromJson),
+      categories: SafeParser.parseList(json['categories'], CategoryModel.fromJson),
+      dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
+      dealOfTheHour: SafeParser.parseList(json['dealOfTheHour'], OfferModel.fromJson),
+      dealOfTheDay: SafeParser.parseList(json['dealOfTheDay'], OfferModel.fromJson),
+      dealOfTheMonth: SafeParser.parseList(json['dealOfTheMonth'], OfferModel.fromJson),
+      nearbyOffers: SafeParser.parseList(json['nearbyOffers'], OfferModel.fromJson),
+      featuredShops: SafeParser.parseList(json['featuredShops'], ShopModel.fromJson),
+      rewardsPreview: SafeParser.parseList(json['rewardsPreview'], RewardModel.fromJson),
+      upcomingDeals: SafeParser.parseList(json['upcomingDeals'], OfferModel.fromJson),
     );
   }
 }

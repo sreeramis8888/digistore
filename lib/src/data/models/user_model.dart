@@ -1,3 +1,5 @@
+import 'package:digistore/src/utils/safe_parser.dart';
+
 import 'device_model.dart';
 
 class UserModel {
@@ -60,7 +62,7 @@ class UserModel {
       name: json['name'] as String?,
       email: json['email'] as String?,
       avatar: json['avatar'] as String?,
-      location: json['location'] != null ? LocationModel.fromJson(json['location'] as Map<String, dynamic>) : null,
+      location: SafeParser.parseObject(json['location'], LocationModel.fromJson),
       pointsBalance: json['pointsBalance'] as int?,
       totalPointsEarned: json['totalPointsEarned'] as int?,
       isActive: json['isActive'] as bool?,
@@ -70,16 +72,14 @@ class UserModel {
       referralRewardClaimed: json['referralRewardClaimed'] as bool?,
       onboardingComplete: json['onboardingComplete'] as bool?,
       tutorialCompleted: json['tutorialCompleted'] as bool?,
-      preferences: json['preferences'] != null ? PreferencesModel.fromJson(json['preferences'] as Map<String, dynamic>) : null,
-      currentTier: json['currentTier'] != null ? TierModel.fromJson(json['currentTier'] as Map<String, dynamic>) : null,
-      nextTier: json['nextTier'] != null ? NextTierModel.fromJson(json['nextTier'] as Map<String, dynamic>) : null,
+      preferences: SafeParser.parseObject(json['preferences'], PreferencesModel.fromJson),
+      currentTier: SafeParser.parseObject(json['currentTier'], TierModel.fromJson),
+      nextTier: SafeParser.parseObject(json['nextTier'], NextTierModel.fromJson),
       progressToNextTier: json['progressToNextTier'] != null ? (json['progressToNextTier'] as num).toDouble() : null,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt'])?.toLocal() : null,
-      devices: json['devices'] != null
-          ? (json['devices'] as List<dynamic>).map((e) => DeviceModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
+      devices: SafeParser.parseList(json['devices'], DeviceModel.fromJson),
     );
   }
 
@@ -176,7 +176,7 @@ class LocationModel {
     return LocationModel(
       district: json['district'] as String?,
       localBody: json['localBody'] as String?,
-      coordinates: json['coordinates'] != null ? CoordinatesModel.fromJson(json['coordinates'] as Map<String, dynamic>) : null,
+      coordinates: SafeParser.parseObject(json['coordinates'], CoordinatesModel.fromJson),
     );
   }
 

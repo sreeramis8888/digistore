@@ -15,6 +15,9 @@ import '../data/utils/global_variables.dart';
 import 'main_pages/partner/partner_home.dart';
 import 'main_pages/partner/partner_products.dart';
 import 'main_pages/partner/partner_history.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../data/utils/notification_permission_helper.dart';
+import '../data/services/notification_service/notification_service.dart';
 
 class NavBar extends ConsumerStatefulWidget {
   const NavBar({super.key});
@@ -109,14 +112,34 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationsProvider.notifier).fetchUnreadCount();
       final deepLinkService = ref.read(deepLinkServiceProvider);
       if (deepLinkService.pendingDeepLink != null) {
         final pending = deepLinkService.pendingDeepLink!;
         deepLinkService.clearPendingDeepLink();
         deepLinkService.handleDeepLink(pending);
       }
+      _checkAndPromptForNotifications();
     });
+  }
+
+  Future<void> _checkAndPromptForNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasPrompted = prefs.getBool('has_prompted_for_notifications') ?? false;
+
+    if (!hasPrompted) {
+      await prefs.setBool('has_prompted_for_notifications', true);
+      
+      if (mounted) {
+        final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
+        if (permissions) {
+          final notifService = ref.read(notificationServiceProvider);
+          final token = await notifService.getToken();
+          if (token != null) {
+            await ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          }
+        }
+      }
+    }
   }
 
   @override

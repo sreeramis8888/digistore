@@ -1,3 +1,6 @@
+
+import 'package:digistore/src/utils/safe_parser.dart';
+
 import 'partner_model.dart';
 import 'offer_model.dart';
 
@@ -64,16 +67,9 @@ class RedemptionModel {
   factory RedemptionModel.fromJson(Map<String, dynamic> json) {
     return RedemptionModel(
       id: json['_id'] as String?,
-      publicUserId: (json['publicUserId'] != null && json['publicUserId'] is Map)
-          ? PublicUserModel.fromJson(
-              json['publicUserId'] as Map<String, dynamic>)
-          : null,
-      partnerId: (json['partnerId'] != null && json['partnerId'] is Map)
-          ? PartnerModel.fromJson(json['partnerId'] as Map<String, dynamic>)
-          : null,
-      offerId: (json['offerId'] != null && json['offerId'] is Map)
-          ? OfferModel.fromJson(json['offerId'] as Map<String, dynamic>)
-          : null,
+      publicUserId: SafeParser.parseObject(json['publicUserId'], PublicUserModel.fromJson),
+      partnerId: SafeParser.parseObject(json['partnerId'], PartnerModel.fromJson),
+      offerId: SafeParser.parseObject(json['offerId'], OfferModel.fromJson),
       status: json['status'] as String?,
       saleAmount: (json['saleAmount'] as num?)?.toDouble(),
       pointsEarned: json['pointsEarned'] as int?,
@@ -111,9 +107,7 @@ class MyRedemptionsResponse {
   factory MyRedemptionsResponse.fromJson(Map<String, dynamic> json) {
     return MyRedemptionsResponse(
       success: json['success'] as bool? ?? false,
-      data: (json['data'] as List? ?? [])
-          .map((e) => RedemptionModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      data: SafeParser.parseList(json['data'], RedemptionModel.fromJson) ?? [],
       canSubmitReview: json['canSubmitReview'] as bool? ?? false,
     );
   }
@@ -136,9 +130,7 @@ class PaginatedRedemptions {
 
   factory PaginatedRedemptions.fromJson(Map<String, dynamic> json) {
     return PaginatedRedemptions(
-      redemptions: (json['data'] as List? ?? [])
-          .map((e) => RedemptionModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      redemptions: SafeParser.parseList(json['data'], RedemptionModel.fromJson) ?? [],
       page: json['pagination']?['page'] as int? ?? 1,
       limit: json['pagination']?['limit'] as int? ?? 10,
       total: json['pagination']?['total'] as int? ?? 0,

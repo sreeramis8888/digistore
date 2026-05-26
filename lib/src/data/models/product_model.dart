@@ -1,3 +1,5 @@
+import 'package:digistore/src/utils/safe_parser.dart';
+
 class ProductCategory {
   final String? id;
   final String? category;
@@ -61,9 +63,7 @@ class ProductModel {
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
       price: (json['price'] as num?)?.toDouble(),
-      category: (json['category'] != null && json['category'] is Map<String, dynamic>)
-          ? ProductCategory.fromJson(json['category'] as Map<String, dynamic>)
-          : null,
+      category: SafeParser.parseObject(json['category'], ProductCategory.fromJson),
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isActive: json['isActive'] as bool?,
       createdAt: json['createdAt'] != null
@@ -143,14 +143,8 @@ class ProductResponse {
   factory ProductResponse.fromJson(Map<String, dynamic> json) {
     return ProductResponse(
       success: json['success'] as bool? ?? false,
-      data: json['data'] != null
-          ? (json['data'] as List)
-              .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : [],
-      pagination: json['pagination'] != null
-          ? PaginationModel.fromJson(json['pagination'] as Map<String, dynamic>)
-          : null,
+      data: SafeParser.parseList(json['data'], ProductModel.fromJson) ?? [],
+      pagination: SafeParser.parseObject(json['pagination'], PaginationModel.fromJson),
     );
   }
 }

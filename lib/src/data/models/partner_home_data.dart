@@ -1,3 +1,4 @@
+import '../../utils/safe_parser.dart';
 import 'offer_model.dart';
 import 'product_model.dart';
 
@@ -21,12 +22,8 @@ class PartnerHomeData {
       totalCustomers: json['totalCustomers'] as int?,
       commissionAmount: (json['commissionAmount'] as num?)?.toDouble(),
       totalSalesViaSetgo: (json['totalSalesViaSetgo'] as num?)?.toInt(),
-      recentOffers: json['recentOffers'] != null
-          ? (json['recentOffers'] as List).map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
-      recentProducts: json['recentProducts'] != null
-          ? (json['recentProducts'] as List).map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList()
-          : null,
+      recentOffers: SafeParser.parseList(json['recentOffers'], OfferModel.fromJson),
+      recentProducts: SafeParser.parseList(json['recentProducts'], ProductModel.fromJson),
     );
   }
 }

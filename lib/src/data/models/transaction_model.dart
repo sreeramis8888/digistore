@@ -1,3 +1,6 @@
+
+import 'package:digistore/src/utils/safe_parser.dart';
+
 class TransactionModel {
   final String? id;
   final String? publicUserId;
@@ -28,7 +31,7 @@ class TransactionModel {
       balance: json['balance'] as int?,
       description: json['description'] as String?,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
-      source: json['source'] != null ? TransactionSource.fromJson(json['source'] as Map<String, dynamic>) : null,
+      source: SafeParser.parseObject(json['source'], TransactionSource.fromJson),
     );
   }
 }
@@ -64,9 +67,7 @@ class PaginatedTransactions {
 
   factory PaginatedTransactions.fromJson(Map<String, dynamic> json) {
     return PaginatedTransactions(
-      transactions: (json['data'] as List? ?? [])
-          .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      transactions: SafeParser.parseList(json['data'], TransactionModel.fromJson) ?? [],
       page: json['pagination']?['page'] as int? ?? 1,
       limit: json['pagination']?['limit'] as int? ?? 10,
       total: json['pagination']?['total'] as int? ?? 0,

@@ -1,3 +1,4 @@
+import 'package:digistore/src/utils/safe_parser.dart';
 class RewardModel {
   final String? id;
   final String? title;
@@ -74,9 +75,7 @@ class PaginatedRewards {
 
   factory PaginatedRewards.fromJson(Map<String, dynamic> json) {
     return PaginatedRewards(
-      rewards: (json['data'] as List? ?? [])
-          .map((e) => RewardModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      rewards: SafeParser.parseList(json['data'], RewardModel.fromJson) ?? [],
       page: json['pagination']?['page'] as int? ?? 1,
       limit: json['pagination']?['limit'] as int? ?? 10,
       total: json['pagination']?['total'] as int? ?? 0,
