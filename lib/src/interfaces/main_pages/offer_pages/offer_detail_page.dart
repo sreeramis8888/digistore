@@ -15,6 +15,7 @@ import '../../../data/providers/user_type_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../components/confirmation_dialog.dart';
 import '../partner/create_offer_page.dart';
+import '../../../data/providers/shops_provider.dart';
 
 class OfferDetailPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> args;
@@ -27,7 +28,46 @@ class OfferDetailPage extends ConsumerStatefulWidget {
 
 class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
   bool isRedeeming = false;
+  bool isNavigatingToShop = false;
   int _currentImageIndex = 0;
+
+  Future<void> _navigateToShop(BuildContext context, String partnerId) async {
+    if (isNavigatingToShop) return;
+    setState(() {
+      isNavigatingToShop = true;
+    });
+
+    try {
+      final shop = await ref.read(getShopByPartnerIdProvider(partnerId).future);
+      if (shop != null) {
+        if (mounted) {
+          Navigator.of(context).pushNamed('shopDetail', arguments: shop);
+        }
+      } else {
+        if (mounted) {
+          ToastService().showToast(
+            context,
+            'Failed to load shop details',
+            type: ToastType.error,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastService().showToast(
+          context,
+          'Error loading shop: $e',
+          type: ToastType.error,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isNavigatingToShop = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +85,11 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                 (widget.args['images'] as List).isNotEmpty)
             ? widget.args['images'][0]
             : null);
+
+    final partnerIdObj = widget.args['partnerId'];
+    final String partnerId = (partnerIdObj is Map)
+        ? (partnerIdObj['_id'] ?? partnerIdObj['id'] ?? '')
+        : (partnerIdObj?.toString() ?? '');
 
     List<String> images = [];
     if (widget.args['images'] is List &&
@@ -257,37 +302,75 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: kPrimaryColor,
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: shopLogo != null
-                            ? AdvancedNetworkImage(
-                                imageUrl: shopLogo,
-                                fit: BoxFit.cover,
+                  InkWell(
+                    onTap: partnerId.isNotEmpty ? () => _navigateToShop(context, partnerId) : null,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: kPrimaryColor,
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: shopLogo != null
+                                ? AdvancedNetworkImage(
+                                    imageUrl: shopLogo,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Icon(
+                                    Icons.storefront,
+                                    color: kWhite,
+                                    size: 20,
+                                  ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  shopName,
+                                  style: kBodyTitleB.copyWith(fontSize: 20),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (partnerId.isNotEmpty)
+                                  Text(
+                                    'Visit Shop',
+                                    style: kSmallTitleM.copyWith(
+                                      color: kPrimaryColor,
+                                      height: 1.2,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (partnerId.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            if (isNavigatingToShop)
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(kPrimaryColor),
+                                ),
                               )
-                            : const Icon(
-                                Icons.storefront,
-                                color: kWhite,
-                                size: 20,
+                            else
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: kPrimaryColor,
                               ),
+                          ],
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          shopName,
-                          style: kBodyTitleB.copyWith(fontSize: 24),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 16),
 

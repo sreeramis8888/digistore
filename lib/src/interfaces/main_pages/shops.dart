@@ -295,7 +295,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                       vertical: screenSize.responsivePadding(8),
                     ),
                     child: Text(
-                      'Could not load nearby shops.',
+                      'No nearby shops.',
                       style: kSmallerTitleL.copyWith(
                         color: kSecondaryTextColor,
                       ),
@@ -372,7 +372,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     padding: EdgeInsets.all(screenSize.responsivePadding(32)),
                     child: Center(
                       child: Text(
-                        'Could not load shops.',
+                        'No more shops to explore.',
                         style: kSmallerTitleL.copyWith(
                           color: kSecondaryTextColor,
                         ),

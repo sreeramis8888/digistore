@@ -265,3 +265,17 @@ Future<List<ProductModel>> shopProducts(Ref ref, String shopId) async {
   }
   return [];
 }
+
+@riverpod
+Future<ShopModel?> getShopByPartnerId(Ref ref, String partnerId) async {
+  if (partnerId.isEmpty) return null;
+  final api = ref.read(apiProvider);
+  final response = await api.get('/shops/$partnerId', requireAuth: false);
+  if (response.success && response.data != null) {
+    final data = response.data!['data'];
+    if (data != null) {
+      return ShopModel.fromJson(data as Map<String, dynamic>);
+    }
+  }
+  return null;
+}

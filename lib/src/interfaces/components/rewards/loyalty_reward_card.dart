@@ -238,6 +238,8 @@ class LoyaltyRewardCard extends ConsumerWidget {
                           }
                         }
 
+                        final showSentence = isHighestTier || (loyaltyCard?.remainingPointsToNextTier ?? 0) > 0;
+
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -272,13 +274,15 @@ class LoyaltyRewardCard extends ConsumerWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(height: screenSize.responsivePadding(10)),
-                            Text(
-                              isHighestTier 
-                                  ? 'Highest tier reached'
-                                  : '${loyaltyCard?.remainingPointsToNextTier ?? 0} points more to reach ${loyaltyCard?.nextTier} Tier',
-                              style: kSmallerTitleM.copyWith(color: kWhite),
-                            ),
+                            if (showSentence) ...[
+                              SizedBox(height: screenSize.responsivePadding(10)),
+                              Text(
+                                isHighestTier 
+                                    ? 'Highest tier reached'
+                                    : '${loyaltyCard?.remainingPointsToNextTier ?? 0} points more to reach ${loyaltyCard?.nextTier} Tier',
+                                style: kSmallerTitleM.copyWith(color: kWhite),
+                              ),
+                            ],
                           ],
                         );
                       },

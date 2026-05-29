@@ -242,44 +242,8 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     }
 
     // Customer view — two sections
-    final hasNearby = offersState.offers.isNotEmpty;
-    final hasExplore = offersState.exploreOffers.isNotEmpty;
     final isLoadingNearby = offersState.isLoading;
     final isLoadingExplore = offersState.isExploreLoading;
-
-    if (isLoadingNearby && !hasNearby) {
-      return _shimmerGrid(
-        screenSize,
-        aspectRatio,
-        key: const ValueKey('customer_shimmer'),
-      );
-    }
-
-    if (!hasNearby && !hasExplore && !isLoadingExplore) {
-      return RefreshIndicator(
-        color: kPrimaryColor,
-        key: const ValueKey('customer_empty'),
-        onRefresh: () async {
-          await ref
-              .read(offersProvider.notifier)
-              .fetchOffers(categoryId: offersState.currentCategoryId);
-        },
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: EmptyState(
-                imagePath: 'assets/png/empty_offers.png',
-                title: 'No offers found',
-                subtitle:
-                    'Check back later for exciting new deals and discounts in this category.',
-              ).fadeIn(),
-            ),
-          ],
-        ),
-      );
-    }
 
     return RefreshIndicator(
       color: kPrimaryColor,
@@ -294,56 +258,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          if (hasNearby || isLoadingNearby) ...[
-            SliverToBoxAdapter(
-              child: _sectionHeader('Offers Near You', screenSize),
-            ),
-            if (isLoadingNearby && !hasNearby)
-              SliverPadding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16.0),
-                ),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (_, i) => CardShimmers.dealCardShimmer(screenSize),
-                    childCount: 4,
-                  ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: screenSize.responsivePadding(16.0),
-                    crossAxisSpacing: screenSize.responsivePadding(16.0),
-                    childAspectRatio: aspectRatio,
-                  ),
-                ),
-              )
-            else
-              SliverPadding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16.0),
-                ),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate((_, index) {
-                    final o = offersState.offers[index];
-                    return DealCard.fromOffer(o);
-                  }, childCount: offersState.offers.length),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: screenSize.responsivePadding(16.0),
-                    crossAxisSpacing: screenSize.responsivePadding(16.0),
-                    childAspectRatio: aspectRatio,
-                  ),
-                ),
-              ),
-            SliverToBoxAdapter(
-              child: SizedBox(height: screenSize.responsivePadding(24.0)),
-            ),
-          ],
-
-          // ── Explore More Offers ──────────────────────────────────────
           SliverToBoxAdapter(
-            child: _sectionHeader('Explore More Offers', screenSize),
+            child: _sectionHeader('Offers Near You', screenSize),
           ),
-          if (isLoadingExplore && !hasExplore)
+          if (isLoadingNearby)
             SliverPadding(
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.responsivePadding(16.0),
@@ -361,7 +279,81 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 ),
               ),
             )
-          else if (!hasExplore)
+          else if (offersState.error != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16.0),
+                  vertical: screenSize.responsivePadding(8.0),
+                ),
+                child: Text(
+                  'No nearby offers',
+                  style: kSmallerTitleL.copyWith(
+                    color: kSecondaryTextColor,
+                  ),
+                ),
+              ),
+            )
+          else if (offersState.offers.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16.0),
+                  vertical: screenSize.responsivePadding(8.0),
+                ),
+                child: Text(
+                  'No offers found near your location.',
+                  style: kSmallerTitleL.copyWith(
+                    color: kSecondaryTextColor,
+                  ),
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate((_, index) {
+                  final o = offersState.offers[index];
+                  return DealCard.fromOffer(o);
+                }, childCount: offersState.offers.length),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: screenSize.responsivePadding(24.0)),
+          ),
+
+          // ── Explore More Offers ──────────────────────────────────────
+          SliverToBoxAdapter(
+            child: _sectionHeader('Explore More Offers', screenSize),
+          ),
+          if (isLoadingExplore)
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                  childCount: 4,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            )
+          else if (offersState.exploreOffers.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.all(screenSize.responsivePadding(32.0)),

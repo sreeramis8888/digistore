@@ -151,7 +151,7 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                       child: Center(
                         child: state.isLoadingMore
                             ? const LoadingAnimation()
-                            : (state.page >= state.pages && state.rewards.isNotEmpty)
+                            : (state.pages > 1 && state.page >= state.pages && state.rewards.isNotEmpty)
                                 ? Text(
                                     'No more rewards',
                                     style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),

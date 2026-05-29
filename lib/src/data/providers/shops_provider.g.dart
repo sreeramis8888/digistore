@@ -262,3 +262,78 @@ final class ShopProductsFamily extends $Family
   @override
   String toString() => r'shopProductsProvider';
 }
+
+@ProviderFor(getShopByPartnerId)
+final getShopByPartnerIdProvider = GetShopByPartnerIdFamily._();
+
+final class GetShopByPartnerIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ShopModel?>,
+          ShopModel?,
+          FutureOr<ShopModel?>
+        >
+    with $FutureModifier<ShopModel?>, $FutureProvider<ShopModel?> {
+  GetShopByPartnerIdProvider._({
+    required GetShopByPartnerIdFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getShopByPartnerIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getShopByPartnerIdHash();
+
+  @override
+  String toString() {
+    return r'getShopByPartnerIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<ShopModel?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<ShopModel?> create(Ref ref) {
+    final argument = this.argument as String;
+    return getShopByPartnerId(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetShopByPartnerIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getShopByPartnerIdHash() =>
+    r'125982244dc06b3cf96e3fb6fd03a6c0f3e93872';
+
+final class GetShopByPartnerIdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<ShopModel?>, String> {
+  GetShopByPartnerIdFamily._()
+    : super(
+        retry: null,
+        name: r'getShopByPartnerIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetShopByPartnerIdProvider call(String partnerId) =>
+      GetShopByPartnerIdProvider._(argument: partnerId, from: this);
+
+  @override
+  String toString() => r'getShopByPartnerIdProvider';
+}
