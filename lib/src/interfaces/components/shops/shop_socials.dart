@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/shop_model.dart';
@@ -18,13 +17,15 @@ class ShopSocials extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     final socialLinks = shop?.businessInfo?.socialLinks;
     final websiteUrl = shop?.businessInfo?.websiteUrl;
+    final whatsappNumber = shop?.businessInfo?.whatsappNumber;
 
     final hasWebsite = websiteUrl?.isNotEmpty == true;
     final hasInstagram = socialLinks?.instagram?.isNotEmpty == true;
     final hasFacebook = socialLinks?.facebook?.isNotEmpty == true;
     final hasYoutube = socialLinks?.youtube?.isNotEmpty == true;
+    final hasWhatsapp = whatsappNumber?.isNotEmpty == true;
 
-    if (!hasWebsite && !hasInstagram && !hasFacebook && !hasYoutube) {
+    if (!hasWebsite && !hasInstagram && !hasFacebook && !hasYoutube && !hasWhatsapp) {
       return const SizedBox.shrink();
     }
 
@@ -43,6 +44,21 @@ class ShopSocials extends ConsumerWidget {
                 label: 'Website',
                 onPressed: () => launchURL(websiteUrl!),
                 screenSize: screenSize,
+                color: const Color(0xFF1A73E8),
+              ),
+            if (hasWhatsapp)
+              _SocialButton(
+                svgAsset: 'assets/svg/whatsapp.svg',
+                label: 'WhatsApp',
+                onPressed: () {
+                  final cleanPhone = whatsappNumber!.replaceAll(RegExp(r'[^\d]'), '');
+                  final actualPhone = cleanPhone.length == 10 ? '91$cleanPhone' : cleanPhone;
+                  final message = "Hello, I would like to enquire about ${shop?.businessDetails?.businessName ?? 'your shop'}.";
+                  final url = "https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}";
+                  launchURL(url);
+                },
+                screenSize: screenSize,
+                color: const Color(0xFF128C7E),
               ),
             if (hasInstagram)
               _SocialButton(
@@ -50,6 +66,7 @@ class ShopSocials extends ConsumerWidget {
                 label: 'Instagram',
                 onPressed: () => launchURL(socialLinks!.instagram!),
                 screenSize: screenSize,
+                color: const Color(0xFFE1306C),
               ),
             if (hasFacebook)
               _SocialButton(
@@ -57,6 +74,7 @@ class ShopSocials extends ConsumerWidget {
                 label: 'Facebook',
                 onPressed: () => launchURL(socialLinks!.facebook!),
                 screenSize: screenSize,
+                color: const Color(0xFF1877F2),
               ),
             if (hasYoutube)
               _SocialButton(
@@ -64,6 +82,7 @@ class ShopSocials extends ConsumerWidget {
                 label: 'YouTube',
                 onPressed: () => launchURL(socialLinks!.youtube!),
                 screenSize: screenSize,
+                color: const Color(0xFFCD201F),
               ),
           ],
         ),
@@ -77,12 +96,14 @@ class _SocialButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
   final ScreenSizeData screenSize;
+  final Color color;
 
   const _SocialButton({
     required this.svgAsset,
     required this.label,
     required this.onPressed,
     required this.screenSize,
+    required this.color,
   });
 
   @override
@@ -93,15 +114,16 @@ class _SocialButton extends StatelessWidget {
         svgAsset,
         width: 18,
         height: 18,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
       ),
-      label: Text(label, style: kSmallTitleM),
+      label: Text(label, style: kSmallTitleM.copyWith(color: color)),
       style: OutlinedButton.styleFrom(
-        backgroundColor: const Color(0xFFF9F9F9),
+        backgroundColor: color.withOpacity(0.06),
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(12),
           vertical: screenSize.responsivePadding(8),
         ),
-        side: const BorderSide(color: Color(0xFFF9F9F9)),
+        side: BorderSide(color: color.withOpacity(0.12)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

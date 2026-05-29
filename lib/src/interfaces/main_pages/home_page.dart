@@ -158,11 +158,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    final dealsOfDay = data.dealsOfDay
-        ?.where(
-          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
+    // final dealsOfDay = data.dealsOfDay
+    //     ?.where(
+    //       (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+    //     )
+    //     .toList();
     final dealOfTheMonth = data.dealOfTheMonth
         ?.where(
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
@@ -214,15 +214,15 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        if (dealsOfDay != null && dealsOfDay.isNotEmpty) ...[
-          DealsCarousel(
-            title: 'Specials for You',
-            deals: dealsOfDay
-                .map((offer) => DealCard.fromOffer(offer))
-                .toList(),
-          ),
-          SizedBox(height: screenSize.responsivePadding(16)),
-        ],
+        // if (dealsOfDay != null && dealsOfDay.isNotEmpty) ...[
+        //   DealsCarousel(
+        //     title: 'Specials for You',
+        //     deals: dealsOfDay
+        //         .map((offer) => DealCard.fromOffer(offer))
+        //         .toList(),
+        //   ),
+        //   SizedBox(height: screenSize.responsivePadding(16)),
+        // ],
         if (data.premiumBanners != null && data.premiumBanners!.isNotEmpty) ...[
           BannerSection(banners: data.premiumBanners),
           SizedBox(height: screenSize.responsivePadding(16)),

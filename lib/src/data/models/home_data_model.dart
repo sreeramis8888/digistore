@@ -11,7 +11,7 @@ class HomeData {
   final LoyaltyCard? loyaltyCard;
   final List<BannerModel>? premiumBanners;
   final List<CategoryModel>? categories;
-  final List<OfferModel>? dealsOfDay;
+  // final List<OfferModel>? dealsOfDay;
   final List<OfferModel>? dealOfTheHour;
   final List<OfferModel>? dealOfTheDay;
   final List<OfferModel>? dealOfTheMonth;
@@ -24,7 +24,7 @@ class HomeData {
     this.loyaltyCard,
     this.premiumBanners,
     this.categories,
-    this.dealsOfDay,
+    // this.dealsOfDay,
     this.dealOfTheHour,
     this.dealOfTheDay,
     this.dealOfTheMonth,
@@ -39,7 +39,7 @@ class HomeData {
       loyaltyCard: SafeParser.parseObject(json['loyaltyCard'], LoyaltyCard.fromJson),
       premiumBanners: SafeParser.parseList(json['premiumBanners'], BannerModel.fromJson),
       categories: SafeParser.parseList(json['categories'], CategoryModel.fromJson),
-      dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
+      // dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
       dealOfTheHour: SafeParser.parseList(json['dealOfTheHour'], OfferModel.fromJson),
       dealOfTheDay: SafeParser.parseList(json['dealOfTheDay'], OfferModel.fromJson),
       dealOfTheMonth: SafeParser.parseList(json['dealOfTheMonth'], OfferModel.fromJson),
