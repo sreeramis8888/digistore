@@ -1,6 +1,6 @@
 {
-    "name": "digistore",
-    "short_name": "digistore",
+    "name": "setgo",
+    "short_name": "setgo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

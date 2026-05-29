@@ -1,5 +1,5 @@
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
@@ -62,11 +62,7 @@ class PrimaryButton extends StatelessWidget {
             elevation: 0,
           ),
           child: isLoading
-              ? const SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: LoadingAnimation()
-                )
+              ? const SizedBox(height: 24, width: 24, child: LoadingAnimation())
               : child ??
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -79,7 +75,9 @@ class PrimaryButton extends StatelessWidget {
                             child: Text(
                               text,
                               style: kSmallTitleR.copyWith(
-                                color: !isEnabled ? kWhite : (textColor ?? kWhite),
+                                color: !isEnabled
+                                    ? kWhite
+                                    : (textColor ?? kWhite),
                                 fontWeight: FontWeight.w600,
                                 fontSize: (icon != null || trailingIcon != null)
                                     ? textSize

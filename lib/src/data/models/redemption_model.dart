@@ -1,5 +1,4 @@
-
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 
 import 'partner_model.dart';
 import 'offer_model.dart';
@@ -9,11 +8,7 @@ class PublicUserModel {
   final String? name;
   final String? phone;
 
-  const PublicUserModel({
-    this.id,
-    this.name,
-    this.phone,
-  });
+  const PublicUserModel({this.id, this.name, this.phone});
 
   factory PublicUserModel.fromJson(Map<String, dynamic> json) {
     return PublicUserModel(
@@ -67,8 +62,14 @@ class RedemptionModel {
   factory RedemptionModel.fromJson(Map<String, dynamic> json) {
     return RedemptionModel(
       id: json['_id'] as String?,
-      publicUserId: SafeParser.parseObject(json['publicUserId'], PublicUserModel.fromJson),
-      partnerId: SafeParser.parseObject(json['partnerId'], PartnerModel.fromJson),
+      publicUserId: SafeParser.parseObject(
+        json['publicUserId'],
+        PublicUserModel.fromJson,
+      ),
+      partnerId: SafeParser.parseObject(
+        json['partnerId'],
+        PartnerModel.fromJson,
+      ),
       offerId: SafeParser.parseObject(json['offerId'], OfferModel.fromJson),
       status: json['status'] as String?,
       saleAmount: (json['saleAmount'] as num?)?.toDouble(),
@@ -130,7 +131,8 @@ class PaginatedRedemptions {
 
   factory PaginatedRedemptions.fromJson(Map<String, dynamic> json) {
     return PaginatedRedemptions(
-      redemptions: SafeParser.parseList(json['data'], RedemptionModel.fromJson) ?? [],
+      redemptions:
+          SafeParser.parseList(json['data'], RedemptionModel.fromJson) ?? [],
       page: json['pagination']?['page'] as int? ?? 1,
       limit: json['pagination']?['limit'] as int? ?? 10,
       total: json['pagination']?['total'] as int? ?? 0,

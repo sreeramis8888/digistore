@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -23,9 +23,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       await ref
           .read(notificationsProvider.notifier)
           .fetchNotifications(refresh: true);
-      await ref
-          .read(notificationsProvider.notifier)
-          .markAllAsRead();
+      await ref.read(notificationsProvider.notifier).markAllAsRead();
     });
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=

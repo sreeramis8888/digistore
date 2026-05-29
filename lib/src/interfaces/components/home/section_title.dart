@@ -1,4 +1,4 @@
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -40,7 +40,9 @@ class SectionTitle extends ConsumerWidget {
                 children: [
                   Text(
                     'View All',
-                    style: kSmallTitleM.copyWith(color: const Color(0xFF2563EB)),
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF2563EB),
+                    ),
                   ),
                   const Icon(
                     Icons.chevron_right,

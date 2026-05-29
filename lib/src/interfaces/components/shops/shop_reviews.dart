@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
@@ -145,7 +145,10 @@ class _ReviewCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Text(review.rating?.toStringAsFixed(1) ?? '0.0', style: kSmallTitleM),
+                  Text(
+                    review.rating?.toStringAsFixed(1) ?? '0.0',
+                    style: kSmallTitleM,
+                  ),
                   SizedBox(width: screenSize.responsivePadding(4)),
                   const Icon(Icons.star, color: Color(0xFFFFD700), size: 14),
                 ],

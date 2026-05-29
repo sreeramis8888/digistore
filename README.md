@@ -1,4 +1,4 @@
-# digistore
+# setgo
 
 A new Flutter project.
 

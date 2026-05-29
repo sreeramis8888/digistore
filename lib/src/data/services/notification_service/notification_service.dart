@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:digistore/src/data/services/deep_link_service.dart';
-import 'package:digistore/src/data/services/navigation_service.dart';
-import 'package:digistore/src/interfaces/components/in_app_notification_overlay.dart';
+import 'package:setgo/src/data/services/deep_link_service.dart';
+import 'package:setgo/src/data/services/navigation_service.dart';
+import 'package:setgo/src/interfaces/components/in_app_notification_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:digistore/src/data/providers/notifications_provider.dart';
+import 'package:setgo/src/data/providers/notifications_provider.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   final deepLinkService = ref.watch(deepLinkServiceProvider);
@@ -71,7 +71,7 @@ class NotificationService {
 
   void _handleForegroundMessage(RemoteMessage message) {
     log("Notification received in FOREGROUND: ${message.data}");
-    
+
     // Refresh unread count when message is received
     _ref.read(notificationsProvider.notifier).fetchUnreadCount();
 
@@ -81,7 +81,6 @@ class NotificationService {
         if (message.data.containsKey('screen')) {
           final screen = message.data['screen'];
           final id = message.data['id'];
-
 
           deepLink = _deepLinkService.generateDeepLink(screen, id: id);
         }

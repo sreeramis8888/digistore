@@ -1,4 +1,4 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 
 import 'device_model.dart';
 
@@ -62,23 +62,45 @@ class UserModel {
       name: json['name'] as String?,
       email: json['email'] as String?,
       avatar: json['avatar'] as String?,
-      location: SafeParser.parseObject(json['location'], LocationModel.fromJson),
+      location: SafeParser.parseObject(
+        json['location'],
+        LocationModel.fromJson,
+      ),
       pointsBalance: json['pointsBalance'] as int?,
       totalPointsEarned: json['totalPointsEarned'] as int?,
       isActive: json['isActive'] as bool?,
-      lastLogin: json['lastLogin'] != null ? DateTime.tryParse(json['lastLogin'])?.toLocal() : null,
+      lastLogin: json['lastLogin'] != null
+          ? DateTime.tryParse(json['lastLogin'])?.toLocal()
+          : null,
       referralCode: json['referralCode'] as String?,
       referredBy: json['referredBy'] as String?,
       referralRewardClaimed: json['referralRewardClaimed'] as bool?,
       onboardingComplete: json['onboardingComplete'] as bool?,
       tutorialCompleted: json['tutorialCompleted'] as bool?,
-      preferences: SafeParser.parseObject(json['preferences'], PreferencesModel.fromJson),
-      currentTier: SafeParser.parseObject(json['currentTier'], TierModel.fromJson),
-      nextTier: SafeParser.parseObject(json['nextTier'], NextTierModel.fromJson),
-      progressToNextTier: json['progressToNextTier'] != null ? (json['progressToNextTier'] as num).toDouble() : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
-      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt'])?.toLocal() : null,
+      preferences: SafeParser.parseObject(
+        json['preferences'],
+        PreferencesModel.fromJson,
+      ),
+      currentTier: SafeParser.parseObject(
+        json['currentTier'],
+        TierModel.fromJson,
+      ),
+      nextTier: SafeParser.parseObject(
+        json['nextTier'],
+        NextTierModel.fromJson,
+      ),
+      progressToNextTier: json['progressToNextTier'] != null
+          ? (json['progressToNextTier'] as num).toDouble()
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])?.toLocal()
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])?.toLocal()
+          : null,
+      deletedAt: json['deletedAt'] != null
+          ? DateTime.tryParse(json['deletedAt'])?.toLocal()
+          : null,
       devices: SafeParser.parseList(json['devices'], DeviceModel.fromJson),
     );
   }
@@ -149,7 +171,8 @@ class UserModel {
       lastLogin: lastLogin ?? this.lastLogin,
       referralCode: referralCode ?? this.referralCode,
       referredBy: referredBy ?? this.referredBy,
-      referralRewardClaimed: referralRewardClaimed ?? this.referralRewardClaimed,
+      referralRewardClaimed:
+          referralRewardClaimed ?? this.referralRewardClaimed,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
       preferences: preferences ?? this.preferences,
@@ -176,7 +199,10 @@ class LocationModel {
     return LocationModel(
       district: json['district'] as String?,
       localBody: json['localBody'] as String?,
-      coordinates: SafeParser.parseObject(json['coordinates'], CoordinatesModel.fromJson),
+      coordinates: SafeParser.parseObject(
+        json['coordinates'],
+        CoordinatesModel.fromJson,
+      ),
     );
   }
 
@@ -199,19 +225,23 @@ class CoordinatesModel {
     if (json == null) return const CoordinatesModel();
     return CoordinatesModel(
       type: json['type'] as String? ?? 'Point',
-      coordinates: json['coordinates'] != null ? (json['coordinates'] as List<dynamic>).map((e) => (e as num).toDouble()).toList() : null,
+      coordinates: json['coordinates'] != null
+          ? (json['coordinates'] as List<dynamic>)
+                .map((e) => (e as num).toDouble())
+                .toList()
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'coordinates': coordinates,
-    }..removeWhere((key, value) => value == null);
+    return {'type': type, 'coordinates': coordinates}
+      ..removeWhere((key, value) => value == null);
   }
 
-  double? get lng => (coordinates != null && coordinates!.isNotEmpty) ? coordinates![0] : null;
-  double? get lat => (coordinates != null && coordinates!.length > 1) ? coordinates![1] : null;
+  double? get lng =>
+      (coordinates != null && coordinates!.isNotEmpty) ? coordinates![0] : null;
+  double? get lat =>
+      (coordinates != null && coordinates!.length > 1) ? coordinates![1] : null;
 }
 
 class PreferencesModel {
@@ -249,15 +279,24 @@ class TierModel {
   final double? bonusMultiplier;
   final List<String>? benefits;
 
-  const TierModel({this.name, this.minPoints, this.bonusMultiplier, this.benefits});
+  const TierModel({
+    this.name,
+    this.minPoints,
+    this.bonusMultiplier,
+    this.benefits,
+  });
 
   factory TierModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const TierModel();
     return TierModel(
       name: json['name'] as String?,
       minPoints: json['minPoints'] as int?,
-      bonusMultiplier: json['bonusMultiplier'] != null ? (json['bonusMultiplier'] as num).toDouble() : null,
-      benefits: json['benefits'] != null ? List<String>.from(json['benefits']) : null,
+      bonusMultiplier: json['bonusMultiplier'] != null
+          ? (json['bonusMultiplier'] as num).toDouble()
+          : null,
+      benefits: json['benefits'] != null
+          ? List<String>.from(json['benefits'])
+          : null,
     );
   }
 
@@ -288,10 +327,6 @@ class NextTierModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'minPoints': minPoints,
-      'pointsNeeded': pointsNeeded,
-    };
+    return {'name': name, 'minPoints': minPoints, 'pointsNeeded': pointsNeeded};
   }
 }

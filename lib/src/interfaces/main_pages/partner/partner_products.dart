@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -170,7 +170,9 @@ class _PartnerProductsPageState extends ConsumerState<PartnerProductsPage> {
                               (productsState.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == productsState.products.length) {
-                              return CardShimmers.productCardShimmer(screenSize);
+                              return CardShimmers.productCardShimmer(
+                                screenSize,
+                              );
                             }
                             final p = productsState.products[index];
                             return ProductCard(

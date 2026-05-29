@@ -1,10 +1,10 @@
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:digistore/src/data/router/nav_router.dart';
-import 'package:digistore/src/data/services/navigation_service.dart';
-import 'package:digistore/src/data/services/secure_storage_service.dart';
-import 'package:digistore/src/data/services/snackbar_service.dart';
+import 'package:setgo/src/data/router/nav_router.dart';
+import 'package:setgo/src/data/services/navigation_service.dart';
+import 'package:setgo/src/data/services/secure_storage_service.dart';
+import 'package:setgo/src/data/services/snackbar_service.dart';
 
 final deepLinkServiceProvider = Provider<DeepLinkService>((ref) {
   return DeepLinkService(ref);
@@ -195,9 +195,7 @@ class DeepLinkService {
   }
 
   /// Navigate to campaigns
-  Future<void> _navigateToCampaign(String? campaignId) async {
-
-  }
+  Future<void> _navigateToCampaign(String? campaignId) async {}
 
   Future<void> _navigateToResource(String? resourceId) async {
     try {
@@ -224,8 +222,7 @@ class DeepLinkService {
   }
 
   /// Navigate to event
-  Future<void> _navigateToEvent(String? eventId) async {
-  }
+  Future<void> _navigateToEvent(String? eventId) async {}
 
   /// Navigate to individual feed
   Future<void> _navigateToFeed(String? feedId) async {
@@ -257,7 +254,6 @@ class DeepLinkService {
       _showError('Unable to navigate to Feed');
     }
   }
-
 
   Future<void> _navigateToNotifications() async {
     try {

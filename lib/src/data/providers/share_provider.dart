@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:digistore/src/data/services/deep_link_service.dart';
+import 'package:setgo/src/data/services/deep_link_service.dart';
 
 final shareProviderProvider = Provider<ShareService>((ref) {
   final deepLinkService = ref.watch(deepLinkServiceProvider);
@@ -27,10 +27,7 @@ class ShareService {
           ? '$feedTitle\n\n$feedDescription\n\n$deepLink'
           : '$feedTitle\n\n$deepLink';
 
-      final params = ShareParams(
-        text: shareText,
-        title: 'Share Feed',
-      );
+      final params = ShareParams(text: shareText, title: 'Share Feed');
 
       final result = await SharePlus.instance.share(params);
       return result;
@@ -46,16 +43,16 @@ class ShareService {
     String? campaignDescription,
   }) async {
     try {
-      final deepLink = _deepLinkService.generateDeepLink('campaign', id: campaignId);
+      final deepLink = _deepLinkService.generateDeepLink(
+        'campaign',
+        id: campaignId,
+      );
 
       final shareText = campaignDescription != null
           ? '$campaignTitle\n\n$campaignDescription\n\n$deepLink'
           : '$campaignTitle\n\n$deepLink';
 
-      final params = ShareParams(
-        text: shareText,
-        title: 'Share Campaign',
-      );
+      final params = ShareParams(text: shareText, title: 'Share Campaign');
 
       final result = await SharePlus.instance.share(params);
       return result;
@@ -71,16 +68,16 @@ class ShareService {
     String? resourceDescription,
   }) async {
     try {
-      final deepLink = _deepLinkService.generateDeepLink('resource', id: resourceId);
+      final deepLink = _deepLinkService.generateDeepLink(
+        'resource',
+        id: resourceId,
+      );
 
       final shareText = resourceDescription != null
           ? '$resourceTitle\n\n$resourceDescription\n\n$deepLink'
           : '$resourceTitle\n\n$deepLink';
 
-      final params = ShareParams(
-        text: shareText,
-        title: 'Share Resource',
-      );
+      final params = ShareParams(text: shareText, title: 'Share Resource');
 
       final result = await SharePlus.instance.share(params);
       return result;
@@ -102,10 +99,7 @@ class ShareService {
           ? '$eventTitle\n\n$eventDescription\n\n$deepLink'
           : '$eventTitle\n\n$deepLink';
 
-      final params = ShareParams(
-        text: shareText,
-        title: 'Share Event',
-      );
+      final params = ShareParams(text: shareText, title: 'Share Event');
 
       final result = await SharePlus.instance.share(params);
       return result;
@@ -121,12 +115,10 @@ class ShareService {
     required String iosLink,
   }) async {
     try {
-      final shareText = 'Join Million Malayali Club! Use my referral code: $referralCode\n\nDownload the app:\nAndroid: $androidLink\niOS: $iosLink';
+      final shareText =
+          'Join Million Malayali Club! Use my referral code: $referralCode\n\nDownload the app:\nAndroid: $androidLink\niOS: $iosLink';
 
-      final params = ShareParams(
-        text: shareText,
-        title: 'Invite Friends',
-      );
+      final params = ShareParams(text: shareText, title: 'Invite Friends');
 
       final result = await SharePlus.instance.share(params);
       return result;

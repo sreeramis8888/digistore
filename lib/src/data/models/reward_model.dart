@@ -1,4 +1,5 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
+
 class RewardModel {
   final String? id;
   final String? title;

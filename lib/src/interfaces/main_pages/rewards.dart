@@ -1,6 +1,6 @@
-import 'package:digistore/src/interfaces/animations/index.dart';
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
-import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
+import 'package:setgo/src/interfaces/animations/index.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -131,15 +131,12 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                         crossAxisSpacing: screenSize.responsivePadding(16),
                         childAspectRatio: aspectRatio,
                       ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final reward = state.rewards[index];
-                          return RewardCard.fromReward(reward).fadeScaleUp(
-                            delayMilliseconds: (index % 10) * 50,
-                          );
-                        },
-                        childCount: state.rewards.length,
-                      ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final reward = state.rewards[index];
+                        return RewardCard.fromReward(
+                          reward,
+                        ).fadeScaleUp(delayMilliseconds: (index % 10) * 50);
+                      }, childCount: state.rewards.length),
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -151,12 +148,16 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                       child: Center(
                         child: state.isLoadingMore
                             ? const LoadingAnimation()
-                            : (state.pages > 1 && state.page >= state.pages && state.rewards.isNotEmpty)
-                                ? Text(
-                                    'No more rewards',
-                                    style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
-                                  )
-                                : const SizedBox.shrink(),
+                            : (state.pages > 1 &&
+                                  state.page >= state.pages &&
+                                  state.rewards.isNotEmpty)
+                            ? Text(
+                                'No more rewards',
+                                style: kSmallerTitleL.copyWith(
+                                  color: kSecondaryTextColor,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ),
                     ),
                   ),

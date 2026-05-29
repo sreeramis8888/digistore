@@ -1,5 +1,5 @@
-import 'package:digistore/src/data/constants/style_constants.dart';
-import 'package:digistore/src/data/providers/screen_size_provider.dart';
+import 'package:setgo/src/data/constants/style_constants.dart';
+import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';

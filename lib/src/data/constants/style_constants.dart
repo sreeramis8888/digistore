@@ -1,4 +1,4 @@
-import 'package:digistore/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 
 const kExtraLight = FontWeight.w300;

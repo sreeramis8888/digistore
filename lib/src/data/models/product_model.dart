@@ -1,15 +1,11 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 
 class ProductCategory {
   final String? id;
   final String? category;
   final String? subcategory;
 
-  const ProductCategory({
-    this.id,
-    this.category,
-    this.subcategory,
-  });
+  const ProductCategory({this.id, this.category, this.subcategory});
 
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
     return ProductCategory(
@@ -20,11 +16,7 @@ class ProductCategory {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'category': category,
-      'subcategory': subcategory,
-    };
+    return {'_id': id, 'category': category, 'subcategory': subcategory};
   }
 }
 
@@ -63,7 +55,10 @@ class ProductModel {
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
       price: (json['price'] as num?)?.toDouble(),
-      category: SafeParser.parseObject(json['category'], ProductCategory.fromJson),
+      category: SafeParser.parseObject(
+        json['category'],
+        ProductCategory.fromJson,
+      ),
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isActive: json['isActive'] as bool?,
       createdAt: json['createdAt'] != null
@@ -114,12 +109,7 @@ class PaginationModel {
     );
   }
 
-  PaginationModel copyWith({
-    int? page,
-    int? limit,
-    int? total,
-    int? pages,
-  }) {
+  PaginationModel copyWith({int? page, int? limit, int? total, int? pages}) {
     return PaginationModel(
       page: page ?? this.page,
       limit: limit ?? this.limit,
@@ -144,7 +134,10 @@ class ProductResponse {
     return ProductResponse(
       success: json['success'] as bool? ?? false,
       data: SafeParser.parseList(json['data'], ProductModel.fromJson) ?? [],
-      pagination: SafeParser.parseObject(json['pagination'], PaginationModel.fromJson),
+      pagination: SafeParser.parseObject(
+        json['pagination'],
+        PaginationModel.fromJson,
+      ),
     );
   }
 }

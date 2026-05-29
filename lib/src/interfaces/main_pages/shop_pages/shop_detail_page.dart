@@ -1,7 +1,7 @@
-import 'package:digistore/src/data/constants/color_constants.dart';
-import 'package:digistore/src/data/constants/style_constants.dart';
-import 'package:digistore/src/data/providers/screen_size_provider.dart';
-import 'package:digistore/src/data/models/shop_model.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/constants/style_constants.dart';
+import 'package:setgo/src/data/providers/screen_size_provider.dart';
+import 'package:setgo/src/data/models/shop_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../components/advanced_network_image.dart';
@@ -35,15 +35,21 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final currentShopName =
-        widget.shop?.businessDetails?.businessName ?? widget.shopName ?? 'Unknown Shop';
+        widget.shop?.businessDetails?.businessName ??
+        widget.shopName ??
+        'Unknown Shop';
     final heroImage =
         widget.shop?.businessInfo?.coverImage ??
         (widget.shop?.businessInfo?.businessImages?.isNotEmpty == true
             ? widget.shop!.businessInfo!.businessImages!.first
             : null);
     final shopId = widget.shop?.id ?? '';
-    final offersAsync = shopId.isNotEmpty ? ref.watch(shopOffersProvider(shopId)) : null;
-    final productsAsync = shopId.isNotEmpty ? ref.watch(shopProductsProvider(shopId)) : null;
+    final offersAsync = shopId.isNotEmpty
+        ? ref.watch(shopOffersProvider(shopId))
+        : null;
+    final productsAsync = shopId.isNotEmpty
+        ? ref.watch(shopProductsProvider(shopId))
+        : null;
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -119,8 +125,11 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                   ShopAbout(shop: widget.shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
                   if (widget.shop?.businessInfo?.businessImages != null &&
-                      widget.shop!.businessInfo!.businessImages!.length > 1) ...[
-                    ShopGallery(images: widget.shop!.businessInfo!.businessImages!),
+                      widget.shop!.businessInfo!.businessImages!.length >
+                          1) ...[
+                    ShopGallery(
+                      images: widget.shop!.businessInfo!.businessImages!,
+                    ),
                     SizedBox(height: screenSize.responsivePadding(20)),
                   ],
                   ShopAddress(
@@ -145,12 +154,15 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               padding: EdgeInsets.zero,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.75,
-                                crossAxisSpacing: screenSize.responsivePadding(12),
-                                mainAxisSpacing: screenSize.responsivePadding(12),
-                              ),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.75,
+                                    crossAxisSpacing: screenSize
+                                        .responsivePadding(12),
+                                    mainAxisSpacing: screenSize
+                                        .responsivePadding(12),
+                                  ),
                               itemCount: offers.length,
                               itemBuilder: (context, index) {
                                 return DealCard.fromOffer(
@@ -163,7 +175,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                           ],
                         );
                       },
-                      loading: () => const Center(child: CircularProgressIndicator(color: kPrimaryColor)),
+                      loading: () => const Center(
+                        child: CircularProgressIndicator(color: kPrimaryColor),
+                      ),
                       error: (e, s) => const SizedBox.shrink(),
                     ),
                   if (productsAsync != null)
@@ -179,21 +193,27 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               padding: EdgeInsets.zero,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.75,
-                                crossAxisSpacing: screenSize.responsivePadding(12),
-                                mainAxisSpacing: screenSize.responsivePadding(12),
-                              ),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.75,
+                                    crossAxisSpacing: screenSize
+                                        .responsivePadding(12),
+                                    mainAxisSpacing: screenSize
+                                        .responsivePadding(12),
+                                  ),
                               itemCount: products.length,
                               itemBuilder: (context, index) {
                                 final product = products[index];
                                 return ProductCard(
                                   index: index,
                                   name: product.title,
-                                  image: product.images?.isNotEmpty == true ? product.images!.first : null,
+                                  image: product.images?.isNotEmpty == true
+                                      ? product.images!.first
+                                      : null,
                                   description: product.description,
-                                  price: '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
+                                  price:
+                                      '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
                                   tags: product.tags,
                                   rawProduct: product,
                                 );
@@ -203,7 +223,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                           ],
                         );
                       },
-                      loading: () => const Center(child: CircularProgressIndicator(color: kPrimaryColor)),
+                      loading: () => const Center(
+                        child: CircularProgressIndicator(color: kPrimaryColor),
+                      ),
                       error: (e, s) => const SizedBox.shrink(),
                     ),
                 ],

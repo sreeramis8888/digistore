@@ -1,5 +1,5 @@
-import 'package:digistore/src/interfaces/animations/index.dart';
-import 'package:digistore/src/interfaces/components/primary_button.dart';
+import 'package:setgo/src/interfaces/animations/index.dart';
+import 'package:setgo/src/interfaces/components/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -224,12 +224,17 @@ class LoyaltyRewardCard extends ConsumerWidget {
                     SizedBox(height: screenSize.responsivePadding(10)),
                     Builder(
                       builder: (context) {
-                        final isHighestTier = loyaltyCard?.nextTier == null || loyaltyCard!.nextTier!.isEmpty;
-                        
+                        final isHighestTier =
+                            loyaltyCard?.nextTier == null ||
+                            loyaltyCard!.nextTier!.isEmpty;
+
                         double progress = 1.0;
                         if (!isHighestTier) {
-                          final totalEarned = (loyaltyCard?.totalPointsEarned ?? 0).toDouble();
-                          final remaining = (loyaltyCard?.remainingPointsToNextTier ?? 0).toDouble();
+                          final totalEarned =
+                              (loyaltyCard?.totalPointsEarned ?? 0).toDouble();
+                          final remaining =
+                              (loyaltyCard?.remainingPointsToNextTier ?? 0)
+                                  .toDouble();
                           final target = totalEarned + remaining;
                           if (target > 0) {
                             progress = (totalEarned / target).clamp(0.0, 1.0);
@@ -238,7 +243,9 @@ class LoyaltyRewardCard extends ConsumerWidget {
                           }
                         }
 
-                        final showSentence = isHighestTier || (loyaltyCard?.remainingPointsToNextTier ?? 0) > 0;
+                        final showSentence =
+                            isHighestTier ||
+                            (loyaltyCard?.remainingPointsToNextTier ?? 0) > 0;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,9 +282,11 @@ class LoyaltyRewardCard extends ConsumerWidget {
                               ),
                             ),
                             if (showSentence) ...[
-                              SizedBox(height: screenSize.responsivePadding(10)),
+                              SizedBox(
+                                height: screenSize.responsivePadding(10),
+                              ),
                               Text(
-                                isHighestTier 
+                                isHighestTier
                                     ? 'Highest tier reached'
                                     : '${loyaltyCard?.remainingPointsToNextTier ?? 0} points more to reach ${loyaltyCard?.nextTier} Tier',
                                 style: kSmallerTitleM.copyWith(color: kWhite),

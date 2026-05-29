@@ -1,9 +1,9 @@
-import 'package:digistore/src/data/constants/color_constants.dart';
-import 'package:digistore/src/data/constants/style_constants.dart';
-import 'package:digistore/src/data/providers/screen_size_provider.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/constants/style_constants.dart';
+import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import '../advanced_network_image.dart';
 import '../../../data/models/offer_model.dart';
 
@@ -52,8 +52,8 @@ class DealCard extends ConsumerWidget {
     final badgeText = discountValue == 0
         ? null
         : offer.discountType == 'percentage'
-            ? '$discountValue%\nOFF'
-            : '₹$discountValue\nOFF';
+        ? '$discountValue%\nOFF'
+        : '₹$discountValue\nOFF';
 
     return DealCard(
       id: offer.id,
@@ -127,26 +127,26 @@ class DealCard extends ConsumerWidget {
                   child: badgeText == null
                       ? const SizedBox.shrink()
                       : Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(8),
-                      vertical: screenSize.responsivePadding(6),
-                    ),
-                    decoration: const BoxDecoration(
-                      color: kPrimaryColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      badgeText!,
-                      style: kSmallerTitleM.copyWith(
-                        color: kWhite,
-                        fontSize: 10,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenSize.responsivePadding(8),
+                            vertical: screenSize.responsivePadding(6),
+                          ),
+                          decoration: const BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            badgeText!,
+                            style: kSmallerTitleM.copyWith(
+                              color: kWhite,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                 ),
                 if (dealOfTheHour != null)
                   Positioned(

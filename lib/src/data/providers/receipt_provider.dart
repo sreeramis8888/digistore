@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:digistore/src/data/services/receipt_service.dart';
+import 'package:setgo/src/data/services/receipt_service.dart';
 
 part 'receipt_provider.g.dart';
 

@@ -1,4 +1,4 @@
-import 'package:digistore/src/data/services/haptic_helper.dart';
+import 'package:setgo/src/data/services/haptic_helper.dart';
 import 'package:flutter/material.dart';
 
 class InteractiveFeedbackButton extends StatefulWidget {

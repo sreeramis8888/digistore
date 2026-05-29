@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/components/advanced_network_image.dart';
+import 'package:setgo/src/interfaces/components/advanced_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';

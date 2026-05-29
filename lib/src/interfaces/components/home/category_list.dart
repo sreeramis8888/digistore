@@ -1,5 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -14,7 +14,8 @@ class CategoryList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (categories == null || categories!.isEmpty) return const SizedBox.shrink();
+    if (categories == null || categories!.isEmpty)
+      return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
     final padding = screenSize.responsivePadding(16);
 
@@ -53,14 +54,17 @@ class CategoryList extends ConsumerWidget {
               ),
               child: InteractiveFeedbackButton(
                 onPressed: () {
-                  ref.read(selectedOffersCategoryProvider.notifier).state = index + 1;
+                  ref.read(selectedOffersCategoryProvider.notifier).state =
+                      index + 1;
                   ref.read(selectedIndexProvider.notifier).updateIndex(1);
                 },
                 scaleFactor: 0.95,
                 child: CategoryCard(
                   category: {
                     'name': category.name ?? '',
-                    'icon': categoryIcons[category.name] ?? 'assets/svg/daily_needs.svg',
+                    'icon':
+                        categoryIcons[category.name] ??
+                        'assets/svg/daily_needs.svg',
                   },
                 ),
               ),

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:digistore/src/interfaces/components/shimmers/card_shimmers.dart';
+import 'package:setgo/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';

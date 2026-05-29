@@ -1,4 +1,4 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 import 'category_model.dart';
 import 'partner_model.dart';
 import 'redemption_rules.dart';
@@ -72,11 +72,17 @@ class OfferModel {
   factory OfferModel.fromJson(Map<String, dynamic> json) {
     return OfferModel(
       id: json['_id'] as String?,
-      partnerId: SafeParser.parseObject(json['partnerId'], PartnerModel.fromJson),
+      partnerId: SafeParser.parseObject(
+        json['partnerId'],
+        PartnerModel.fromJson,
+      ),
       title: json['title'] as String?,
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
-      category: SafeParser.parseObject(json['category'], CategoryModel.fromJson),
+      category: SafeParser.parseObject(
+        json['category'],
+        CategoryModel.fromJson,
+      ),
       offerTypeCode: json['offerTypeCode'] as String?,
       offerMetadata: json['offerMetadata'] as Map<String, dynamic>?,
       discountType: json['discountType'] as String?,
@@ -84,22 +90,40 @@ class OfferModel {
       originalPrice: (json['originalPrice'] as num?)?.toDouble(),
       offerPrice: (json['offerPrice'] as num?)?.toDouble(),
       terms: json['terms'] != null ? List<String>.from(json['terms']) : null,
-      validFrom: json['validFrom'] != null ? DateTime.tryParse(json['validFrom'])?.toLocal() : null,
-      validTo: json['validTo'] != null ? DateTime.tryParse(json['validTo'])?.toLocal() : null,
-      redemptionRules: SafeParser.parseObject(json['redemptionRules'], RedemptionRules.fromJson),
-      coverageAreas: SafeParser.parseObject(json['coverageAreas'], CoverageAreas.fromJson),
+      validFrom: json['validFrom'] != null
+          ? DateTime.tryParse(json['validFrom'])?.toLocal()
+          : null,
+      validTo: json['validTo'] != null
+          ? DateTime.tryParse(json['validTo'])?.toLocal()
+          : null,
+      redemptionRules: SafeParser.parseObject(
+        json['redemptionRules'],
+        RedemptionRules.fromJson,
+      ),
+      coverageAreas: SafeParser.parseObject(
+        json['coverageAreas'],
+        CoverageAreas.fromJson,
+      ),
       status: json['status'] as String?,
       isPremium: json['isPremium'] as bool?,
-      premiumPlacement: SafeParser.parseObject(json['premiumPlacement'], PremiumPlacement.fromJson),
+      premiumPlacement: SafeParser.parseObject(
+        json['premiumPlacement'],
+        PremiumPlacement.fromJson,
+      ),
       totalRedemptions: json['totalRedemptions'] as int?,
       views: json['views'] as int?,
       isActive: json['isActive'] as bool?,
       isDealOfDay: json['isDealOfDay'] as bool?,
       requiredTier: json['requiredTier'] as String?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
-      location: SafeParser.parseObject(json['location'], LocationPoint.fromJson),
+      location: SafeParser.parseObject(
+        json['location'],
+        LocationPoint.fromJson,
+      ),
       shareCount: json['shareCount'] as int?,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])?.toLocal()
+          : null,
     );
   }
 

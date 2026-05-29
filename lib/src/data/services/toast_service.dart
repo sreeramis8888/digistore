@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:digistore/src/data/services/navigation_service.dart';
+import 'package:setgo/src/data/services/navigation_service.dart';
 
 enum ToastType { success, error, warning, info }
 
@@ -15,7 +15,9 @@ class ToastService {
     Duration duration = const Duration(seconds: 3),
     bool autoDismiss = true,
   }) {
-    final overlayState = Overlay.maybeOf(context) ?? NavigationService.navigatorKey.currentState?.overlay;
+    final overlayState =
+        Overlay.maybeOf(context) ??
+        NavigationService.navigatorKey.currentState?.overlay;
 
     if (overlayState == null) {
       debugPrint("❌ Overlay is null");

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:digistore/src/data/models/user_model.dart';
-import 'package:digistore/src/data/models/partner_model.dart';
+import 'package:setgo/src/data/models/user_model.dart';
+import 'package:setgo/src/data/models/partner_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -116,7 +116,6 @@ class SecureStorageService {
   Future<void> clearAll() async {
     await _storage.deleteAll();
   }
-
 
   /// Check if bearer token exists
   Future<bool> hasBearerToken() async {

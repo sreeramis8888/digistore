@@ -1,5 +1,5 @@
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
-import 'package:digistore/src/interfaces/animations/index.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/interfaces/animations/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -25,7 +25,8 @@ class ProfilePage extends ConsumerStatefulWidget {
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingObserver {
+class _ProfilePageState extends ConsumerState<ProfilePage>
+    with WidgetsBindingObserver {
   bool _isNotificationsEnabled = true;
   bool _isTokenRegistered = true;
   bool _isHiding = false;
@@ -52,7 +53,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
   }
 
   Future<void> _checkNotificationStatus() async {
-    final isAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+    final isAllowed =
+        await NotificationPermissionHelper.isNotificationAllowed();
     final notifService = ref.read(notificationServiceProvider);
     final token = await notifService.getToken();
     final user = ref.read(userProvider);
@@ -74,7 +76,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
   void _syncWithProvider() {
     final user = ref.read(userProvider);
     if (_currentFcmToken != null && user?.devices != null) {
-      final isRegistered = user!.devices!.any((d) => d.fcmToken == _currentFcmToken);
+      final isRegistered = user!.devices!.any(
+        (d) => d.fcmToken == _currentFcmToken,
+      );
       if (isRegistered != _isTokenRegistered && !_isHiding) {
         setState(() {
           _isTokenRegistered = isRegistered;
@@ -86,12 +90,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
 
   Future<void> _toggleNotifications(bool value) async {
     if (value) {
-      final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
+      final permissions =
+          await NotificationPermissionHelper.requestAllPermissions(context);
       if (permissions) {
         final notifService = ref.read(notificationServiceProvider);
         final token = await notifService.getToken();
         if (token != null) {
-          final success = await ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+          final success = await ref
+              .read(notificationsProvider.notifier)
+              .registerDeviceToken(token);
           if (success && mounted) {
             setState(() {
               _isNotificationsEnabled = true;
@@ -119,7 +126,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please disable notifications from system settings.')),
+        const SnackBar(
+          content: Text('Please disable notifications from system settings.'),
+        ),
       );
     }
   }
@@ -172,11 +181,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
     final phone = (user?.phone != null && user!.phone!.isNotEmpty)
         ? user.phone!
         : '9998877766';
-    final locationName = (user?.location?.localBody != null && user!.location!.localBody!.isNotEmpty)
+    final locationName =
+        (user?.location?.localBody != null &&
+            user!.location!.localBody!.isNotEmpty)
         ? user.location!.localBody!.split(' ').first
-        : (user?.location?.district != null && user!.location!.district!.isNotEmpty)
-            ? user.location!.district!.split(' ').first
-            : 'Not Set';
+        : (user?.location?.district != null &&
+              user!.location!.district!.isNotEmpty)
+        ? user.location!.district!.split(' ').first
+        : 'Not Set';
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -360,7 +372,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                     ),
                   );
                 },
-                child: (!(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding)
+                child:
+                    (!(_isTokenRegistered && _isNotificationsEnabled) &&
+                        !_isHiding)
                     ? Container(
                         key: const ValueKey('notif_card'),
                         decoration: BoxDecoration(
@@ -389,7 +403,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1e3a81).withOpacity(0.1),
+                                  color: const Color(
+                                    0xFF1e3a81,
+                                  ).withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -405,9 +421,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                                   children: [
                                     Text(
                                       'Push Notifications',
-                                      style: kBodyTitleB.copyWith(color: kBlack),
+                                      style: kBodyTitleB.copyWith(
+                                        color: kBlack,
+                                      ),
                                     ),
-                                    SizedBox(height: screenSize.responsivePadding(4)),
+                                    SizedBox(
+                                      height: screenSize.responsivePadding(4),
+                                    ),
                                     Text(
                                       'Stay updated on offers & rewards',
                                       style: kSmallTitleL.copyWith(
@@ -422,7 +442,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                                 value: _isNotificationsEnabled,
                                 onChanged: _toggleNotifications,
                                 activeColor: const Color(0xFF1e3a81),
-                                activeTrackColor: const Color(0xFF1e3a81).withOpacity(0.3),
+                                activeTrackColor: const Color(
+                                  0xFF1e3a81,
+                                ).withOpacity(0.3),
                               ),
                             ],
                           ),
@@ -430,7 +452,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                       ).fadeSlideInFromBottom(delayMilliseconds: 150)
                     : const SizedBox.shrink(),
               ),
-              if (!(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding)
+              if (!(_isTokenRegistered && _isNotificationsEnabled) &&
+                  !_isHiding)
                 SizedBox(height: screenSize.responsivePadding(20)),
 
               // Second Card
@@ -490,7 +513,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
               SizedBox(height: screenSize.responsivePadding(24)),
 
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16),
+                ),
                 child: PrimaryButton(
                   text: 'Log out',
                   backgroundColor: kWhite,
@@ -499,7 +524,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                     final confirmed = await showConfirmationDialog(
                       context: context,
                       title: 'Logout',
-                      message: 'Are you sure you want to logout from your account?',
+                      message:
+                          'Are you sure you want to logout from your account?',
                       confirmText: 'Logout',
                       cancelText: 'Cancel',
                       isDestructive: true,
@@ -509,7 +535,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with WidgetsBindingOb
                     if (confirmed == true) {
                       await ref.read(authProvider.notifier).logout();
                       if (context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          'login',
+                          (route) => false,
+                        );
                       }
                     }
                   },

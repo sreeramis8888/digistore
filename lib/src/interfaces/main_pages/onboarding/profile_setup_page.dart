@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -83,7 +83,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                     );
                     if (confirm == true && context.mounted) {
                       await ref.read(authProvider.notifier).logout();
-                      Navigator.of(context).pushNamedAndRemoveUntil('login', (route) => false);
+                      Navigator.of(
+                        context,
+                      ).pushNamedAndRemoveUntil('login', (route) => false);
                     }
                   },
                   child: Container(
@@ -99,11 +101,18 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.logout_rounded, color: Color(0xFFE53935), size: 14),
+                        const Icon(
+                          Icons.logout_rounded,
+                          color: Color(0xFFE53935),
+                          size: 14,
+                        ),
                         SizedBox(width: screenSize.responsivePadding(4)),
                         Text(
                           'Logout',
-                          style: kSmallTitleSB.copyWith(color: const Color(0xFFE53935), fontSize: 12),
+                          style: kSmallTitleSB.copyWith(
+                            color: const Color(0xFFE53935),
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -217,9 +226,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
               SizedBox(
                 width: double.infinity,
                 child: _isSubmitting
-                    ? const Center(
-                        child: LoadingAnimation(),
-                      )
+                    ? const Center(child: LoadingAnimation())
                     : PrimaryButton(
                         text: 'Submit',
                         onPressed: () async {

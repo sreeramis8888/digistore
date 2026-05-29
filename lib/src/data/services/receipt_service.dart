@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:digistore/src/data/services/image_services.dart';
+import 'package:setgo/src/data/services/image_services.dart';
 import 'package:dio/dio.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:share_plus/share_plus.dart';

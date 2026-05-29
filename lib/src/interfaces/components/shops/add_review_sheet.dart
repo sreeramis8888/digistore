@@ -1,15 +1,15 @@
 import 'dart:io';
-import 'package:digistore/src/data/constants/color_constants.dart';
-import 'package:digistore/src/data/constants/style_constants.dart';
-import 'package:digistore/src/data/models/redemption_model.dart';
-import 'package:digistore/src/data/models/shop_model.dart';
-import 'package:digistore/src/data/providers/api_provider.dart';
-import 'package:digistore/src/data/providers/reviews_provider.dart';
-import 'package:digistore/src/data/providers/screen_size_provider.dart';
-import 'package:digistore/src/interfaces/components/advanced_network_image.dart';
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
-import 'package:digistore/src/interfaces/components/primary_button.dart';
-import 'package:digistore/src/interfaces/components/primary_text_field.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/constants/style_constants.dart';
+import 'package:setgo/src/data/models/redemption_model.dart';
+import 'package:setgo/src/data/models/shop_model.dart';
+import 'package:setgo/src/data/providers/api_provider.dart';
+import 'package:setgo/src/data/providers/reviews_provider.dart';
+import 'package:setgo/src/data/providers/screen_size_provider.dart';
+import 'package:setgo/src/interfaces/components/advanced_network_image.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/primary_button.dart';
+import 'package:setgo/src/interfaces/components/primary_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/services/image_services.dart' as img_service;
@@ -33,7 +33,7 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
   List<RedemptionModel> _redemptions = [];
   RedemptionModel? _selectedRedemption;
   bool _isLoadingRedemptions = true;
-  
+
   double _rating = 0;
   final TextEditingController _commentController = TextEditingController();
   final List<File> _pickedImages = [];
@@ -46,13 +46,16 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
   }
 
   Future<void> _fetchRedemptions() async {
-    final response = await ref.read(reviewsActionProvider.notifier).getShopRedemptions(widget.shop.id!);
-    
+    final response = await ref
+        .read(reviewsActionProvider.notifier)
+        .getShopRedemptions(widget.shop.id!);
+
     if (mounted) {
       setState(() {
-        _redemptions = response?.data.where((r) => r.hasReview != true).toList() ?? [];
+        _redemptions =
+            response?.data.where((r) => r.hasReview != true).toList() ?? [];
         _isLoadingRedemptions = false;
-        
+
         if (_redemptions.length == 1) {
           _selectedRedemption = _redemptions.first;
           _currentStep = 1;
@@ -80,7 +83,9 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
         _pickedImages.addAll(newFiles);
       });
     } else if (result is XFile) {
-      File compressedFile = await img_service.compressImageIfNeeded(File(result.path));
+      File compressedFile = await img_service.compressImageIfNeeded(
+        File(result.path),
+      );
       setState(() {
         _pickedImages.add(compressedFile);
       });
@@ -89,7 +94,11 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
 
   Future<void> _submitReview() async {
     if (_rating == 0) {
-      ToastService().showToast(context, 'Please select a rating', type: ToastType.error);
+      ToastService().showToast(
+        context,
+        'Please select a rating',
+        type: ToastType.error,
+      );
       return;
     }
 
@@ -97,7 +106,7 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
 
     try {
       final notifier = ref.read(reviewsActionProvider.notifier);
-      
+
       final success = await notifier.submitReview(
         partnerId: widget.shop.id!,
         rating: _rating,
@@ -118,7 +127,7 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
@@ -129,11 +138,11 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
         children: [
           _buildHandle(),
           Expanded(
-            child: _isLoadingRedemptions 
-              ? const Center(child: LoadingAnimation())
-              : _redemptions.isEmpty 
-                  ? _buildEmptyState()
-                  : _buildContent(screenSize),
+            child: _isLoadingRedemptions
+                ? const Center(child: LoadingAnimation())
+                : _redemptions.isEmpty
+                ? _buildEmptyState()
+                : _buildContent(screenSize),
           ),
           _buildBottomButton(screenSize),
         ],
@@ -161,7 +170,8 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
         const SizedBox(height: 16),
         Text('No eligible offers to review', style: kSmallTitleB),
         const SizedBox(height: 8),
-        Text('Redeem an offer first to share your experience!', 
+        Text(
+          'Redeem an offer first to share your experience!',
           style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
           textAlign: TextAlign.center,
         ),
@@ -173,17 +183,20 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       transitionBuilder: (child, animation) {
-        return FadeTransition(opacity: animation, child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0.05, 0),
-            end: Offset.zero
-          ).animate(animation),
-          child: child,
-        ));
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.05, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
       },
-      child: _currentStep == 0 
-        ? _buildRedemptionSelection(screenSize) 
-        : _buildReviewForm(screenSize),
+      child: _currentStep == 0
+          ? _buildRedemptionSelection(screenSize)
+          : _buildReviewForm(screenSize),
     );
   }
 
@@ -196,36 +209,45 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
         children: [
           Text('Select an Offer', style: kBodyTitleB),
           SizedBox(height: screenSize.responsivePadding(8)),
-          Text('Which offer would you like to review?', 
-            style: kSmallTitleR.copyWith(color: kSecondaryTextColor)),
+          Text(
+            'Which offer would you like to review?',
+            style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+          ),
           SizedBox(height: screenSize.responsivePadding(24)),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _redemptions.length,
-            separatorBuilder: (_, __) => SizedBox(height: screenSize.responsivePadding(16)),
+            separatorBuilder: (_, __) =>
+                SizedBox(height: screenSize.responsivePadding(16)),
             itemBuilder: (context, index) {
               final redemption = _redemptions[index];
               final isSelected = _selectedRedemption?.id == redemption.id;
-              
+
               return GestureDetector(
                 onTap: () => setState(() => _selectedRedemption = redemption),
                 child: Container(
                   padding: EdgeInsets.all(screenSize.responsivePadding(12)),
                   decoration: BoxDecoration(
-                    color: isSelected ? kPrimaryColor.withOpacity(0.05) : kWhite,
+                    color: isSelected
+                        ? kPrimaryColor.withOpacity(0.05)
+                        : kWhite,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isSelected ? kPrimaryColor : kGreyLight.withOpacity(0.5),
+                      color: isSelected
+                          ? kPrimaryColor
+                          : kGreyLight.withOpacity(0.5),
                       width: isSelected ? 2 : 1,
                     ),
-                    boxShadow: isSelected ? [
-                      BoxShadow(
-                        color: kPrimaryColor.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ] : [],
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: kPrimaryColor.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : [],
                   ),
                   child: Row(
                     children: [
@@ -238,9 +260,10 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: AdvancedNetworkImage(
-                          imageUrl: redemption.offerId?.images?.isNotEmpty == true 
-                            ? redemption.offerId!.images!.first 
-                            : '',
+                          imageUrl:
+                              redemption.offerId?.images?.isNotEmpty == true
+                              ? redemption.offerId!.images!.first
+                              : '',
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -249,15 +272,21 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(redemption.offerId?.title ?? 'Untitled Offer', 
-                              style: kSmallTitleB),
+                            Text(
+                              redemption.offerId?.title ?? 'Untitled Offer',
+                              style: kSmallTitleB,
+                            ),
                             SizedBox(height: screenSize.responsivePadding(4)),
-                            Text('Redeemed on ${_formatDate(redemption.redeemedAt)}', 
-                              style: kSmallerTitleR.copyWith(color: kSecondaryTextColor)),
+                            Text(
+                              'Redeemed on ${_formatDate(redemption.redeemedAt)}',
+                              style: kSmallerTitleR.copyWith(
+                                color: kSecondaryTextColor,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      if (isSelected) 
+                      if (isSelected)
                         const Icon(Icons.check_circle, color: kPrimaryColor),
                     ],
                   ),
@@ -286,14 +315,18 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
-              if (_redemptions.length > 1) SizedBox(width: screenSize.responsivePadding(12)),
+              if (_redemptions.length > 1)
+                SizedBox(width: screenSize.responsivePadding(12)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Write a Review', style: kBodyTitleB),
-                    Text(_selectedRedemption?.offerId?.title ?? 'Share your experience', 
-                      style: kSmallTitleR.copyWith(color: kSecondaryTextColor)),
+                    Text(
+                      _selectedRedemption?.offerId?.title ??
+                          'Share your experience',
+                      style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                    ),
                   ],
                 ),
               ),
@@ -307,7 +340,10 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
                 SizedBox(height: screenSize.responsivePadding(16)),
                 _buildStarRating(screenSize),
                 SizedBox(height: screenSize.responsivePadding(8)),
-                Text(_getRatingText(), style: kSmallTitleB.copyWith(color: kPrimaryColor)),
+                Text(
+                  _getRatingText(),
+                  style: kSmallTitleB.copyWith(color: kPrimaryColor),
+                ),
               ],
             ),
           ),
@@ -333,7 +369,7 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
       children: List.generate(5, (index) {
         final starValue = index + 1.0;
         final isSelected = _rating >= starValue;
-        
+
         return GestureDetector(
           onTap: () => setState(() => _rating = starValue),
           child: TweenAnimationBuilder<double>(
@@ -379,7 +415,10 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: kGreyLight.withOpacity(0.3)),
               ),
-              child: const Icon(Icons.add_a_photo_outlined, color: kSecondaryTextColor),
+              child: const Icon(
+                Icons.add_a_photo_outlined,
+                color: kSecondaryTextColor,
+              ),
             ),
           ),
           ...List.generate(_pickedImages.length, (index) {
@@ -400,10 +439,14 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
                     top: 4,
                     right: 4,
                     child: GestureDetector(
-                      onTap: () => setState(() => _pickedImages.removeAt(index)),
+                      onTap: () =>
+                          setState(() => _pickedImages.removeAt(index)),
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
                         child: const Icon(Icons.close, color: kWhite, size: 12),
                       ),
                     ),
@@ -418,8 +461,10 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
   }
 
   Widget _buildBottomButton(ScreenSizeData screenSize) {
-    final showSubmit = _currentStep == 1 || (_redemptions.length <= 1 && _redemptions.isNotEmpty);
-    
+    final showSubmit =
+        _currentStep == 1 ||
+        (_redemptions.length <= 1 && _redemptions.isNotEmpty);
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -436,7 +481,11 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
               if (_selectedRedemption != null) {
                 setState(() => _currentStep = 1);
               } else {
-                ToastService().showToast(context, 'Please select an offer', type: ToastType.error);
+                ToastService().showToast(
+                  context,
+                  'Please select an offer',
+                  type: ToastType.error,
+                );
               }
             }
           },
@@ -453,7 +502,20 @@ class _AddReviewSheetState extends ConsumerState<AddReviewSheet> {
   }
 
   String _getMonth(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 }

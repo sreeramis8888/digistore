@@ -1,4 +1,4 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 
 import 'business_details.dart';
 import 'business_info.dart';
@@ -28,16 +28,24 @@ class ShopModel {
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
       id: json['_id'] as String?,
-      businessDetails: SafeParser.parseObject(json['businessDetails'], BusinessDetails.fromJson),
+      businessDetails: SafeParser.parseObject(
+        json['businessDetails'],
+        BusinessDetails.fromJson,
+      ),
       serviceCategories: json['serviceCategories'] != null
           ? List<String>.from(json['serviceCategories'])
           : null,
-      coverageAreas: SafeParser.parseObject(json['coverageAreas'], CoverageAreas.fromJson),
-      businessInfo: SafeParser.parseObject(json['businessInfo'], BusinessInfo.fromJson),
+      coverageAreas: SafeParser.parseObject(
+        json['coverageAreas'],
+        CoverageAreas.fromJson,
+      ),
+      businessInfo: SafeParser.parseObject(
+        json['businessInfo'],
+        BusinessInfo.fromJson,
+      ),
       isFeatured: json['isFeatured'] as bool?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isOpenNow: json['isOpenNow'] as bool?,
     );
   }
 }
-

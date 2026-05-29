@@ -1,4 +1,4 @@
-import 'package:digistore/src/interfaces/components/loading_indicator.dart';
+import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -110,7 +110,9 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
                             padding: EdgeInsets.symmetric(
                               vertical: screenSize.responsivePadding(16),
                             ),
-                            child: CardShimmers.partnerRedemptionItemShimmer(screenSize),
+                            child: CardShimmers.partnerRedemptionItemShimmer(
+                              screenSize,
+                            ),
                           ),
                         SizedBox(height: screenSize.responsivePadding(40)),
                       ],

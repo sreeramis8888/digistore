@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:digistore/src/data/constants/color_constants.dart';
-import 'package:digistore/src/data/utils/download_image.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/utils/download_image.dart';
 import '../../interfaces/components/advanced_network_image.dart';
 
 void showImageViewer(String file, BuildContext context) {

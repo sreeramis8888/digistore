@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:digistore/src/data/services/file_opener_service.dart';
+import 'package:setgo/src/data/services/file_opener_service.dart';
 import 'package:open_file/open_file.dart';
 
 part 'file_opener_provider.g.dart';

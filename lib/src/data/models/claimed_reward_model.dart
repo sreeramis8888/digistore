@@ -1,4 +1,4 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 
 import 'reward_model.dart';
 
@@ -36,11 +36,19 @@ class ClaimedRewardModel {
       publicUserId: json['publicUserId'] as String?,
       pointsSpent: json['pointsSpent'] as int?,
       status: json['status'] as String?,
-      validUntil: json['validUntil'] != null ? DateTime.tryParse(json['validUntil'])?.toLocal() : null,
+      validUntil: json['validUntil'] != null
+          ? DateTime.tryParse(json['validUntil'])?.toLocal()
+          : null,
       partnerId: json['partnerId'] as String?,
-      redeemedAt: json['redeemedAt'] != null ? DateTime.tryParse(json['redeemedAt'])?.toLocal() : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
+      redeemedAt: json['redeemedAt'] != null
+          ? DateTime.tryParse(json['redeemedAt'])?.toLocal()
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])?.toLocal()
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])?.toLocal()
+          : null,
       couponCode: json['couponCode'] as String?,
     );
   }
@@ -63,7 +71,8 @@ class PaginatedClaimedRewards {
 
   factory PaginatedClaimedRewards.fromJson(Map<String, dynamic> json) {
     return PaginatedClaimedRewards(
-      rewards: SafeParser.parseList(json['data'], ClaimedRewardModel.fromJson) ?? [],
+      rewards:
+          SafeParser.parseList(json['data'], ClaimedRewardModel.fromJson) ?? [],
       page: json['pagination']?['page'] as int? ?? 1,
       limit: json['pagination']?['limit'] as int? ?? 10,
       total: json['pagination']?['total'] as int? ?? 0,

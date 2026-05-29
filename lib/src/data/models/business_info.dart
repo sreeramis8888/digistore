@@ -1,4 +1,4 @@
-import 'package:digistore/src/utils/safe_parser.dart';
+import 'package:setgo/src/utils/safe_parser.dart';
 import 'location_point.dart';
 
 class BusinessInfo {
@@ -54,10 +54,14 @@ class BusinessInfo {
     return BusinessInfo(
       businessLogo: json['businessLogo'] as String?,
       coverImage: json['coverImage'] as String?,
-      businessImages: json['businessImages'] != null ? List<String>.from(json['businessImages']) : null,
+      businessImages: json['businessImages'] != null
+          ? List<String>.from(json['businessImages'])
+          : null,
       description: json['description'] as String?,
       tagline: json['tagline'] as String?,
-      specialties: json['specialties'] != null ? List<String>.from(json['specialties']) : null,
+      specialties: json['specialties'] != null
+          ? List<String>.from(json['specialties'])
+          : null,
       yearsOfExperience: json['yearsOfExperience'] as int?,
       rating: (json['rating'] as num?)?.toDouble(),
       totalReviews: json['reviewCount'] as int? ?? json['totalReviews'] as int?,
@@ -65,11 +69,22 @@ class BusinessInfo {
       otpPhone: json['otpPhone'] as String?,
       whatsappNumber: json['whatsappNumber'] as String?,
       websiteUrl: json['websiteUrl'] as String?,
-      storeLocation: SafeParser.parseObject(json['storeLocation'], LocationPoint.fromJson),
-      operatingHours: SafeParser.parseObject(json['operatingHours'], OperatingHours.fromJson),
-      socialLinks: SafeParser.parseObject(json['socialLinks'], SocialLinks.fromJson),
+      storeLocation: SafeParser.parseObject(
+        json['storeLocation'],
+        LocationPoint.fromJson,
+      ),
+      operatingHours: SafeParser.parseObject(
+        json['operatingHours'],
+        OperatingHours.fromJson,
+      ),
+      socialLinks: SafeParser.parseObject(
+        json['socialLinks'],
+        SocialLinks.fromJson,
+      ),
       videoUrl: json['videoUrl'] as String?,
-      achievements: json['achievements'] != null ? List<String>.from(json['achievements']) : null,
+      achievements: json['achievements'] != null
+          ? List<String>.from(json['achievements'])
+          : null,
       faqs: SafeParser.parseList(json['faqs'], BusinessFAQ.fromJson),
       branches: SafeParser.parseList(json['branches'], BusinessBranch.fromJson),
       ownerName: json['ownerName'] as String?,
@@ -165,11 +180,7 @@ class DayStatus {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'isOpen': isOpen,
-      'open': open,
-      'close': close,
-    };
+    return {'isOpen': isOpen, 'open': open, 'close': close};
   }
 }
 
@@ -189,11 +200,7 @@ class SocialLinks {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'instagram': instagram,
-      'facebook': facebook,
-      'youtube': youtube,
-    };
+    return {'instagram': instagram, 'facebook': facebook, 'youtube': youtube};
   }
 }
 
@@ -211,10 +218,7 @@ class BusinessFAQ {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'question': question,
-      'answer': answer,
-    };
+    return {'question': question, 'answer': answer};
   }
 }
 
@@ -240,8 +244,14 @@ class BusinessBranch {
       name: json['name'] as String?,
       address: json['address'] as String?,
       phone: json['phone'] as String?,
-      location: SafeParser.parseObject(json['location'], LocationPoint.fromJson),
-      operatingHours: SafeParser.parseObject(json['operatingHours'], OperatingHours.fromJson),
+      location: SafeParser.parseObject(
+        json['location'],
+        LocationPoint.fromJson,
+      ),
+      operatingHours: SafeParser.parseObject(
+        json['operatingHours'],
+        OperatingHours.fromJson,
+      ),
       isActive: json['isActive'] as bool?,
     );
   }

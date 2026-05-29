@@ -1,4 +1,4 @@
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';

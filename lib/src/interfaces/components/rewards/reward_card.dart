@@ -1,7 +1,7 @@
-import 'package:digistore/src/data/utils/interactive_feedback_button.dart';
-import 'package:digistore/src/data/constants/color_constants.dart';
-import 'package:digistore/src/data/constants/style_constants.dart';
-import 'package:digistore/src/data/providers/screen_size_provider.dart';
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/constants/style_constants.dart';
+import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -211,7 +211,10 @@ class RewardCard extends ConsumerWidget {
                   ),
                 )
               else
-                 Text('Claimed', style: kSmallTitleB.copyWith(color: kPrimaryColor)),
+                Text(
+                  'Claimed',
+                  style: kSmallTitleB.copyWith(color: kPrimaryColor),
+                ),
             ] else
               PrimaryButton(
                 height: screenSize.responsivePadding(35),
@@ -237,7 +240,10 @@ class RewardCard extends ConsumerWidget {
                 },
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 text: 'Get it for $points',
-                trailingIcon: SvgPicture.asset('assets/svg/coin.svg', height: 12),
+                trailingIcon: SvgPicture.asset(
+                  'assets/svg/coin.svg',
+                  height: 12,
+                ),
               ),
           ],
         ),

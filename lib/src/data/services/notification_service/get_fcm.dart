@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:digistore/src/data/services/secure_storage_service.dart';
-import 'package:digistore/src/data/constants/color_constants.dart';
+import 'package:setgo/src/data/services/secure_storage_service.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
