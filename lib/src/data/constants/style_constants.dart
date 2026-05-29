@@ -27,7 +27,7 @@ const double kSize12 = 12;
 
 // Helper
 TextStyle kStyle(FontWeight weight, double size) => TextStyle(
-  fontFamily: 'Manrope',
+  fontFamily: 'Inter',
   fontWeight: weight,
   color: kTextColor,
   fontSize: size,

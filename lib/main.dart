@@ -69,6 +69,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Setgo',
       theme: ThemeData(
+        fontFamily: 'Inter',
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.white,
           surface: Colors.white,
