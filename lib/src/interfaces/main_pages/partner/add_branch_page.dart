@@ -8,6 +8,7 @@ import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
 import '../../components/map_location_picker_page.dart';
 import '../../components/operating_hours_editor.dart';
+import '../../components/animated_dropdown.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 class AddBranchPage extends StatefulWidget {
@@ -30,6 +31,14 @@ class _AddBranchPageState extends State<AddBranchPage> {
   OperatingHours? _operatingHours;
   LocationPoint? _location;
   bool _isActive = true;
+  String? _branchType;
+
+  final List<Map<String, String>> _branchTypes = const [
+    {'value': 'main', 'label': 'Main Branch'},
+    {'value': 'franchise', 'label': 'Franchise'},
+    {'value': 'outlet', 'label': 'Outlet'},
+    {'value': 'service_center', 'label': 'Service Center'},
+  ];
 
   @override
   void initState() {
@@ -47,6 +56,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
     
     _operatingHours = widget.initialBranch?.operatingHours;
     _isActive = widget.initialBranch?.isActive ?? true;
+    _branchType = widget.initialBranch?.branchType ?? 'outlet';
   }
 
   @override
@@ -107,6 +117,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
         location: _location,
         operatingHours: _operatingHours,
         isActive: _isActive,
+        branchType: _branchType,
       );
 
       Navigator.pop(context, branch);
@@ -169,6 +180,37 @@ class _AddBranchPageState extends State<AddBranchPage> {
                         controller: _nameCtrl,
                         prefixIcon: const Icon(Icons.storefront_outlined, color: kSecondaryColor, size: 18),
                         isRequired: true,
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              text: 'Branch Type',
+                              style: kSmallTitleM.copyWith(
+                                color: const Color(0xFF0A0A0A),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          AnimatedDropdown<Map<String, String>>(
+                            hint: 'Select branch type',
+                            value: _branchTypes.firstWhere(
+                              (opt) => opt['value'] == _branchType,
+                              orElse: () => _branchTypes[2], // outlet
+                            ),
+                            items: _branchTypes,
+                            itemLabel: (opt) => opt['label'] ?? '',
+                            borderRadius: 10,
+                            onChanged: (opt) {
+                              setState(() {
+                                _branchType = opt?['value'];
+                              });
+                            },
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       PrimaryTextField(

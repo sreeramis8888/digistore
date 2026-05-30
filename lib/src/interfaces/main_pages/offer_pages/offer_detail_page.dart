@@ -47,7 +47,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         if (mounted) {
           ToastService().showToast(
             context,
-            'Failed to load shop details',
+            'No such shop found for this offer.',
             type: ToastType.error,
           );
         }
@@ -302,77 +302,86 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
-                    onTap: partnerId.isNotEmpty ? () => _navigateToShop(context, partnerId) : null,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: kPrimaryColor,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: shopLogo != null
-                                ? AdvancedNetworkImage(
-                                    imageUrl: shopLogo,
-                                    fit: BoxFit.cover,
-                                  )
-                                : const Icon(
-                                    Icons.storefront,
-                                    color: kWhite,
-                                    size: 20,
-                                  ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  shopName,
-                                  style: kBodyTitleB.copyWith(fontSize: 20),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (partnerId.isNotEmpty)
-                                  Text(
-                                    'Visit Shop',
-                                    style: kSmallTitleM.copyWith(
-                                      color: kPrimaryColor,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          if (partnerId.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            if (isNavigatingToShop)
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(kPrimaryColor),
-                                ),
-                              )
-                            else
-                              const Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                size: 16,
+                  if (!(widget.args['hideShopInfo'] ?? false)) ...[
+                    InkWell(
+                      onTap: partnerId.isNotEmpty
+                          ? () => _navigateToShop(context, partnerId)
+                          : null,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 4.0,
+                          horizontal: 2.0,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: kPrimaryColor,
                               ),
+                              clipBehavior: Clip.antiAlias,
+                              child: shopLogo != null
+                                  ? AdvancedNetworkImage(
+                                      imageUrl: shopLogo,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const Icon(
+                                      Icons.storefront,
+                                      color: kWhite,
+                                      size: 20,
+                                    ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    shopName,
+                                    style: kBodyTitleB.copyWith(fontSize: 20),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (partnerId.isNotEmpty)
+                                    Text(
+                                      'Visit Shop',
+                                      style: kSmallTitleM.copyWith(
+                                        color: kPrimaryColor,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            if (partnerId.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              if (isNavigatingToShop)
+                                const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      kPrimaryColor,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 16,
+                                  color: kPrimaryColor,
+                                ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
                   Text(title, style: kSubHeadingL.copyWith(fontSize: 24)),
                   const SizedBox(height: 8),

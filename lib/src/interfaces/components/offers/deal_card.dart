@@ -47,13 +47,14 @@ class DealCard extends ConsumerWidget {
     OfferModel offer, {
     double? width,
     EdgeInsetsGeometry? margin,
+    bool hideShopName = false,
   }) {
     final discountValue = offer.discountValue?.toInt() ?? 0;
     final badgeText = discountValue == 0
         ? null
         : offer.discountType == 'percentage'
-        ? '$discountValue%\nOFF'
-        : '₹$discountValue\nOFF';
+            ? '$discountValue%\nOFF'
+            : '₹$discountValue\nOFF';
 
     return DealCard(
       id: offer.id,
@@ -69,6 +70,7 @@ class DealCard extends ConsumerWidget {
       terms: offer.terms,
       validTo: offer.validTo,
       rawOffer: offer,
+      hideShopName: hideShopName,
     );
   }
 
@@ -78,10 +80,8 @@ class DealCard extends ConsumerWidget {
 
     return InteractiveFeedbackButton(
       onPressed: () {
-        Navigator.of(context).pushNamed(
-          'offerDetail',
-          arguments:
-              rawOffer?.toJson() ??
+        final Map<String, dynamic> args = Map<String, dynamic>.from(
+          rawOffer?.toJson() ??
               {
                 'id': id,
                 'title': title,
@@ -93,6 +93,13 @@ class DealCard extends ConsumerWidget {
                 'terms': terms,
                 'validTo': validTo?.toIso8601String(),
               },
+        );
+        if (hideShopName) {
+          args['hideShopInfo'] = true;
+        }
+        Navigator.of(context).pushNamed(
+          'offerDetail',
+          arguments: args,
         );
       },
       scaleFactor: 0.98,

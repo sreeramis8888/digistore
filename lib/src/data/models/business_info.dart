@@ -229,6 +229,7 @@ class BusinessBranch {
   final LocationPoint? location;
   final OperatingHours? operatingHours;
   final bool? isActive;
+  final String? branchType;
 
   const BusinessBranch({
     this.name,
@@ -237,6 +238,7 @@ class BusinessBranch {
     this.location,
     this.operatingHours,
     this.isActive,
+    this.branchType,
   });
 
   factory BusinessBranch.fromJson(Map<String, dynamic> json) {
@@ -253,6 +255,7 @@ class BusinessBranch {
         OperatingHours.fromJson,
       ),
       isActive: json['isActive'] as bool?,
+      branchType: json['branchType'] as String?,
     );
   }
 
@@ -264,6 +267,7 @@ class BusinessBranch {
       'location': location?.toJson(),
       'operatingHours': operatingHours?.toJson(),
       'isActive': isActive,
+      'branchType': branchType,
     };
   }
 }

@@ -58,6 +58,15 @@ class SecureStorageService {
     return value == 'true';
   }
 
+  Future<void> saveHasPromptedForNotifications(bool value) async {
+    await _storage.write(key: 'has_prompted_for_notifications', value: value.toString());
+  }
+
+  Future<bool> getHasPromptedForNotifications() async {
+    final value = await _storage.read(key: 'has_prompted_for_notifications');
+    return value == 'true';
+  }
+
   /// Save user ID for reference
   Future<void> saveUserId(String userId) async {
     await _storage.write(key: _userIdKey, value: userId);

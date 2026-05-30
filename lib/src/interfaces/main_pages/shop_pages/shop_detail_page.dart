@@ -51,6 +51,19 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         ? ref.watch(shopProductsProvider(shopId))
         : null;
 
+    final crossAxisCount = screenSize.isTablet ? 3 : 2;
+    final totalPadding =
+        screenSize.responsivePadding(32) +
+        screenSize.responsivePadding(12 * (crossAxisCount - 1));
+
+    final offerItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+    final offerItemHeight = screenSize.responsivePadding(200);
+    final offerAspectRatio = offerItemWidth / offerItemHeight;
+
+    final productItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+    final productItemHeight = screenSize.responsivePadding(220);
+    final productAspectRatio = productItemWidth / productItemHeight;
+
     return Scaffold(
       backgroundColor: kWhite,
       body: CustomScrollView(
@@ -156,8 +169,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                               padding: EdgeInsets.zero,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    childAspectRatio: 0.75,
+                                    crossAxisCount: crossAxisCount,
+                                    childAspectRatio: offerAspectRatio,
                                     crossAxisSpacing: screenSize
                                         .responsivePadding(12),
                                     mainAxisSpacing: screenSize
@@ -168,6 +181,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                                 return DealCard.fromOffer(
                                   offers[index],
                                   margin: EdgeInsets.zero,
+                                  hideShopName: true,
                                 );
                               },
                             ),
@@ -195,8 +209,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                               padding: EdgeInsets.zero,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    childAspectRatio: 0.75,
+                                    crossAxisCount: crossAxisCount,
+                                    childAspectRatio: productAspectRatio,
                                     crossAxisSpacing: screenSize
                                         .responsivePadding(12),
                                     mainAxisSpacing: screenSize

@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../../../data/providers/partner_provider.dart';
+import '../../../data/providers/branches.dart';
 import '../../../data/providers/category_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../../data/models/partner_model.dart';
@@ -75,6 +76,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   List<String> _specialties = [];
   List<String> _tags = [];
   List<BusinessBranch> _branches = [];
+  final List<BusinessBranch> _newBranches = [];
   List<String> _businessImages = [];
   OperatingHours? _operatingHours;
 
@@ -158,6 +160,21 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _specialties = List.from(partner?.businessInfo?.specialties ?? []);
     _tags = List.from(partner?.tags ?? []);
     _branches = List.from(partner?.businessInfo?.branches ?? []);
+    
+    // Fetch branches from separate API /branches GET method
+    Future.microtask(() async {
+      try {
+        final fetched = await ref.read(branchesProvider.notifier).getBranches();
+        if (mounted) {
+          setState(() {
+            _branches = List.from(fetched);
+          });
+        }
+      } catch (e) {
+        debugPrint('Error getting branches from API: $e');
+      }
+    });
+
     _businessImages = List.from(partner?.businessInfo?.businessImages ?? []);
     _operatingHours = partner?.businessInfo?.operatingHours;
 
@@ -339,12 +356,17 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
   void _showAddBranchDialog() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final result = await Navigator.push(
+    final result = await Navigator.push<BusinessBranch>(
       context,
       MaterialPageRoute(builder: (context) => const AddBranchPage()),
     );
     if (result != null && mounted) {
-      setState(() => _branches.add(result));
+      setState(() {
+        _branches.add(result);
+        if (isEditMode) {
+          _newBranches.add(result);
+        }
+      });
     }
   }
 
@@ -358,6 +380,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
     if (result != null && mounted) {
       setState(() {
+        final oldBranch = _branches[index];
+        final newIndex = _newBranches.indexOf(oldBranch);
+        if (newIndex != -1) {
+          _newBranches[newIndex] = result;
+        }
         _branches[index] = result;
       });
     }
@@ -1643,10 +1670,10 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                                       ),
                                                       const SizedBox(width: 24),
                                                       GestureDetector(
-                                                        onTap: () => setState(
-                                                          () => _branches
-                                                              .removeAt(index),
-                                                        ),
+                                                        onTap: () => setState(() {
+                                                          final removed = _branches.removeAt(index);
+                                                          _newBranches.remove(removed);
+                                                        }),
                                                         child: Row(
                                                           children: [
                                                             const Icon(
@@ -2490,7 +2517,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             description: _descriptionCtrl.text,
                             websiteUrl: _websiteUrlCtrl.text,
                             specialties: _specialties,
-                            branches: _branches,
+                            branches: _branches.where((b) => !_newBranches.contains(b)).toList(),
                             socialLinks: SocialLinks(
                               instagram: _instagramCtrl.text,
                               facebook: _facebookCtrl.text,
@@ -2571,12 +2598,34 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             deleteCover: _deletedCover,
                           );
 
-                          if (success && context.mounted) {
-                            ToastService().showToast(
-                              context,
-                              'Profile updated successfully',
-                            );
-                            Navigator.pop(context);
+                          if (success) {
+                            bool allBranchesSucceeded = true;
+                            if (_newBranches.isNotEmpty) {
+                              final branchesNotifier = ref.read(branchesProvider.notifier);
+                              for (final branch in _newBranches) {
+                                final branchSuccess = await branchesNotifier.createBranch(branch);
+                                if (!branchSuccess) {
+                                  allBranchesSucceeded = false;
+                                }
+                              }
+                            }
+                            await notifier.getPartnerProfile();
+
+                            if (context.mounted) {
+                              if (allBranchesSucceeded) {
+                                ToastService().showToast(
+                                  context,
+                                  'Profile updated successfully',
+                                );
+                              } else {
+                                ToastService().showToast(
+                                  context,
+                                  'Profile updated, but some branches failed to create',
+                                  type: ToastType.warning,
+                                );
+                              }
+                              Navigator.pop(context);
+                            }
                           } else if (!success && context.mounted) {
                             ToastService().showToast(
                               context,

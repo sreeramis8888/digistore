@@ -15,7 +15,7 @@ import '../data/utils/global_variables.dart';
 import 'main_pages/partner/partner_home.dart';
 import 'main_pages/partner/partner_products.dart';
 import 'main_pages/partner/partner_history.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../data/services/secure_storage_service.dart';
 import '../data/utils/notification_permission_helper.dart';
 import '../data/services/notification_service/notification_service.dart';
 
@@ -123,11 +123,11 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
   }
 
   Future<void> _checkAndPromptForNotifications() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasPrompted = prefs.getBool('has_prompted_for_notifications') ?? false;
+    final secureStorage = ref.read(secureStorageServiceProvider);
+    final hasPrompted = await secureStorage.getHasPromptedForNotifications();
 
     if (!hasPrompted) {
-      await prefs.setBool('has_prompted_for_notifications', true);
+      await secureStorage.saveHasPromptedForNotifications(true);
       
       if (mounted) {
         final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
