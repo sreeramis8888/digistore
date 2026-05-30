@@ -5,6 +5,7 @@ import '../../../data/constants/style_constants.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../../data/providers/partner_products_provider.dart';
+import '../../../data/providers/user_type_provider.dart';
 import 'partner_product_page.dart';
 
 class ProductDetailsPage extends ConsumerWidget {
@@ -14,6 +15,9 @@ class ProductDetailsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userType = ref.watch(userTypeProvider);
+    final isPartner = userType == UserType.partner;
+
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
@@ -25,75 +29,77 @@ class ProductDetailsPage extends ConsumerWidget {
         ),
         title: Text('Product Details', style: kSmallTitleM),
         centerTitle: false,
-        actions: [
-          Container(
-            height: 32,
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreateProductPage(product: product),
-                  ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: kPrimaryColor),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              child: Text(
-                'Edit',
-                style: kSmallTitleM.copyWith(color: kPrimaryColor),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            height: 32,
-            width: 32,
-            margin: const EdgeInsets.only(right: 16, top: 12, bottom: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.red.shade300),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(
-                Icons.delete_outline,
-                color: Colors.red.shade400,
-                size: 18,
-              ),
-              onPressed: () async {
-                final confirm = await showConfirmationDialog(
-                  context: context,
-                  title: 'Delete Product',
-                  message: 'Are you sure you want to delete this product?',
-                  confirmText: 'Delete',
-                  isDestructive: true,
-                );
-
-                if (confirm == true && context.mounted) {
-                  try {
-                    await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
-                    if (context.mounted) {
-                      Navigator.pop(context); // Go back to products list
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
+        actions: isPartner
+            ? [
+                Container(
+                  height: 32,
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreateProductPage(product: product),
+                        ),
                       );
-                    }
-                  }
-                }
-              },
-            ),
-          ),
-        ],
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: kPrimaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    child: Text(
+                      'Edit',
+                      style: kSmallTitleM.copyWith(color: kPrimaryColor),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  height: 32,
+                  width: 32,
+                  margin: const EdgeInsets.only(right: 16, top: 12, bottom: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red.shade300),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: Colors.red.shade400,
+                      size: 18,
+                    ),
+                    onPressed: () async {
+                      final confirm = await showConfirmationDialog(
+                        context: context,
+                        title: 'Delete Product',
+                        message: 'Are you sure you want to delete this product?',
+                        confirmText: 'Delete',
+                        isDestructive: true,
+                      );
+
+                      if (confirm == true && context.mounted) {
+                        try {
+                          await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
+                          if (context.mounted) {
+                            Navigator.pop(context); // Go back to products list
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: SingleChildScrollView(
         child: Column(

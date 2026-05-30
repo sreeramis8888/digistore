@@ -13,6 +13,9 @@ import '../../interfaces/main_pages/offer_pages/redemption_instructions_page.dar
 import '../../interfaces/main_pages/offer_pages/redemption_verified_page.dart';
 import '../../interfaces/main_pages/home_pages/my_account_page.dart';
 import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
+import '../../interfaces/main_pages/home_pages/help_support_page.dart';
+import '../../interfaces/main_pages/home_pages/terms_privacy_page.dart';
+import '../../interfaces/main_pages/home_pages/about_app_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_success_page.dart';
 import '../../interfaces/main_pages/partner/partner_account_page.dart';
@@ -216,6 +219,24 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'claimedRewards':
       page = const ClaimedRewardsPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'helpSupport':
+      page = const HelpSupportPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'termsPrivacy':
+      page = const TermsPrivacyPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'aboutApp':
+      page = const AboutAppPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

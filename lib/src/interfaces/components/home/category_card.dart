@@ -3,6 +3,7 @@ import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryCard extends ConsumerWidget {
   final Map<String, dynamic> category;
@@ -51,11 +52,7 @@ class CategoryCard extends ConsumerWidget {
                 color: Color(0xFFF5F5F5).withOpacity(.55),
               ),
               child: Center(
-                child: SvgPicture.asset(
-                  category['icon'] as String,
-                  width: 20,
-                  height: 20,
-                ),
+                child: _buildIcon(category['icon'] as String),
               ),
             ),
             SizedBox(height: screenSize.responsivePadding(8)),
@@ -70,5 +67,67 @@ class CategoryCard extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildIcon(String iconPathOrUrl) {
+    final cleanPath = iconPathOrUrl.trim();
+    if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+      if (cleanPath.toLowerCase().endsWith('.svg') ||
+          cleanPath.toLowerCase().contains('.svg')) {
+        return SvgPicture.network(
+          cleanPath,
+          width: 26,
+          height: 26,
+          placeholderBuilder: (context) => const SizedBox(
+            width: 15,
+            height: 15,
+            child: CircularProgressIndicator(
+              strokeWidth: 1.5,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
+            ),
+          ),
+        );
+      } else {
+        return CachedNetworkImage(
+          imageUrl: cleanPath,
+          width: 26,
+          height: 26,
+          fit: BoxFit.contain,
+          placeholder: (context, url) => const SizedBox(
+            width: 15,
+            height: 15,
+            child: CircularProgressIndicator(
+              strokeWidth: 1.5,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
+            ),
+          ),
+          errorWidget: (context, url, error) => const Icon(
+            Icons.category_outlined,
+            size: 26,
+            color: Colors.grey,
+          ),
+        );
+      }
+    } else {
+      if (cleanPath.endsWith('.svg')) {
+        return SvgPicture.asset(
+          cleanPath,
+          width: 26,
+          height: 26,
+        );
+      } else {
+        return Image.asset(
+          cleanPath,
+          width: 26,
+          height: 26,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => const Icon(
+            Icons.category_outlined,
+            size: 26,
+            color: Colors.grey,
+          ),
+        );
+      }
+    }
   }
 }

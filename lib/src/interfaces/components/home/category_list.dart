@@ -62,9 +62,12 @@ class CategoryList extends ConsumerWidget {
                 child: CategoryCard(
                   category: {
                     'name': category.name ?? '',
-                    'icon':
-                        categoryIcons[category.name] ??
-                        'assets/svg/daily_needs.svg',
+                    'icon': (category.iconUrl != null &&
+                            category.iconUrl != 'null' &&
+                            category.iconUrl!.trim().isNotEmpty)
+                        ? category.iconUrl!
+                        : (categoryIcons[category.name] ??
+                            'assets/svg/daily_needs.svg'),
                   },
                 ),
               ),

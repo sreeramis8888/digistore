@@ -473,6 +473,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         size: 22,
                       ),
                       screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'helpSupport');
+                      },
                     ),
                     const Divider(
                       height: 1,
@@ -489,6 +492,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         size: 22,
                       ),
                       screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'termsPrivacy');
+                      },
                     ),
                     const Divider(
                       height: 1,
@@ -505,6 +511,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         size: 22,
                       ),
                       screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'aboutApp');
+                      },
                     ),
                   ],
                 ),

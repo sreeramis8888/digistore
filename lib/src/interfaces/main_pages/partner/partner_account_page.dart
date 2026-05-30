@@ -470,6 +470,23 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
   }
 
+  Widget _buildSupportMenuItem(
+    BuildContext context,
+    String title,
+    IconData icon,
+    String routeName,
+  ) {
+    return ListTile(
+      leading: Icon(icon, color: kSecondaryTextColor, size: 22),
+      title: Text(
+        title,
+        style: kSmallTitleM.copyWith(fontWeight: FontWeight.w500),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios_rounded, color: kStrokeColor, size: 14),
+      onTap: () => Navigator.pushNamed(context, routeName),
+    );
+  }
+
   Widget _buildRemovableChip(
     String label, {
     Widget? prefixIcon,
@@ -2335,6 +2352,56 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
+                                if (!isEditMode) ...[
+                                  _buildSectionHeader('Support & Information'),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: kWhite,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: kStrokeColor),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          _buildSupportMenuItem(
+                                            context,
+                                            'Help & Support',
+                                            Icons.headphones_outlined,
+                                            'helpSupport',
+                                          ),
+                                          const Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: kStrokeColor,
+                                            indent: 16,
+                                            endIndent: 16,
+                                          ),
+                                          _buildSupportMenuItem(
+                                            context,
+                                            'Terms & Privacy Policy',
+                                            Icons.description_outlined,
+                                            'termsPrivacy',
+                                          ),
+                                          const Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: kStrokeColor,
+                                            indent: 16,
+                                            endIndent: 16,
+                                          ),
+                                          _buildSupportMenuItem(
+                                            context,
+                                            'About app',
+                                            Icons.info_outline_rounded,
+                                            'aboutApp',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
                               ],
                             ),
                           ),
