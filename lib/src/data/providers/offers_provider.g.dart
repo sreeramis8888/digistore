@@ -59,3 +59,78 @@ abstract class _$Offers extends $Notifier<PaginatedOffers> {
     element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(activeDeals)
+final activeDealsProvider = ActiveDealsFamily._();
+
+final class ActiveDealsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<OfferModel>>,
+          List<OfferModel>,
+          FutureOr<List<OfferModel>>
+        >
+    with $FutureModifier<List<OfferModel>>, $FutureProvider<List<OfferModel>> {
+  ActiveDealsProvider._({
+    required ActiveDealsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'activeDealsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeDealsHash();
+
+  @override
+  String toString() {
+    return r'activeDealsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<OfferModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<OfferModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return activeDeals(ref, dealType: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ActiveDealsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$activeDealsHash() => r'd3c6d9aa2e81df13f8940677cc93d1bffc6f3670';
+
+final class ActiveDealsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<OfferModel>>, String> {
+  ActiveDealsFamily._()
+    : super(
+        retry: null,
+        name: r'activeDealsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ActiveDealsProvider call({required String dealType}) =>
+      ActiveDealsProvider._(argument: dealType, from: this);
+
+  @override
+  String toString() => r'activeDealsProvider';
+}

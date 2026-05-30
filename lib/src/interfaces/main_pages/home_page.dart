@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/providers/screen_size_provider.dart';
 import '../components/home/home_app_bar.dart';
-import '../components/home/home_search_bar.dart';
 import '../components/rewards/loyalty_reward_card.dart';
 import '../components/home/category_list.dart';
 import '../components/home/deals_carousel.dart';
@@ -18,6 +17,7 @@ import '../../data/utils/global_variables.dart';
 import '../../data/providers/home_provider.dart';
 import '../../data/models/home_data_model.dart';
 import 'partner/partner_home.dart';
+import 'offer_pages/active_deals_page.dart';
 
 import '../../data/constants/style_constants.dart';
 
@@ -44,6 +44,18 @@ class _HomePageState extends ConsumerState<HomePage> {
     setState(() {
       _searchQuery = query.toLowerCase();
     });
+  }
+
+  void _navigateToDealsGrid(BuildContext context, String dealType, String dealTitle) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ActiveDealsPage(
+          dealType: dealType,
+          dealTitle: dealTitle,
+        ),
+      ),
+    );
   }
 
   @override
@@ -158,6 +170,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
+    final dealOfTheWeek = data.dealOfTheWeek
+        ?.where(
+          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
     // final dealsOfDay = data.dealsOfDay
     //     ?.where(
     //       (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
@@ -198,6 +215,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             deals: dealOfTheHour
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
+            onViewAllTap: () => _navigateToDealsGrid(context, 'deal_of_hour', 'Deal of the Hour'),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
@@ -211,6 +229,17 @@ class _HomePageState extends ConsumerState<HomePage> {
             deals: dealOfTheDay
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
+            onViewAllTap: () => _navigateToDealsGrid(context, 'deal_of_day', 'Deal of the Day'),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
+        if (dealOfTheWeek != null && dealOfTheWeek.isNotEmpty) ...[
+          DealsCarousel(
+            title: 'Deal of the Week',
+            deals: dealOfTheWeek
+                .map((offer) => DealCard.fromOffer(offer))
+                .toList(),
+            onViewAllTap: () => _navigateToDealsGrid(context, 'deal_of_week', 'Deal of the Week'),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
@@ -233,6 +262,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             deals: dealOfTheMonth
                 .map((offer) => DealCard.fromOffer(offer))
                 .toList(),
+            onViewAllTap: () => _navigateToDealsGrid(context, 'deal_of_month', 'Deal of the Month'),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],

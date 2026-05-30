@@ -9,8 +9,14 @@ import '../offers/deal_card.dart';
 class DealsCarousel extends ConsumerWidget {
   final String title;
   final List<DealCard> deals;
+  final VoidCallback? onViewAllTap;
 
-  const DealsCarousel({super.key, required this.title, required this.deals});
+  const DealsCarousel({
+    super.key,
+    required this.title,
+    required this.deals,
+    this.onViewAllTap,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,12 +30,31 @@ class DealsCarousel extends ConsumerWidget {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
-          child: Text(
-            title,
-            style: kBodyTitleM.copyWith(
-              color: kTextColor,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: kBodyTitleM.copyWith(
+                  color: kTextColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (onViewAllTap != null)
+                GestureDetector(
+                  onTap: onViewAllTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      'View all',
+                      style: kSmallTitleSB.copyWith(
+                        color: kPrimaryColor,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         SizedBox(height: screenSize.responsivePadding(12)),

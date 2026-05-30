@@ -122,3 +122,28 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
 final branchesProvider = NotifierProvider<BranchesNotifier, List<BusinessBranch>>(
   BranchesNotifier.new,
 );
+
+final shopBranchesProvider = FutureProvider.family<List<BusinessBranch>, String>((ref, shopId) async {
+  if (shopId.isEmpty) return [];
+  final api = ref.read(apiProvider);
+  final response = await api.get('/shops/$shopId/branches', requireAuth: false);
+  if (response.success && response.data != null) {
+    final dynamic rawData = response.data!['data'];
+    List<dynamic>? branchesList;
+    if (rawData is Map) {
+      branchesList = rawData['branches'] as List<dynamic>?;
+    } else if (rawData is List) {
+      branchesList = rawData;
+    } else {
+      final dynamic fallback = response.data!['branches'] ?? response.data!;
+      if (fallback is List) {
+        branchesList = fallback;
+      }
+    }
+
+    if (branchesList != null) {
+      return branchesList.map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>)).toList();
+    }
+  }
+  return [];
+});

@@ -17,7 +17,12 @@ class ShopHeader extends ConsumerStatefulWidget {
   final ShopModel? shop;
   final BusinessBranch? selectedBranch;
 
-  const ShopHeader({super.key, required this.shopName, this.shop, this.selectedBranch});
+  const ShopHeader({
+    super.key,
+    required this.shopName,
+    this.shop,
+    this.selectedBranch,
+  });
 
   @override
   ConsumerState<ShopHeader> createState() => _ShopHeaderState();
@@ -47,7 +52,9 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final user = ref.read(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
-    final shopCoords = widget.selectedBranch?.location?.coordinates ?? widget.shop?.businessInfo?.storeLocation?.coordinates;
+    final shopCoords =
+        widget.selectedBranch?.location?.coordinates ??
+        widget.shop?.businessInfo?.storeLocation?.coordinates;
 
     setState(() {
       _roadDistance = null;
@@ -92,7 +99,8 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final category = widget.shop?.serviceCategories?.isNotEmpty == true
         ? widget.shop!.serviceCategories!.first
         : 'General';
-    final address = widget.selectedBranch?.address ?? 
+    final address =
+        widget.selectedBranch?.address ??
         widget.shop?.businessDetails?.address ??
         widget.shop?.businessInfo?.storeLocation?.address ??
         'No address provided';
@@ -100,7 +108,9 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final user = ref.watch(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
-    final shopCoords = widget.selectedBranch?.location?.coordinates ?? widget.shop?.businessInfo?.storeLocation?.coordinates;
+    final shopCoords =
+        widget.selectedBranch?.location?.coordinates ??
+        widget.shop?.businessInfo?.storeLocation?.coordinates;
 
     String distanceLabel = '';
     if (_roadDistance != null) {
@@ -190,6 +200,13 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 400),
+                layoutBuilder: (currentChild, previousChildren) => Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    ...previousChildren,
+                    ?currentChild,
+                  ],
+                ),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
                 transitionBuilder: (child, animation) {
@@ -207,7 +224,9 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                 child: RichText(
                   key: ValueKey('$address$distanceLabel'),
                   text: TextSpan(
-                    style: kSmallTitleL.copyWith(color: const Color(0xFF4E4E4E)),
+                    style: kSmallTitleL.copyWith(
+                      color: const Color(0xFF4E4E4E),
+                    ),
                     children: [
                       TextSpan(text: address),
                       if (distanceLabel.isNotEmpty)
@@ -245,7 +264,9 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                final phone = widget.selectedBranch?.phone ?? widget.shop?.businessInfo?.contactPhone;
+                final phone =
+                    widget.selectedBranch?.phone ??
+                    widget.shop?.businessInfo?.contactPhone;
                 if (phone != null && phone.isNotEmpty) {
                   launchPhone(phone);
                 }

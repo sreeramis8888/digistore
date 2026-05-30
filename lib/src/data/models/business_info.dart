@@ -86,7 +86,11 @@ class BusinessInfo {
           ? List<String>.from(json['achievements'])
           : null,
       faqs: SafeParser.parseList(json['faqs'], BusinessFAQ.fromJson),
-      branches: SafeParser.parseList(json['branches'], BusinessBranch.fromJson),
+      branches: json['branches'] != null
+          ? (json['branches'] as List<dynamic>)
+              .map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
       ownerName: json['ownerName'] as String?,
       email: json['email'] as String?,
     );
@@ -242,18 +246,37 @@ class BusinessBranch {
   });
 
   factory BusinessBranch.fromJson(Map<String, dynamic> json) {
+    String? phoneVal = json['phone'] as String?;
+    if (phoneVal == null && json['phoneNumbers'] is List && (json['phoneNumbers'] as List).isNotEmpty) {
+      phoneVal = (json['phoneNumbers'] as List).first as String?;
+    }
+
+    OperatingHours? opHours;
+    if (json['operatingHours'] is List) {
+      final list = json['operatingHours'] as List;
+      final map = <String, dynamic>{};
+      for (final item in list) {
+        if (item is Map<String, dynamic> && item['day'] != null) {
+          map[item['day'].toString().toLowerCase()] = item;
+        }
+      }
+      opHours = OperatingHours.fromJson(map);
+    } else {
+      opHours = SafeParser.parseObject(
+        json['operatingHours'],
+        OperatingHours.fromJson,
+      );
+    }
+
     return BusinessBranch(
-      name: json['name'] as String?,
-      address: json['address'] as String?,
-      phone: json['phone'] as String?,
+      name: (json['name'] ?? json['branchName']) as String?,
+      address: (json['address'] ?? (json['location'] is Map ? json['location']['address'] : null)) as String?,
+      phone: phoneVal,
       location: SafeParser.parseObject(
         json['location'],
         LocationPoint.fromJson,
       ),
-      operatingHours: SafeParser.parseObject(
-        json['operatingHours'],
-        OperatingHours.fromJson,
-      ),
+      operatingHours: opHours,
       isActive: json['isActive'] as bool?,
       branchType: json['branchType'] as String?,
     );

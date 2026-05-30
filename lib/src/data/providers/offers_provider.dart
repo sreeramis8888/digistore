@@ -313,3 +313,19 @@ class Offers extends _$Offers {
     }
   }
 }
+
+@riverpod
+Future<List<OfferModel>> activeDeals(Ref ref, {required String dealType}) async {
+  final api = ref.watch(apiProvider);
+  final response = await api.get(
+    '/offers/deals/active',
+    queryParams: {'dealType': dealType},
+  );
+
+  if (response.success && response.data != null) {
+    final List<dynamic> data = response.data!['data'] as List<dynamic>;
+    return data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList();
+  } else {
+    throw Exception(response.message ?? 'Failed to fetch active deals');
+  }
+}

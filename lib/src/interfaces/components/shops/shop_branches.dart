@@ -4,51 +4,70 @@ import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/business_info.dart';
+import '../../../../src/data/providers/branches.dart';
 
 class ShopBranches extends ConsumerWidget {
-  final List<BusinessBranch> branches;
+  final String shopId;
   final BusinessBranch? selectedBranch;
   final ValueChanged<BusinessBranch?> onBranchSelected;
 
   const ShopBranches({
     super.key,
-    required this.branches,
+    required this.shopId,
     required this.selectedBranch,
     required this.onBranchSelected,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenSize = ref.watch(screenSizeProvider);
+    if (shopId.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Branches', style: kSmallTitleM),
-        SizedBox(height: screenSize.responsivePadding(12)),
-        Wrap(
-          spacing: screenSize.responsivePadding(8),
-          runSpacing: screenSize.responsivePadding(8),
+    final screenSize = ref.watch(screenSizeProvider);
+    final branchesAsync = ref.watch(shopBranchesProvider(shopId));
+
+    return branchesAsync.when(
+      data: (branches) {
+        if (branches.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Main branch pill
-            _buildBranchPill(
-              screenSize: screenSize,
-              label: 'Main',
-              isSelected: selectedBranch == null,
-              onTap: () => onBranchSelected(null),
+            Text('Branches', style: kSmallTitleM),
+            SizedBox(height: screenSize.responsivePadding(12)),
+            Wrap(
+              spacing: screenSize.responsivePadding(8),
+              runSpacing: screenSize.responsivePadding(8),
+              children: [
+                // Main branch pill
+                _buildBranchPill(
+                  screenSize: screenSize,
+                  label: 'Main',
+                  isSelected: selectedBranch == null,
+                  onTap: () => onBranchSelected(null),
+                ),
+                // Other branches
+                ...branches.map((branch) {
+                  return _buildBranchPill(
+                    screenSize: screenSize,
+                    label: branch.name ?? 'Branch',
+                    isSelected: selectedBranch == branch,
+                    onTap: () => onBranchSelected(branch),
+                  );
+                }),
+              ],
             ),
-            // Other branches
-            ...branches.map((branch) {
-              return _buildBranchPill(
-                screenSize: screenSize,
-                label: branch.name ?? 'Branch',
-                isSelected: selectedBranch == branch,
-                onTap: () => onBranchSelected(branch),
-              );
-            }).toList(),
+            SizedBox(height: screenSize.responsivePadding(16)),
           ],
+        );
+      },
+      loading: () => const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
         ),
-      ],
+      ),
+      error: (e, s) => const SizedBox.shrink(),
     );
   }
 

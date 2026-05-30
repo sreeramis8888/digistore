@@ -122,19 +122,15 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                     selectedBranch: _selectedBranch,
                   ),
                   SizedBox(height: screenSize.responsivePadding(16)),
-                  if (widget.shop?.businessInfo?.branches != null &&
-                      widget.shop!.businessInfo!.branches!.isNotEmpty) ...[
-                    ShopBranches(
-                      branches: widget.shop!.businessInfo!.branches!,
-                      selectedBranch: _selectedBranch,
-                      onBranchSelected: (branch) {
-                        setState(() {
-                          _selectedBranch = branch;
-                        });
-                      },
-                    ),
-                    SizedBox(height: screenSize.responsivePadding(16)),
-                  ],
+                  ShopBranches(
+                    shopId: shopId,
+                    selectedBranch: _selectedBranch,
+                    onBranchSelected: (branch) {
+                      setState(() {
+                        _selectedBranch = branch;
+                      });
+                    },
+                  ),
                   ShopAbout(shop: widget.shop),
                   SizedBox(height: screenSize.responsivePadding(20)),
                   if (widget.shop?.businessInfo?.businessImages != null &&

@@ -14,6 +14,7 @@ class HomeData {
   // final List<OfferModel>? dealsOfDay;
   final List<OfferModel>? dealOfTheHour;
   final List<OfferModel>? dealOfTheDay;
+  final List<OfferModel>? dealOfTheWeek;
   final List<OfferModel>? dealOfTheMonth;
   final List<OfferModel>? nearbyOffers;
   final List<ShopModel>? featuredShops;
@@ -27,6 +28,7 @@ class HomeData {
     // this.dealsOfDay,
     this.dealOfTheHour,
     this.dealOfTheDay,
+    this.dealOfTheWeek,
     this.dealOfTheMonth,
     this.nearbyOffers,
     this.featuredShops,
@@ -42,6 +44,7 @@ class HomeData {
       // dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
       dealOfTheHour: SafeParser.parseList(json['dealOfTheHour'], OfferModel.fromJson),
       dealOfTheDay: SafeParser.parseList(json['dealOfTheDay'], OfferModel.fromJson),
+      dealOfTheWeek: SafeParser.parseList(json['dealOfTheWeek'], OfferModel.fromJson),
       dealOfTheMonth: SafeParser.parseList(json['dealOfTheMonth'], OfferModel.fromJson),
       nearbyOffers: SafeParser.parseList(json['nearbyOffers'], OfferModel.fromJson),
       featuredShops: SafeParser.parseList(json['featuredShops'], ShopModel.fromJson),
