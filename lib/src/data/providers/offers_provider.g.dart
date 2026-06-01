@@ -77,7 +77,7 @@ final class ActiveDealsProvider
   }) : super(
          retry: null,
          name: r'activeDealsProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -115,7 +115,7 @@ final class ActiveDealsProvider
   }
 }
 
-String _$activeDealsHash() => r'd3c6d9aa2e81df13f8940677cc93d1bffc6f3670';
+String _$activeDealsHash() => r'94d557cdbda81db11a47757b860d6de1286b69dc';
 
 final class ActiveDealsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<OfferModel>>, String> {
@@ -125,7 +125,7 @@ final class ActiveDealsFamily extends $Family
         name: r'activeDealsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   ActiveDealsProvider call({required String dealType}) =>

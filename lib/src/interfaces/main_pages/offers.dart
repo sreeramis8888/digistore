@@ -85,12 +85,26 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     // Fetch if the selected category hasn't been fetched yet.
     // Covers: first mount, and returning to this tab after home-page
     // category navigation set the index while the page was not visible.
-    if (_lastFetchedCategoryIndex != currentCategoryIndex) {
+    final categoriesAsync = ref.read(categoriesProvider);
+    String? selectedCategoryId;
+    if (categoriesAsync.hasValue) {
+      final categories = categoriesAsync.value!;
+      if (currentCategoryIndex > 0 &&
+          currentCategoryIndex <= categories.length) {
+        selectedCategoryId = categories[currentCategoryIndex - 1].id;
+      }
+    }
+
+    if (_lastFetchedCategoryIndex != currentCategoryIndex &&
+        offersState.currentCategoryId != selectedCategoryId) {
       _lastFetchedCategoryIndex = currentCategoryIndex;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _fetchOffers(index: currentCategoryIndex);
       });
+    } else if (_lastFetchedCategoryIndex != currentCategoryIndex) {
+      _lastFetchedCategoryIndex = currentCategoryIndex;
     }
+
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
     final itemHeight = isPartner

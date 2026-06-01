@@ -14,6 +14,7 @@ class OfferModel {
   final String? description;
   final List<String>? images;
   final CategoryModel? category;
+  final String? subcategory;
   final String? offerTypeCode;
   final Map<String, dynamic>? offerMetadata;
   final String? discountType;
@@ -46,6 +47,7 @@ class OfferModel {
     this.description,
     this.images,
     this.category,
+    this.subcategory,
     this.offerTypeCode,
     this.offerMetadata,
     this.discountType,
@@ -86,6 +88,7 @@ class OfferModel {
         json['category'],
         CategoryModel.fromJson,
       ),
+      subcategory: json['subcategory'] as String?,
       offerTypeCode: json['offerTypeCode'] as String?,
       offerMetadata: json['offerMetadata'] as Map<String, dynamic>?,
       discountType: json['discountType'] as String?,
@@ -145,6 +148,7 @@ class OfferModel {
       'description': description,
       'images': images,
       'category': category?.toJson(),
+      'subcategory': subcategory,
       'offerTypeCode': offerTypeCode,
       'offerMetadata': offerMetadata,
       'discountType': discountType,

@@ -70,6 +70,7 @@ class ShopGridCard extends ConsumerWidget {
                             topLeft: Radius.circular(12),
                             topRight: Radius.circular(12),
                           ),
+                          disableFade: true,
                         )
                       : Container(
                           decoration: BoxDecoration(
@@ -146,6 +147,7 @@ class ShopGridCard extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(
                                     screenSize.responsivePadding(12),
                                   ),
+                                  disableFade: true,
                                 )
                               : Icon(avatarIcon, size: 14, color: kWhite),
                         ),

@@ -37,15 +37,16 @@ class HomeData {
   });
 
   factory HomeData.fromJson(Map<String, dynamic> json) {
+    final deals = json['deals'] as Map<String, dynamic>?;
     return HomeData(
       loyaltyCard: SafeParser.parseObject(json['loyaltyCard'], LoyaltyCard.fromJson),
       premiumBanners: SafeParser.parseList(json['premiumBanners'], BannerModel.fromJson),
       categories: SafeParser.parseList(json['categories'], CategoryModel.fromJson),
       // dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
-      dealOfTheHour: SafeParser.parseList(json['dealOfTheHour'], OfferModel.fromJson),
-      dealOfTheDay: SafeParser.parseList(json['dealOfTheDay'], OfferModel.fromJson),
-      dealOfTheWeek: SafeParser.parseList(json['dealOfTheWeek'], OfferModel.fromJson),
-      dealOfTheMonth: SafeParser.parseList(json['dealOfTheMonth'], OfferModel.fromJson),
+      dealOfTheHour: SafeParser.parseList(deals?['deal_of_hour'], OfferModel.fromJson),
+      dealOfTheDay: SafeParser.parseList(deals?['deal_of_day'], OfferModel.fromJson),
+      dealOfTheWeek: SafeParser.parseList(deals?['deal_of_week'], OfferModel.fromJson),
+      dealOfTheMonth: SafeParser.parseList(deals?['deal_of_month'], OfferModel.fromJson),
       nearbyOffers: SafeParser.parseList(json['nearbyOffers'], OfferModel.fromJson),
       featuredShops: SafeParser.parseList(json['featuredShops'], ShopModel.fromJson),
       rewardsPreview: SafeParser.parseList(json['rewardsPreview'], RewardModel.fromJson),

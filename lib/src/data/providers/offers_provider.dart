@@ -314,7 +314,7 @@ class Offers extends _$Offers {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<OfferModel>> activeDeals(Ref ref, {required String dealType}) async {
   final api = ref.watch(apiProvider);
   final response = await api.get(

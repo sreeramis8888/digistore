@@ -11,6 +11,8 @@ class AdvancedNetworkImage extends StatelessWidget {
   final Widget? errorWidget;
   final IconData? errorIcon;
 
+  final bool disableFade;
+
   const AdvancedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -20,6 +22,7 @@ class AdvancedNetworkImage extends StatelessWidget {
     this.borderRadius,
     this.errorWidget,
     this.errorIcon,
+    this.disableFade = false,
   });
 
   @override
@@ -64,6 +67,9 @@ class AdvancedNetworkImage extends StatelessWidget {
                   width: width,
                   height: height,
                   fit: fit,
+                  fadeInDuration: disableFade ? Duration.zero : const Duration(milliseconds: 500),
+                  fadeOutDuration: disableFade ? Duration.zero : const Duration(milliseconds: 1000),
+                  placeholderFadeInDuration: disableFade ? Duration.zero : Duration.zero,
                   placeholder: (context, url) => _AdvancedShimmer(
                     width: fallbackW,
                     height: fallbackH,

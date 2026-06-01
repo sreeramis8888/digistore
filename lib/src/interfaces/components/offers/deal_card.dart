@@ -128,6 +128,7 @@ class DealCard extends ConsumerWidget {
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
                     ),
+                    disableFade: true,
                   ),
                 ),
                 Positioned(
@@ -224,6 +225,7 @@ class DealCard extends ConsumerWidget {
                               ? AdvancedNetworkImage(
                                   imageUrl: shopLogo!,
                                   fit: BoxFit.cover,
+                                  disableFade: true,
                                 )
                               : Icon(Icons.store, size: 12, color: kWhite),
                         ),

@@ -22,6 +22,8 @@ import '../../../data/providers/partner_provider.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/utils/map_utils.dart';
+import '../../../data/models/user_model.dart';
+import '../../../data/providers/offer_metadata_providers.dart';
 
 class CreateOfferPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? offer;
@@ -53,6 +55,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   bool _isLoading = false;
   bool _isActive = true;
 
+  String? _selectedSubcategory;
+  TierModel? _selectedTier;
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +75,17 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       final ids = branchApp['branchIds'];
       if (ids is List) {
         _selectedBranchIds = ids.map((e) => e.toString()).toList();
+      }
+    }
+
+    _selectedSubcategory = widget.offer?['subcategory'] as String?;
+
+    final requiredTierData = widget.offer?['requiredTier'];
+    if (requiredTierData != null) {
+      if (requiredTierData is Map) {
+        _selectedTier = TierModel.fromJson(Map<String, dynamic>.from(requiredTierData));
+      } else if (requiredTierData is TierModel) {
+        _selectedTier = requiredTierData;
       }
     }
 
@@ -414,6 +430,14 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         'branchIds': _selectedBranchIds,
       });
 
+      if (_selectedSubcategory != null) {
+        body['subcategory'] = _selectedSubcategory!;
+      }
+
+      if (_selectedTier != null) {
+        body['requiredTier'] = json.encode(_selectedTier!.toJson());
+      }
+
       // Category is automatically populated on the backend based on the partner's business type
 
       if (partner?.businessInfo?.storeLocation != null) {
@@ -531,6 +555,109 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 maxLines: 4,
                 isRequired: true,
               ),
+              const SizedBox(height: 20),
+              Text(
+                'Subcategory',
+                style: kSmallTitleM.copyWith(
+                  color: const Color(0xFF0A0A0A),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ref.watch(subcategoriesProvider).when(
+                    data: (list) {
+                      if (list.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 4.0),
+                          child: Text(
+                            'No subcategories found for your business type.',
+                            style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                          ),
+                        );
+                      }
+                      return AnimatedDropdown<String>(
+                        hint: 'Select Subcategory',
+                        value: _selectedSubcategory,
+                        items: list,
+                        itemLabel: (val) => val,
+                        fillColor: const Color(0xFFF5F5F5),
+                        borderRadius: 10,
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedSubcategory = val;
+                          });
+                        },
+                      );
+                    },
+                    loading: () => Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+                      ),
+                    ),
+                    error: (err, _) => Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Text(
+                        'Failed to load subcategories',
+                        style: kSmallerTitleL.copyWith(color: Colors.red),
+                      ),
+                    ),
+                  ),
+              const SizedBox(height: 20),
+              Text(
+                'Required Membership Tier',
+                style: kSmallTitleM.copyWith(
+                  color: const Color(0xFF0A0A0A),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ref.watch(membershipTiersProvider).when(
+                    data: (list) {
+                      return AnimatedDropdown<TierModel?>(
+                        hint: 'All Tiers (default)',
+                        value: _selectedTier,
+                        items: [null, ...list],
+                        itemLabel: (val) => val == null ? 'All Tiers' : (val.name ?? ''),
+                        fillColor: const Color(0xFFF5F5F5),
+                        borderRadius: 10,
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedTier = val;
+                          });
+                        },
+                      );
+                    },
+                    loading: () => Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+                      ),
+                    ),
+                    error: (err, _) => Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Text(
+                        'Failed to load membership tiers',
+                        style: kSmallerTitleL.copyWith(color: Colors.red),
+                      ),
+                    ),
+                  ),
               const SizedBox(height: 20),
 
               Text(
