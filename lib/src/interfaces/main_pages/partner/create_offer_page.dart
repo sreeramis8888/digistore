@@ -5,10 +5,11 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
+import '../../components/animated_dropdown.dart';
 import '../../../data/providers/api_provider.dart';
+import '../../../data/providers/branches.dart';
 import '../../../data/services/image_services.dart' as img_service;
 import '../../../data/services/toast_service.dart';
-import '../../components/partner/category_selection_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
@@ -34,7 +35,6 @@ class CreateOfferPage extends ConsumerStatefulWidget {
 class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
-  late TextEditingController _categoryController;
   late TextEditingController _discountValueController;
   late TextEditingController _tagsController;
   List<String> _tags = [];
@@ -44,7 +44,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _validToController;
   final List<TextEditingController> _termControllers = [];
 
-  String? _selectedCategoryId;
+  String _branchApplicabilityType = 'all';
+  List<String> _selectedBranchIds = [];
   DateTime? _validFrom;
   DateTime? _validTo;
 
@@ -55,11 +56,25 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(branchesProvider.notifier).getBranches();
+    });
+
     _titleController = TextEditingController(text: widget.offer?['title']);
     _descController = TextEditingController(text: widget.offer?['description']);
-    _categoryController = TextEditingController(
-      text: widget.offer?['category'],
-    );
+
+    final branchApp = widget.offer?['branchApplicability'];
+    if (branchApp is Map) {
+      _branchApplicabilityType = branchApp['type'] ?? 'all';
+      final ids = branchApp['branchIds'];
+      if (ids is List) {
+        _selectedBranchIds = ids.map((e) => e.toString()).toList();
+      }
+    }
+
+
+
     _discountValueController = TextEditingController(
       text: widget.offer?['discountValue']?.toString(),
     );
@@ -101,8 +116,6 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       _validToController = TextEditingController();
     }
 
-    _selectedCategoryId =
-        widget.offer?['categoryId'] ?? widget.offer?['category'];
     _isActive = widget.offer?['isActive'] ?? true;
 
     if (widget.offer?['terms'] != null) {
@@ -117,7 +130,6 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _categoryController.dispose();
     _discountValueController.dispose();
     _originalPriceController.dispose();
     _offerPriceController.dispose();
@@ -171,23 +183,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
   }
 
-  void _showCategoryPicker() {
-    FocusScope.of(context).unfocus();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => CategorySelectionBottomSheet(
-        selectedCategoryId: _selectedCategoryId,
-        onCategorySelected: (cat) {
-          setState(() {
-            _categoryController.text = cat.name ?? '';
-            _selectedCategoryId = cat.id;
-          });
-        },
-      ),
-    );
-  }
+
 
   void _addTerm() {
     setState(() {
@@ -330,14 +326,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       return;
     }
 
-    if (_categoryController.text.trim().isEmpty || _selectedCategoryId == null) {
-      ToastService().showToast(
-        context,
-        'Category is required',
-        type: ToastType.error,
-      );
-      return;
-    }
+
 
     if (_tags.isEmpty) {
       ToastService().showToast(
@@ -370,6 +359,15 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       ToastService().showToast(
         context,
         'At least one offer image is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_branchApplicabilityType == 'specific' && _selectedBranchIds.isEmpty) {
+      ToastService().showToast(
+        context,
+        'Please select at least one branch',
         type: ToastType.error,
       );
       return;
@@ -411,11 +409,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         body['tags'] = jsonEncode(_tags);
       }
 
-      if (_selectedCategoryId != null) {
-        body['category'] = _selectedCategoryId!;
-      } else {
-        body['category'] = _categoryController.text.trim();
-      }
+      body['branchApplicability'] = json.encode({
+        'type': _branchApplicabilityType,
+        'branchIds': _selectedBranchIds,
+      });
+
+      // Category is automatically populated on the backend based on the partner's business type
 
       if (partner?.businessInfo?.storeLocation != null) {
         final loc = partner!.businessInfo!.storeLocation!;
@@ -533,18 +532,87 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 isRequired: true,
               ),
               const SizedBox(height: 20),
-              GestureDetector(
-                onTap: _showCategoryPicker,
-                child: AbsorbPointer(
-                  child: PrimaryTextField(
-                    controller: _categoryController,
-                    label: 'Category',
-                    hint: 'Select offer category',
-                    suffixIcon: const Icon(Icons.keyboard_arrow_down),
-                    isRequired: true,
-                  ),
+
+              Text(
+                'Branch Applicability',
+                style: kSmallTitleM.copyWith(
+                  color: const Color(0xFF0A0A0A),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(height: 8),
+              AnimatedDropdown<String>(
+                hint: 'Select Applicability',
+                value: _branchApplicabilityType,
+                items: const ['all', 'specific'],
+                itemLabel: (val) =>
+                    val == 'all' ? 'All Branches' : 'Specific Branches',
+                fillColor: const Color(0xFFF5F5F5),
+                borderRadius: 10,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      _branchApplicabilityType = val;
+                    });
+                  }
+                },
+              ),
+              if (_branchApplicabilityType == 'specific') ...[
+                const SizedBox(height: 12),
+                if (ref.watch(branchesProvider).isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      'No branches available. Please add branches in account settings.',
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                      ),
+                    ),
+                  )
+                else ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+                    child: Text(
+                      'Select Applicable Branches:',
+                      style: kSmallTitleSB.copyWith(fontSize: 13),
+                    ),
+                  ),
+                  ...ref.watch(branchesProvider).map((branch) {
+                    final branchId = branch.id;
+                    if (branchId == null) return const SizedBox.shrink();
+                    final isChecked = _selectedBranchIds.contains(branchId);
+                    return CheckboxListTile(
+                      title: Text(
+                        branch.name ?? 'Unnamed Branch',
+                        style: kSmallTitleM.copyWith(fontSize: 14),
+                      ),
+                      subtitle: branch.address != null
+                          ? Text(
+                              branch.address!,
+                              style: kSmallerTitleL.copyWith(
+                                color: kSecondaryTextColor,
+                              ),
+                            )
+                          : null,
+                      value: isChecked,
+                      activeColor: kPrimaryColor,
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            if (!_selectedBranchIds.contains(branchId)) {
+                              _selectedBranchIds.add(branchId);
+                            }
+                          } else {
+                            _selectedBranchIds.remove(branchId);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ],
+              ],
               const SizedBox(height: 20),
               Row(
                 children: [

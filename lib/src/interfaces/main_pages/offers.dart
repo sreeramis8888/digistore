@@ -8,8 +8,8 @@ import '../../data/models/offer_model.dart';
 import '../../data/providers/category_provider.dart';
 import '../../data/providers/offers_provider.dart';
 import '../../data/providers/screen_size_provider.dart';
+import '../../data/providers/user_type_provider.dart';
 import '../../data/router/nav_router.dart';
-import '../../data/utils/global_variables.dart';
 import '../animations/index.dart';
 import '../components/empty_state.dart';
 import '../components/offers/deal_card.dart';
@@ -73,6 +73,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final currentCategoryIndex = ref.watch(selectedOffersCategoryProvider);
     final offersState = ref.watch(offersProvider);
     final screenSize = ref.watch(screenSizeProvider);
+    final isPartner = ref.watch(userTypeProvider) == UserType.partner;
 
     ref.listen<int>(selectedOffersCategoryProvider, (previous, next) {
       if (previous != next) {
@@ -92,7 +93,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     }
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
-    final itemHeight = screenSize.responsivePadding(230);
+    final itemHeight = isPartner
+        ? screenSize.responsivePadding(190)
+        : screenSize.responsivePadding(230);
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
@@ -106,7 +109,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
-          if (GlobalVariables.isPartner)
+          if (isPartner)
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.responsivePadding(16),
@@ -133,7 +136,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       body: SafeArea(
         child: Column(
           children: [
-            if (!GlobalVariables.isPartner) const OffersFilterChips(),
+            if (!isPartner) const OffersFilterChips(),
             SizedBox(height: screenSize.responsivePadding(16)),
             Padding(
               padding: EdgeInsets.symmetric(
@@ -185,6 +188,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 offersState: offersState,
                 aspectRatio: aspectRatio,
                 screenSize: screenSize,
+                isPartner: isPartner,
               ),
             ),
           ],
@@ -198,13 +202,15 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     required PaginatedOffers offersState,
     required double aspectRatio,
     required ScreenSizeData screenSize,
+    required bool isPartner,
   }) {
     // Partner view — simple grid, no split
-    if (GlobalVariables.isPartner) {
+    if (isPartner) {
       if (offersState.isLoading && offersState.offers.isEmpty) {
         return _shimmerGrid(
           screenSize,
           aspectRatio,
+          isPartner: isPartner,
           key: const ValueKey('partner_shimmer'),
         );
       }
@@ -268,7 +274,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                  (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                  (_, i) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
                   childCount: 4,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -342,7 +348,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                  (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                  (_, i) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
                   childCount: 4,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -410,6 +416,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
   Widget _shimmerGrid(
     ScreenSizeData screenSize,
     double aspectRatio, {
+    required bool isPartner,
     Key? key,
   }) {
     return GridView.builder(
@@ -424,7 +431,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         childAspectRatio: aspectRatio,
       ),
       itemCount: 6,
-      itemBuilder: (_, __) => CardShimmers.dealCardShimmer(screenSize),
+      itemBuilder: (_, __) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
     );
   }
 

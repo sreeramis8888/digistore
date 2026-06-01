@@ -54,7 +54,7 @@ class CardShimmers {
     );
   }
 
-  static Widget dealCardShimmer(ScreenSizeData screenSize) {
+  static Widget dealCardShimmer(ScreenSizeData screenSize, {bool hideShopName = false}) {
     return Container(
       decoration: BoxDecoration(
         color: kWhite,
@@ -77,14 +77,16 @@ class CardShimmers {
                 _shimmerRect(double.infinity, 16, radius: 4),
                 SizedBox(height: screenSize.responsivePadding(8)),
                 _shimmerRect(screenSize.width * 0.3, 12, radius: 4),
-                SizedBox(height: screenSize.responsivePadding(12)),
-                Row(
-                  children: [
-                    _shimmerCircle(screenSize.responsivePadding(20)),
-                    SizedBox(width: screenSize.responsivePadding(8)),
-                    _shimmerRect(screenSize.width * 0.2, 10, radius: 4),
-                  ],
-                ),
+                if (!hideShopName) ...[
+                  SizedBox(height: screenSize.responsivePadding(12)),
+                  Row(
+                    children: [
+                      _shimmerCircle(screenSize.responsivePadding(20)),
+                      SizedBox(width: screenSize.responsivePadding(8)),
+                      _shimmerRect(screenSize.width * 0.2, 10, radius: 4),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

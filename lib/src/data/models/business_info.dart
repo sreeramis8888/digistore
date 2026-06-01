@@ -227,6 +227,7 @@ class BusinessFAQ {
 }
 
 class BusinessBranch {
+  final String? id;
   final String? name;
   final String? address;
   final String? phone;
@@ -236,6 +237,7 @@ class BusinessBranch {
   final String? branchType;
 
   const BusinessBranch({
+    this.id,
     this.name,
     this.address,
     this.phone,
@@ -269,6 +271,7 @@ class BusinessBranch {
     }
 
     return BusinessBranch(
+      id: (json['_id'] ?? json['id']) as String?,
       name: (json['name'] ?? json['branchName']) as String?,
       address: (json['address'] ?? (json['location'] is Map ? json['location']['address'] : null)) as String?,
       phone: phoneVal,
@@ -284,6 +287,7 @@ class BusinessBranch {
 
   Map<String, dynamic> toJson() {
     return {
+      '_id': id,
       'name': name,
       'address': address,
       'phone': phone,

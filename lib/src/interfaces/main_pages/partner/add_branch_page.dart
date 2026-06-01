@@ -204,6 +204,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
                             items: _branchTypes,
                             itemLabel: (opt) => opt['label'] ?? '',
                             borderRadius: 10,
+                            fillColor: const Color(0xFFF5F5F5),
                             onChanged: (opt) {
                               setState(() {
                                 _branchType = opt?['value'];

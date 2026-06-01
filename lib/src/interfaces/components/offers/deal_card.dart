@@ -1,6 +1,7 @@
 import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:setgo/src/data/constants/style_constants.dart';
 import 'package:setgo/src/data/providers/screen_size_provider.dart';
+import 'package:setgo/src/data/providers/user_type_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
@@ -77,6 +78,7 @@ class DealCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final isPartner = ref.watch(userTypeProvider) == UserType.partner;
 
     return InteractiveFeedbackButton(
       onPressed: () {
@@ -94,7 +96,7 @@ class DealCard extends ConsumerWidget {
                 'validTo': validTo?.toIso8601String(),
               },
         );
-        if (hideShopName) {
+        if (hideShopName || isPartner) {
           args['hideShopInfo'] = true;
         }
         Navigator.of(context).pushNamed(
@@ -206,7 +208,7 @@ class DealCard extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  if (!hideShopName) ...[
+                  if (!hideShopName && !isPartner) ...[
                     SizedBox(height: screenSize.responsivePadding(12)),
                     Row(
                       children: [

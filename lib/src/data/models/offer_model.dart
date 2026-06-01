@@ -5,6 +5,7 @@ import 'redemption_rules.dart';
 import 'coverage_areas.dart';
 import 'premium_placement.dart';
 import 'location_point.dart';
+import 'user_model.dart';
 
 class OfferModel {
   final String? id;
@@ -31,11 +32,12 @@ class OfferModel {
   final int? views;
   final bool? isActive;
   final bool? isDealOfDay;
-  final String? requiredTier;
+  final TierModel? requiredTier;
   final List<String>? tags;
   final LocationPoint? location;
   final int? shareCount;
   final DateTime? createdAt;
+  final BranchApplicability? branchApplicability;
 
   const OfferModel({
     this.id,
@@ -67,6 +69,7 @@ class OfferModel {
     this.location,
     this.shareCount,
     this.createdAt,
+    this.branchApplicability,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
@@ -114,7 +117,10 @@ class OfferModel {
       views: json['views'] as int?,
       isActive: json['isActive'] as bool?,
       isDealOfDay: json['isDealOfDay'] as bool?,
-      requiredTier: json['requiredTier'] as String?,
+      requiredTier: SafeParser.parseObject(
+        json['requiredTier'],
+        TierModel.fromJson,
+      ),
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       location: SafeParser.parseObject(
         json['location'],
@@ -124,6 +130,10 @@ class OfferModel {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])?.toLocal()
           : null,
+      branchApplicability: SafeParser.parseObject(
+        json['branchApplicability'],
+        BranchApplicability.fromJson,
+      ),
     );
   }
 
@@ -153,11 +163,33 @@ class OfferModel {
       'views': views,
       'isActive': isActive,
       'isDealOfDay': isDealOfDay,
-      'requiredTier': requiredTier,
+      'requiredTier': requiredTier?.toJson(),
       'tags': tags,
       'location': location?.toJson(),
       'shareCount': shareCount,
       'createdAt': createdAt?.toIso8601String(),
+      'branchApplicability': branchApplicability?.toJson(),
+    };
+  }
+}
+
+class BranchApplicability {
+  final String? type;
+  final List<String>? branchIds;
+
+  const BranchApplicability({this.type, this.branchIds});
+
+  factory BranchApplicability.fromJson(Map<String, dynamic> json) {
+    return BranchApplicability(
+      type: json['type'] as String?,
+      branchIds: json['branchIds'] != null ? List<String>.from(json['branchIds']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'branchIds': branchIds,
     };
   }
 }

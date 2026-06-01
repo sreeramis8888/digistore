@@ -12,6 +12,9 @@ class AnimatedDropdown<T> extends StatefulWidget {
   final double height;
   final double maxMenuHeight;
 
+  final Color? borderColor;
+  final Color? fillColor;
+
   const AnimatedDropdown({
     super.key,
     required this.hint,
@@ -24,9 +27,8 @@ class AnimatedDropdown<T> extends StatefulWidget {
     this.height = 52,
     this.maxMenuHeight = 240,
     this.borderColor,
+    this.fillColor,
   });
-
-  final Color? borderColor;
 
   @override
   State<AnimatedDropdown<T>> createState() => _AnimatedDropdownState<T>();
@@ -240,9 +242,11 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
           height: widget.height,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: widget.fillColor ?? Colors.white,
             borderRadius: BorderRadius.circular(widget.borderRadius),
-            border: Border.all(color: widget.borderColor ?? Colors.grey.shade300),
+            border: widget.fillColor != null && widget.borderColor == null
+                ? null
+                : Border.all(color: widget.borderColor ?? Colors.grey.shade300),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

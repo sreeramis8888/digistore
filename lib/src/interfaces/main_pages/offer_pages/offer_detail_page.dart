@@ -10,7 +10,6 @@ import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/date_formatter.dart';
 
 import '../../../data/providers/offers_provider.dart';
-import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../components/confirmation_dialog.dart';
@@ -302,7 +301,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!(widget.args['hideShopInfo'] ?? false)) ...[
+                  if (!(widget.args['hideShopInfo'] ?? false) && !isPartner) ...[
                     InkWell(
                       onTap: partnerId.isNotEmpty
                           ? () => _navigateToShop(context, partnerId)
