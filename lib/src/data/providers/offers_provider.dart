@@ -59,8 +59,8 @@ class PaginatedOffers {
     int? totalPages,
     int? totalCount,
     bool? isLoading,
-    String? error,
-    String? currentCategoryId,
+    String? Function()? error,
+    String? Function()? currentCategoryId,
     List<OfferModel>? exploreOffers,
     int? explorePage,
     int? exploreTotalPages,
@@ -73,8 +73,8 @@ class PaginatedOffers {
       totalPages: totalPages ?? this.totalPages,
       totalCount: totalCount ?? this.totalCount,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-      currentCategoryId: currentCategoryId ?? this.currentCategoryId,
+      error: error != null ? error() : this.error,
+      currentCategoryId: currentCategoryId != null ? currentCategoryId() : this.currentCategoryId,
       exploreOffers: exploreOffers ?? this.exploreOffers,
       explorePage: explorePage ?? this.explorePage,
       exploreTotalPages: exploreTotalPages ?? this.exploreTotalPages,
@@ -84,7 +84,7 @@ class PaginatedOffers {
   }
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class Offers extends _$Offers {
   @override
   PaginatedOffers build() {
@@ -105,13 +105,13 @@ class Offers extends _$Offers {
       final isCategoryChange = categoryId != state.currentCategoryId;
       state = state.copyWith(
         isLoading: true,
-        error: null,
+        error: () => null,
         searchQuery: currentSearch,
         offers: isCategoryChange ? [] : state.offers,
         exploreOffers: isCategoryChange ? [] : state.exploreOffers,
         currentCategoryId: isCategoryChange
-            ? categoryId
-            : state.currentCategoryId,
+            ? () => categoryId
+            : () => state.currentCategoryId,
       );
     }
 
@@ -162,14 +162,16 @@ class Offers extends _$Offers {
           totalPages: pagination['pages'] as int? ?? 1,
           totalCount: pagination['total'] as int? ?? 0,
           isLoading: false,
-          currentCategoryId: categoryId,
+          error: () => null,
+          currentCategoryId: () => categoryId,
         );
+        log('fetchOffers success: newOffers.length=${newOffers.length}, currentCategoryId=$categoryId');
       } else {
-        state = state.copyWith(isLoading: false, error: response.message);
+        state = state.copyWith(isLoading: false, error: () => response.message);
       }
     } catch (e, stack) {
       log('Error fetching offers: $e', stackTrace: stack);
-      state = state.copyWith(isLoading: false, error: 'Parsing error: $e');
+      state = state.copyWith(isLoading: false, error: () => 'Parsing error: $e');
     }
 
     if (isRefresh && currentUserType == UserType.customer) {

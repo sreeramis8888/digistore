@@ -19,7 +19,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
         argument: null,
         retry: null,
         name: r'offersProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -40,7 +40,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
   }
 }
 
-String _$offersHash() => r'85b047ceb27b693367a72f961836a1ce379856f9';
+String _$offersHash() => r'f4f58226ba3cdd660551a5dadf021341cf663de3';
 
 abstract class _$Offers extends $Notifier<PaginatedOffers> {
   PaginatedOffers build();
