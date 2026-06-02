@@ -18,7 +18,7 @@ class HomeData {
   final List<OfferModel>? dealOfTheMonth;
   final List<OfferModel>? nearbyOffers;
   final List<ShopModel>? featuredShops;
-  final List<RewardModel>? rewardsPreview;
+  final List<RewardModel>? popularRewards;
   final List<OfferModel>? upcomingDeals;
 
   const HomeData({
@@ -32,7 +32,7 @@ class HomeData {
     this.dealOfTheMonth,
     this.nearbyOffers,
     this.featuredShops,
-    this.rewardsPreview,
+    this.popularRewards,
     this.upcomingDeals,
   });
 
@@ -51,7 +51,7 @@ class HomeData {
       dealOfTheMonth: SafeParser.parseList(deals?['deal_of_month'], OfferModel.fromJson),
       nearbyOffers: SafeParser.parseList(json['nearbyOffers'], OfferModel.fromJson),
       featuredShops: SafeParser.parseList(json['featuredShops'], ShopModel.fromJson),
-      rewardsPreview: SafeParser.parseList(json['rewardsPreview'], RewardModel.fromJson),
+      popularRewards: SafeParser.parseList(json['popularRewards'], RewardModel.fromJson),
       upcomingDeals: SafeParser.parseList(json['upcomingDeals'], OfferModel.fromJson),
     );
   }
