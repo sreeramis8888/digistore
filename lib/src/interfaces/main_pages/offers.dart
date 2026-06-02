@@ -12,6 +12,7 @@ import '../../data/providers/user_type_provider.dart';
 import '../../data/router/nav_router.dart';
 import '../animations/index.dart';
 import '../components/empty_state.dart';
+import '../components/loading_indicator.dart';
 import '../components/offers/deal_card.dart';
 import '../components/offers/offers_filter_chips.dart';
 import '../components/primary_button.dart';
@@ -28,16 +29,48 @@ class OffersPage extends ConsumerStatefulWidget {
 class _OffersPageState extends ConsumerState<OffersPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
   int? _lastFetchedCategoryIndex;
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final offersState = ref.read(offersProvider);
+      final isPartner = ref.read(userTypeProvider) == UserType.partner;
+
+      if (isPartner) {
+        if (!offersState.isLoading && offersState.hasMore) {
+          ref.read(offersProvider.notifier).fetchOffers(
+            categoryId: offersState.currentCategoryId,
+            isRefresh: false,
+          );
+        }
+      } else {
+        if (!offersState.isLoading && offersState.hasMore) {
+          ref.read(offersProvider.notifier).fetchOffers(
+            categoryId: offersState.currentCategoryId,
+            isRefresh: false,
+          );
+        } else if (!offersState.isExploreLoading && offersState.exploreHasMore) {
+          ref.read(offersProvider.notifier).fetchExploreOffers(
+            categoryId: offersState.currentCategoryId,
+            isRefresh: false,
+          );
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
     _debounce?.cancel();
@@ -236,6 +269,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
             await ref.read(offersProvider.notifier).fetchOffers();
           },
           child: CustomScrollView(
+            controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverFillRemaining(
@@ -257,7 +291,41 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         onRefresh: () async {
           await ref.read(offersProvider.notifier).fetchOffers();
         },
-        child: _offersGrid(offersState.offers, aspectRatio, screenSize),
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate((_, index) {
+                  final o = offersState.offers[index];
+                  return DealCard.fromOffer(o);
+                }, childCount: offersState.offers.length),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            ),
+            if (offersState.isFetchingMore)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: screenSize.responsivePadding(24.0)),
+                  child: Center(
+                    child: LoadingAnimation(size: screenSize.responsivePadding(30)),
+                  ),
+                ),
+              ),
+            SliverToBoxAdapter(
+              child: SizedBox(height: screenSize.responsivePadding(24.0)),
+            ),
+          ],
+        ),
       );
     }
 
@@ -276,6 +344,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
             .fetchOffers(categoryId: offersState.currentCategoryId);
       },
       child: CustomScrollView(
+        controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
@@ -407,6 +476,15 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           SliverToBoxAdapter(
             child: SizedBox(height: screenSize.responsivePadding(24.0)),
           ),
+          if (offersState.isFetchingMore || offersState.isExploreFetchingMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: screenSize.responsivePadding(24.0)),
+                child: Center(
+                  child: LoadingAnimation(size: screenSize.responsivePadding(30)),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -435,6 +513,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
   }) {
     return GridView.builder(
       key: key,
+      controller: _scrollController,
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16.0),
       ),
@@ -455,6 +534,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     ScreenSizeData screenSize,
   ) {
     return GridView.builder(
+      controller: _scrollController,
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16.0),
       ),

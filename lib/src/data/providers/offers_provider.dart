@@ -13,7 +13,9 @@ class PaginatedOffers {
   final int page;
   final int totalPages;
   final int totalCount;
+  final bool hasMore;
   final bool isLoading;
+  final bool isFetchingMore;
   final String? error;
   final String? currentCategoryId;
 
@@ -21,7 +23,9 @@ class PaginatedOffers {
   final List<OfferModel> exploreOffers;
   final int explorePage;
   final int exploreTotalPages;
+  final bool exploreHasMore;
   final bool isExploreLoading;
+  final bool isExploreFetchingMore;
   final String searchQuery;
 
   const PaginatedOffers({
@@ -29,13 +33,17 @@ class PaginatedOffers {
     required this.page,
     required this.totalPages,
     required this.totalCount,
+    this.hasMore = false,
     this.isLoading = false,
+    this.isFetchingMore = false,
     this.error,
     this.currentCategoryId,
     this.exploreOffers = const [],
     this.explorePage = 1,
     this.exploreTotalPages = 0,
+    this.exploreHasMore = false,
     this.isExploreLoading = false,
+    this.isExploreFetchingMore = false,
     this.searchQuery = '',
   });
 
@@ -44,13 +52,17 @@ class PaginatedOffers {
       page = 1,
       totalPages = 0,
       totalCount = 0,
+      hasMore = false,
       isLoading = false,
+      isFetchingMore = false,
       error = null,
       currentCategoryId = null,
       exploreOffers = const [],
       explorePage = 1,
       exploreTotalPages = 0,
+      exploreHasMore = false,
       isExploreLoading = false,
+      isExploreFetchingMore = false,
       searchQuery = '';
 
   PaginatedOffers copyWith({
@@ -58,13 +70,17 @@ class PaginatedOffers {
     int? page,
     int? totalPages,
     int? totalCount,
+    bool? hasMore,
     bool? isLoading,
+    bool? isFetchingMore,
     String? Function()? error,
     String? Function()? currentCategoryId,
     List<OfferModel>? exploreOffers,
     int? explorePage,
     int? exploreTotalPages,
+    bool? exploreHasMore,
     bool? isExploreLoading,
+    bool? isExploreFetchingMore,
     String? searchQuery,
   }) {
     return PaginatedOffers(
@@ -72,13 +88,17 @@ class PaginatedOffers {
       page: page ?? this.page,
       totalPages: totalPages ?? this.totalPages,
       totalCount: totalCount ?? this.totalCount,
+      hasMore: hasMore ?? this.hasMore,
       isLoading: isLoading ?? this.isLoading,
+      isFetchingMore: isFetchingMore ?? this.isFetchingMore,
       error: error != null ? error() : this.error,
       currentCategoryId: currentCategoryId != null ? currentCategoryId() : this.currentCategoryId,
       exploreOffers: exploreOffers ?? this.exploreOffers,
       explorePage: explorePage ?? this.explorePage,
       exploreTotalPages: exploreTotalPages ?? this.exploreTotalPages,
+      exploreHasMore: exploreHasMore ?? this.exploreHasMore,
       isExploreLoading: isExploreLoading ?? this.isExploreLoading,
+      isExploreFetchingMore: isExploreFetchingMore ?? this.isExploreFetchingMore,
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -113,6 +133,9 @@ class Offers extends _$Offers {
             ? () => categoryId
             : () => state.currentCategoryId,
       );
+    } else {
+      if (state.isFetchingMore) return;
+      state = state.copyWith(isFetchingMore: true, error: () => null);
     }
 
     try {
@@ -156,34 +179,44 @@ class Offers extends _$Offers {
             .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
+        final isHasMore = pagination['hasMore'] as bool? ?? ((pagination['page'] as int? ?? 1) < (pagination['pages'] as int? ?? 1));
+
         state = state.copyWith(
           offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
           page: pagination['page'] as int? ?? 1,
           totalPages: pagination['pages'] as int? ?? 1,
           totalCount: pagination['total'] as int? ?? 0,
+          hasMore: isHasMore,
           isLoading: false,
+          isFetchingMore: false,
           error: () => null,
           currentCategoryId: () => categoryId,
         );
         log('fetchOffers success: newOffers.length=${newOffers.length}, currentCategoryId=$categoryId');
       } else {
-        state = state.copyWith(isLoading: false, error: () => response.message);
+        state = state.copyWith(isLoading: false, isFetchingMore: false, error: () => response.message);
       }
     } catch (e, stack) {
       log('Error fetching offers: $e', stackTrace: stack);
-      state = state.copyWith(isLoading: false, error: () => 'Parsing error: $e');
+      state = state.copyWith(isLoading: false, isFetchingMore: false, error: () => 'Parsing error: $e');
     }
 
     if (isRefresh && currentUserType == UserType.customer) {
-      _fetchExploreOffers(categoryId: categoryId);
+      fetchExploreOffers(categoryId: categoryId);
     }
   }
 
-  Future<void> _fetchExploreOffers({
+  Future<void> fetchExploreOffers({
     String? categoryId,
     bool isRefresh = true,
   }) async {
-    state = state.copyWith(isExploreLoading: true);
+    if (isRefresh) {
+      if (state.isExploreLoading) return;
+      state = state.copyWith(isExploreLoading: true);
+    } else {
+      if (state.isExploreFetchingMore) return;
+      state = state.copyWith(isExploreFetchingMore: true);
+    }
 
     try {
       final api = ref.read(apiProvider);
@@ -222,20 +255,24 @@ class Offers extends _$Offers {
             .where((o) => !nearbyIds.contains(o.id))
             .toList();
 
+        final isExploreHasMore = pagination['hasMore'] as bool? ?? ((pagination['page'] as int? ?? 1) < (pagination['pages'] as int? ?? 1));
+
         state = state.copyWith(
           exploreOffers: isRefresh
               ? filteredOffers
               : [...state.exploreOffers, ...filteredOffers],
           explorePage: pagination['page'] as int? ?? 1,
           exploreTotalPages: pagination['pages'] as int? ?? 1,
+          exploreHasMore: isExploreHasMore,
           isExploreLoading: false,
+          isExploreFetchingMore: false,
         );
       } else {
-        state = state.copyWith(isExploreLoading: false);
+        state = state.copyWith(isExploreLoading: false, isExploreFetchingMore: false);
       }
     } catch (e, stack) {
       log('Error fetching explore offers: $e', stackTrace: stack);
-      state = state.copyWith(isExploreLoading: false);
+      state = state.copyWith(isExploreLoading: false, isExploreFetchingMore: false);
     }
   }
 
