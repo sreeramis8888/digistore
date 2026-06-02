@@ -253,7 +253,10 @@ class _HomePageState extends ConsumerState<HomePage> {
         //   SizedBox(height: screenSize.responsivePadding(16)),
         // ],
         if (data.premiumBanners != null && data.premiumBanners!.isNotEmpty) ...[
-          BannerSection(banners: data.premiumBanners),
+          BannerSection(
+            key: const ValueKey('home_banner_section'),
+            banners: data.premiumBanners,
+          ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
         if (dealOfTheMonth != null && dealOfTheMonth.isNotEmpty) ...[

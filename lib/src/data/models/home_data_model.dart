@@ -40,7 +40,9 @@ class HomeData {
     final deals = json['deals'] as Map<String, dynamic>?;
     return HomeData(
       loyaltyCard: SafeParser.parseObject(json['loyaltyCard'], LoyaltyCard.fromJson),
-      premiumBanners: SafeParser.parseList(json['premiumBanners'], BannerModel.fromJson),
+      premiumBanners: SafeParser.parseList(
+          (json['banners'] as Map<String, dynamic>?)?['all'],
+          BannerModel.fromJson),
       categories: SafeParser.parseList(json['categories'], CategoryModel.fromJson),
       // dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
       dealOfTheHour: SafeParser.parseList(deals?['deal_of_hour'], OfferModel.fromJson),

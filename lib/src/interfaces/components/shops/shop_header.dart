@@ -160,7 +160,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
               child: Text(
                 widget.shopName,
                 style: kBodyTitleM.copyWith(fontSize: 24),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
