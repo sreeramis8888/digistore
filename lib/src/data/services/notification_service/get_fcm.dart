@@ -82,7 +82,19 @@ Future<void> _setupFCM(BuildContext context, WidgetRef ref) async {
 
     if (Platform.isIOS) {
       String? apnsToken = await messaging.getAPNSToken();
+      if (apnsToken == null) {
+        int retries = 0;
+        while (apnsToken == null && retries < 10) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          apnsToken = await messaging.getAPNSToken();
+          retries++;
+        }
+      }
       print("APNs Token: $apnsToken");
+      if (apnsToken == null) {
+        print("APNs token still null after retries. Skipping FCM token fetch.");
+        return;
+      }
     }
 
     String? token = await messaging.getToken();

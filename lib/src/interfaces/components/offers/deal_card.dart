@@ -50,12 +50,34 @@ class DealCard extends ConsumerWidget {
     EdgeInsetsGeometry? margin,
     bool hideShopName = false,
   }) {
-    final discountValue = offer.discountValue?.toInt() ?? 0;
-    final badgeText = discountValue == 0
-        ? null
-        : offer.discountType == 'percentage'
-            ? '$discountValue%\nOFF'
-            : '₹$discountValue\nOFF';
+    const offerTypeLabels = {
+      "DO": "Discount Offer",
+      "BG": "Buy 1 Get...",
+      "DNP": "Discount on Next Purchase",
+      "CO": "Combo Offer",
+      "RC": "Redeemable Coupons",
+      "LD": "Lucky Draw",
+      "CP": "Combo Purchase",
+      "LO": "Loyalty Offer",
+      "LTO": "Limited Time Offer",
+      "CS": "Clearance Sale",
+    };
+
+    final code = offer.offerTypeCode?.toUpperCase();
+    String? badgeText;
+
+    if (code == "BG") {
+      final metadata = offer.offerMetadata;
+      final buyQty = metadata?['buyQuantity'];
+      final getDesc = metadata?['getDescription'];
+      if (buyQty != null && getDesc != null) {
+        badgeText = "Buy $buyQty Get $getDesc";
+      } else {
+        badgeText = offerTypeLabels["BG"];
+      }
+    } else {
+      badgeText = offerTypeLabels[code];
+    }
 
     return DealCard(
       id: offer.id,

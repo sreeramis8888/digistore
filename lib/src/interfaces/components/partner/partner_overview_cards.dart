@@ -29,7 +29,7 @@ class PartnerOverviewCards extends StatelessWidget {
         ),
         SizedBox(width: screenSize.responsivePadding(12)),
         _overviewCard(
-          "Your\nCommission",
+          "Setgo\nCommission",
           "₹${_formatValue(commissionAmount ?? 0)}",
           "assets/svg/your_commission.svg",
         ),

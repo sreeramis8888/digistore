@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -180,6 +181,22 @@ class NotificationService {
 
   Future<String?> getToken() async {
     try {
+      if (Platform.isIOS) {
+        final messaging = FirebaseMessaging.instance;
+        String? apnsToken = await messaging.getAPNSToken();
+        if (apnsToken == null) {
+          int retries = 0;
+          while (apnsToken == null && retries < 10) {
+            await Future.delayed(const Duration(milliseconds: 500));
+            apnsToken = await messaging.getAPNSToken();
+            retries++;
+          }
+        }
+        if (apnsToken == null) {
+          debugPrint('APNs token is null, skipping FCM token fetch on iOS');
+          return null;
+        }
+      }
       return await FirebaseMessaging.instance.getToken();
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
