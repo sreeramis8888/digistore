@@ -147,13 +147,13 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
         userLng != null &&
         shopCoords != null &&
         shopCoords.length >= 2) {
-      final straightLineDistance = LocationUtils.calculateDistance(
+      final initialDistance = shop.distance ?? LocationUtils.calculateDistance(
         userLat,
         userLng,
         shopCoords[1],
         shopCoords[0],
       );
-      distance = '${straightLineDistance.toStringAsFixed(1)} km';
+      distance = '${initialDistance.toStringAsFixed(1)} km';
 
       LocationUtils.calculateRoadDistance(
         fromLat: userLat,
@@ -167,6 +167,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
           });
         }
       });
+    } else if (shop.distance != null) {
+      distance = '${shop.distance!.toStringAsFixed(1)} km';
     }
 
     return ShopGridCard(

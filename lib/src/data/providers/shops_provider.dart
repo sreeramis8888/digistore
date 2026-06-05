@@ -179,10 +179,19 @@ class AllShops extends _$AllShops {
     }
 
     final api = ref.read(apiProvider);
+    final user = ref.read(userProvider);
+    final lat = user?.location?.coordinates?.lat;
+    final lng = user?.location?.coordinates?.lng;
+
     final queryParams = {
       'page': page.toString(),
       'limit': '20',
     };
+
+    if (lat != null && lng != null) {
+      queryParams['lat'] = lat.toString();
+      queryParams['lng'] = lng.toString();
+    }
 
     if (currentCategory != null && currentCategory != 'All' && currentCategory.isNotEmpty) {
       queryParams['category'] = currentCategory;

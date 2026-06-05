@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -110,6 +111,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _playAnimations() async {
+    final notifService = ref.read(notificationServiceProvider);
+    final token = await notifService.getToken();
+    log('FCM Token: $token');
     await _entranceController.forward();
     await Future.delayed(const Duration(milliseconds: 100));
     await _sloganController.forward();
@@ -120,27 +124,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Future<void> _navigateToOnboarding() async {
     final storage = ref.read(secureStorageServiceProvider);
     final isPartner = await storage.getIsPartner();
-    
+
     // Set the user type which also updates GlobalVariables and persists it
-    ref.read(userTypeProvider.notifier).setUserType(isPartner ? UserType.partner : UserType.customer);
+    ref
+        .read(userTypeProvider.notifier)
+        .setUserType(isPartner ? UserType.partner : UserType.customer);
 
     final hasToken = await storage.hasBearerToken();
-    
+
     if (!mounted) return;
 
     if (hasToken) {
       while (true) {
         final userType = ref.read(userTypeProvider);
         final int? statusCode;
-        
+
         if (userType == UserType.partner) {
-          statusCode = await ref.read(partnerProvider.notifier).getPartnerProfile();
+          statusCode = await ref
+              .read(partnerProvider.notifier)
+              .getPartnerProfile();
         } else {
           statusCode = await ref.read(userProvider.notifier).getProfile();
         }
-        
+
         if (!mounted) return;
-        
+
         if (statusCode == 200) {
           final bool isComplete;
           if (userType == UserType.partner) {
@@ -149,9 +157,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             final user = ref.watch(userProvider);
             isComplete = user?.onboardingComplete ?? false;
           }
-          
+
           await storage.saveOnboardingComplete(isComplete);
-          
+
           if (isComplete) {
             Navigator.of(context).pushReplacementNamed('navbar');
           } else {

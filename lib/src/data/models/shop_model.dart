@@ -13,6 +13,7 @@ class ShopModel {
   final bool? isFeatured;
   final List<String>? tags;
   final bool? isOpenNow;
+  final double? distance;
 
   const ShopModel({
     this.id,
@@ -23,6 +24,7 @@ class ShopModel {
     this.isFeatured,
     this.tags,
     this.isOpenNow,
+    this.distance,
   });
 
   factory ShopModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class ShopModel {
       isFeatured: json['isFeatured'] as bool?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isOpenNow: json['isOpenNow'] as bool?,
+      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
     );
   }
 }

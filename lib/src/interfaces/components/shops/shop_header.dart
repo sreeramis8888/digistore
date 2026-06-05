@@ -126,13 +126,15 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
         userLng != null &&
         shopCoords != null &&
         shopCoords.length >= 2) {
-      final d = LocationUtils.calculateDistance(
+      final initialDistance = widget.shop?.distance ?? LocationUtils.calculateDistance(
         userLat,
         userLng,
         shopCoords[1],
         shopCoords[0],
       );
-      distanceLabel = ' (${d.toStringAsFixed(1)} km)';
+      distanceLabel = ' (${initialDistance.toStringAsFixed(1)} km)';
+    } else if (widget.shop?.distance != null) {
+      distanceLabel = ' (${widget.shop!.distance!.toStringAsFixed(1)} km)';
     }
 
     return Column(
