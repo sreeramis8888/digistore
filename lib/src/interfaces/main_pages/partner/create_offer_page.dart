@@ -37,14 +37,19 @@ class CreateOfferPage extends ConsumerStatefulWidget {
 class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
-  late TextEditingController _discountValueController;
+  late TextEditingController _minDiscountController;
+  late TextEditingController _maxDiscountController;
+  late TextEditingController _bgBuyQtyController;
+  late TextEditingController _bgGetDescController;
   late TextEditingController _tagsController;
   List<String> _tags = [];
-  late TextEditingController _originalPriceController;
-  late TextEditingController _offerPriceController;
+  late TextEditingController _minPriceController;
+  late TextEditingController _maxPriceController;
   late TextEditingController _validFromController;
   late TextEditingController _validToController;
   final List<TextEditingController> _termControllers = [];
+
+  String _discountType = 'percentage';
 
   String _branchApplicabilityType = 'all';
   List<String> _selectedBranchIds = [];
@@ -57,6 +62,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
   String? _selectedSubcategory;
   TierModel? _selectedTier;
+  String? _selectedOfferTypeCode;
 
   @override
   void initState() {
@@ -79,31 +85,52 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
 
     _selectedSubcategory = widget.offer?['subcategory'] as String?;
+    _selectedOfferTypeCode = widget.offer?['offerTypeCode'] as String?;
 
     final requiredTierData = widget.offer?['requiredTier'];
     if (requiredTierData != null) {
       if (requiredTierData is Map) {
-        _selectedTier = TierModel.fromJson(Map<String, dynamic>.from(requiredTierData));
+        _selectedTier = TierModel.fromJson(
+          Map<String, dynamic>.from(requiredTierData),
+        );
       } else if (requiredTierData is TierModel) {
         _selectedTier = requiredTierData;
       }
     }
 
+    _discountType = widget.offer?['discountType'] as String? ?? 'percentage';
 
-
-    _discountValueController = TextEditingController(
-      text: widget.offer?['discountValue']?.toString(),
+    _minDiscountController = TextEditingController(
+      text: widget.offer?['discountRange']?['min']?.toString(),
     );
+    _maxDiscountController = TextEditingController(
+      text: widget.offer?['discountRange']?['max']?.toString(),
+    );
+    bool _isDiscountRange = widget.offer?['discountRange'] != null;
+
+    final meta = widget.offer?['offerMetadata'];
+    _bgBuyQtyController = TextEditingController(
+      text: meta != null && meta['buyQuantity'] != null
+          ? meta['buyQuantity'].toString()
+          : '',
+    );
+    _bgGetDescController = TextEditingController(
+      text: meta != null && meta['getDescription'] != null
+          ? meta['getDescription'].toString()
+          : '',
+    );
+
     _tagsController = TextEditingController();
     final initialTags = widget.offer?['tags'];
     if (initialTags is List) {
       _tags = initialTags.map((e) => e.toString()).toList();
     }
-    _originalPriceController = TextEditingController(
-      text: widget.offer?['originalPrice']?.toString(),
+
+    _minPriceController = TextEditingController(
+      text: widget.offer?['priceRange']?['min']?.toString(),
     );
-    _offerPriceController = TextEditingController(
-      text: widget.offer?['offerPrice']?.toString(),
+    _maxPriceController = TextEditingController(
+      text: widget.offer?['priceRange']?['max']?.toString(),
     );
 
     if (widget.offer?['validFrom'] != null) {
@@ -146,9 +173,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _discountValueController.dispose();
-    _originalPriceController.dispose();
-    _offerPriceController.dispose();
+    _minDiscountController.dispose();
+    _maxDiscountController.dispose();
+    _bgBuyQtyController.dispose();
+    _bgGetDescController.dispose();
+    _minPriceController.dispose();
+    _maxPriceController.dispose();
     _validFromController.dispose();
     _validToController.dispose();
     for (final controller in _termControllers) {
@@ -198,8 +228,6 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       }
     }
   }
-
-
 
   void _addTerm() {
     setState(() {
@@ -342,7 +370,14 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       return;
     }
 
-
+    if (_selectedOfferTypeCode == null) {
+      ToastService().showToast(
+        context,
+        'Offer type is required',
+        type: ToastType.error,
+      );
+      return;
+    }
 
     if (_tags.isEmpty) {
       ToastService().showToast(
@@ -389,6 +424,58 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       return;
     }
 
+    final minPrice = double.tryParse(_minPriceController.text.trim());
+    final maxPrice = double.tryParse(_maxPriceController.text.trim());
+    if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+      ToastService().showToast(
+        context,
+        'Minimum price cannot be greater than maximum price',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    final minDiscount = double.tryParse(_minDiscountController.text.trim());
+    final maxDiscount = double.tryParse(_maxDiscountController.text.trim());
+    if (minDiscount != null &&
+        maxDiscount != null &&
+        minDiscount > maxDiscount) {
+      ToastService().showToast(
+        context,
+        'Minimum discount cannot be greater than maximum discount',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_discountType == 'percentage') {
+      if (maxDiscount != null && maxDiscount > 100) {
+        ToastService().showToast(
+          context,
+          'Percentage discount cannot exceed 100%',
+          type: ToastType.error,
+        );
+        return;
+      }
+      if (minDiscount != null && minDiscount < 0) {
+        ToastService().showToast(
+          context,
+          'Percentage discount cannot be negative',
+          type: ToastType.error,
+        );
+        return;
+      }
+    } else {
+      if (minPrice != null && maxDiscount != null && maxDiscount > minPrice) {
+        ToastService().showToast(
+          context,
+          'Flat discount cannot exceed the minimum price',
+          type: ToastType.error,
+        );
+        return;
+      }
+    }
+
     setState(() => _isLoading = true);
     try {
       final api = ref.read(apiProvider);
@@ -410,9 +497,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'isActive': _isActive.toString(),
-        'discountValue': _discountValueController.text.trim(),
-        'originalPrice': _originalPriceController.text.trim(),
-        'offerPrice': _offerPriceController.text.trim(),
+        'discountType': _discountType,
         'terms': json.encode(
           _termControllers
               .map((c) => c.text.trim())
@@ -420,6 +505,20 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               .toList(),
         ),
       };
+
+      body['discountRange'] = json.encode({
+        if (_minDiscountController.text.trim().isNotEmpty)
+          'min': double.tryParse(_minDiscountController.text.trim()),
+        if (_maxDiscountController.text.trim().isNotEmpty)
+          'max': double.tryParse(_maxDiscountController.text.trim()),
+      });
+
+      body['priceRange'] = json.encode({
+        if (_minPriceController.text.trim().isNotEmpty)
+          'min': double.tryParse(_minPriceController.text.trim()),
+        if (_maxPriceController.text.trim().isNotEmpty)
+          'max': double.tryParse(_maxPriceController.text.trim()),
+      });
 
       if (_tags.isNotEmpty) {
         body['tags'] = jsonEncode(_tags);
@@ -432,6 +531,18 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
       if (_selectedSubcategory != null) {
         body['subcategory'] = _selectedSubcategory!;
+      }
+
+      if (_selectedOfferTypeCode != null) {
+        body['offerTypeCode'] = _selectedOfferTypeCode!;
+        if (_selectedOfferTypeCode == 'BG') {
+          body['offerMetadata'] = json.encode({
+            if (_bgBuyQtyController.text.trim().isNotEmpty)
+              'buyQuantity': int.tryParse(_bgBuyQtyController.text.trim()),
+            if (_bgGetDescController.text.trim().isNotEmpty)
+              'getDescription': _bgGetDescController.text.trim(),
+          });
+        }
       }
 
       if (_selectedTier != null) {
@@ -556,6 +667,121 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 isRequired: true,
               ),
               const SizedBox(height: 20),
+              Row(
+                children: [
+                  Text(
+                    'Offer Type',
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF0A0A0A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: offerTypeLabels.entries.map((entry) {
+                  final isSelected = _selectedOfferTypeCode == entry.key;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedOfferTypeCode = entry.key;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected ? kPrimaryColor : kWhite,
+                        border: Border.all(
+                          color: isSelected
+                              ? kPrimaryColor
+                              : const Color(0xFFE5E5E5),
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: kPrimaryColor.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: Text(
+                        entry.value,
+                        style: kSmallerTitleM.copyWith(
+                          color: isSelected ? kWhite : kSecondaryTextColor,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              if (_selectedOfferTypeCode == 'BG') ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F2FD), // Light blue bg
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBBDEFB)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Buy 1 Get... Details',
+                        style: kSmallTitleB.copyWith(
+                          color: const Color(0xFF1565C0),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: PrimaryTextField(
+                              controller: _bgBuyQtyController,
+                              label: 'Buy Quantity *',
+                              hint: 'e.g. 1',
+                              type: TextFieldType.number,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: PrimaryTextField(
+                              controller: _bgGetDescController,
+                              label: 'Get (Free Item) *',
+                              hint: 'e.g. 1 free or 50% off',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ] else ...[
+                const SizedBox(height: 20),
+              ],
               Text(
                 'Subcategory',
                 style: kSmallTitleM.copyWith(
@@ -564,14 +790,18 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              ref.watch(subcategoriesProvider).when(
+              ref
+                  .watch(subcategoriesProvider)
+                  .when(
                     data: (list) {
                       if (list.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(left: 4.0),
                           child: Text(
                             'No subcategories found for your business type.',
-                            style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                            style: kSmallerTitleL.copyWith(
+                              color: kSecondaryTextColor,
+                            ),
                           ),
                         );
                       }
@@ -600,7 +830,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       child: const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: kPrimaryColor,
+                        ),
                       ),
                     ),
                     error: (err, _) => Padding(
@@ -620,13 +853,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              ref.watch(membershipTiersProvider).when(
+              ref
+                  .watch(membershipTiersProvider)
+                  .when(
                     data: (list) {
                       return AnimatedDropdown<TierModel?>(
                         hint: 'All Tiers (default)',
                         value: _selectedTier,
                         items: [null, ...list],
-                        itemLabel: (val) => val == null ? 'All Tiers' : (val.name ?? ''),
+                        itemLabel: (val) =>
+                            val == null ? 'All Tiers' : (val.name ?? ''),
                         fillColor: const Color(0xFFF5F5F5),
                         borderRadius: 10,
                         onChanged: (val) {
@@ -647,7 +883,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       child: const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: kPrimaryColor,
+                        ),
                       ),
                     ),
                     error: (err, _) => Padding(
@@ -742,11 +981,24 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               ],
               const SizedBox(height: 20),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Price Settings',
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF0A0A0A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
                 children: [
                   Expanded(
                     child: PrimaryTextField(
-                      controller: _originalPriceController,
-                      label: 'Original Price',
+                      controller: _minPriceController,
+                      label: 'Min Price',
                       hint: '₹ 0.00',
                       type: TextFieldType.number,
                     ),
@@ -754,8 +1006,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: PrimaryTextField(
-                      controller: _offerPriceController,
-                      label: 'Offer Price',
+                      controller: _maxPriceController,
+                      label: 'Max Price',
                       hint: '₹ 0.00',
                       type: TextFieldType.number,
                     ),
@@ -763,11 +1015,115 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              PrimaryTextField(
-                controller: _discountValueController,
-                label: 'Discount Value (%)',
-                hint: 'e.g. 20',
-                type: TextFieldType.number,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Discount Settings',
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF0A0A0A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _discountType = 'percentage';
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: _discountType == 'percentage'
+                              ? kPrimaryColor
+                              : kWhite,
+                          border: Border.all(
+                            color: _discountType == 'percentage'
+                                ? kPrimaryColor
+                                : const Color(0xFFE5E5E5),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Percentage (%)',
+                          style: kSmallerTitleM.copyWith(
+                            color: _discountType == 'percentage'
+                                ? kWhite
+                                : kSecondaryTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _discountType = 'flat';
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: _discountType == 'flat'
+                              ? kPrimaryColor
+                              : kWhite,
+                          border: Border.all(
+                            color: _discountType == 'flat'
+                                ? kPrimaryColor
+                                : const Color(0xFFE5E5E5),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Flat Amount (₹)',
+                          style: kSmallerTitleM.copyWith(
+                            color: _discountType == 'flat'
+                                ? kWhite
+                                : kSecondaryTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _minDiscountController,
+                      label: 'Min Discount',
+                      hint: _discountType == 'percentage'
+                          ? 'e.g. 10'
+                          : '₹ 0.00',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _maxDiscountController,
+                      label: 'Max Discount',
+                      hint: _discountType == 'percentage'
+                          ? 'e.g. 50'
+                          : '₹ 0.00',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               Column(

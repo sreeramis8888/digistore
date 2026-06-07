@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import '../advanced_network_image.dart';
 import '../../../data/models/offer_model.dart';
+import '../../../data/providers/offers_provider.dart';
 
 class DealCard extends ConsumerWidget {
   final String? id;
@@ -50,18 +51,6 @@ class DealCard extends ConsumerWidget {
     EdgeInsetsGeometry? margin,
     bool hideShopName = false,
   }) {
-    const offerTypeLabels = {
-      "DO": "Discount Offer",
-      "BG": "Buy 1 Get...",
-      "DNP": "Discount on Next Purchase",
-      "CO": "Combo Offer",
-      "RC": "Redeemable Coupons",
-      "LD": "Lucky Draw",
-      "CP": "Combo Purchase",
-      "LO": "Loyalty Offer",
-      "LTO": "Limited Time Offer",
-      "CS": "Clearance Sale",
-    };
 
     final code = offer.offerTypeCode?.toUpperCase();
     String? badgeText;

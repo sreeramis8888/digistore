@@ -8,6 +8,19 @@ import 'auth_provider.dart';
 
 part 'offers_provider.g.dart';
 
+const Map<String, String> offerTypeLabels = {
+  "DO": "Discount Offer",
+  "BG": "Buy 1 Get...",
+  "DNP": "Discount on Next Purchase",
+  "CO": "Combo Offer",
+  "RC": "Redeemable Coupons",
+  "LD": "Lucky Draw",
+  "CP": "Combo Purchase",
+  "LO": "Loyalty Offer",
+  "LTO": "Limited Time Offer",
+  "CS": "Clearance Sale",
+};
+
 class PaginatedOffers {
   final List<OfferModel> offers;
   final int page;

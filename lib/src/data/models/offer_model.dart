@@ -19,8 +19,10 @@ class OfferModel {
   final Map<String, dynamic>? offerMetadata;
   final String? discountType;
   final double? discountValue;
+  final RangeModel? discountRange;
   final double? originalPrice;
   final double? offerPrice;
+  final RangeModel? priceRange;
   final List<String>? terms;
   final DateTime? validFrom;
   final DateTime? validTo;
@@ -52,8 +54,10 @@ class OfferModel {
     this.offerMetadata,
     this.discountType,
     this.discountValue,
+    this.discountRange,
     this.originalPrice,
     this.offerPrice,
+    this.priceRange,
     this.terms,
     this.validFrom,
     this.validTo,
@@ -93,8 +97,16 @@ class OfferModel {
       offerMetadata: json['offerMetadata'] as Map<String, dynamic>?,
       discountType: json['discountType'] as String?,
       discountValue: (json['discountValue'] as num?)?.toDouble(),
+      discountRange: SafeParser.parseObject(
+        json['discountRange'],
+        RangeModel.fromJson,
+      ),
       originalPrice: (json['originalPrice'] as num?)?.toDouble(),
       offerPrice: (json['offerPrice'] as num?)?.toDouble(),
+      priceRange: SafeParser.parseObject(
+        json['priceRange'],
+        RangeModel.fromJson,
+      ),
       terms: json['terms'] != null ? List<String>.from(json['terms']) : null,
       validFrom: json['validFrom'] != null
           ? DateTime.tryParse(json['validFrom'])?.toLocal()
@@ -153,8 +165,10 @@ class OfferModel {
       'offerMetadata': offerMetadata,
       'discountType': discountType,
       'discountValue': discountValue,
+      'discountRange': discountRange?.toJson(),
       'originalPrice': originalPrice,
       'offerPrice': offerPrice,
+      'priceRange': priceRange?.toJson(),
       'terms': terms,
       'validFrom': validFrom?.toIso8601String(),
       'validTo': validTo?.toIso8601String(),
@@ -194,6 +208,27 @@ class BranchApplicability {
     return {
       'type': type,
       'branchIds': branchIds,
+    };
+  }
+}
+
+class RangeModel {
+  final double? min;
+  final double? max;
+
+  const RangeModel({this.min, this.max});
+
+  factory RangeModel.fromJson(Map<String, dynamic> json) {
+    return RangeModel(
+      min: (json['min'] as num?)?.toDouble(),
+      max: (json['max'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (min != null) 'min': min,
+      if (max != null) 'max': max,
     };
   }
 }
