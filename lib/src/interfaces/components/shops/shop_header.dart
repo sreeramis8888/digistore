@@ -42,13 +42,24 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
   @override
   void didUpdateWidget(ShopHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedBranch != widget.selectedBranch) {
+    if (oldWidget.selectedBranch != widget.selectedBranch ||
+        oldWidget.shop != widget.shop) {
       _calculateRoadDistance();
     }
   }
 
   Future<void> _calculateRoadDistance() async {
     if (!mounted) return;
+
+    if (widget.selectedBranch == null && widget.shop?.roadDistance != null) {
+      setState(() {
+        _roadDistance = widget.shop!.roadDistance;
+        _durationMinutes = widget.shop!.roadDuration;
+        _isCalculating = false;
+      });
+      return;
+    }
+
     final user = ref.read(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
@@ -88,6 +99,17 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(userProvider, (previous, next) {
+      final prevLat = previous?.location?.coordinates?.lat;
+      final prevLng = previous?.location?.coordinates?.lng;
+      final nextLat = next?.location?.coordinates?.lat;
+      final nextLng = next?.location?.coordinates?.lng;
+      
+      if (prevLat != nextLat || prevLng != nextLng) {
+        _calculateRoadDistance();
+      }
+    });
+
     final screenSize = ref.watch(screenSizeProvider);
     final rating = widget.shop?.businessInfo?.rating ?? 0.0;
     final totalSalesRaw = widget.shop?.businessInfo?.totalReviews ?? 0;

@@ -20,7 +20,7 @@ class ShopsPage extends ConsumerStatefulWidget {
 }
 
 class _ShopsPageState extends ConsumerState<ShopsPage> {
-  final Map<String, String> _distanceCache = {};
+  final Map<String, Map<String, dynamic>> _distanceCache = {};
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -141,8 +141,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     final shopId = shop.id ?? index.toString();
     final shopCoords = shop.businessInfo?.storeLocation?.coordinates;
 
-    if (_distanceCache.containsKey(shopId)) {
-      distance = _distanceCache[shopId]!;
+    final cachedData = _distanceCache[shopId];
+    if (cachedData != null) {
+      distance = cachedData['distance'] as String;
     } else if (userLat != null &&
         userLng != null &&
         shopCoords != null &&
@@ -155,21 +156,31 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       );
       distance = '${initialDistance.toStringAsFixed(1)} km';
 
-      LocationUtils.calculateRoadDistance(
+      LocationUtils.calculateRoadDistanceAndDuration(
         fromLat: userLat,
         fromLng: userLng,
         toLat: shopCoords[1],
         toLng: shopCoords[0],
-      ).then((roadDistance) {
-        if (mounted) {
+      ).then((result) {
+        if (mounted && result != null) {
           setState(() {
-            _distanceCache[shopId] = '${roadDistance.toStringAsFixed(1)} km';
+            _distanceCache[shopId] = {
+              'distance': '${result['distance']!.toStringAsFixed(1)} km',
+              'duration': result['duration'],
+            };
           });
         }
       });
     } else if (shop.distance != null) {
       distance = '${shop.distance!.toStringAsFixed(1)} km';
     }
+
+    final passingShop = shop.copyWith(
+      roadDistance: cachedData?['distance'] != null
+          ? (cachedData!['distance'] as String).replaceAll(' km', '')
+          : null,
+      roadDuration: cachedData?['duration'] as double?,
+    );
 
     return ShopGridCard(
       category: shop.serviceCategories?.first ?? 'Other',
@@ -181,7 +192,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       avatarIcon: _getCategoryIcon(type),
       logoUrl: coverImage,
       imageUrl: coverImage,
-      shop: shop,
+      shop: passingShop,
     );
   }
 

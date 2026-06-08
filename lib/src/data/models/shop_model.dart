@@ -14,6 +14,8 @@ class ShopModel {
   final List<String>? tags;
   final bool? isOpenNow;
   final double? distance;
+  final String? roadDistance;
+  final double? roadDuration;
 
   const ShopModel({
     this.id,
@@ -25,7 +27,37 @@ class ShopModel {
     this.tags,
     this.isOpenNow,
     this.distance,
+    this.roadDistance,
+    this.roadDuration,
   });
+
+  ShopModel copyWith({
+    String? id,
+    BusinessDetails? businessDetails,
+    List<String>? serviceCategories,
+    CoverageAreas? coverageAreas,
+    BusinessInfo? businessInfo,
+    bool? isFeatured,
+    List<String>? tags,
+    bool? isOpenNow,
+    double? distance,
+    String? roadDistance,
+    double? roadDuration,
+  }) {
+    return ShopModel(
+      id: id ?? this.id,
+      businessDetails: businessDetails ?? this.businessDetails,
+      serviceCategories: serviceCategories ?? this.serviceCategories,
+      coverageAreas: coverageAreas ?? this.coverageAreas,
+      businessInfo: businessInfo ?? this.businessInfo,
+      isFeatured: isFeatured ?? this.isFeatured,
+      tags: tags ?? this.tags,
+      isOpenNow: isOpenNow ?? this.isOpenNow,
+      distance: distance ?? this.distance,
+      roadDistance: roadDistance ?? this.roadDistance,
+      roadDuration: roadDuration ?? this.roadDuration,
+    );
+  }
 
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
