@@ -198,7 +198,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     );
 
     return ShopGridCard(
-      category: shop.serviceCategories?.first ?? 'Other',
+      category: shop.serviceCategories?.isNotEmpty == true ? shop.serviceCategories!.first : 'Other',
       shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
       address: address,
       distance: distance,
