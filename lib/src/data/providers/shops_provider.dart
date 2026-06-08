@@ -54,7 +54,7 @@ class Shops extends _$Shops {
   ShopsState build() {
     ref.watch(sessionProvider);
     ref.watch(userProvider);
-    Future.microtask(() => getShops());
+    Future(() => getShops());
     return ShopsState();
   }
 
@@ -158,7 +158,7 @@ class AllShops extends _$AllShops {
   @override
   ShopsState build() {
     ref.watch(sessionProvider);
-    Future.microtask(() => getShops());
+    Future(() => getShops());
     return ShopsState();
   }
 

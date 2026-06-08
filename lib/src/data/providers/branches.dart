@@ -102,12 +102,97 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       'staff': <String>[],
       'capacity': 0,
       'coverageHexagons': <String>[],
-      'isPrimary': false,
+      'isPrimary': branch.isPrimary ?? false,
     };
 
     final response = await api.post(
       '/branches',
       payload,
+      requireAuth: true,
+    );
+    
+    if (response.success) {
+      await getBranches();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> updateBranch(BusinessBranch branch) async {
+    final api = ref.read(apiProvider);
+    final partner = ref.read(partnerProvider);
+    
+    if (branch.id == null) return false;
+
+    // Ensure fallback values are not null to prevent backend substring errors on null values
+    final String branchType = 'outlet';
+    final String contactPerson = partner?.businessInfo?.ownerName ?? '';
+    final String partnerPincode = partner?.businessDetails?.pincode ?? '000000';
+    final String partnerAddress = partner?.businessDetails?.address ?? '';
+    
+    final List<String> phoneList = [];
+    if (branch.phone != null && branch.phone!.isNotEmpty) {
+      phoneList.add(branch.phone!);
+    } else if (partner?.businessInfo?.contactPhone != null && partner!.businessInfo!.contactPhone!.isNotEmpty) {
+      phoneList.add(partner.businessInfo!.contactPhone!);
+    }
+    
+    final List<String> emailList = [];
+    if (partner?.businessInfo?.email != null && partner!.businessInfo!.email!.isNotEmpty) {
+      emailList.add(partner.businessInfo!.email!);
+    }
+
+    final double lng = (branch.location?.coordinates != null && branch.location!.coordinates!.isNotEmpty)
+        ? branch.location!.coordinates![0]
+        : 0.0;
+    final double lat = (branch.location?.coordinates != null && branch.location!.coordinates!.length >= 2)
+        ? branch.location!.coordinates![1]
+        : 0.0;
+
+    final locationMap = {
+      'type': 'Point',
+      'coordinates': [lng, lat],
+      'address': branch.address ?? partnerAddress,
+      'city': branch.location?.city ?? '',
+      'state': branch.location?.state ?? '',
+      'pincode': (branch.location?.pincode != null && branch.location!.pincode!.isNotEmpty)
+          ? branch.location!.pincode!
+          : partnerPincode,
+      'lng': lng,
+      'lat': lat,
+    };
+
+    final payload = {
+      'branchName': branch.name ?? '',
+      'branchType': branch.branchType ?? branchType,
+      'contactPerson': contactPerson,
+      'phoneNumbers': phoneList,
+      'emailAddresses': emailList,
+      'location': locationMap,
+      'operatingHours': _mapOperatingHours(branch.operatingHours),
+      'staff': <String>[],
+      'capacity': 0,
+      'coverageHexagons': <String>[],
+      'isPrimary': branch.isPrimary ?? false,
+    };
+
+    final response = await api.put(
+      '/branches/${branch.id}',
+      payload,
+      requireAuth: true,
+    );
+    
+    if (response.success) {
+      await getBranches();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> deleteBranch(String branchId) async {
+    final api = ref.read(apiProvider);
+    final response = await api.delete(
+      '/branches/$branchId',
       requireAuth: true,
     );
     

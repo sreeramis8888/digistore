@@ -349,14 +349,25 @@ class Offers extends _$Offers {
     required String userPhone,
     required String otp,
     double? saleAmount,
+    String? billNo,
   }) async {
     try {
       final api = ref.read(publicApiProvider);
-      final response = await api.post('/partner/offers/$offerId/verify-otp', {
+      final Map<String, dynamic> payload = {
         'userPhone': userPhone,
         'otp': otp,
-        if (saleAmount != null) 'saleAmount': saleAmount,
-      });
+      };
+      if (saleAmount != null) {
+        payload['saleAmount'] = saleAmount;
+      }
+      if (billNo != null) {
+        payload['billNo'] = billNo;
+      }
+
+      final response = await api.post(
+        '/partner/offers/$offerId/verify-otp',
+        payload,
+      );
 
       return response;
     } catch (e, stack) {

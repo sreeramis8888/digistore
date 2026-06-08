@@ -38,19 +38,12 @@ class ShopBranches extends ConsumerWidget {
               spacing: screenSize.responsivePadding(8),
               runSpacing: screenSize.responsivePadding(8),
               children: [
-                // Main branch pill
-                _buildBranchPill(
-                  screenSize: screenSize,
-                  label: 'Main',
-                  isSelected: selectedBranch == null,
-                  onTap: () => onBranchSelected(null),
-                ),
                 // Other branches
                 ...branches.map((branch) {
                   return _buildBranchPill(
                     screenSize: screenSize,
                     label: branch.name ?? 'Branch',
-                    isSelected: selectedBranch == branch,
+                    isSelected: selectedBranch?.id == branch.id,
                     onTap: () => onBranchSelected(branch),
                   );
                 }),

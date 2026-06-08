@@ -24,6 +24,7 @@ import '../../../data/providers/offers_provider.dart';
 import '../../../data/utils/map_utils.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/providers/offer_metadata_providers.dart';
+import '../../../data/models/business_info.dart';
 
 class CreateOfferPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? offer;
@@ -480,13 +481,26 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     try {
       final api = ref.read(apiProvider);
       final partner = ref.read(partnerProvider);
+      final branches = ref.read(branchesProvider);
+      
+      BusinessBranch? primaryBranch;
+      for (final b in branches) {
+        if (b.isPrimary == true) {
+          primaryBranch = b;
+          break;
+        }
+      }
+      if (primaryBranch == null && branches.isNotEmpty) {
+        primaryBranch = branches.first;
+      }
 
       if (partner == null ||
-          partner.businessInfo?.storeLocation?.coordinates == null ||
-          partner.businessInfo!.storeLocation!.coordinates!.isEmpty) {
+          primaryBranch == null ||
+          primaryBranch.location?.coordinates == null ||
+          primaryBranch.location!.coordinates!.isEmpty) {
         ToastService().showToast(
           context,
-          'Shop location is required. Please set it in "Account" profile.',
+          'Primary branch location is required. Please add a branch and mark it as Primary in "Account" settings.',
           type: ToastType.error,
         );
         setState(() => _isLoading = false);
@@ -551,8 +565,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
       // Category is automatically populated on the backend based on the partner's business type
 
-      if (partner?.businessInfo?.storeLocation != null) {
-        final loc = partner!.businessInfo!.storeLocation!;
+      if (primaryBranch.location != null) {
+        final loc = primaryBranch.location!;
         if (loc.coordinates != null && loc.coordinates!.length == 2) {
           body['location'] = json.encode({
             'type': 'Point',

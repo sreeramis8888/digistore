@@ -15,7 +15,6 @@ class BusinessInfo {
   final String? otpPhone;
   final String? whatsappNumber;
   final String? websiteUrl;
-  final LocationPoint? storeLocation;
   final OperatingHours? operatingHours;
   final SocialLinks? socialLinks;
   final String? videoUrl;
@@ -39,7 +38,6 @@ class BusinessInfo {
     this.otpPhone,
     this.whatsappNumber,
     this.websiteUrl,
-    this.storeLocation,
     this.operatingHours,
     this.socialLinks,
     this.videoUrl,
@@ -69,10 +67,6 @@ class BusinessInfo {
       otpPhone: json['otpPhone'] as String?,
       whatsappNumber: json['whatsappNumber'] as String?,
       websiteUrl: json['websiteUrl'] as String?,
-      storeLocation: SafeParser.parseObject(
-        json['storeLocation'],
-        LocationPoint.fromJson,
-      ),
       operatingHours: SafeParser.parseObject(
         json['operatingHours'],
         OperatingHours.fromJson,
@@ -111,7 +105,6 @@ class BusinessInfo {
       'otpPhone': otpPhone,
       'whatsappNumber': whatsappNumber,
       'websiteUrl': websiteUrl,
-      'storeLocation': storeLocation?.toJson(),
       'operatingHours': operatingHours?.toJson(),
       'socialLinks': socialLinks?.toJson(),
       'videoUrl': videoUrl,
@@ -235,6 +228,7 @@ class BusinessBranch {
   final OperatingHours? operatingHours;
   final bool? isActive;
   final String? branchType;
+  final bool? isPrimary;
 
   const BusinessBranch({
     this.id,
@@ -245,7 +239,32 @@ class BusinessBranch {
     this.operatingHours,
     this.isActive,
     this.branchType,
+    this.isPrimary,
   });
+
+  BusinessBranch copyWith({
+    String? id,
+    String? name,
+    String? address,
+    String? phone,
+    LocationPoint? location,
+    OperatingHours? operatingHours,
+    bool? isActive,
+    String? branchType,
+    bool? isPrimary,
+  }) {
+    return BusinessBranch(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      address: address ?? this.address,
+      phone: phone ?? this.phone,
+      location: location ?? this.location,
+      operatingHours: operatingHours ?? this.operatingHours,
+      isActive: isActive ?? this.isActive,
+      branchType: branchType ?? this.branchType,
+      isPrimary: isPrimary ?? this.isPrimary,
+    );
+  }
 
   factory BusinessBranch.fromJson(Map<String, dynamic> json) {
     String? phoneVal = json['phone'] as String?;
@@ -282,6 +301,7 @@ class BusinessBranch {
       operatingHours: opHours,
       isActive: json['isActive'] as bool?,
       branchType: json['branchType'] as String?,
+      isPrimary: json['isPrimary'] as bool?,
     );
   }
 
@@ -295,6 +315,7 @@ class BusinessBranch {
       'operatingHours': operatingHours?.toJson(),
       'isActive': isActive,
       'branchType': branchType,
+      'isPrimary': isPrimary,
     };
   }
 }

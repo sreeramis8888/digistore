@@ -60,12 +60,24 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       return;
     }
 
+    final branches = widget.shop?.businessInfo?.branches ?? [];
+    BusinessBranch? primaryBranch;
+    for (final b in branches) {
+      if (b.isPrimary == true) {
+        primaryBranch = b;
+        break;
+      }
+    }
+    if (primaryBranch == null && branches.isNotEmpty) {
+      primaryBranch = branches.first;
+    }
+
     final user = ref.read(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
     final shopCoords =
         widget.selectedBranch?.location?.coordinates ??
-        widget.shop?.businessInfo?.storeLocation?.coordinates;
+        primaryBranch?.location?.coordinates;
 
     setState(() {
       _roadDistance = null;
@@ -121,10 +133,22 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final category = widget.shop?.serviceCategories?.isNotEmpty == true
         ? widget.shop!.serviceCategories!.first
         : 'General';
+    final branches = widget.shop?.businessInfo?.branches ?? [];
+    BusinessBranch? primaryBranch;
+    for (final b in branches) {
+      if (b.isPrimary == true) {
+        primaryBranch = b;
+        break;
+      }
+    }
+    if (primaryBranch == null && branches.isNotEmpty) {
+      primaryBranch = branches.first;
+    }
+
     final address =
         widget.selectedBranch?.address ??
+        primaryBranch?.address ??
         widget.shop?.businessDetails?.address ??
-        widget.shop?.businessInfo?.storeLocation?.address ??
         'No address provided';
 
     final user = ref.watch(userProvider);
@@ -132,16 +156,11 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final userLng = user?.location?.coordinates?.lng;
     final shopCoords =
         widget.selectedBranch?.location?.coordinates ??
-        widget.shop?.businessInfo?.storeLocation?.coordinates;
+        primaryBranch?.location?.coordinates;
 
     String distanceLabel = '';
     if (_roadDistance != null) {
-      distanceLabel = ' ($_roadDistance km';
-      if (_durationMinutes != null) {
-        final minutes = _durationMinutes!.round();
-        distanceLabel += ', $minutes min';
-      }
-      distanceLabel += ')';
+      distanceLabel = ' ($_roadDistance km)';
     } else if (_isCalculating) {
       distanceLabel = ' (calculating...)';
     } else if (userLat != null &&

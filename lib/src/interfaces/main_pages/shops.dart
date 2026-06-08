@@ -8,6 +8,7 @@ import '../../data/providers/screen_size_provider.dart';
 import '../../data/providers/shops_provider.dart';
 import '../../data/providers/user_provider.dart';
 import '../../data/models/shop_model.dart';
+import '../../data/models/business_info.dart';
 import '../../data/utils/location_utils.dart';
 import '../components/shops/shop_grid_card.dart';
 import '../components/loading_indicator.dart';
@@ -127,19 +128,33 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
             ? shop.businessInfo!.businessLogo!
             : null);
 
+    final branches = shop.businessInfo?.branches ?? [];
+    BusinessBranch? primaryBranch;
+    for (final b in branches) {
+      if (b.isPrimary == true) {
+        primaryBranch = b;
+        break;
+      }
+    }
+    if (primaryBranch == null && branches.isNotEmpty) {
+      primaryBranch = branches.first;
+    }
+
     String address = 'No address provided';
-    if (shop.businessDetails?.address != null) {
+    if (primaryBranch != null) {
+      if (primaryBranch.address != null && primaryBranch.address!.isNotEmpty) {
+        address = primaryBranch.address!;
+      }
+    } else if (shop.businessDetails?.address != null) {
       address = shop.businessDetails!.address!;
       if (shop.businessDetails?.pincode != null) {
         address += ', ${shop.businessDetails!.pincode}';
       }
-    } else if (shop.businessInfo?.storeLocation?.address != null) {
-      address = shop.businessInfo!.storeLocation!.address!;
     }
 
     String distance = '0 km';
     final shopId = shop.id ?? index.toString();
-    final shopCoords = shop.businessInfo?.storeLocation?.coordinates;
+    final shopCoords = primaryBranch?.location?.coordinates;
 
     final cachedData = _distanceCache[shopId];
     if (cachedData != null) {

@@ -13,8 +13,9 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 
 class AddBranchPage extends StatefulWidget {
   final BusinessBranch? initialBranch;
+  final bool isFirstBranch;
 
-  const AddBranchPage({super.key, this.initialBranch});
+  const AddBranchPage({super.key, this.initialBranch, this.isFirstBranch = false});
 
   @override
   State<AddBranchPage> createState() => _AddBranchPageState();
@@ -32,6 +33,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
   LocationPoint? _location;
   bool _isActive = true;
   String? _branchType;
+  bool _isPrimary = false;
 
   final List<Map<String, String>> _branchTypes = const [
     {'value': 'main', 'label': 'Main Branch'},
@@ -57,6 +59,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
     _operatingHours = widget.initialBranch?.operatingHours;
     _isActive = widget.initialBranch?.isActive ?? true;
     _branchType = widget.initialBranch?.branchType ?? 'outlet';
+    _isPrimary = widget.initialBranch?.isPrimary ?? widget.isFirstBranch;
   }
 
   @override
@@ -111,6 +114,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
       }
 
       final branch = BusinessBranch(
+        id: widget.initialBranch?.id,
         name: _nameCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
         phone: _phoneCtrl.text.trim(),
@@ -118,6 +122,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
         operatingHours: _operatingHours,
         isActive: _isActive,
         branchType: _branchType,
+        isPrimary: _isPrimary,
       );
 
       Navigator.pop(context, branch);
@@ -288,6 +293,42 @@ class _AddBranchPageState extends State<AddBranchPage> {
                             suffixIcon: const Icon(Icons.my_location_rounded, color: kPrimaryColor, size: 20),
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 24),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Primary Branch',
+                                style: kSmallTitleM.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: kBlack,
+                                ),
+                              ),
+                              CupertinoSwitch(
+                                value: _isPrimary,
+                                onChanged: widget.isFirstBranch || (widget.initialBranch?.isPrimary ?? false)
+                                    ? null
+                                    : (val) {
+                                        setState(() {
+                                          _isPrimary = val;
+                                        });
+                                      },
+                                activeTrackColor: kPrimaryColor,
+                              ),
+                            ],
+                          ),
+                          if (widget.isFirstBranch || (widget.initialBranch?.isPrimary ?? false)) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'At least one branch must be marked as primary.',
+                              style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 24),
                       Row(

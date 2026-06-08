@@ -22,6 +22,8 @@ import 'package:image_cropper/image_cropper.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/providers/partner_products_provider.dart';
+import '../../../data/providers/branches.dart';
+import '../../../data/models/business_info.dart';
 
 class CreateProductPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? product;
@@ -155,7 +157,6 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     setState(() => _isLoading = true);
     try {
       final api = ref.read(apiProvider);
-      final partner = ref.read(partnerProvider);
 
       final rawBody = <String, dynamic>{
         'title': _nameController.text.trim(),
@@ -169,8 +170,20 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
         rawBody['category'] = _selectedCategoryId!;
       }
 
-      if (partner?.businessInfo?.storeLocation != null) {
-        final loc = partner!.businessInfo!.storeLocation!;
+      final branches = ref.read(branchesProvider);
+      BusinessBranch? primaryBranch;
+      for (final b in branches) {
+        if (b.isPrimary == true) {
+          primaryBranch = b;
+          break;
+        }
+      }
+      if (primaryBranch == null && branches.isNotEmpty) {
+        primaryBranch = branches.first;
+      }
+
+      if (primaryBranch != null && primaryBranch.location != null) {
+        final loc = primaryBranch.location!;
         if (loc.coordinates != null && loc.coordinates!.length == 2) {
           rawBody['location'] = json.encode({
             'type': 'Point',

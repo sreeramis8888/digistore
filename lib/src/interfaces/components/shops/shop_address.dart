@@ -15,7 +15,19 @@ class ShopAddress extends ConsumerWidget {
   const ShopAddress({super.key, this.shop, this.selectedBranch});
 
   void _openDirections() {
-    final shopCoords = selectedBranch?.location?.coordinates ?? shop?.businessInfo?.storeLocation?.coordinates;
+    final branches = shop?.businessInfo?.branches ?? [];
+    BusinessBranch? primaryBranch;
+    for (final b in branches) {
+      if (b.isPrimary == true) {
+        primaryBranch = b;
+        break;
+      }
+    }
+    if (primaryBranch == null && branches.isNotEmpty) {
+      primaryBranch = branches.first;
+    }
+
+    final shopCoords = selectedBranch?.location?.coordinates ?? primaryBranch?.location?.coordinates;
     if (shopCoords != null && shopCoords.length >= 2) {
       final lat = shopCoords[1];
       final lng = shopCoords[0];
@@ -26,7 +38,20 @@ class ShopAddress extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final location = selectedBranch?.location ?? shop?.businessInfo?.storeLocation;
+    
+    final branches = shop?.businessInfo?.branches ?? [];
+    BusinessBranch? primaryBranch;
+    for (final b in branches) {
+      if (b.isPrimary == true) {
+        primaryBranch = b;
+        break;
+      }
+    }
+    if (primaryBranch == null && branches.isNotEmpty) {
+      primaryBranch = branches.first;
+    }
+
+    final location = selectedBranch?.location ?? primaryBranch?.location;
     
     String addressText = 'No address provided';
     String? cityStateText;
@@ -36,17 +61,17 @@ class ShopAddress extends ConsumerWidget {
       if (location?.city != null || location?.state != null || location?.pincode != null) {
         cityStateText = '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'.trim();
       }
-    } else if (shop?.businessDetails?.address != null && selectedBranch == null) {
+    } else if (primaryBranch != null) {
+      addressText = primaryBranch.address ?? 'No address provided';
+      if (location?.city != null || location?.state != null || location?.pincode != null) {
+        cityStateText = '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'.trim();
+      }
+    } else if (shop?.businessDetails?.address != null) {
       addressText = shop!.businessDetails!.address!;
       if (shop?.businessDetails?.pincode != null) {
         cityStateText = 'Pincode: ${shop?.businessDetails?.pincode}';
       }
-    } else if (location?.address != null) {
-      addressText = location!.address!;
-      if (location.city != null || location.state != null || location.pincode != null) {
-        cityStateText = '${location.city ?? ''} ${location.state ?? ''} ${location.pincode ?? ''}'.trim();
-      }
-    } else if (shop?.coverageAreas?.districts?.isNotEmpty == true && selectedBranch == null) {
+    } else if (shop?.coverageAreas?.districts?.isNotEmpty == true) {
       addressText = shop!.coverageAreas!.districts!.join(', ');
     }
 

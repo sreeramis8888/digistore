@@ -19,12 +19,18 @@ class RedemptionOtpPage extends ConsumerStatefulWidget {
 }
 
 class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final PinInputController _otpController = PinInputController();
   final TextEditingController _saleAmountController = TextEditingController();
+  final TextEditingController _billNoController = TextEditingController();
   String otp = '';
   bool isLoading = false;
 
   Future<void> _verify() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     if (otp.length < 6) {
       ToastService().showToast(
         context,
@@ -52,6 +58,7 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
             userPhone: phone,
             otp: otp,
             saleAmount: double.tryParse(_saleAmountController.text.trim()),
+            billNo: _billNoController.text.trim().isEmpty ? null : _billNoController.text.trim(),
           );
 
       if (response.success && mounted) {
@@ -77,6 +84,8 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
   @override
   void dispose() {
     _saleAmountController.dispose();
+    _billNoController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -84,73 +93,224 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: kWhite,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 20,
-            color: kTextColor,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              size: 20,
+              color: kTextColor,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(screenSize.responsivePadding(24)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: screenSize.responsivePadding(80)),
-              Text(
-                'OTP Verification',
-                style: kSubHeadingM.copyWith(fontSize: 22),
-              ),
-              SizedBox(height: screenSize.responsivePadding(8)),
-              Text(
-                'Ask customer for the 6-digit code\nsent to their phone via SMS.',
-                style: kBodyTitleL.copyWith(color: const Color(0XFF797979)),
-                textAlign: TextAlign.center,
-              ),
-
-              if (widget.args?['phone'] != null) ...[
-                Text(
-                  'Sent to ${widget.args!['phone']}',
-                  style: kSmallTitleM.copyWith(color: kPrimaryColor),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(24),
+            vertical: screenSize.responsivePadding(16),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header Security Badge & Description
+                Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: kPrimaryColor.withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: kPrimaryColor.withValues(alpha: 0.12),
+                            width: 2,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.verified_user_rounded,
+                          color: kPrimaryColor,
+                          size: 36,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Redeem Offer',
+                        style: kHeadTitleB.copyWith(fontSize: 24),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Complete verification by entering customer invoice and OTP details.',
+                        style: kBodyTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (widget.args?['phone'] != null) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kPrimaryLightColor,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Text(
+                            'Customer: ${widget.args!['phone']}',
+                            style: kSmallerTitleSB.copyWith(color: kPrimaryColor),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                SizedBox(height: screenSize.responsivePadding(24)),
+                SizedBox(height: screenSize.responsivePadding(32)),
+
+                // Redemption Details Card
+                Container(
+                  padding: EdgeInsets.all(screenSize.responsivePadding(24)),
+                  decoration: BoxDecoration(
+                    color: kWhite,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                        spreadRadius: 0,
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Sale Amount Field
+                      PrimaryTextField(
+                        controller: _saleAmountController,
+                        label: 'Sale Amount (₹)',
+                        hint: '0.00',
+                        type: TextFieldType.number,
+                        isRequired: true,
+                        prefixIcon: const Icon(
+                          Icons.currency_rupee_rounded,
+                          color: kPrimaryColor,
+                          size: 20,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Sale amount is required';
+                          }
+                          final amt = double.tryParse(value.trim());
+                          if (amt == null || amt <= 0) {
+                            return 'Enter a valid amount';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Bill Number Field
+                      PrimaryTextField(
+                        controller: _billNoController,
+                        label: 'Bill Number',
+                        hint: 'Enter invoice or bill number',
+                        isRequired: true,
+                        prefixIcon: const Icon(
+                          Icons.receipt_long_rounded,
+                          color: kPrimaryColor,
+                          size: 20,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Bill number is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      
+                      // Divider
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Divider(
+                                color: Color(0xFFE2E8F0),
+                                thickness: 1,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'Verification Code',
+                                style: kSmallerTitleSB.copyWith(
+                                  color: kSecondaryTextColor,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            const Expanded(
+                              child: Divider(
+                                color: Color(0xFFE2E8F0),
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // OTP Field
+                      Center(
+                        child: MaterialPinField(
+                          length: 6,
+                          pinController: _otpController,
+                          keyboardType: TextInputType.number,
+                          theme: MaterialPinTheme(
+                            shape: MaterialPinShape.outlined,
+                            borderRadius: BorderRadius.circular(12),
+                            cellSize: const Size(42, 50),
+                            focusedBorderColor: kPrimaryColor,
+                            disabledBorderColor: const Color(0xFFE2E8F0),
+                            borderColor: const Color(0xFFE2E8F0),
+                            fillColor: kWhite,
+                            filledFillColor: const Color(0xFFF8FAFC),
+                            focusedFillColor: kWhite,
+                            cursorColor: kPrimaryColor,
+                          ),
+                          onChanged: (value) {
+                            otp = value;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: screenSize.responsivePadding(32)),
+
+                // Action Button
+                PrimaryButton(
+                  text: 'Verify & Complete Redemption',
+                  isLoading: isLoading,
+                  onPressed: _verify,
+                  borderRadius: BorderRadius.circular(16),
+                  height: 54,
+                  textSize: 14,
+                ),
               ],
-
-              MaterialPinField(
-                length: 6,
-                pinController: _otpController,
-                keyboardType: TextInputType.number,
-                theme: MaterialPinTheme(
-                  shape: MaterialPinShape.outlined,
-                  borderRadius: BorderRadius.circular(12),
-                  cellSize: const Size(42, 50),
-                  focusedBorderColor: kPrimaryColor,
-                  disabledBorderColor: const Color(0xFFE8E8E8),
-                  borderColor: const Color(0xFFE8E8E8),
-                  fillColor: kWhite,
-                  filledFillColor: const Color(0xFFF7F7F7),
-                  focusedFillColor: kWhite,
-                  cursorColor: kPrimaryColor,
-                ),
-                onChanged: (value) {
-                  otp = value;
-                },
-              ),
-              SizedBox(height: screenSize.responsivePadding(24)),
-              PrimaryButton(
-                text: 'Verify',
-                isLoading: isLoading,
-                onPressed: _verify,
-              ),
-            ],
+            ),
           ),
         ),
       ),

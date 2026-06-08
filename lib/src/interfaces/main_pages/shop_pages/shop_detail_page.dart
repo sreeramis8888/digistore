@@ -17,6 +17,7 @@ import '../../../data/providers/shops_provider.dart';
 
 import '../../components/shops/shop_branches.dart';
 import '../../../../src/data/models/business_info.dart';
+import '../../../data/providers/branches.dart';
 
 class ShopDetailPage extends ConsumerStatefulWidget {
   final String? shopName;
@@ -32,8 +33,42 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
   BusinessBranch? _selectedBranch;
 
   @override
+  void didUpdateWidget(ShopDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.shop?.id != widget.shop?.id) {
+      _selectedBranch = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final shopId = widget.shop?.id ?? '';
+
+    // Listen to branches provider to set the initial selected branch to the primary one
+    if (shopId.isNotEmpty) {
+      ref.listen<AsyncValue<List<BusinessBranch>>>(
+        shopBranchesProvider(shopId),
+        (previous, next) {
+          if (next.hasValue && _selectedBranch == null) {
+            final list = next.value ?? [];
+            if (list.isNotEmpty) {
+              final primary = list.firstWhere(
+                (b) => b.isPrimary == true,
+                orElse: () => list.first,
+              );
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    _selectedBranch = primary;
+                  });
+                }
+              });
+            }
+          }
+        },
+      );
+    }
     final currentShopName =
         widget.shop?.businessDetails?.businessName ??
         widget.shopName ??
@@ -43,7 +78,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         (widget.shop?.businessInfo?.businessImages?.isNotEmpty == true
             ? widget.shop!.businessInfo!.businessImages!.first
             : null);
-    final shopId = widget.shop?.id ?? '';
     final offersAsync = shopId.isNotEmpty
         ? ref.watch(shopOffersProvider(shopId))
         : null;

@@ -30,6 +30,7 @@ import '../../components/map_location_picker_page.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/full_screen_gallery.dart';
 import '../../components/operating_hours_editor.dart';
+import '../../components/partner/branch_card.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -61,10 +62,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   late TextEditingController _panCtrl;
   late TextEditingController _shopAddressCtrl;
   late TextEditingController _pincodeCtrl;
-  late TextEditingController _mapLocationCtrl;
-
-  double? _lat;
-  double? _lng;
 
   late TextEditingController _taglineCtrl;
   late TextEditingController _descriptionCtrl;
@@ -77,6 +74,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
   List<String> _tags = [];
   List<BusinessBranch> _branches = [];
   final List<BusinessBranch> _newBranches = [];
+  final List<BusinessBranch> _editedBranches = [];
+  final List<String> _deletedBranchIds = [];
   List<String> _businessImages = [];
   OperatingHours? _operatingHours;
 
@@ -130,13 +129,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _pincodeCtrl = TextEditingController(
       text: partner?.businessDetails?.pincode ?? '',
     );
-    _mapLocationCtrl = TextEditingController(
-      text:
-          (partner?.businessInfo?.storeLocation?.coordinates != null &&
-              partner!.businessInfo!.storeLocation!.coordinates!.length >= 2)
-          ? 'Location Selected'
-          : 'Not Selected',
-    );
 
     _taglineCtrl = TextEditingController(
       text: partner?.businessInfo?.tagline ?? '',
@@ -177,34 +169,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
     _businessImages = List.from(partner?.businessInfo?.businessImages ?? []);
     _operatingHours = partner?.businessInfo?.operatingHours;
-
-    final coords = partner?.businessInfo?.storeLocation?.coordinates;
-    if (coords != null && coords.length >= 2) {
-      _lng = coords[0];
-      _lat = coords[1];
-    }
-  }
-
-  Future<void> _showGoogleMapLocationPicker() async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MapLocationPickerPage(
-          initialLat: _lat,
-          initialLng: _lng,
-          initialLocalBody: null,
-        ),
-      ),
-    );
-
-    if (result != null && result is Map<String, dynamic>) {
-      setState(() {
-        _lat = result['lat'] as double;
-        _lng = result['lng'] as double;
-        _mapLocationCtrl.text = 'Location Selected';
-      });
-    }
   }
 
   @override
@@ -220,7 +184,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _panCtrl.dispose();
     _shopAddressCtrl.dispose();
     _pincodeCtrl.dispose();
-    _mapLocationCtrl.dispose();
 
     _taglineCtrl.dispose();
     _descriptionCtrl.dispose();
@@ -358,10 +321,33 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     FocusManager.instance.primaryFocus?.unfocus();
     final result = await Navigator.push<BusinessBranch>(
       context,
-      MaterialPageRoute(builder: (context) => const AddBranchPage()),
+      MaterialPageRoute(
+        builder: (context) => AddBranchPage(isFirstBranch: _branches.isEmpty),
+      ),
     );
     if (result != null && mounted) {
       setState(() {
+        if (result.isPrimary == true) {
+          for (int i = 0; i < _branches.length; i++) {
+            if (_branches[i].isPrimary == true) {
+              final oldB = _branches[i];
+              final updatedB = oldB.copyWith(isPrimary: false);
+              _branches[i] = updatedB;
+              
+              final newIndex = _newBranches.indexOf(oldB);
+              if (newIndex != -1) {
+                _newBranches[newIndex] = updatedB;
+              } else {
+                final editIndex = _editedBranches.indexWhere((b) => b.id == oldB.id);
+                if (editIndex != -1) {
+                  _editedBranches[editIndex] = updatedB;
+                } else if (oldB.id != null) {
+                  _editedBranches.add(updatedB);
+                }
+              }
+            }
+          }
+        }
         _branches.add(result);
         if (isEditMode) {
           _newBranches.add(result);
@@ -375,15 +361,47 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddBranchPage(initialBranch: branch),
+        builder: (context) => AddBranchPage(
+          initialBranch: branch,
+          isFirstBranch: _branches.length == 1,
+        ),
       ),
     );
     if (result != null && mounted) {
       setState(() {
+        if (result.isPrimary == true) {
+          for (int i = 0; i < _branches.length; i++) {
+            if (i != index && _branches[i].isPrimary == true) {
+              final oldB = _branches[i];
+              final updatedB = oldB.copyWith(isPrimary: false);
+              _branches[i] = updatedB;
+              
+              final newIndex = _newBranches.indexOf(oldB);
+              if (newIndex != -1) {
+                _newBranches[newIndex] = updatedB;
+              } else {
+                final editIndex = _editedBranches.indexWhere((b) => b.id == oldB.id);
+                if (editIndex != -1) {
+                  _editedBranches[editIndex] = updatedB;
+                } else if (oldB.id != null) {
+                  _editedBranches.add(updatedB);
+                }
+              }
+            }
+          }
+        }
+
         final oldBranch = _branches[index];
         final newIndex = _newBranches.indexOf(oldBranch);
         if (newIndex != -1) {
           _newBranches[newIndex] = result;
+        } else {
+          final editIndex = _editedBranches.indexWhere((b) => b.id == oldBranch.id);
+          if (editIndex != -1) {
+            _editedBranches[editIndex] = result;
+          } else {
+            _editedBranches.add(result);
+          }
         }
         _branches[index] = result;
       });
@@ -1345,24 +1363,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           : null,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: PrimaryTextField(
-                                      label: 'Google Map Location',
-                                      controller: _mapLocationCtrl,
-                                      readOnly: true,
-                                      onTap: _showGoogleMapLocationPicker,
-                                      prefixIcon: const Icon(
-                                        Icons.location_on_outlined,
-                                        color: Color(0xFF808080),
-                                        size: 18,
-                                      ),
-                                      suffixIcon: const Icon(
-                                        Icons.keyboard_arrow_down,
-                                        color: Color(0xFF808080),
-                                      ),
-                                    ),
-                                  ),
                                 ] else ...[
                                   _buildReadOnlyRow(
                                     'Shop Name',
@@ -1391,15 +1391,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   _buildReadOnlyRow(
                                     'Pincode',
                                     _pincodeCtrl.text,
-                                  ),
-                                  _buildReadOnlyRow(
-                                    'Google Map Location',
-                                    _mapLocationCtrl.text,
-                                    prefixIcon: const Icon(
-                                      Icons.location_on_outlined,
-                                      color: Color(0xFF808080),
-                                      size: 16,
-                                    ),
                                   ),
                                 ],
 
@@ -1439,271 +1430,21 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           ),
                                         )
                                       else
-                                        ..._branches.asMap().entries.map((
-                                          entry,
-                                        ) {
+                                        ..._branches.asMap().entries.map((entry) {
                                           final index = entry.key;
                                           final branch = entry.value;
-                                          return Container(
-                                            margin: const EdgeInsets.only(
-                                              bottom: 12,
-                                            ),
-                                            padding: const EdgeInsets.all(16),
-                                            decoration: BoxDecoration(
-                                              color: kWhite,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                color: const Color(0xFFE5E7EB),
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.02),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  8,
-                                                                ),
-                                                            decoration: BoxDecoration(
-                                                              color:
-                                                                  kPrimaryLightColor,
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    8,
-                                                                  ),
-                                                            ),
-                                                            child: const Icon(
-                                                              Icons
-                                                                  .store_mall_directory_outlined,
-                                                              color:
-                                                                  kPrimaryColor,
-                                                              size: 20,
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 12,
-                                                          ),
-                                                          Expanded(
-                                                            child: Text(
-                                                              branch.name ??
-                                                                  'Branch',
-                                                              style: kBodyTitleM.copyWith(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700,
-                                                                color:
-                                                                    const Color(
-                                                                      0xFF111827,
-                                                                    ),
-                                                              ),
-                                                              maxLines: 1,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 4,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            branch.isActive ==
-                                                                true
-                                                            ? const Color(
-                                                                0xFFDEF7EC,
-                                                              )
-                                                            : const Color(
-                                                                0xFFFDE8E8,
-                                                              ),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              20,
-                                                            ),
-                                                      ),
-                                                      child: Text(
-                                                        branch.isActive == true
-                                                            ? 'Active'
-                                                            : 'Inactive',
-                                                        style: kSmallTitleL.copyWith(
-                                                          color:
-                                                              branch.isActive ==
-                                                                  true
-                                                              ? const Color(
-                                                                  0xFF03543F,
-                                                                )
-                                                              : const Color(
-                                                                  0xFF9B1C1C,
-                                                                ),
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 10,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                if (branch
-                                                        .address
-                                                        ?.isNotEmpty ==
-                                                    true) ...[
-                                                  const SizedBox(height: 12),
-                                                  Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons
-                                                            .location_on_outlined,
-                                                        size: 16,
-                                                        color: Color(
-                                                          0xFF6B7280,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Expanded(
-                                                        child: Text(
-                                                          branch.address!,
-                                                          style: kSmallTitleM
-                                                              .copyWith(
-                                                                color:
-                                                                    const Color(
-                                                                      0xFF4B5563,
-                                                                    ),
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                                if (branch.phone?.isNotEmpty ==
-                                                    true) ...[
-                                                  const SizedBox(height: 8),
-                                                  Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.phone_outlined,
-                                                        size: 16,
-                                                        color: Color(
-                                                          0xFF6B7280,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Expanded(
-                                                        child: Text(
-                                                          branch.phone!,
-                                                          style: kSmallTitleM
-                                                              .copyWith(
-                                                                color:
-                                                                    const Color(
-                                                                      0xFF4B5563,
-                                                                    ),
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                                if (isEditMode) ...[
-                                                  const SizedBox(height: 16),
-                                                  const Divider(
-                                                    height: 1,
-                                                    color: Color(0xFFF3F4F6),
-                                                  ),
-                                                  const SizedBox(height: 12),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: () =>
-                                                            _editBranch(
-                                                              index,
-                                                              branch,
-                                                            ),
-                                                        child: Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons
-                                                                  .edit_outlined,
-                                                              size: 16,
-                                                              color:
-                                                                  kPrimaryColor,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 4,
-                                                            ),
-                                                            Text(
-                                                              'Edit',
-                                                              style: kSmallTitleM
-                                                                  .copyWith(
-                                                                    color:
-                                                                        kPrimaryColor,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 24),
-                                                      GestureDetector(
-                                                        onTap: () => setState(() {
-                                                          final removed = _branches.removeAt(index);
-                                                          _newBranches.remove(removed);
-                                                        }),
-                                                        child: Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons
-                                                                  .delete_outline,
-                                                              size: 16,
-                                                              color: Colors.red,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 4,
-                                                            ),
-                                                            Text(
-                                                              'Delete',
-                                                              style: kSmallTitleM
-                                                                  .copyWith(
-                                                                    color: Colors
-                                                                        .red,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
+                                          return BranchCard(
+                                            branch: branch,
+                                            isEditMode: isEditMode,
+                                            onEdit: () => _editBranch(index, branch),
+                                            onDelete: () => setState(() {
+                                              final removed = _branches.removeAt(index);
+                                              _newBranches.remove(removed);
+                                              _editedBranches.removeWhere((b) => b.id == removed.id);
+                                              if (removed.id != null) {
+                                                _deletedBranchIds.add(removed.id!);
+                                              }
+                                            }),
                                           );
                                         }),
                                     ],
@@ -2523,12 +2264,6 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                               facebook: _facebookCtrl.text,
                               youtube: _youtubeCtrl.text,
                             ),
-                            storeLocation: (_lat != null && _lng != null)
-                                ? LocationPoint(
-                                    type: 'Point',
-                                    coordinates: [_lng!, _lat!],
-                                  )
-                                : currentPartner.businessInfo?.storeLocation,
                             operatingHours: _operatingHours,
                           ),
                           serviceCategories: currentPartner.serviceCategories,
@@ -2600,8 +2335,30 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
                           if (success) {
                             bool allBranchesSucceeded = true;
+                            final branchesNotifier = ref.read(branchesProvider.notifier);
+
+                            // Delete removed branches
+                            if (_deletedBranchIds.isNotEmpty) {
+                              for (final id in _deletedBranchIds) {
+                                final deleteSuccess = await branchesNotifier.deleteBranch(id);
+                                if (!deleteSuccess) {
+                                  allBranchesSucceeded = false;
+                                }
+                              }
+                            }
+
+                            // Update edited branches
+                            if (_editedBranches.isNotEmpty) {
+                              for (final branch in _editedBranches) {
+                                final updateSuccess = await branchesNotifier.updateBranch(branch);
+                                if (!updateSuccess) {
+                                  allBranchesSucceeded = false;
+                                }
+                              }
+                            }
+
+                            // Create new branches
                             if (_newBranches.isNotEmpty) {
-                              final branchesNotifier = ref.read(branchesProvider.notifier);
                               for (final branch in _newBranches) {
                                 final branchSuccess = await branchesNotifier.createBranch(branch);
                                 if (!branchSuccess) {
@@ -2609,6 +2366,12 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 }
                               }
                             }
+
+                            // Clear lists after successful/attempted sync
+                            _newBranches.clear();
+                            _editedBranches.clear();
+                            _deletedBranchIds.clear();
+
                             await notifier.getPartnerProfile();
 
                             if (context.mounted) {
@@ -2620,7 +2383,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                               } else {
                                 ToastService().showToast(
                                   context,
-                                  'Profile updated, but some branches failed to create',
+                                  'Profile updated, but some branch modifications failed',
                                   type: ToastType.warning,
                                 );
                               }
