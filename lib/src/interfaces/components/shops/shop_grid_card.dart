@@ -35,6 +35,7 @@ class ShopGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+
     return GestureDetector(
       onTap: () {
         Navigator.of(
@@ -45,10 +46,10 @@ class ShopGridCard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: kWhite,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kBorder.withOpacity(0.5)),
+          border: Border.all(color: kBorder.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -74,7 +75,7 @@ class ShopGridCard extends ConsumerWidget {
                         )
                       : Container(
                           decoration: BoxDecoration(
-                            color: avatarColor.withOpacity(0.12),
+                            color: avatarColor.withValues(alpha: 0.12),
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(12),
                               topRight: Radius.circular(12),
@@ -84,7 +85,7 @@ class ShopGridCard extends ConsumerWidget {
                             child: Icon(
                               avatarIcon,
                               size: 40,
-                              color: avatarColor.withOpacity(0.5),
+                              color: avatarColor.withValues(alpha: 0.5),
                             ),
                           ),
                         ),
