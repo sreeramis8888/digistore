@@ -32,6 +32,9 @@ class ProductModel {
   final bool? isActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final Map<String, dynamic>? partnerObj;
+  final List<dynamic>? branchLocations;
+  final bool? isFavorited;
 
   const ProductModel({
     this.id,
@@ -45,20 +48,27 @@ class ProductModel {
     this.isActive,
     this.createdAt,
     this.updatedAt,
+    this.partnerObj,
+    this.branchLocations,
+    this.isFavorited,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
       id: json['_id'] as String?,
-      partnerId: json['partnerId'] as String?,
+      partnerId: json['partnerId'] is Map
+          ? (json['partnerId']['_id']?.toString() ?? json['partnerId']['id']?.toString())
+          : json['partnerId']?.toString(),
       title: json['title'] as String?,
       description: json['description'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
       price: (json['price'] as num?)?.toDouble(),
-      category: SafeParser.parseObject(
-        json['category'],
-        ProductCategory.fromJson,
-      ),
+      category: json['category'] is String
+          ? ProductCategory(id: json['category'] as String)
+          : SafeParser.parseObject(
+              json['category'],
+              ProductCategory.fromJson,
+            ),
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isActive: json['isActive'] as bool?,
       createdAt: json['createdAt'] != null
@@ -67,6 +77,9 @@ class ProductModel {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'])?.toLocal()
           : null,
+      partnerObj: json['partnerId'] is Map ? json['partnerId'] : null,
+      branchLocations: json['branchLocations'] as List<dynamic>?,
+      isFavorited: json['isFavorited'] as bool?,
     );
   }
 
@@ -83,6 +96,9 @@ class ProductModel {
       'isActive': isActive,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'partner': partnerObj,
+      'branchLocations': branchLocations,
+      'isFavorited': isFavorited,
     };
   }
 }

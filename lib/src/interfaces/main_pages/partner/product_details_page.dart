@@ -6,17 +6,72 @@ import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../../data/providers/partner_products_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
+import '../../../data/providers/shops_provider.dart';
 import 'partner_product_page.dart';
 
-class ProductDetailsPage extends ConsumerWidget {
+class ProductDetailsPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> product;
 
   const ProductDetailsPage({super.key, required this.product});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProductDetailsPage> createState() => _ProductDetailsPageState();
+}
+
+class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
+  bool isNavigatingToShop = false;
+
+  Future<void> _navigateToShop(BuildContext context, String partnerId) async {
+    if (isNavigatingToShop) return;
+    setState(() {
+      isNavigatingToShop = true;
+    });
+
+    try {
+      final shop = await ref.read(getShopByPartnerIdProvider(partnerId).future);
+      if (shop != null) {
+        if (mounted) {
+          Navigator.of(context).pushNamed('shopDetail', arguments: shop);
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No such shop found for this product.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading shop: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isNavigatingToShop = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userType = ref.watch(userTypeProvider);
     final isPartner = userType == UserType.partner;
+    
+    final product = widget.product;
+    final partnerObj = product['partner'] ?? product['partnerId'];
+    final String partnerId = (partnerObj is Map)
+        ? (partnerObj['_id'] ?? partnerObj['id'] ?? '')
+        : (partnerObj?.toString() ?? '');
+        
+    final String shopName = product['shopName'] ??
+        (partnerObj is Map && partnerObj['businessDetails'] != null ? partnerObj['businessDetails']['businessName'] : null) ??
+        '';
+        
+    final String? shopLogo = product['shopLogo'] ??
+        (partnerObj is Map && partnerObj['businessInfo'] != null ? partnerObj['businessInfo']['businessLogo'] : null);
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -117,6 +172,86 @@ class ProductDetailsPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (!isPartner) ...[
+                    InkWell(
+                      onTap: partnerId.isNotEmpty
+                          ? () => _navigateToShop(context, partnerId)
+                          : null,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 4.0,
+                          horizontal: 2.0,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: kPrimaryColor,
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: shopLogo != null
+                                  ? AdvancedNetworkImage(
+                                      imageUrl: shopLogo,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const Icon(
+                                      Icons.storefront,
+                                      color: kWhite,
+                                      size: 20,
+                                    ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    shopName.isNotEmpty ? shopName : 'Partner Shop',
+                                    style: kBodyTitleB.copyWith(fontSize: 20),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (partnerId.isNotEmpty)
+                                    Text(
+                                      'Visit Shop',
+                                      style: kSmallTitleM.copyWith(
+                                        color: kPrimaryColor,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            if (partnerId.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              if (isNavigatingToShop)
+                                const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      kPrimaryColor,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 16,
+                                  color: kPrimaryColor,
+                                ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   Text(
                     product['title'] ?? product['name'] ?? '',
                     style: kBodyTitleM.copyWith(fontSize: 24),

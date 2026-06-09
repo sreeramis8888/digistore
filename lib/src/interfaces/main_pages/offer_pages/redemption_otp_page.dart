@@ -58,7 +58,9 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
             userPhone: phone,
             otp: otp,
             saleAmount: double.tryParse(_saleAmountController.text.trim()),
-            billNo: _billNoController.text.trim().isEmpty ? null : _billNoController.text.trim(),
+            billNo: _billNoController.text.trim().isEmpty
+                ? null
+                : _billNoController.text.trim(),
           );
 
       if (response.success && mounted) {
@@ -169,7 +171,9 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                           ),
                           child: Text(
                             'Customer: ${widget.args!['phone']}',
-                            style: kSmallerTitleSB.copyWith(color: kPrimaryColor),
+                            style: kSmallerTitleSB.copyWith(
+                              color: kPrimaryColor,
+                            ),
                           ),
                         ),
                       ],
@@ -240,7 +244,7 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                           return null;
                         },
                       ),
-                      
+
                       // Divider
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -253,7 +257,9 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: Text(
                                 'Verification Code',
                                 style: kSmallerTitleSB.copyWith(
@@ -274,25 +280,28 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
 
                       // OTP Field
                       Center(
-                        child: MaterialPinField(
-                          length: 6,
-                          pinController: _otpController,
-                          keyboardType: TextInputType.number,
-                          theme: MaterialPinTheme(
-                            shape: MaterialPinShape.outlined,
-                            borderRadius: BorderRadius.circular(12),
-                            cellSize: const Size(42, 50),
-                            focusedBorderColor: kPrimaryColor,
-                            disabledBorderColor: const Color(0xFFE2E8F0),
-                            borderColor: const Color(0xFFE2E8F0),
-                            fillColor: kWhite,
-                            filledFillColor: const Color(0xFFF8FAFC),
-                            focusedFillColor: kWhite,
-                            cursorColor: kPrimaryColor,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: MaterialPinField(
+                            length: 6,
+                            pinController: _otpController,
+                            keyboardType: TextInputType.number,
+                            theme: MaterialPinTheme(
+                              shape: MaterialPinShape.outlined,
+                              borderRadius: BorderRadius.circular(12),
+                              cellSize: const Size(42, 50),
+                              focusedBorderColor: kPrimaryColor,
+                              disabledBorderColor: const Color(0xFFE2E8F0),
+                              borderColor: const Color(0xFFE2E8F0),
+                              fillColor: kWhite,
+                              filledFillColor: const Color(0xFFF8FAFC),
+                              focusedFillColor: kWhite,
+                              cursorColor: kPrimaryColor,
+                            ),
+                            onChanged: (value) {
+                              otp = value;
+                            },
                           ),
-                          onChanged: (value) {
-                            otp = value;
-                          },
                         ),
                       ),
                     ],

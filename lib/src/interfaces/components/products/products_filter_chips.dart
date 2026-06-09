@@ -1,0 +1,123 @@
+import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
+import 'package:setgo/src/interfaces/components/shimmers/card_shimmers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../data/constants/color_constants.dart';
+import '../../../data/constants/style_constants.dart';
+import '../../../data/providers/screen_size_provider.dart';
+
+import '../../../data/router/nav_router.dart';
+
+import '../../../data/providers/category_provider.dart';
+import '../../../data/models/category_model.dart';
+
+class ProductsFilterChips extends ConsumerStatefulWidget {
+  const ProductsFilterChips({super.key});
+
+  @override
+  ConsumerState<ProductsFilterChips> createState() => _ProductsFilterChipsState();
+}
+
+class _ProductsFilterChipsState extends ConsumerState<ProductsFilterChips> {
+  final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _keys = {};
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToSelectedIndex(int index) {
+    final keyContext = _keys[index]?.currentContext;
+    if (keyContext != null) {
+      Scrollable.ensureVisible(
+        keyContext!,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment: 0.5,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = ref.watch(screenSizeProvider);
+    final selectedIndex = ref.watch(selectedProductsCategoryProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
+
+    return categoriesAsync.when(
+      data: (categories) {
+        final filters = [const CategoryModel(name: 'All'), ...categories];
+
+        if (selectedIndex > 0 && selectedIndex < filters.length) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollToSelectedIndex(selectedIndex);
+          });
+        }
+
+        return SizedBox(
+          height: screenSize.responsivePadding(40),
+          child: ListView.builder(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16),
+            ),
+            itemCount: filters.length,
+            itemBuilder: (context, index) {
+              final isSelected = index == selectedIndex;
+              final filter = filters[index];
+              _keys[index] ??= GlobalKey();
+
+              return InteractiveFeedbackButton(
+                onPressed: () {
+                  ref.read(selectedProductsCategoryProvider.notifier).state =
+                      index;
+                  _scrollToSelectedIndex(index);
+                },
+                scaleFactor: 0.95,
+                child: Container(
+                  key: _keys[index],
+                  margin: EdgeInsets.only(
+                    right: screenSize.responsivePadding(8),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected ? kPrimaryColor : const Color(0xFFFCFCFC),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isSelected ? kPrimaryColor : kBorder,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    filter.name ?? '',
+                    style: kSmallerTitleL.copyWith(
+                      color: isSelected ? kWhite : kSecondaryTextColor,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+      loading: () => SizedBox(
+        height: screenSize.responsivePadding(40),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(16),
+          ),
+          itemCount: 5,
+          itemBuilder: (context, index) =>
+              CardShimmers.filterChipShimmer(screenSize),
+        ),
+      ),
+      error: (e, s) => const SizedBox.shrink(),
+    );
+  }
+}

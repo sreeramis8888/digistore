@@ -22,8 +22,9 @@ import '../../interfaces/main_pages/partner/partner_account_page.dart';
 import '../../interfaces/main_pages/partner/partner_product_page.dart';
 import '../../interfaces/main_pages/partner/create_offer_page.dart';
 import '../../interfaces/main_pages/offers.dart';
-import '../../interfaces/main_pages/partner/partner_products.dart';
+import '../../interfaces/main_pages/products.dart';
 import '../../interfaces/main_pages/partner/partner_history.dart';
+import '../../interfaces/main_pages/partner/sales_calculator_page.dart';
 import '../models/shop_model.dart';
 
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
@@ -262,13 +263,19 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       break;
 
     case 'partnerProducts':
-      page = const PartnerProductsPage();
+      page = const ProductsPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
     case 'partnerHistory':
       page = const PartnerHistoryPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'salesCalculator':
+      page = const SalesCalculatorPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

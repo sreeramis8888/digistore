@@ -123,23 +123,6 @@ class _CategorySelectionBottomSheetState
                         widget.onCategorySelected(cat);
                         Navigator.pop(context);
                       },
-                      leading: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? kPrimaryColor.withOpacity(0.1)
-                              : const Color(0xFFF6F6F6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.category_rounded,
-                          size: 20,
-                          color: isSelected
-                              ? kPrimaryColor
-                              : kSecondaryTextColor,
-                        ),
-                      ),
                       title: Text(
                         cat.name ?? '',
                         style: kSmallTitleM.copyWith(

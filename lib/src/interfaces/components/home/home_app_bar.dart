@@ -11,6 +11,7 @@ import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../animations/index.dart';
 import '../../../data/providers/notifications_provider.dart';
+import '../../main_pages/history.dart';
 
 class HomeAppBar extends ConsumerWidget {
   const HomeAppBar({super.key});
@@ -95,6 +96,26 @@ class HomeAppBar extends ConsumerWidget {
               ),
             ),
           ),
+          if (!GlobalVariables.isPartner) ...[
+            InteractiveFeedbackButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HistoryPage()),
+                );
+              },
+              scaleFactor: 1.1,
+              child: Container(
+                padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: kBorder),
+                ),
+                child: const Icon(Icons.history, color: kBlack, size: 20),
+              ),
+            ).fadeIn(delayMilliseconds: 200),
+            SizedBox(width: screenSize.responsivePadding(12)),
+          ],
           InteractiveFeedbackButton(
             onPressed: () {
               Navigator.pushNamed(context, 'notifications');

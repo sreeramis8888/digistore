@@ -12,6 +12,7 @@ class PartnerProductsState {
   final String? error;
   final PaginationModel? pagination;
   final String searchQuery;
+  final String? currentCategoryId;
 
   PartnerProductsState({
     this.products = const [],
@@ -20,6 +21,7 @@ class PartnerProductsState {
     this.error,
     this.pagination,
     this.searchQuery = '',
+    this.currentCategoryId,
   });
 
   PartnerProductsState copyWith({
@@ -29,6 +31,7 @@ class PartnerProductsState {
     String? error,
     PaginationModel? pagination,
     String? searchQuery,
+    String? Function()? currentCategoryId,
   }) {
     return PartnerProductsState(
       products: products ?? this.products,
@@ -37,6 +40,7 @@ class PartnerProductsState {
       error: error ?? this.error,
       pagination: pagination ?? this.pagination,
       searchQuery: searchQuery ?? this.searchQuery,
+      currentCategoryId: currentCategoryId != null ? currentCategoryId() : this.currentCategoryId,
     );
   }
 }
@@ -51,15 +55,17 @@ class PartnerProducts extends _$PartnerProducts {
     return PartnerProductsState();
   }
 
-  Future<void> getProducts({int page = 1, String? search}) async {
+  Future<void> getProducts({int page = 1, String? search, String? categoryId, bool isRefresh = true}) async {
     final currentSearch = search ?? state.searchQuery;
+    final isCategoryChange = categoryId != state.currentCategoryId;
     
     if (page == 1) {
       state = state.copyWith(
         isLoading: true, 
         error: null, 
         searchQuery: currentSearch,
-        products: search != null ? [] : state.products,
+        products: (search != null || isCategoryChange) ? [] : state.products,
+        currentCategoryId: () => categoryId ?? state.currentCategoryId,
       );
     } else {
       state = state.copyWith(isLoadingMore: true, error: null);
@@ -72,6 +78,10 @@ class PartnerProducts extends _$PartnerProducts {
     };
     if (currentSearch.isNotEmpty) {
       queryParams['search'] = currentSearch;
+    }
+    final activeCategoryId = categoryId ?? state.currentCategoryId;
+    if (activeCategoryId != null && activeCategoryId != 'All' && activeCategoryId.isNotEmpty) {
+      queryParams['category'] = activeCategoryId;
     }
 
     final response = await api.get('/products', queryParams: queryParams);

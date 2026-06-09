@@ -311,7 +311,7 @@ class ApiProvider {
 
 final publicApiProvider = Provider<ApiProvider>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
-  final baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:5000/api';
+  final baseUrl = dotenv.env['BASE_URL'] ?? '';
 
   return ApiProvider(
     apiKey: dotenv.env['API_KEY'] ?? '',

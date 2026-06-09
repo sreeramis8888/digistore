@@ -13,7 +13,7 @@ import 'main_pages/rewards.dart';
 import 'main_pages/history.dart';
 import '../data/utils/global_variables.dart';
 import 'main_pages/partner/partner_home.dart';
-import 'main_pages/partner/partner_products.dart';
+import 'main_pages/products.dart';
 import 'main_pages/partner/partner_history.dart';
 import '../data/services/secure_storage_service.dart';
 import '../data/utils/notification_permission_helper.dart';
@@ -32,7 +32,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
     'assets/svg/inactive_offer.svg',
     'assets/svg/inactive_shop.svg',
     'assets/svg/inactive_reward.svg',
-    'assets/svg/inactive_history.svg',
+    'assets/svg/inactive_product.svg',
   ];
 
   static const List<String> _activeIcons = [
@@ -40,7 +40,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
     'assets/svg/active_offer.svg',
     'assets/svg/active_shop.svg',
     'assets/svg/active_reward.svg',
-    'assets/svg/active_history.svg',
+    'assets/svg/active_products.svg',
   ];
 
   List<Widget> get _widgetOptions {
@@ -48,7 +48,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
       return const <Widget>[
         PartnerHomePage(),
         OffersPage(),
-        PartnerProductsPage(),
+        ProductsPage(),
         PartnerHistoryPage(),
       ];
     }
@@ -57,7 +57,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
       OffersPage(),
       ShopsPage(),
       RewardsPage(),
-      HistoryPage(),
+      ProductsPage(),
     ];
   }
 
@@ -65,7 +65,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
     if (GlobalVariables.isPartner) {
       return ['Home', 'Offers', 'Products', 'History'];
     }
-    return ['Home', 'Offers', 'Shops', 'Rewards', 'History'];
+    return ['Home', 'Offers', 'Shops', 'Rewards', 'Products'];
   }
 
   List<String> get _currentInactiveIcons {
@@ -103,7 +103,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
       if (index == 1) return Icons.local_offer_outlined;
       if (index == 2) return Icons.storefront;
       if (index == 3) return Icons.workspace_premium_outlined;
-      return Icons.history;
+      return Icons.inventory_2_outlined;
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
@@ -12,33 +13,50 @@ class PartnerQuickActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
+    return Column(
       children: [
-        _quickActionCard(
-          'Verify OTP',
-          Icons.qr_code_scanner,
-          const Color(0xFF10B981),
-          onTap: () {
-            ref.read(selectedIndexProvider.notifier).updateIndex(1);
-          },
+        Row(
+          children: [
+            _quickActionCard(
+              'Verify OTP',
+              'assets/svg/verify_otp.svg',
+              const Color(0xFF10B981),
+              onTap: () {
+                ref.read(selectedIndexProvider.notifier).updateIndex(1);
+              },
+            ),
+            SizedBox(width: screenSize.responsivePadding(16)),
+            _quickActionCard(
+              'Create a Offer',
+              'assets/svg/create_offer.svg',
+              const Color(0xFF8B5CF6),
+              onTap: () {
+                Navigator.pushNamed(context, 'createOffer');
+              },
+            ),
+          ],
         ),
-        SizedBox(width: screenSize.responsivePadding(16)),
-        _quickActionCard(
-          'Create a product',
-          Icons.shopping_bag_outlined,
-          const Color(0xFFEC4899),
-          onTap: () {
-            Navigator.pushNamed(context, 'createProduct');
-          },
-        ),
-        SizedBox(width: screenSize.responsivePadding(16)),
-        _quickActionCard(
-          'Create an Offer',
-          Icons.local_offer_outlined,
-          const Color(0xFF8B5CF6),
-          onTap: () {
-            Navigator.pushNamed(context, 'createOffer');
-          },
+        SizedBox(height: screenSize.responsivePadding(16)),
+        Row(
+          children: [
+            _quickActionCard(
+              'Create a product',
+              'assets/svg/create_product.svg',
+              const Color(0xFFEC4899),
+              onTap: () {
+                Navigator.pushNamed(context, 'createProduct');
+              },
+            ),
+            SizedBox(width: screenSize.responsivePadding(16)),
+            _quickActionCard(
+              'Sales Calculator',
+              'assets/svg/sales_calculator.svg',
+              const Color(0xFFF97316),
+              onTap: () {
+                Navigator.pushNamed(context, 'salesCalculator');
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -46,7 +64,7 @@ class PartnerQuickActions extends ConsumerWidget {
 
   Widget _quickActionCard(
     String title,
-    IconData icon,
+    String svgAsset,
     Color color, {
     VoidCallback? onTap,
   }) {
@@ -75,19 +93,30 @@ class PartnerQuickActions extends ConsumerWidget {
                       color: color,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(icon, color: kWhite, size: 16),
+                    child: SvgPicture.asset(
+                      svgAsset,
+                      width: 16,
+                      height: 16,
+                    ),
                   ),
-                  const Icon(
-                    Icons.arrow_outward,
-                    size: 16,
-                    color: Color(0xFF9CA3AF),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_outward,
+                      size: 16,
+                      color: Color(0xFF9CA3AF),
+                    ),
                   ),
                 ],
               ),
               Text(
                 title,
                 style: kSmallTitleB.copyWith(
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
                 maxLines: 2,
