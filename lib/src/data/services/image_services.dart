@@ -17,7 +17,6 @@ import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:video_compress/video_compress.dart';
 
 String extractImageUrl(String responseBody) {
   final responseJson = jsonDecode(responseBody);
@@ -48,18 +47,7 @@ class MediaService {
     return image != null ? File(image.path) : null;
   }
 
-  Future<File?> pickVideoFromGallery() async {
-    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
-    return video != null ? File(video.path) : null;
-  }
 
-  Future<File?> pickVideoFromCamera() async {
-    final canUseCamera = await requestPermission(Permission.camera);
-    if (!canUseCamera) return null;
-
-    final XFile? video = await _picker.pickVideo(source: ImageSource.camera);
-    return video != null ? File(video.path) : null;
-  }
 
   Future<File?> pickDocument() async {
     try {
@@ -170,21 +158,7 @@ class FileDownloadService {
   }
 }
 
-Future<File?> _compressVideo(File file) async {
-  try {
-    await VideoCompress.setLogLevel(0);
-    final MediaInfo? info = await VideoCompress.compressVideo(
-      file.path,
-      quality: VideoQuality.MediumQuality, // Balance between size and quality
-      deleteOrigin: false,
-      includeAudio: true,
-    );
-    return info?.file;
-  } catch (e) {
-    log('Video compression failed: $e');
-    return null;
-  }
-}
+
 
 Future<dynamic> pickMedia({
   required BuildContext context,
@@ -192,8 +166,6 @@ Future<dynamic> pickMedia({
   bool enableCrop = false,
   CropAspectRatio? cropRatio,
   bool showDocument = true,
-  bool allowVideo = false,
-  bool onlyVideo = false,
 }) async {
   return showModalBottomSheet(
     context: context,
@@ -206,8 +178,6 @@ Future<dynamic> pickMedia({
       enableCrop: enableCrop,
       cropRatio: cropRatio,
       showDocument: showDocument,
-      allowVideo: allowVideo,
-      onlyVideo: onlyVideo,
     ),
   );
 }
@@ -217,16 +187,12 @@ class _PickSourceDialog extends StatelessWidget {
   final bool enableCrop;
   final CropAspectRatio? cropRatio;
   final bool showDocument;
-  final bool allowVideo;
-  final bool onlyVideo;
 
   const _PickSourceDialog({
     required this.allowMultiple,
     required this.enableCrop,
     required this.cropRatio,
     required this.showDocument,
-    required this.allowVideo,
-    required this.onlyVideo,
   });
 
   @override
@@ -247,34 +213,18 @@ class _PickSourceDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          if (!onlyVideo) ...[
-            _option(
-              context,
-              "Camera",
-              Icons.camera_alt_rounded,
-              () => _pickFromCamera(context),
-            ),
-            _option(
-              context,
-              "Gallery",
-              Icons.photo_library_rounded,
-              () => _pickFromGallery(context),
-            ),
-          ],
-          if (allowVideo || onlyVideo) ...[
-            _option(
-              context,
-              "Video Camera",
-              Icons.videocam_rounded,
-              () => _pickVideo(context, source: ImageSource.camera),
-            ),
-            _option(
-              context,
-              "Video Gallery",
-              Icons.video_collection_rounded,
-              () => _pickVideo(context, source: ImageSource.gallery),
-            ),
-          ],
+          _option(
+            context,
+            "Camera",
+            Icons.camera_alt_rounded,
+            () => _pickFromCamera(context),
+          ),
+          _option(
+            context,
+            "Gallery",
+            Icons.photo_library_rounded,
+            () => _pickFromGallery(context),
+          ),
           if (showDocument)
             _option(
               context,
@@ -369,16 +319,7 @@ class _PickSourceDialog extends StatelessWidget {
     Navigator.pop(context, rawImage);
   }
 
-  Future<void> _pickVideo(
-    BuildContext context, {
-    required ImageSource source,
-  }) async {
-    final picker = ImagePicker();
-    final XFile? video = await picker.pickVideo(source: source);
-    if (video != null) {
-      Navigator.pop(context, video);
-    }
-  }
+
 
   // -------------------------
   // PICK DOCUMENT
