@@ -46,6 +46,7 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'History',
           style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
