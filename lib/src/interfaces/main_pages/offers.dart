@@ -148,6 +148,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Offers',
           style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
@@ -157,25 +158,25 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         scrolledUnderElevation: 0,
         actions: [
           if (isPartner)
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(16),
-                vertical: screenSize.responsivePadding(8),
-              ),
-              child: PrimaryButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CreateOfferPage(),
-                    ),
-                  );
-                },
-                width: screenSize.responsivePadding(120),
-                text: 'Create Offer',
-                textSize: 12,
-                backgroundColor: kPrimaryColor,
-                textColor: kWhite,
+            Center(
+              child: Padding(
+                padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
+                child: PrimaryButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CreateOfferPage(),
+                      ),
+                    );
+                  },
+                  width: screenSize.responsivePadding(140),
+                  height: screenSize.responsivePadding(38),
+                  text: 'Create Offer',
+                  textSize: 14,
+                  backgroundColor: kPrimaryColor,
+                  textColor: kWhite,
+                ),
               ),
             ),
         ],

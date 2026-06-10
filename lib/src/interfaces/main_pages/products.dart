@@ -113,6 +113,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Products',
           style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),

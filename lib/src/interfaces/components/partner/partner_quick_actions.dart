@@ -15,48 +15,54 @@ class PartnerQuickActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
-        Row(
-          children: [
-            _quickActionCard(
-              'Verify OTP',
-              'assets/svg/verify_otp.svg',
-              const Color(0xFF10B981),
-              onTap: () {
-                ref.read(selectedIndexProvider.notifier).updateIndex(1);
-              },
-            ),
-            SizedBox(width: screenSize.responsivePadding(16)),
-            _quickActionCard(
-              'Create a Offer',
-              'assets/svg/create_offer.svg',
-              const Color(0xFF8B5CF6),
-              onTap: () {
-                Navigator.pushNamed(context, 'createOffer');
-              },
-            ),
-          ],
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _quickActionCard(
+                'Verify OTP',
+                'assets/svg/verify_otp.svg',
+                const Color(0xFF10B981),
+                onTap: () {
+                  ref.read(selectedIndexProvider.notifier).updateIndex(1);
+                },
+              ),
+              SizedBox(width: screenSize.responsivePadding(16)),
+              _quickActionCard(
+                'Create a Offer',
+                'assets/svg/create_offer.svg',
+                const Color(0xFF8B5CF6),
+                onTap: () {
+                  Navigator.pushNamed(context, 'createOffer');
+                },
+              ),
+            ],
+          ),
         ),
         SizedBox(height: screenSize.responsivePadding(16)),
-        Row(
-          children: [
-            _quickActionCard(
-              'Create a product',
-              'assets/svg/create_product.svg',
-              const Color(0xFFEC4899),
-              onTap: () {
-                Navigator.pushNamed(context, 'createProduct');
-              },
-            ),
-            SizedBox(width: screenSize.responsivePadding(16)),
-            _quickActionCard(
-              'Sales Calculator',
-              'assets/svg/sales_calculator.svg',
-              const Color(0xFFF97316),
-              onTap: () {
-                Navigator.pushNamed(context, 'salesCalculator');
-              },
-            ),
-          ],
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _quickActionCard(
+                'Create a product',
+                'assets/svg/create_product.svg',
+                const Color(0xFFEC4899),
+                onTap: () {
+                  Navigator.pushNamed(context, 'createProduct');
+                },
+              ),
+              SizedBox(width: screenSize.responsivePadding(16)),
+              _quickActionCard(
+                'Sales Calculator',
+                'assets/svg/sales_calculator.svg',
+                const Color(0xFFF97316),
+                onTap: () {
+                  Navigator.pushNamed(context, 'salesCalculator');
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -72,7 +78,6 @@ class PartnerQuickActions extends ConsumerWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 100,
           padding: EdgeInsets.all(screenSize.responsivePadding(12)),
           decoration: BoxDecoration(
             color: kWhite,
@@ -113,6 +118,7 @@ class PartnerQuickActions extends ConsumerWidget {
                   ),
                 ],
               ),
+              SizedBox(height: screenSize.responsivePadding(12)),
               Text(
                 title,
                 style: kSmallTitleB.copyWith(

@@ -21,6 +21,7 @@ class HistoryPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'My Wallet',
           style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
