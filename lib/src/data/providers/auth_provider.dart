@@ -1,5 +1,6 @@
-import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/secure_storage_service.dart';
@@ -138,6 +139,20 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
 
   Future<void> logout() async {
     final storage = ref.read(secureStorageServiceProvider);
+    
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        final isPartner = await storage.getIsPartner();
+        final endpoint = isPartner ? '/partner/auth/logout' : '/auth/logout';
+        final api = ref.read(apiProvider);
+        await api.post(endpoint, {'fcmToken': fcmToken});
+        await FirebaseMessaging.instance.deleteToken();
+      }
+    } catch (e) {
+      debugPrint('Logout API error: $e');
+    }
+
     await storage.clearAll();
     GlobalVariables.clear();
     GlobalVariables.setPartnerMode(false);
