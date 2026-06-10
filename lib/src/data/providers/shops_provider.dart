@@ -58,7 +58,11 @@ class Shops extends _$Shops {
     return ShopsState();
   }
 
-  Future<void> getShops({int page = 1, String? category, String? search}) async {
+  Future<void> getShops({
+    int page = 1,
+    String? category,
+    String? search,
+  }) async {
     final currentCategory = category ?? state.category;
     final currentSearch = search ?? state.searchQuery;
 
@@ -80,11 +84,7 @@ class Shops extends _$Shops {
     final lng = user?.location?.coordinates?.lng;
 
     if (lat == null || lng == null) {
-      state = state.copyWith(
-        isLoading: false,
-        isLoadingMore: false,
-        shops: [],
-      );
+      state = state.copyWith(isLoading: false, isLoadingMore: false, shops: []);
       return;
     }
 
@@ -95,7 +95,9 @@ class Shops extends _$Shops {
       'limit': '20',
     };
 
-    if (currentCategory != null && currentCategory != 'All' && currentCategory.isNotEmpty) {
+    if (currentCategory != null &&
+        currentCategory != 'All' &&
+        currentCategory.isNotEmpty) {
       queryParams['category'] = currentCategory;
     }
 
@@ -103,12 +105,16 @@ class Shops extends _$Shops {
       queryParams['search'] = currentSearch;
     }
 
-    final response = await api.get('/shops', queryParams: queryParams, requireAuth: false);
+    final response = await api.get('/shops', queryParams: queryParams);
 
     if (response.success && response.data != null) {
       final List<dynamic> data = response.data!['data'] as List<dynamic>;
-      final pagination = PaginationModel.fromJson(response.data!['pagination'] as Map<String, dynamic>);
-      final newShops = data.map((e) => ShopModel.fromJson(e as Map<String, dynamic>)).toList();
+      final pagination = PaginationModel.fromJson(
+        response.data!['pagination'] as Map<String, dynamic>,
+      );
+      final newShops = data
+          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       if (page == 1) {
         state = state.copyWith(
@@ -162,7 +168,11 @@ class AllShops extends _$AllShops {
     return ShopsState();
   }
 
-  Future<void> getShops({int page = 1, String? category, String? search}) async {
+  Future<void> getShops({
+    int page = 1,
+    String? category,
+    String? search,
+  }) async {
     final currentCategory = category ?? state.category;
     final currentSearch = search ?? state.searchQuery;
 
@@ -183,17 +193,16 @@ class AllShops extends _$AllShops {
     final lat = user?.location?.coordinates?.lat;
     final lng = user?.location?.coordinates?.lng;
 
-    final queryParams = {
-      'page': page.toString(),
-      'limit': '20',
-    };
+    final queryParams = {'page': page.toString(), 'limit': '20'};
 
     if (lat != null && lng != null) {
       queryParams['lat'] = lat.toString();
       queryParams['lng'] = lng.toString();
     }
 
-    if (currentCategory != null && currentCategory != 'All' && currentCategory.isNotEmpty) {
+    if (currentCategory != null &&
+        currentCategory != 'All' &&
+        currentCategory.isNotEmpty) {
       queryParams['category'] = currentCategory;
     }
 
@@ -201,12 +210,16 @@ class AllShops extends _$AllShops {
       queryParams['search'] = currentSearch;
     }
 
-    final response = await api.get('/shops', queryParams: queryParams, requireAuth: false);
+    final response = await api.get('/shops', queryParams: queryParams);
 
     if (response.success && response.data != null) {
       final List<dynamic> data = response.data!['data'] as List<dynamic>;
-      final pagination = PaginationModel.fromJson(response.data!['pagination'] as Map<String, dynamic>);
-      final newShops = data.map((e) => ShopModel.fromJson(e as Map<String, dynamic>)).toList();
+      final pagination = PaginationModel.fromJson(
+        response.data!['pagination'] as Map<String, dynamic>,
+      );
+      final newShops = data
+          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       if (page == 1) {
         state = state.copyWith(
@@ -255,10 +268,12 @@ class AllShops extends _$AllShops {
 Future<List<OfferModel>> shopOffers(Ref ref, String shopId) async {
   if (shopId.isEmpty) return [];
   final api = ref.read(apiProvider);
-  final response = await api.get('/shops/$shopId/offers', requireAuth: false);
+  final response = await api.get('/shops/$shopId/offers');
   if (response.success && response.data != null) {
     final data = response.data!['data'] as List<dynamic>? ?? [];
-    return data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList();
+    return data
+        .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
   return [];
 }
@@ -267,10 +282,12 @@ Future<List<OfferModel>> shopOffers(Ref ref, String shopId) async {
 Future<List<ProductModel>> shopProducts(Ref ref, String shopId) async {
   if (shopId.isEmpty) return [];
   final api = ref.read(apiProvider);
-  final response = await api.get('/shops/$shopId/products', requireAuth: false);
+  final response = await api.get('/shops/$shopId/products');
   if (response.success && response.data != null) {
     final data = response.data!['data'] as List<dynamic>? ?? [];
-    return data.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList();
+    return data
+        .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
   return [];
 }
@@ -279,7 +296,7 @@ Future<List<ProductModel>> shopProducts(Ref ref, String shopId) async {
 Future<ShopModel?> getShopByPartnerId(Ref ref, String partnerId) async {
   if (partnerId.isEmpty) return null;
   final api = ref.read(apiProvider);
-  final response = await api.get('/shops/$partnerId', requireAuth: false);
+  final response = await api.get('/shops/$partnerId');
   if (response.success && response.data != null) {
     final data = response.data!['data'];
     if (data != null) {

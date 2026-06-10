@@ -53,3 +53,6 @@ ios/Runner/GoogleService-Info.plist
 # Key properties
 android/key.properties
 android/fastlane/service_account.json
+
+# Project Context
+project_context.md

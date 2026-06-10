@@ -7,6 +7,8 @@ class InAppNotificationOverlay {
   static OverlayEntry? _currentOverlay;
   static Timer? _dismissTimer;
 
+  static bool _wasInteracted = false;
+
   static void show(
     BuildContext context, {
     required String title,
@@ -15,10 +17,12 @@ class InAppNotificationOverlay {
     Widget? leadingWidget,
     Duration duration = const Duration(seconds: 4),
     VoidCallback? onTap,
+    VoidCallback? onTimeout,
     Color accentColor = const Color(0xFF1E3A81),
     OverlayState? overlayState,
   }) {
     dismiss();
+    _wasInteracted = false;
 
     final overlay = overlayState ?? Overlay.of(context);
 
@@ -30,17 +34,26 @@ class InAppNotificationOverlay {
         leadingWidget: leadingWidget,
         accentColor: accentColor,
         onTap: () {
+          _wasInteracted = true;
           dismiss();
           onTap?.call();
         },
-        onDismiss: dismiss,
+        onDismiss: () {
+          _wasInteracted = true;
+          dismiss();
+        },
       ),
     );
 
     _currentOverlay = overlayEntry;
     overlay.insert(overlayEntry);
 
-    _dismissTimer = Timer(duration, dismiss);
+    _dismissTimer = Timer(duration, () {
+      if (!_wasInteracted) {
+        onTimeout?.call();
+      }
+      dismiss();
+    });
   }
 
   static void dismiss() {
@@ -146,94 +159,116 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
                           _dismiss();
                         }
                       },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(28),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.85),
-                              borderRadius: BorderRadius.circular(28),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.5),
-                                width: 1.0,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 32,
-                                  offset: const Offset(0, 8),
-                                  spreadRadius: -2,
-                                ),
-                              ],
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF141417), // Deep premium dark
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(
+                            color: widget.accentColor.withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: widget.accentColor.withOpacity(0.25),
+                              blurRadius: 40,
+                              offset: const Offset(0, 15),
+                              spreadRadius: -5,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                10,
-                                10,
-                                16,
-                                10,
-                              ),
-                              child: IntrinsicHeight(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    _buildLeading(),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                _buildLeading(),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  widget.title,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                    letterSpacing: -0.2,
-                                                    color: Colors.black87,
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
+                                          Expanded(
+                                            child: Text(
+                                              widget.title,
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                                letterSpacing: -0.2,
+                                                color: Colors.white,
                                               ),
-                                              Text(
-                                                'Now',
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey.shade500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          if (widget.message.isNotEmpty) ...[
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              widget.message,
-                                              style: TextStyle(
-                                                fontSize: 12.5,
-                                                height: 1.25,
-                                                color: Colors.grey.shade700,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                              maxLines: 2,
+                                              maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
-                                          ],
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  widget.accentColor,
+                                                  widget.accentColor.withOpacity(0.7),
+                                                ],
+                                              ),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: const Text(
+                                              'NEW',
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 0.8,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                      if (widget.message.isNotEmpty) ...[
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          widget.message,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            height: 1.3,
+                                            color: Color(0xFFA1A1AA), // Soft silver
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 12),
+                                Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Colors.white70,
+                                    size: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -254,38 +289,56 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
 
     if (widget.imageUrl != null) {
       return Container(
-        width: 38,
-        height: 38,
+        width: 52,
+        height: 52,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(26), // Circle inside pill
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: AdvancedNetworkImage(
-          imageUrl: widget.imageUrl!,
-          fit: BoxFit.cover,
-          borderRadius: BorderRadius.circular(19),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(26),
+          child: AdvancedNetworkImage(
+            imageUrl: widget.imageUrl!,
+            fit: BoxFit.cover,
+          ),
         ),
       );
     }
 
     return Container(
-      width: 38,
-      height: 38,
+      width: 52,
+      height: 52,
       decoration: BoxDecoration(
-        color: widget.accentColor.withOpacity(0.1),
         shape: BoxShape.circle,
+        gradient: const RadialGradient(
+          colors: [
+            Colors.white,
+            Color(0xFFE2E8F0), // Cool silver
+          ],
+          center: Alignment.topLeft,
+          radius: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: widget.accentColor.withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 0),
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Center(
         child: Icon(
-          Icons.notifications_rounded,
+          Icons.notifications_active_rounded,
           color: widget.accentColor,
-          size: 18,
+          size: 24,
         ),
       ),
     );

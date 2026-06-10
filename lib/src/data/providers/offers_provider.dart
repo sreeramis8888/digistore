@@ -392,3 +392,18 @@ Future<List<OfferModel>> activeDeals(Ref ref, {required String dealType}) async 
     throw Exception(response.message ?? 'Failed to fetch active deals');
   }
 }
+
+@riverpod
+Future<OfferModel?> getOfferById(Ref ref, String offerId) async {
+  if (offerId.isEmpty) return null;
+  final api = ref.watch(apiProvider);
+  final response = await api.get('/offers/$offerId');
+  if (response.success && response.data != null) {
+    final data = response.data!['data'];
+    if (data != null) {
+      return OfferModel.fromJson(data as Map<String, dynamic>);
+    }
+  }
+  return null;
+}
+

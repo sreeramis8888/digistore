@@ -15,7 +15,12 @@ class SnackbarService {
   }) {
     _entry?.remove();
 
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.maybeOf(context) ?? Navigator.maybeOf(context)?.overlay;
+    if (overlay == null) {
+      debugPrint('No overlay found to show snackbar.');
+      return;
+    }
+
     final controller = AnimationController(
       vsync: overlay,
       duration: const Duration(milliseconds: 420),

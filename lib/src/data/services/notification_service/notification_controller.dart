@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -60,18 +61,30 @@ class NotificationController {
     debugPrint('🔔 Notification dismissed: ${receivedAction.id}');
   }
 
+  static final StreamController<String> deepLinkStream = StreamController<String>.broadcast();
+
   /// Use this method to detect when the user taps on a notification or action button
   @pragma("vm:entry-point")
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
     debugPrint('🔔 Notification action received: ${receivedAction.payload}');
 
-    // Handle notification tap logic here
-    if (receivedAction.payload != null &&
-        receivedAction.payload!.containsKey('deepLink')) {
-      final deepLink = receivedAction.payload!['deepLink'];
+    if (receivedAction.payload != null) {
+      final payload = receivedAction.payload!;
+      String? deepLink = payload['deepLink'];
+
+      if (deepLink == null) {
+        final screen = payload['screen'] ?? payload['actionScreen'];
+        final id = payload['id'] ?? payload['actionTargetId'];
+        if (screen != null) {
+          // Construct the internal app link format expected by DeepLinkService
+          deepLink = 'app://$screen${id != null ? '/$id' : ''}';
+        }
+      }
+
       if (deepLink != null) {
         debugPrint('Deep link to handle: $deepLink');
+        deepLinkStream.add(deepLink);
       }
     }
   }

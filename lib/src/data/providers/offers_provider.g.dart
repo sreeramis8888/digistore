@@ -40,7 +40,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
   }
 }
 
-String _$offersHash() => r'f4f58226ba3cdd660551a5dadf021341cf663de3';
+String _$offersHash() => r'92f66539fe70f669daa37b5e8b536b00a648101d';
 
 abstract class _$Offers extends $Notifier<PaginatedOffers> {
   PaginatedOffers build();
@@ -133,4 +133,79 @@ final class ActiveDealsFamily extends $Family
 
   @override
   String toString() => r'activeDealsProvider';
+}
+
+@ProviderFor(getOfferById)
+final getOfferByIdProvider = GetOfferByIdFamily._();
+
+final class GetOfferByIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<OfferModel?>,
+          OfferModel?,
+          FutureOr<OfferModel?>
+        >
+    with $FutureModifier<OfferModel?>, $FutureProvider<OfferModel?> {
+  GetOfferByIdProvider._({
+    required GetOfferByIdFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getOfferByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getOfferByIdHash();
+
+  @override
+  String toString() {
+    return r'getOfferByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<OfferModel?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<OfferModel?> create(Ref ref) {
+    final argument = this.argument as String;
+    return getOfferById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetOfferByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getOfferByIdHash() => r'f67c4cefedae064987e968a86c32920c65a103f9';
+
+final class GetOfferByIdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<OfferModel?>, String> {
+  GetOfferByIdFamily._()
+    : super(
+        retry: null,
+        name: r'getOfferByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetOfferByIdProvider call(String offerId) =>
+      GetOfferByIdProvider._(argument: offerId, from: this);
+
+  @override
+  String toString() => r'getOfferByIdProvider';
 }

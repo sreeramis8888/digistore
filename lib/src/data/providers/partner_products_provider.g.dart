@@ -41,7 +41,7 @@ final class PartnerProductsProvider
   }
 }
 
-String _$partnerProductsHash() => r'7bd9898a7690bf8667e92f2b7d20618d5a5dcf36';
+String _$partnerProductsHash() => r'822686316109cd6991c3a5eb5cad995903d5da60';
 
 abstract class _$PartnerProducts extends $Notifier<PartnerProductsState> {
   PartnerProductsState build();

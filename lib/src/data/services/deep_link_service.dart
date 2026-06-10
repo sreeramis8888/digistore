@@ -5,6 +5,10 @@ import 'package:setgo/src/data/router/nav_router.dart';
 import 'package:setgo/src/data/services/navigation_service.dart';
 import 'package:setgo/src/data/services/secure_storage_service.dart';
 import 'package:setgo/src/data/services/snackbar_service.dart';
+import 'package:setgo/src/data/services/notification_service/notification_controller.dart';
+import 'package:setgo/src/data/providers/offers_provider.dart';
+import 'package:setgo/src/data/providers/shops_provider.dart';
+import 'package:setgo/src/data/providers/rewards_provider.dart';
 
 final deepLinkServiceProvider = Provider<DeepLinkService>((ref) {
   return DeepLinkService(ref);
@@ -63,6 +67,11 @@ class DeepLinkService {
         handleDeepLink(uri);
       });
 
+      NotificationController.deepLinkStream.stream.listen((deepLink) {
+        debugPrint('🔗 ⚡ Deep link received from notification tap: $deepLink');
+        handleDeepLink(Uri.parse(deepLink));
+      });
+
       _isInitialized = true;
       debugPrint('🔗 Deep link service initialized successfully');
     } catch (e) {
@@ -109,9 +118,8 @@ class DeepLinkService {
       // Verify user is authenticated
       final secureStorage = _ref.read(secureStorageServiceProvider);
       final savedToken = await secureStorage.getBearerToken();
-      final savedId = await secureStorage.getUserId();
 
-      if (savedToken == null || savedToken.isEmpty || savedId == null) {
+      if (savedToken == null || savedToken.isEmpty) {
         debugPrint(
           'Authentication required for deep link. Redirecting to login.',
         );
@@ -123,7 +131,7 @@ class DeepLinkService {
         }
 
         NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          'Phone',
+          'login',
           (route) => false,
         );
         return;
@@ -147,22 +155,20 @@ class DeepLinkService {
       final id = pathSegments.length > 1 ? pathSegments[1] : null;
 
       switch (route) {
-        case 'campaign':
-          await _navigateToCampaign(id);
+        case 'shopdetail':
+          await _navigateToShop(id);
           break;
-        case 'event':
-          await _navigateToEvent(id);
+        case 'offerdetail':
+          await _navigateToOffer(id);
           break;
-        case 'feed':
-          await _navigateToFeed(id);
-          break;
-        case 'resource':
-          await _navigateToResource(id);
+        case 'rewarddetail':
+          await _navigateToReward(id);
           break;
         case 'notifications':
           await _navigateToNotifications();
           break;
         case 'profile':
+        case 'myaccount':
           await _navigateToProfile();
           break;
         case 'general':
@@ -194,64 +200,84 @@ class DeepLinkService {
     }
   }
 
-  /// Navigate to campaigns
-  Future<void> _navigateToCampaign(String? campaignId) async {}
-
-  Future<void> _navigateToResource(String? resourceId) async {
+  /// Navigate to Shop
+  Future<void> _navigateToShop(String? shopId) async {
     try {
       NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
         'navbar',
         (route) => false,
       );
       await Future.delayed(const Duration(milliseconds: 300));
-      _ref.read(selectedIndexProvider.notifier).updateIndex(2);
-
-      if (resourceId != null && resourceId.isNotEmpty) {
-        NavigationService.navigatorKey.currentState?.pushNamed(
-          'ResourceDetails',
-          arguments: {'id': resourceId},
-        );
-        debugPrint('✅ Navigated to Resource Details: $resourceId');
-      } else {
-        debugPrint('✅ Navigated to Resource');
+      
+      if (shopId != null && shopId.isNotEmpty) {
+        final shop = await _ref.read(getShopByPartnerIdProvider(shopId).future);
+        if (shop != null) {
+          NavigationService.navigatorKey.currentState?.pushNamed(
+            'shopDetail',
+            arguments: shop,
+          );
+          debugPrint('✅ Navigated to Shop Details: $shopId');
+        } else {
+          _showError('Shop not found.');
+        }
       }
     } catch (e) {
-      debugPrint('Error navigating to resource: $e');
-      _showError('Unable to navigate to Resource');
+      debugPrint('Error navigating to shop: $e');
+      _showError('Unable to navigate to Shop');
     }
   }
 
-  /// Navigate to event
-  Future<void> _navigateToEvent(String? eventId) async {}
-
-  /// Navigate to individual feed
-  Future<void> _navigateToFeed(String? feedId) async {
+  /// Navigate to Offer
+  Future<void> _navigateToOffer(String? offerId) async {
     try {
-      if (feedId != null && feedId.isNotEmpty) {
-        // Navigate directly to feed detail without going through navbar
-        NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          'navbar',
-          (route) => false,
-        );
-        await Future.delayed(const Duration(milliseconds: 100));
-        NavigationService.navigatorKey.currentState?.pushNamed(
-          'FeedDetail',
-          arguments: {'id': feedId},
-        );
-        debugPrint('✅ Navigated to Feed Detail: $feedId');
-      } else {
-        // Navigate to feeds tab
-        NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          'navbar',
-          (route) => false,
-        );
-        await Future.delayed(const Duration(milliseconds: 100));
-        _ref.read(selectedIndexProvider.notifier).updateIndex(1);
-        debugPrint('✅ Navigated to Feed');
+      NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        'navbar',
+        (route) => false,
+      );
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      if (offerId != null && offerId.isNotEmpty) {
+        final offer = await _ref.read(getOfferByIdProvider(offerId).future);
+        if (offer != null) {
+          NavigationService.navigatorKey.currentState?.pushNamed(
+            'offerDetail',
+            arguments: offer.toJson(),
+          );
+          debugPrint('✅ Navigated to Offer Details: $offerId');
+        } else {
+          _showError('Offer not found.');
+        }
       }
     } catch (e) {
-      debugPrint('Error navigating to feed: $e');
-      _showError('Unable to navigate to Feed');
+      debugPrint('Error navigating to offer: $e');
+      _showError('Unable to navigate to Offer');
+    }
+  }
+
+  /// Navigate to Reward
+  Future<void> _navigateToReward(String? rewardId) async {
+    try {
+      NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        'navbar',
+        (route) => false,
+      );
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      if (rewardId != null && rewardId.isNotEmpty) {
+        final reward = await _ref.read(getRewardByIdProvider(rewardId).future);
+        if (reward != null) {
+          NavigationService.navigatorKey.currentState?.pushNamed(
+            'rewardDetail',
+            arguments: reward.toJson(),
+          );
+          debugPrint('✅ Navigated to Reward Details: $rewardId');
+        } else {
+          _showError('Reward not found.');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error navigating to reward: $e');
+      _showError('Unable to navigate to Reward');
     }
   }
 
@@ -265,7 +291,7 @@ class DeepLinkService {
       _ref
           .read(selectedIndexProvider.notifier)
           .updateIndex(0); // Use Home as base
-      NavigationService.navigatorKey.currentState?.pushNamed('Notifications');
+      NavigationService.navigatorKey.currentState?.pushNamed('notifications');
       debugPrint('✅ Navigated to Notifications');
     } catch (e) {
       debugPrint('Error navigating to notifications: $e');
@@ -305,23 +331,20 @@ class DeepLinkService {
   /// Use HTTPS links for WhatsApp/social media compatibility
   String generateDeepLink(String route, {String? id}) {
     // Use HTTPS for clickable links in WhatsApp, Gmail, etc.
-    const baseUrl = 'https://app-mmc.24connect.in/app';
+    const baseUrl = 'https://setgo.in/app';
 
-    switch (route) {
-      case 'campaign':
-        return id != null ? '$baseUrl/campaign/$id' : '$baseUrl/campaign';
-      case 'event':
-        return id != null ? '$baseUrl/event/$id' : '$baseUrl/event';
-      case 'feed':
-        return id != null ? '$baseUrl/feed/$id' : '$baseUrl/feed';
-      case 'chat':
-        return id != null ? '$baseUrl/chat/$id' : '$baseUrl/chat';
-      case 'resource':
-        return id != null ? '$baseUrl/resource/$id' : '$baseUrl/resource';
+    switch (route.toLowerCase()) {
+      case 'shopdetail':
+        return id != null ? '$baseUrl/shopdetail/$id' : '$baseUrl/shopdetail';
+      case 'offerdetail':
+        return id != null ? '$baseUrl/offerdetail/$id' : '$baseUrl/offerdetail';
+      case 'rewarddetail':
+        return id != null ? '$baseUrl/rewarddetail/$id' : '$baseUrl/rewarddetail';
       case 'notifications':
         return '$baseUrl/notifications';
       case 'profile':
-        return '$baseUrl/profile';
+      case 'myaccount':
+        return '$baseUrl/myaccount';
       default:
         return '$baseUrl/general';
     }

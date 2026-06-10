@@ -40,7 +40,7 @@ final class ShopsProvider extends $NotifierProvider<Shops, ShopsState> {
   }
 }
 
-String _$shopsHash() => r'0da796440f71f6764222c53af3cd613359c812dc';
+String _$shopsHash() => r'2a245232d42cd853ea5884c6eb83c7460afa81dd';
 
 abstract class _$Shops extends $Notifier<ShopsState> {
   ShopsState build();
@@ -91,7 +91,7 @@ final class AllShopsProvider extends $NotifierProvider<AllShops, ShopsState> {
   }
 }
 
-String _$allShopsHash() => r'b940d1cbc95822f414b694eaebacc79ff3428ea1';
+String _$allShopsHash() => r'3da30eee1867d6c54152ad679de54a1d244a4587';
 
 abstract class _$AllShops extends $Notifier<ShopsState> {
   ShopsState build();

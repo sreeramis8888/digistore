@@ -191,3 +191,18 @@ class RewardAction extends _$RewardAction {
     return response;
   }
 }
+
+@riverpod
+Future<RewardModel?> getRewardById(Ref ref, String rewardId) async {
+  if (rewardId.isEmpty) return null;
+  final api = ref.watch(apiProvider);
+  final response = await api.get('/rewards/$rewardId');
+  if (response.success && response.data != null) {
+    final data = response.data!['data'];
+    if (data != null) {
+      return RewardModel.fromJson(data as Map<String, dynamic>);
+    }
+  }
+  return null;
+}
+

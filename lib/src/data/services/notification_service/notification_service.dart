@@ -79,10 +79,10 @@ class NotificationService {
     try {
       if (message.notification != null) {
         String? deepLink;
-        if (message.data.containsKey('screen')) {
-          final screen = message.data['screen'];
-          final id = message.data['id'];
-
+        String? screen = message.data['screen'] ?? message.data['actionScreen'];
+        String? id = message.data['id'] ?? message.data['actionTargetId'];
+        
+        if (screen != null) {
           deepLink = _deepLinkService.generateDeepLink(screen, id: id);
         }
 
@@ -103,6 +103,10 @@ class NotificationService {
                 _deepLinkService.handleDeepLink(Uri.parse(deepLink));
               }
             },
+            onTimeout: () {
+              debugPrint('Overlay timed out, showing system notification');
+              _showSystemNotification(message, deepLink);
+            },
           );
         } else {
           debugPrint('Context not available, cannot show in-app notification');
@@ -118,7 +122,7 @@ class NotificationService {
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: message.hashCode,
-        channelKey: _channelKey,
+        channelKey: 'channel_setgo_silent_v2', // Silent channel with status bar icon
         title: message.notification?.title,
         body: message.notification?.body,
         bigPicture: message.notification?.android?.imageUrl,
@@ -130,9 +134,9 @@ class NotificationService {
         category: NotificationCategory.Message,
         autoDismissible: true,
         showWhen: true,
-        criticalAlert: true,
-        wakeUpScreen: true,
-        fullScreenIntent: true,
+        criticalAlert: false, // Don't pop up
+        wakeUpScreen: false, // Don't turn on screen
+        fullScreenIntent: false, // Keep it strictly in tray
         locked: false,
       ),
       actionButtons: [
@@ -151,9 +155,10 @@ class NotificationService {
       _ref.read(notificationsProvider.notifier).fetchUnreadCount();
 
       String? deepLink;
-      if (message.data.containsKey('screen')) {
-        final screen = message.data['screen'];
-        final id = message.data['id'];
+      String? screen = message.data['screen'] ?? message.data['actionScreen'];
+      String? id = message.data['id'] ?? message.data['actionTargetId'];
+      
+      if (screen != null) {
         deepLink = _deepLinkService.generateDeepLink(screen, id: id);
       }
 

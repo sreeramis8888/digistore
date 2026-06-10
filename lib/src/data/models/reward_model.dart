@@ -57,6 +57,27 @@ class RewardModel {
       totalRedeemed: json['totalRedeemed'] as int?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'title': title,
+      'description': description,
+      'image': image,
+      'pointsCost': pointsCost,
+      'category': category,
+      'value': value,
+      'valueType': valueType,
+      'terms': terms,
+      'stock': stock,
+      'maxPerUser': maxPerUser,
+      'isActive': isActive,
+      'requiredTier': requiredTier,
+      'isAffordable': isAffordable,
+      'isAccessible': isAccessible,
+      'totalRedeemed': totalRedeemed,
+    };
+  }
 }
 
 class PaginatedRewards {

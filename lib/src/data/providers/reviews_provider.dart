@@ -31,7 +31,7 @@ class Reviews extends _$Reviews {
 
     final api = ref.watch(apiProvider);
 
-    final response = await api.get('/reviews/shop/$shopId', requireAuth: false);
+    final response = await api.get('/reviews/shop/$shopId');
 
     if (response.success && response.data != null) {
       return PaginatedReviews.fromJson(response.data!);

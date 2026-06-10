@@ -195,3 +195,78 @@ abstract class _$RewardAction extends $Notifier<void> {
     element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(getRewardById)
+final getRewardByIdProvider = GetRewardByIdFamily._();
+
+final class GetRewardByIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<RewardModel?>,
+          RewardModel?,
+          FutureOr<RewardModel?>
+        >
+    with $FutureModifier<RewardModel?>, $FutureProvider<RewardModel?> {
+  GetRewardByIdProvider._({
+    required GetRewardByIdFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getRewardByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getRewardByIdHash();
+
+  @override
+  String toString() {
+    return r'getRewardByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<RewardModel?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<RewardModel?> create(Ref ref) {
+    final argument = this.argument as String;
+    return getRewardById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetRewardByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getRewardByIdHash() => r'1ad1d7d5f0b4d3247415f85fe23c1dd4924268ad';
+
+final class GetRewardByIdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<RewardModel?>, String> {
+  GetRewardByIdFamily._()
+    : super(
+        retry: null,
+        name: r'getRewardByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetRewardByIdProvider call(String rewardId) =>
+      GetRewardByIdProvider._(argument: rewardId, from: this);
+
+  @override
+  String toString() => r'getRewardByIdProvider';
+}

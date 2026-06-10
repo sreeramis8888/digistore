@@ -414,23 +414,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         child: _buildBulletPoint(term.toString()),
                       ),
                     )
-                  else ...[
-                    _buildBulletPoint(
-                      'Get an exclusive reward to upgrade your experience!',
-                    ),
-                    const SizedBox(height: 8),
-                    _buildBulletPoint(
-                      'Eligibility: Offer valid for early claimers. Non-transferable.',
-                    ),
-                    const SizedBox(height: 8),
-                    _buildBulletPoint(
-                      'Refund Policy: Rewards once claimed cannot be reversed.',
-                    ),
-                    const SizedBox(height: 8),
-                    _buildBulletPoint(
-                      'Support: For queries, contact us via support channel.',
-                    ),
-                  ],
+                  else
+                    _buildBulletPoint('No specific terms provided.'),
                   const SizedBox(height: 32),
                   PrimaryButton(
                     textSize: 14,

@@ -37,7 +37,8 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
   Future<bool> sendOtp(String phone) async {
     state = const AsyncLoading();
     try {
-      final notificationsAllowed = await NotificationPermissionHelper.isNotificationAllowed();
+      final notificationsAllowed =
+          await NotificationPermissionHelper.isNotificationAllowed();
       String? fcmToken;
       if (notificationsAllowed) {
         final notifService = ref.read(notificationServiceProvider);
@@ -53,7 +54,7 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
       }
 
       final api = ref.read(apiProvider);
-      final response = await api.post('/auth/send-otp', payload, requireAuth: false);
+      final response = await api.post('/auth/send-otp', payload);
 
       if (response.success && response.data?['success'] == true) {
         state = const AsyncData(null);
@@ -82,7 +83,7 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
       final response = await api.post('/auth/verify-otp', {
         'phone': phone,
         'otp': otp,
-      }, requireAuth: false);
+      });
 
       if (response.success && response.data?['success'] == true) {
         final responseData = response.data!;

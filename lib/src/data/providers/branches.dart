@@ -11,9 +11,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
 
   List<Map<String, dynamic>> _mapOperatingHours(OperatingHours? hours) {
     if (hours == null) return [];
-    
+
     final list = <Map<String, dynamic>>[];
-    
+
     void addDay(String dayName, DayStatus? dayStatus) {
       list.add({
         'day': dayName,
@@ -30,18 +30,23 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
     addDay('friday', hours.friday);
     addDay('saturday', hours.saturday);
     addDay('sunday', hours.sunday);
-    
+
     return list;
   }
 
   Future<List<BusinessBranch>> getBranches() async {
     final api = ref.read(apiProvider);
     final response = await api.get('/branches', requireAuth: true);
-    
+
     if (response.success && response.data != null) {
-      final dynamic rawData = response.data!['data'] ?? response.data!['branches'] ?? response.data!;
+      final dynamic rawData =
+          response.data!['data'] ??
+          response.data!['branches'] ??
+          response.data!;
       if (rawData is List) {
-        final list = rawData.map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>)).toList();
+        final list = rawData
+            .map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>))
+            .toList();
         state = list;
         return list;
       }
@@ -52,29 +57,35 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
   Future<bool> createBranch(BusinessBranch branch) async {
     final api = ref.read(apiProvider);
     final partner = ref.read(partnerProvider);
-    
+
     // Ensure fallback values are not null to prevent backend substring errors on null values
     final String branchType = 'outlet';
     final String contactPerson = partner?.businessInfo?.ownerName ?? '';
     final String partnerPincode = partner?.businessDetails?.pincode ?? '000000';
     final String partnerAddress = partner?.businessDetails?.address ?? '';
-    
+
     final List<String> phoneList = [];
     if (branch.phone != null && branch.phone!.isNotEmpty) {
       phoneList.add(branch.phone!);
-    } else if (partner?.businessInfo?.contactPhone != null && partner!.businessInfo!.contactPhone!.isNotEmpty) {
+    } else if (partner?.businessInfo?.contactPhone != null &&
+        partner!.businessInfo!.contactPhone!.isNotEmpty) {
       phoneList.add(partner.businessInfo!.contactPhone!);
     }
-    
+
     final List<String> emailList = [];
-    if (partner?.businessInfo?.email != null && partner!.businessInfo!.email!.isNotEmpty) {
+    if (partner?.businessInfo?.email != null &&
+        partner!.businessInfo!.email!.isNotEmpty) {
       emailList.add(partner.businessInfo!.email!);
     }
 
-    final double lng = (branch.location?.coordinates != null && branch.location!.coordinates!.isNotEmpty)
+    final double lng =
+        (branch.location?.coordinates != null &&
+            branch.location!.coordinates!.isNotEmpty)
         ? branch.location!.coordinates![0]
         : 0.0;
-    final double lat = (branch.location?.coordinates != null && branch.location!.coordinates!.length >= 2)
+    final double lat =
+        (branch.location?.coordinates != null &&
+            branch.location!.coordinates!.length >= 2)
         ? branch.location!.coordinates![1]
         : 0.0;
 
@@ -84,7 +95,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       'address': branch.address ?? partnerAddress,
       'city': branch.location?.city ?? '',
       'state': branch.location?.state ?? '',
-      'pincode': (branch.location?.pincode != null && branch.location!.pincode!.isNotEmpty)
+      'pincode':
+          (branch.location?.pincode != null &&
+              branch.location!.pincode!.isNotEmpty)
           ? branch.location!.pincode!
           : partnerPincode,
       'lng': lng,
@@ -105,12 +118,8 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       'isPrimary': branch.isPrimary ?? false,
     };
 
-    final response = await api.post(
-      '/branches',
-      payload,
-      requireAuth: true,
-    );
-    
+    final response = await api.post('/branches', payload, requireAuth: true);
+
     if (response.success) {
       await getBranches();
       return true;
@@ -121,7 +130,7 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
   Future<bool> updateBranch(BusinessBranch branch) async {
     final api = ref.read(apiProvider);
     final partner = ref.read(partnerProvider);
-    
+
     if (branch.id == null) return false;
 
     // Ensure fallback values are not null to prevent backend substring errors on null values
@@ -129,23 +138,29 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
     final String contactPerson = partner?.businessInfo?.ownerName ?? '';
     final String partnerPincode = partner?.businessDetails?.pincode ?? '000000';
     final String partnerAddress = partner?.businessDetails?.address ?? '';
-    
+
     final List<String> phoneList = [];
     if (branch.phone != null && branch.phone!.isNotEmpty) {
       phoneList.add(branch.phone!);
-    } else if (partner?.businessInfo?.contactPhone != null && partner!.businessInfo!.contactPhone!.isNotEmpty) {
+    } else if (partner?.businessInfo?.contactPhone != null &&
+        partner!.businessInfo!.contactPhone!.isNotEmpty) {
       phoneList.add(partner.businessInfo!.contactPhone!);
     }
-    
+
     final List<String> emailList = [];
-    if (partner?.businessInfo?.email != null && partner!.businessInfo!.email!.isNotEmpty) {
+    if (partner?.businessInfo?.email != null &&
+        partner!.businessInfo!.email!.isNotEmpty) {
       emailList.add(partner.businessInfo!.email!);
     }
 
-    final double lng = (branch.location?.coordinates != null && branch.location!.coordinates!.isNotEmpty)
+    final double lng =
+        (branch.location?.coordinates != null &&
+            branch.location!.coordinates!.isNotEmpty)
         ? branch.location!.coordinates![0]
         : 0.0;
-    final double lat = (branch.location?.coordinates != null && branch.location!.coordinates!.length >= 2)
+    final double lat =
+        (branch.location?.coordinates != null &&
+            branch.location!.coordinates!.length >= 2)
         ? branch.location!.coordinates![1]
         : 0.0;
 
@@ -155,7 +170,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       'address': branch.address ?? partnerAddress,
       'city': branch.location?.city ?? '',
       'state': branch.location?.state ?? '',
-      'pincode': (branch.location?.pincode != null && branch.location!.pincode!.isNotEmpty)
+      'pincode':
+          (branch.location?.pincode != null &&
+              branch.location!.pincode!.isNotEmpty)
           ? branch.location!.pincode!
           : partnerPincode,
       'lng': lng,
@@ -181,7 +198,7 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       payload,
       requireAuth: true,
     );
-    
+
     if (response.success) {
       await getBranches();
       return true;
@@ -191,11 +208,8 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
 
   Future<bool> deleteBranch(String branchId) async {
     final api = ref.read(apiProvider);
-    final response = await api.delete(
-      '/branches/$branchId',
-      requireAuth: true,
-    );
-    
+    final response = await api.delete('/branches/$branchId', requireAuth: true);
+
     if (response.success) {
       await getBranches();
       return true;
@@ -204,31 +218,35 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
   }
 }
 
-final branchesProvider = NotifierProvider<BranchesNotifier, List<BusinessBranch>>(
-  BranchesNotifier.new,
-);
+final branchesProvider =
+    NotifierProvider<BranchesNotifier, List<BusinessBranch>>(
+      BranchesNotifier.new,
+    );
 
-final shopBranchesProvider = FutureProvider.family<List<BusinessBranch>, String>((ref, shopId) async {
-  if (shopId.isEmpty) return [];
-  final api = ref.read(apiProvider);
-  final response = await api.get('/shops/$shopId/branches', requireAuth: false);
-  if (response.success && response.data != null) {
-    final dynamic rawData = response.data!['data'];
-    List<dynamic>? branchesList;
-    if (rawData is Map) {
-      branchesList = rawData['branches'] as List<dynamic>?;
-    } else if (rawData is List) {
-      branchesList = rawData;
-    } else {
-      final dynamic fallback = response.data!['branches'] ?? response.data!;
-      if (fallback is List) {
-        branchesList = fallback;
+final shopBranchesProvider =
+    FutureProvider.family<List<BusinessBranch>, String>((ref, shopId) async {
+      if (shopId.isEmpty) return [];
+      final api = ref.read(apiProvider);
+      final response = await api.get('/shops/$shopId/branches');
+      if (response.success && response.data != null) {
+        final dynamic rawData = response.data!['data'];
+        List<dynamic>? branchesList;
+        if (rawData is Map) {
+          branchesList = rawData['branches'] as List<dynamic>?;
+        } else if (rawData is List) {
+          branchesList = rawData;
+        } else {
+          final dynamic fallback = response.data!['branches'] ?? response.data!;
+          if (fallback is List) {
+            branchesList = fallback;
+          }
+        }
+
+        if (branchesList != null) {
+          return branchesList
+              .map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
       }
-    }
-
-    if (branchesList != null) {
-      return branchesList.map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>)).toList();
-    }
-  }
-  return [];
-});
+      return [];
+    });

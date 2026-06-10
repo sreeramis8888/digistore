@@ -28,10 +28,10 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
   Widget build(BuildContext context) {
     final args = widget.args;
     final screenSize = ref.watch(screenSizeProvider);
-    final String title = args['title'] ?? 'Special Reward';
-    final String subtitle = args['subtitle'] ?? 'Exclusive Reward for you';
-    final String? imageUrl = args['imageUrl'];
-    final String shopName = args['shopName'] ?? 'Store';
+    final String title = args['title'] ?? 'Unknown Reward';
+    final String subtitle = args['description'] ?? args['subtitle'] ?? '';
+    final String? imageUrl = args['imageUrl'] ?? args['image'];
+    final String shopName = args['shopName'] ?? '';
     final IconData? icon = args['icon'];
     final String points = args['points']?.toString() ?? '0';
     final bool isClaimed = args['isClaimed'] == true;
@@ -128,7 +128,7 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  if (shopName != title)
+                  if (shopName.isNotEmpty && shopName != title)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
@@ -140,41 +140,38 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                       ),
                     ),
                   
-                  Text(
-                    subtitle,
-                    style: kBodyTitleSB.copyWith(
-                      color: kSecondaryTextColor,
-                      fontSize: 14,
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      style: kBodyTitleSB.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 32),
 
                   Text('Details', style: kSmallTitleSB),
                   const SizedBox(height: 12),
-                  Text(
-                    'Expires on: 31st December 2026',
-                    style: kSmallerTitleM.copyWith(
-                      color: kSecondaryTextColor,
-                      fontWeight: FontWeight.w600,
+                  if (args['expiresAt'] != null) ...[
+                    Text(
+                      'Expires on: ${args['expiresAt']}',
+                      style: kSmallerTitleM.copyWith(
+                        color: kSecondaryTextColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
-                  _buildBulletPoint(
-                    'Get an exclusive reward to upgrade your experience!',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBulletPoint(
-                    'Eligibility: Offer valid for early claimers. Non-transferable.',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBulletPoint(
-                    'Refund Policy: Rewards once claimed cannot be reversed.',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBulletPoint(
-                    'Support: For queries, contact us via support channel.',
-                  ),
+                  if (args['terms'] != null && (args['terms'] as List).isNotEmpty)
+                    ...(args['terms'] as List).map(
+                      (term) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: _buildBulletPoint(term.toString()),
+                      ),
+                    )
+                  else
+                    _buildBulletPoint('No specific terms provided.'),
                   const SizedBox(height: 32),
                   if (!isClaimed)
                     PrimaryButton(
