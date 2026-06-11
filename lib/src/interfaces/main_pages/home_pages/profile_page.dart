@@ -555,6 +555,42 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 ).fadeSlideInFromBottom(delayMilliseconds: 300),
               ),
 
+              SizedBox(height: screenSize.responsivePadding(16)),
+
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16),
+                ),
+                child: PrimaryButton(
+                  text: 'Delete Account',
+                  backgroundColor: kWhite,
+                  textColor: kRed,
+                  onPressed: () async {
+                    final confirmed = await showConfirmationDialog(
+                      context: context,
+                      title: 'Delete Account',
+                      message:
+                          'Are you sure you want to delete your account? This action cannot be undone.',
+                      confirmText: 'Delete',
+                      cancelText: 'Cancel',
+                      isDestructive: true,
+                      icon: Icons.person_remove_rounded,
+                    );
+
+                    if (confirmed == true) {
+                      await ref.read(authProvider.notifier).logout();
+                      if (context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          'login',
+                          (route) => false,
+                        );
+                      }
+                    }
+                  },
+                ).fadeSlideInFromBottom(delayMilliseconds: 400),
+              ),
+
               SizedBox(height: screenSize.responsivePadding(40)),
             ],
           ),

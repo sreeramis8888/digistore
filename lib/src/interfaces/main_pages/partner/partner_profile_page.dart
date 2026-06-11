@@ -392,32 +392,70 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: PartnerMenuItem(
-                  title: 'Logout',
-                  icon: const Icon(Icons.logout_rounded, color: kRed, size: 22),
-                  screenSize: screenSize,
-                  onTap: () async {
-                    final confirmed = await showConfirmationDialog(
-                      context: context,
+                child: Column(
+                  children: [
+                    PartnerMenuItem(
                       title: 'Logout',
-                      message: 'Are you sure you want to logout from your account?',
-                      confirmText: 'Logout',
-                      cancelText: 'Cancel',
-                      isDestructive: true,
-                      icon: Icons.logout_rounded,
-                    );
-
-                    if (confirmed == true) {
-                      await ref.read(authProvider.notifier).logout();
-                      if (context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          'login',
-                          (route) => false,
+                      icon: const Icon(Icons.logout_rounded, color: kRed, size: 22),
+                      screenSize: screenSize,
+                      onTap: () async {
+                        final confirmed = await showConfirmationDialog(
+                          context: context,
+                          title: 'Logout',
+                          message: 'Are you sure you want to logout from your account?',
+                          confirmText: 'Logout',
+                          cancelText: 'Cancel',
+                          isDestructive: true,
+                          icon: Icons.logout_rounded,
                         );
-                      }
-                    }
-                  },
+
+                        if (confirmed == true) {
+                          await ref.read(authProvider.notifier).logout();
+                          if (context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              'login',
+                              (route) => false,
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
+                      title: 'Delete Account',
+                      icon: const Icon(Icons.person_remove_rounded, color: kRed, size: 22),
+                      screenSize: screenSize,
+                      onTap: () async {
+                        final confirmed = await showConfirmationDialog(
+                          context: context,
+                          title: 'Delete Account',
+                          message: 'Are you sure you want to delete your account? This action cannot be undone.',
+                          confirmText: 'Delete',
+                          cancelText: 'Cancel',
+                          isDestructive: true,
+                          icon: Icons.person_remove_rounded,
+                        );
+
+                        if (confirmed == true) {
+                          await ref.read(authProvider.notifier).logout();
+                          if (context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              'login',
+                              (route) => false,
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: screenSize.responsivePadding(40)),
