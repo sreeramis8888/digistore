@@ -49,6 +49,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _validFromController;
   late TextEditingController _validToController;
   final List<TextEditingController> _termControllers = [];
+  late TextEditingController _maxTotalRedemptionsController;
+  late TextEditingController _maxPerUserController;
+  late TextEditingController _minPurchaseAmountController;
 
   String _discountType = 'percentage';
 
@@ -168,6 +171,26 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         _termControllers.add(TextEditingController(text: term.toString()));
       }
     }
+
+    final rules = widget.offer?['redemptionRules'];
+    String maxTotalRedemptions = '';
+    String maxPerUser = '';
+    String minPurchaseAmount = '';
+    if (rules is Map) {
+      maxTotalRedemptions = rules['maxTotalRedemptions']?.toString() ?? '';
+      maxPerUser = rules['maxPerUser']?.toString() ?? '';
+      minPurchaseAmount = rules['minPurchaseAmount']?.toString() ?? '';
+    } else if (rules != null) {
+      try {
+        maxTotalRedemptions = (rules as dynamic).maxTotalRedemptions?.toString() ?? '';
+        maxPerUser = (rules as dynamic).maxPerUser?.toString() ?? '';
+        minPurchaseAmount = (rules as dynamic).minPurchaseAmount?.toString() ?? '';
+      } catch (_) {}
+    }
+
+    _maxTotalRedemptionsController = TextEditingController(text: maxTotalRedemptions);
+    _maxPerUserController = TextEditingController(text: maxPerUser);
+    _minPurchaseAmountController = TextEditingController(text: minPurchaseAmount);
   }
 
   @override
@@ -182,6 +205,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _maxPriceController.dispose();
     _validFromController.dispose();
     _validToController.dispose();
+    _maxTotalRedemptionsController.dispose();
+    _maxPerUserController.dispose();
+    _minPurchaseAmountController.dispose();
     for (final controller in _termControllers) {
       controller.dispose();
     }
@@ -189,6 +215,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   }
 
   Future<void> _pickImages() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_pickedImages.length >= 5) {
       ToastService().showToast(
         context,
@@ -252,7 +279,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isValidFrom) async {
-    FocusScope.of(context).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
     DateTime initialDate =
         (isValidFrom ? _validFrom : _validTo) ?? DateTime.now();
 
@@ -415,6 +442,36 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       return;
     }
 
+    final maxTotal = _maxTotalRedemptionsController.text.trim();
+    if (maxTotal.isNotEmpty && int.tryParse(maxTotal) == null) {
+      ToastService().showToast(
+        context,
+        'Maximum total redemptions must be a valid integer',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    final maxPerUser = _maxPerUserController.text.trim();
+    if (maxPerUser.isNotEmpty && int.tryParse(maxPerUser) == null) {
+      ToastService().showToast(
+        context,
+        'Maximum redemptions per customer must be a valid integer',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    final minPurchase = _minPurchaseAmountController.text.trim();
+    if (minPurchase.isNotEmpty && double.tryParse(minPurchase) == null) {
+      ToastService().showToast(
+        context,
+        'Minimum purchase amount must be a valid number',
+        type: ToastType.error,
+      );
+      return;
+    }
+
     if (_pickedImages.isEmpty && widget.offer == null) {
       ToastService().showToast(
         context,
@@ -527,6 +584,18 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               .toList(),
         ),
       };
+
+      body['redemptionRules'] = json.encode({
+        'maxTotalRedemptions': _maxTotalRedemptionsController.text.trim().isNotEmpty
+            ? int.tryParse(_maxTotalRedemptionsController.text.trim())
+            : null,
+        'maxPerUser': _maxPerUserController.text.trim().isNotEmpty
+            ? int.tryParse(_maxPerUserController.text.trim())
+            : null,
+        'minPurchaseAmount': _minPurchaseAmountController.text.trim().isNotEmpty
+            ? double.tryParse(_minPurchaseAmountController.text.trim()) ?? 0.0
+            : 0.0,
+      });
 
       body['discountRange'] = json.encode({
         if (_minDiscountController.text.trim().isNotEmpty)
@@ -652,7 +721,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         backgroundColor: kWhite,
         appBar: AppBar(
@@ -1245,6 +1314,41 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              const SizedBox(height: 20),
+              Text(
+                'Redemption Rules',
+                style: kSmallTitleB.copyWith(fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _maxTotalRedemptionsController,
+                      label: 'Max Total Redemptions',
+                      hint: 'e.g. 100',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _maxPerUserController,
+                      label: 'Max Per Customer',
+                      hint: 'e.g. 1',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              PrimaryTextField(
+                controller: _minPurchaseAmountController,
+                label: 'Min Purchase Amount (₹)',
+                hint: 'e.g. 500',
+                type: TextFieldType.number,
               ),
               const SizedBox(height: 20),
               Row(

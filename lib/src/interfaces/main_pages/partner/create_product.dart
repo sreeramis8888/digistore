@@ -109,6 +109,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   }
 
   Future<void> _pickImage() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final result = await img_service.pickMedia(
       context: context,
       enableCrop: true,
@@ -127,7 +128,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   }
 
   void _showCategoryPicker() {
-    FocusScope.of(context).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -247,7 +248,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         backgroundColor: kWhite,
         appBar: AppBar(

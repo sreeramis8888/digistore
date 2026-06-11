@@ -652,7 +652,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         ],
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -2190,7 +2190,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                       isLoading: _isLoading,
                       onPressed: () async {
                         // Unfocus current field to apply any pending changes
-                        FocusScope.of(context).unfocus();
+                        FocusManager.instance.primaryFocus?.unfocus();
 
                         // Validate the form (this triggers the red error text)
                         bool isValid =

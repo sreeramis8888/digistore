@@ -121,7 +121,7 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
         ),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(

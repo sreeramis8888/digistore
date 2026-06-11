@@ -144,8 +144,10 @@ class _AddBranchPageState extends State<AddBranchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kWhite,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: kWhite,
       appBar: AppBar(
         backgroundColor: kWhite,
         elevation: 0,
@@ -391,6 +393,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

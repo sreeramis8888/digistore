@@ -69,6 +69,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
   }
 
   void _openDropdown() {
+    FocusManager.instance.primaryFocus?.unfocus();
     _calculateDirection();
     _configureSlideAnimation();
 
