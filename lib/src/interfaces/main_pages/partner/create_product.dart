@@ -258,6 +258,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
             icon: const Icon(Icons.arrow_back_ios_new, color: kBlack, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
+          titleSpacing: 0,
           title: Text(
             widget.product != null ? 'Edit product' : 'Create a product',
             style: kSmallTitleM,

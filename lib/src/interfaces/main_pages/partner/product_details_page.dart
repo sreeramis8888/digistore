@@ -7,7 +7,7 @@ import '../../components/confirmation_dialog.dart';
 import '../../../data/providers/partner_products_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
 import '../../../data/providers/shops_provider.dart';
-import 'partner_product_page.dart';
+import 'create_product.dart';
 
 class ProductDetailsPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> product;

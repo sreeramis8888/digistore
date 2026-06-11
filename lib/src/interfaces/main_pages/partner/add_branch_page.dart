@@ -158,6 +158,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
+        titleSpacing: 0,
         title: Text(
           widget.initialBranch != null ? 'Edit Branch' : 'Add Branch',
           style: kBodyTitleM.copyWith(
@@ -165,7 +166,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
             color: kTextColor,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: SafeArea(
         child: Column(

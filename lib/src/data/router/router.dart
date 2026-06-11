@@ -19,7 +19,7 @@ import '../../interfaces/main_pages/home_pages/about_app_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_success_page.dart';
 import '../../interfaces/main_pages/partner/partner_account_page.dart';
-import '../../interfaces/main_pages/partner/partner_product_page.dart';
+import '../../interfaces/main_pages/partner/create_product.dart';
 import '../../interfaces/main_pages/partner/create_offer_page.dart';
 import '../../interfaces/main_pages/offers.dart';
 import '../../interfaces/main_pages/products.dart';

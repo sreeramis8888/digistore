@@ -8,7 +8,7 @@ import '../../data/providers/partner_products_provider.dart';
 import '../components/shops/product_card.dart';
 import '../components/primary_button.dart';
 import '../components/shimmers/card_shimmers.dart';
-import 'partner/partner_product_page.dart';
+import 'partner/create_product.dart';
 import '../../data/providers/user_type_provider.dart';
 import '../../data/router/nav_router.dart';
 import '../../data/providers/category_provider.dart';

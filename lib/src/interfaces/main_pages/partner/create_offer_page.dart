@@ -192,8 +192,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     if (_pickedImages.length >= 5) {
       ToastService().showToast(
         context,
-        'Maximum 5 images allowed',
-        type: ToastType.error,
+        'Maximum limit of 5 images reached',
+        type: ToastType.warning,
       );
       return;
     }
@@ -208,6 +208,14 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
     if (result is List<XFile>) {
       final remaining = 5 - _pickedImages.length;
+      if (result.length > remaining) {
+        ToastService().showToast(
+          context,
+          'Only $remaining more image(s) can be added',
+          type: ToastType.warning,
+        );
+      }
+
       List<File> newFiles = result
           .take(remaining)
           .map((e) => File(e.path))
@@ -482,7 +490,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       final api = ref.read(apiProvider);
       final partner = ref.read(partnerProvider);
       final branches = ref.read(branchesProvider);
-      
+
       BusinessBranch? primaryBranch;
       for (final b in branches) {
         if (b.isPrimary == true) {
@@ -655,6 +663,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
             icon: const Icon(Icons.arrow_back_ios_new, color: kBlack, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
+          titleSpacing: 0,
           title: Text(
             widget.offer != null ? 'Edit offer' : 'Create an offer',
             style: kSmallTitleM,
