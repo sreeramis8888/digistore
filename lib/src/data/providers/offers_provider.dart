@@ -5,6 +5,7 @@ import 'api_provider.dart';
 import 'user_provider.dart';
 import 'user_type_provider.dart';
 import 'auth_provider.dart';
+import '../utils/global_variables.dart';
 
 part 'offers_provider.g.dart';
 
@@ -166,7 +167,7 @@ class Offers extends _$Offers {
       if (lat != null && lng != null) {
         queryParams['lat'] = lat.toString();
         queryParams['lng'] = lng.toString();
-      } else if (currentUserType == UserType.customer) {
+      } else if (currentUserType == UserType.customer && !GlobalVariables.isGuest) {
         state = const PaginatedOffers.empty();
         return;
       }
@@ -214,7 +215,7 @@ class Offers extends _$Offers {
       state = state.copyWith(isLoading: false, isFetchingMore: false, error: () => 'Parsing error: $e');
     }
 
-    if (isRefresh && currentUserType == UserType.customer) {
+    if (isRefresh && currentUserType == UserType.customer && !GlobalVariables.isGuest) {
       fetchExploreOffers(categoryId: categoryId);
     }
   }

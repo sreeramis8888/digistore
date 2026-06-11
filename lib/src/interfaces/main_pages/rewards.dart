@@ -9,6 +9,8 @@ import '../../data/providers/screen_size_provider.dart';
 import '../../data/providers/rewards_provider.dart';
 import '../components/rewards/reward_card.dart';
 import '../components/empty_state.dart';
+import '../components/guest_login_prompt.dart';
+import '../../data/utils/global_variables.dart';
 
 class RewardsPage extends ConsumerStatefulWidget {
   const RewardsPage({super.key});
@@ -70,6 +72,12 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
           onRefresh: _onRefresh,
           child: Builder(
             builder: (context) {
+              if (GlobalVariables.isGuest) {
+                return const GuestLoginPrompt(
+                  title: 'Login Required',
+                  subtitle: 'Please login or register to view and claim rewards.',
+                );
+              }
               if (state.isLoading && state.rewards.isEmpty) {
                 return GridView.builder(
                   padding: EdgeInsets.all(screenSize.responsivePadding(16)),

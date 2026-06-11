@@ -18,6 +18,7 @@ import '../components/offers/offers_filter_chips.dart';
 import '../components/primary_button.dart';
 import '../components/shimmers/card_shimmers.dart';
 import 'partner/create_offer_page.dart';
+import '../../data/utils/global_variables.dart';
 
 class OffersPage extends ConsumerStatefulWidget {
   const OffersPage({super.key});
@@ -252,20 +253,20 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     required ScreenSizeData screenSize,
     required bool isPartner,
   }) {
-    // Partner view — simple grid, no split
-    if (isPartner) {
+    // Partner & Guest view — simple grid, no split
+    if (isPartner || GlobalVariables.isGuest) {
       if (offersState.isLoading && offersState.offers.isEmpty) {
         return _shimmerGrid(
           screenSize,
           aspectRatio,
           isPartner: isPartner,
-          key: const ValueKey('partner_shimmer'),
+          key: ValueKey('${isPartner ? 'partner' : 'guest'}_shimmer'),
         );
       }
       if (offersState.offers.isEmpty) {
         return RefreshIndicator(
           color: kPrimaryColor,
-          key: const ValueKey('partner_empty'),
+          key: ValueKey('${isPartner ? 'partner' : 'guest'}_empty'),
           onRefresh: () async {
             await ref.read(offersProvider.notifier).fetchOffers();
           },
@@ -277,9 +278,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 hasScrollBody: false,
                 child: EmptyState(
                   imagePath: 'assets/png/empty_offers.png',
-                  title: 'No offer created yet',
-                  subtitle:
-                      'You haven\'t created any offers yet. Start by creating your first deal!',
+                  title: isPartner ? 'No offer created yet' : 'No offers available',
+                  subtitle: isPartner 
+                      ? 'You haven\'t created any offers yet. Start by creating your first deal!'
+                      : 'We couldn\'t find any offers at the moment.',
                 ).fadeIn(),
               ),
             ],
@@ -288,7 +290,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       }
       return RefreshIndicator(
         color: kPrimaryColor,
-        key: ValueKey('partner_grid_${offersState.currentCategoryId ?? 'all'}'),
+        key: ValueKey('${isPartner ? 'partner' : 'guest'}_grid_${offersState.currentCategoryId ?? 'all'}'),
         onRefresh: () async {
           await ref.read(offersProvider.notifier).fetchOffers();
         },

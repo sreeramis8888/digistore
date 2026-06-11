@@ -1,5 +1,3 @@
-import 'package:setgo/src/interfaces/animations/index.dart';
-import 'package:setgo/src/interfaces/components/shimmers/card_shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -9,6 +7,10 @@ import '../components/history/transaction_tile.dart';
 import '../../data/providers/transactions_provider.dart';
 import '../../data/providers/screen_size_provider.dart';
 import '../components/empty_state.dart';
+import '../components/guest_login_prompt.dart';
+import '../../data/utils/global_variables.dart';
+import 'package:setgo/src/interfaces/animations/index.dart';
+import 'package:setgo/src/interfaces/components/shimmers/card_shimmers.dart';
 
 class HistoryPage extends ConsumerWidget {
   const HistoryPage({super.key});
@@ -31,69 +33,74 @@ class HistoryPage extends ConsumerWidget {
         scrolledUnderElevation: 0,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const WalletHeader(),
-            Expanded(
-              child: RefreshIndicator(
-                color: kPrimaryColor,
-                onRefresh: () async {
-                  ref.invalidate(transactionsProvider);
-                  await ref.read(transactionsProvider().future);
-                },
-                child: transactionsAsync.when(
-                  data: (paginated) {
-                    if (paginated.transactions.isEmpty) {
-                      return CustomScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: [
-                          SliverFillRemaining(
-                            hasScrollBody: false,
-                            child: const EmptyState(
-                              imagePath: 'assets/png/empty_history.png',
-                              title: 'No transaction history',
-                              subtitle:
-                                  'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: paginated.transactions.length,
-                      itemBuilder: (context, index) {
-                        final transaction = paginated.transactions[index];
-                        return TransactionTile.fromTransaction(
-                          transaction,
-                        ).fadeSlideInFromLeft(delayMilliseconds: index * 40);
+        child: GlobalVariables.isGuest
+            ? const GuestLoginPrompt(
+                title: 'Login Required',
+                subtitle: 'Please login or register to view your wallet history.',
+              )
+            : Column(
+                children: [
+                  const WalletHeader(),
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: kPrimaryColor,
+                      onRefresh: () async {
+                        ref.invalidate(transactionsProvider);
+                        await ref.read(transactionsProvider().future);
                       },
-                    );
-                  },
-                  loading: () => ListView.builder(
-                    itemCount: 8,
-                    itemBuilder: (context, index) =>
-                        CardShimmers.transactionTileShimmer(screenSize),
-                  ),
-                  error: (e, s) => CustomScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: const EmptyState(
-                          imagePath: 'assets/png/empty_history.png',
-                          title: 'No transaction history',
-                          subtitle:
-                              'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                      child: transactionsAsync.when(
+                        data: (paginated) {
+                          if (paginated.transactions.isEmpty) {
+                            return CustomScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              slivers: [
+                                SliverFillRemaining(
+                                  hasScrollBody: false,
+                                  child: const EmptyState(
+                                    imagePath: 'assets/png/empty_history.png',
+                                    title: 'No transaction history',
+                                    subtitle:
+                                        'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: paginated.transactions.length,
+                            itemBuilder: (context, index) {
+                              final transaction = paginated.transactions[index];
+                              return TransactionTile.fromTransaction(
+                                transaction,
+                              ).fadeSlideInFromLeft(delayMilliseconds: index * 40);
+                            },
+                          );
+                        },
+                        loading: () => ListView.builder(
+                          itemCount: 8,
+                          itemBuilder: (context, index) =>
+                              CardShimmers.transactionTileShimmer(screenSize),
+                        ),
+                        error: (e, s) => CustomScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          slivers: [
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: const EmptyState(
+                                imagePath: 'assets/png/empty_history.png',
+                                title: 'No transaction history',
+                                subtitle:
+                                    'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -11,6 +11,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../components/user_type_toggle.dart';
 import '../../../data/providers/user_type_provider.dart';
+import '../../../data/utils/global_variables.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -158,6 +159,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   }
                 },
               ),
+              if (userType == UserType.customer) ...[
+                SizedBox(height: screenSize.responsivePadding(16)),
+                PrimaryButton(
+                  text: 'Browse as Guest',
+                  backgroundColor: kWhite,
+                  textColor: kPrimaryColor,
+                  onPressed: () {
+                    GlobalVariables.setGuestMode(true);
+                    Navigator.of(context).pushReplacementNamed('navbar');
+                  },
+                ),
+              ],
               //   SizedBox(height: screenSize.responsivePadding(24)),
               //   Text(
               //     'or',

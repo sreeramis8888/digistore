@@ -81,10 +81,14 @@ class HomeAppBar extends ConsumerWidget {
                               size: 16,
                             ),
                             SizedBox(width: screenSize.responsivePadding(4)),
-                            Text(
-                              locationName,
-                              style: kBodyTitleL.copyWith(
-                                color: kSecondaryTextColor,
+                            Expanded(
+                              child: Text(
+                                locationName,
+                                style: kBodyTitleL.copyWith(
+                                  color: kSecondaryTextColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

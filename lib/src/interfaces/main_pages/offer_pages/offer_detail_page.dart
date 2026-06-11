@@ -12,6 +12,7 @@ import '../../../data/utils/date_formatter.dart';
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
 import '../../../data/services/toast_service.dart';
+import '../../components/guest_login_dialog.dart';
 import '../../components/confirmation_dialog.dart';
 import '../partner/create_offer_page.dart';
 import '../../../data/providers/shops_provider.dart';
@@ -423,6 +424,15 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     isEnabled: isPartner ? isOfferActive : true,
                     text: isPartner ? 'Initiate Redemption' : 'Redeem Now',
                     onPressed: () {
+                      if (GlobalVariables.isGuest) {
+                        GuestLoginDialog.show(
+                          context,
+                          title: 'Login Required',
+                          subtitle: 'Please login or register to claim offers.',
+                        );
+                        return;
+                      }
+
                       final offerDetails = {
                         ...widget.args,
                         'title': title,

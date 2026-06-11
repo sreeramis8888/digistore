@@ -265,6 +265,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       ],
                     ),
                   ),
+                  if (!GlobalVariables.isGuest)
                   InteractiveFeedbackButton(
                     onPressed: () {
                       Navigator.pushNamed(
@@ -282,6 +283,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               SizedBox(height: screenSize.responsivePadding(32)),
 
               // First Card
+              if (!GlobalVariables.isGuest)
               Container(
                 decoration: BoxDecoration(
                   color: kWhite,
@@ -356,6 +358,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               SizedBox(height: screenSize.responsivePadding(20)),
 
               // Notifications settings card
+              if (!GlobalVariables.isGuest)
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
                 switchOutCurve: Curves.easeInOutBack,
@@ -452,7 +455,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       ).fadeSlideInFromBottom(delayMilliseconds: 150)
                     : const SizedBox.shrink(),
               ),
-              if (!(_isTokenRegistered && _isNotificationsEnabled) &&
+              if (!GlobalVariables.isGuest && !(_isTokenRegistered && _isNotificationsEnabled) &&
                   !_isHiding)
                 SizedBox(height: screenSize.responsivePadding(20)),
 
@@ -526,10 +529,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   horizontal: screenSize.responsivePadding(16),
                 ),
                 child: PrimaryButton(
-                  text: 'Log out',
+                  text: GlobalVariables.isGuest ? 'Login / Register' : 'Log out',
                   backgroundColor: kWhite,
-                  textColor: kRed,
+                  textColor: GlobalVariables.isGuest ? kPrimaryColor : kRed,
                   onPressed: () async {
+                    if (GlobalVariables.isGuest) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        'login',
+                        (route) => false,
+                      );
+                      return;
+                    }
+
                     final confirmed = await showConfirmationDialog(
                       context: context,
                       title: 'Logout',
@@ -555,41 +567,43 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 ).fadeSlideInFromBottom(delayMilliseconds: 300),
               ),
 
-              SizedBox(height: screenSize.responsivePadding(16)),
+              if (!GlobalVariables.isGuest) ...[
+                SizedBox(height: screenSize.responsivePadding(16)),
 
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16),
-                ),
-                child: PrimaryButton(
-                  text: 'Delete Account',
-                  backgroundColor: kWhite,
-                  textColor: kRed,
-                  onPressed: () async {
-                    final confirmed = await showConfirmationDialog(
-                      context: context,
-                      title: 'Delete Account',
-                      message:
-                          'Are you sure you want to delete your account? This action cannot be undone.',
-                      confirmText: 'Delete',
-                      cancelText: 'Cancel',
-                      isDestructive: true,
-                      icon: Icons.person_remove_rounded,
-                    );
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                  ),
+                  child: PrimaryButton(
+                    text: 'Delete Account',
+                    backgroundColor: kWhite,
+                    textColor: kRed,
+                    onPressed: () async {
+                      final confirmed = await showConfirmationDialog(
+                        context: context,
+                        title: 'Delete Account',
+                        message:
+                            'Are you sure you want to delete your account? This action cannot be undone.',
+                        confirmText: 'Delete',
+                        cancelText: 'Cancel',
+                        isDestructive: true,
+                        icon: Icons.person_remove_rounded,
+                      );
 
-                    if (confirmed == true) {
-                      await ref.read(authProvider.notifier).logout();
-                      if (context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          'login',
-                          (route) => false,
-                        );
+                      if (confirmed == true) {
+                        await ref.read(authProvider.notifier).logout();
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
+                        }
                       }
-                    }
-                  },
-                ).fadeSlideInFromBottom(delayMilliseconds: 400),
-              ),
+                    },
+                  ).fadeSlideInFromBottom(delayMilliseconds: 400),
+                ),
+              ],
 
               SizedBox(height: screenSize.responsivePadding(40)),
             ],

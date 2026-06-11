@@ -8,6 +8,8 @@ import 'user_provider.dart';
 import 'partner_provider.dart';
 import '../utils/global_variables.dart';
 import 'api_provider.dart';
+import 'offers_provider.dart';
+import 'home_provider.dart';
 import 'user_type_provider.dart';
 import 'dart:io';
 import '../models/partner_model.dart';
@@ -158,6 +160,9 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
     GlobalVariables.setPartnerMode(false);
     GlobalVariables.resetGuestMode();
     ref.read(sessionProvider.notifier).reset();
+    ref.invalidate(userProvider);
+    ref.invalidate(offersProvider);
+    ref.invalidate(homeDataProvider);
 
     state = const AsyncData(null);
   }

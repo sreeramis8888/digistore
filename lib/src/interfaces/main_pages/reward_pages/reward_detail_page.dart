@@ -11,6 +11,8 @@ import '../../components/primary_button.dart';
 
 import '../../../data/services/toast_service.dart';
 import '../../../data/providers/rewards_provider.dart';
+import '../../../data/utils/global_variables.dart';
+import '../../components/guest_login_dialog.dart';
 
 class RewardDetailPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> args;
@@ -186,6 +188,15 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                         ),
                       ),
                       onPressed: () async {
+                        if (GlobalVariables.isGuest) {
+                          GuestLoginDialog.show(
+                            context,
+                            title: 'Login Required',
+                            subtitle: 'Please login or register to claim rewards.',
+                          );
+                          return;
+                        }
+
                         final rewardId = args['id'];
                         if (rewardId == null) {
                           ToastService().showToast(

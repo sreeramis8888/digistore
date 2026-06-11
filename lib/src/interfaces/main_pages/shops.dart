@@ -10,6 +10,7 @@ import '../../data/providers/user_provider.dart';
 import '../../data/models/shop_model.dart';
 import '../../data/models/business_info.dart';
 import '../../data/utils/location_utils.dart';
+import '../../data/utils/global_variables.dart';
 import '../components/shops/shop_grid_card.dart';
 import '../components/loading_indicator.dart';
 
@@ -36,7 +37,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   @override
   void deactivate() {
     // Clear search state when leaving the page — ref is still safe here
-    ref.read(shopsProvider.notifier).updateSearch('');
+    if (!GlobalVariables.isGuest) {
+      ref.read(shopsProvider.notifier).updateSearch('');
+    }
     ref.read(allShopsProvider.notifier).updateSearch('');
     super.deactivate();
   }
@@ -53,7 +56,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      ref.read(shopsProvider.notifier).updateSearch(query);
+      if (!GlobalVariables.isGuest) {
+        ref.read(shopsProvider.notifier).updateSearch(query);
+      }
       ref.read(allShopsProvider.notifier).updateSearch(query);
     });
   }
@@ -239,7 +244,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
         child: RefreshIndicator(
           color: kPrimaryColor,
           onRefresh: () async {
-            ref.read(shopsProvider.notifier).refresh();
+            if (!GlobalVariables.isGuest) {
+              ref.read(shopsProvider.notifier).refresh();
+            }
             await ref.read(allShopsProvider.notifier).refresh();
           },
           child: CustomScrollView(
@@ -294,88 +301,89 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   ),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: _sectionHeader('Shops Nearby', screenSize),
-              ),
-              if (nearbyState.isLoading)
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(16),
-                  ),
-                  sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                      (_, __) => CardShimmers.shopCardShimmer(screenSize),
-                      childCount: 4,
-                    ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: screenSize.responsivePadding(16),
-                      crossAxisSpacing: screenSize.responsivePadding(16),
-                      childAspectRatio: aspectRatio,
-                    ),
-                  ),
-                )
-              else if (nearbyState.error != null)
+              if (!GlobalVariables.isGuest) ...[
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                      vertical: screenSize.responsivePadding(8),
-                    ),
-                    child: Text(
-                      'No nearby shops.',
-                      style: kSmallerTitleL.copyWith(
-                        color: kSecondaryTextColor,
-                      ),
-                    ),
-                  ),
-                )
-              else if (nearbyState.shops.isEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                      vertical: screenSize.responsivePadding(8),
-                    ),
-                    child: Text(
-                      'No shops found near your location.',
-                      style: kSmallerTitleL.copyWith(
-                        color: kSecondaryTextColor,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(16),
-                  ),
-                  sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                      (_, index) => _buildShopCard(
-                        nearbyState.shops[index],
-                        index,
-                        userLat,
-                        userLng,
-                        screenSize,
-                      ),
-                      childCount: nearbyState.shops.length,
-                    ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: screenSize.responsivePadding(16),
-                      crossAxisSpacing: screenSize.responsivePadding(16),
-                      childAspectRatio: aspectRatio,
-                    ),
-                  ),
+                  child: _sectionHeader('Shops Nearby', screenSize),
                 ),
-
-              SliverToBoxAdapter(
-                child: SizedBox(height: screenSize.responsivePadding(24)),
-              ),
-              SliverToBoxAdapter(
-                child: _sectionHeader('Explore More Shops', screenSize),
-              ),
+                if (nearbyState.isLoading)
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                    ),
+                    sliver: SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                        (_, __) => CardShimmers.shopCardShimmer(screenSize),
+                        childCount: 4,
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: screenSize.responsivePadding(16),
+                        crossAxisSpacing: screenSize.responsivePadding(16),
+                        childAspectRatio: aspectRatio,
+                      ),
+                    ),
+                  )
+                else if (nearbyState.error != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                        vertical: screenSize.responsivePadding(8),
+                      ),
+                      child: Text(
+                        'No nearby shops.',
+                        style: kSmallerTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
+                      ),
+                    ),
+                  )
+                else if (nearbyState.shops.isEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                        vertical: screenSize.responsivePadding(8),
+                      ),
+                      child: Text(
+                        'No shops found near your location.',
+                        style: kSmallerTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
+                    ),
+                    sliver: SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                        (_, index) => _buildShopCard(
+                          nearbyState.shops[index],
+                          index,
+                          userLat,
+                          userLng,
+                          screenSize,
+                        ),
+                        childCount: nearbyState.shops.length,
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: screenSize.responsivePadding(16),
+                        crossAxisSpacing: screenSize.responsivePadding(16),
+                        childAspectRatio: aspectRatio,
+                      ),
+                    ),
+                  ),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: screenSize.responsivePadding(24)),
+                ),
+                SliverToBoxAdapter(
+                  child: _sectionHeader('Explore More Shops', screenSize),
+                ),
+              ],
               if (exploreState.isLoading)
                 SliverPadding(
                   padding: EdgeInsets.symmetric(
