@@ -1,4 +1,3 @@
-import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -42,11 +41,24 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final historyState = ref.watch(partnerHistoryProvider);
+    final canPop = Navigator.canPop(context);
 
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
         centerTitle: false,
+        automaticallyImplyLeading: false,
+        leading: canPop
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: kBlack,
+                  size: 20,
+                ),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+        titleSpacing: canPop ? 0 : null,
         title: Text(
           'History',
           style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
@@ -54,7 +66,6 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
         backgroundColor: kWhite,
         surfaceTintColor: kWhite,
         elevation: 0,
-        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: historyState.isLoading

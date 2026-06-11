@@ -128,7 +128,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         ),
         title: Text(
           'Offer Detail',
-          style: kSmallerTitleB.copyWith(color: kTextColor, fontSize: 16),
+          style: kSmallerTitleR.copyWith(color: kTextColor, fontSize: 16),
         ),
         centerTitle: false,
         titleSpacing: 0,
