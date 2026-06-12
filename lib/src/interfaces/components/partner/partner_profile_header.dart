@@ -20,7 +20,7 @@ class PartnerProfileHeader extends ConsumerWidget {
         partner?.businessDetails?.businessName ?? 'Partners Shop';
     final location = partner?.businessDetails?.address ?? 'Location';
     final logo = partner?.businessInfo?.businessLogo;
-    final tagline = partner?.businessInfo?.tagline ?? '';
+    final category = partner?.businessDetails?.businessType ?? '';
 
     return Container(
       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
@@ -64,9 +64,9 @@ class PartnerProfileHeader extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    if (tagline.isNotEmpty &&
-                        tagline.toLowerCase() != '' &&
-                        tagline.toLowerCase() != 'null') ...[
+                    if (category.isNotEmpty &&
+                        category.toLowerCase() != '' &&
+                        category.toLowerCase() != 'null') ...[
                       Flexible(
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -78,7 +78,7 @@ class PartnerProfileHeader extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            tagline,
+                            category,
                             style: kSmallTitleL.copyWith(
                               fontSize: 10,
                               color: kSecondaryColor,

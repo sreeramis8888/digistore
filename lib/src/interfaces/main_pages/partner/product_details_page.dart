@@ -83,7 +83,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Product Details', style: kSmallTitleM),
-        centerTitle: false,
+        centerTitle: false,titleSpacing: 0,
         actions: isPartner
             ? [
                 Container(
