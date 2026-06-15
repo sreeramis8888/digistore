@@ -251,7 +251,7 @@ final class GetRewardByIdProvider
   }
 }
 
-String _$getRewardByIdHash() => r'1ad1d7d5f0b4d3247415f85fe23c1dd4924268ad';
+String _$getRewardByIdHash() => r'bebdd7559f607a6f9f9a353e3ae9eb359634f649';
 
 final class GetRewardByIdFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<RewardModel?>, String> {

@@ -12,6 +12,8 @@ import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
 import '../../../data/services/notification_service/notification_service.dart';
 import '../../../data/services/deep_link_service.dart';
+import '../../../data/providers/app_version_provider.dart';
+import '../../components/update_maintenance_bottom_sheet.dart';
 import 'login_page.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -34,6 +36,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late AnimationController _sloganController;
   late Animation<double> _sloganOpacity;
   late Animation<Offset> _sloganSlide;
+
+  bool _showUpdateOverlay = false;
+  AppVersionCheckResult? _versionCheckResult;
 
   @override
   void initState() {
@@ -117,8 +122,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await _entranceController.forward();
     await Future.delayed(const Duration(milliseconds: 100));
     await _sloganController.forward();
+    
+    // Check for app version and maintenance
+    final versionResult = await ref.read(appVersionProvider.notifier).checkAppVersion();
+    
+    if (versionResult.isMaintenanceMode || versionResult.needsHardUpdate || versionResult.needsSoftUpdate) {
+      if (mounted) {
+        setState(() {
+          _versionCheckResult = versionResult;
+          _showUpdateOverlay = true;
+        });
+      }
+      return; // Stop and do not proceed to onboarding automatically
+    }
+
     await Future.delayed(const Duration(milliseconds: 500));
-    _navigateToOnboarding();
+    if (mounted) {
+      _navigateToOnboarding();
+    }
   }
 
   Future<void> _navigateToOnboarding() async {
@@ -302,6 +323,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               ),
             ),
           ),
+          if (_showUpdateOverlay && _versionCheckResult != null)
+            UpdateMaintenanceOverlay(
+              isMaintenance: _versionCheckResult!.isMaintenanceMode,
+              isHardUpdate: _versionCheckResult!.needsHardUpdate,
+              isSoftUpdate: _versionCheckResult!.needsSoftUpdate,
+              title: _versionCheckResult!.isMaintenanceMode ? 'Under Maintenance' : 'Update Available',
+              message: _versionCheckResult!.isMaintenanceMode 
+                  ? (_versionCheckResult!.data?.maintenanceMessage ?? 'We are currently undergoing maintenance. Please try again later.')
+                  : 'A new version of the app is available. Please update for the best experience.',
+              updateUrl: _versionCheckResult!.data?.updateUrl,
+              onDismiss: () {
+                setState(() {
+                  _showUpdateOverlay = false;
+                });
+                _navigateToOnboarding();
+              },
+            ),
         ],
       ),
     );

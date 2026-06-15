@@ -40,7 +40,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
   }
 }
 
-String _$offersHash() => r'92f66539fe70f669daa37b5e8b536b00a648101d';
+String _$offersHash() => r'4b192f6482c645e5632c512c7c98b0623ee77e61';
 
 abstract class _$Offers extends $Notifier<PaginatedOffers> {
   PaginatedOffers build();
@@ -190,7 +190,7 @@ final class GetOfferByIdProvider
   }
 }
 
-String _$getOfferByIdHash() => r'f67c4cefedae064987e968a86c32920c65a103f9';
+String _$getOfferByIdHash() => r'73bee4da3a2de4dce95fc7869366b86cec1ebc25';
 
 final class GetOfferByIdFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<OfferModel?>, String> {

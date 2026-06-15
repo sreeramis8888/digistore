@@ -40,7 +40,7 @@ final class ShopsProvider extends $NotifierProvider<Shops, ShopsState> {
   }
 }
 
-String _$shopsHash() => r'2a245232d42cd853ea5884c6eb83c7460afa81dd';
+String _$shopsHash() => r'dc413ffc644ccacc25b1d0c3a379dc9d5dd99425';
 
 abstract class _$Shops extends $Notifier<ShopsState> {
   ShopsState build();
@@ -91,7 +91,7 @@ final class AllShopsProvider extends $NotifierProvider<AllShops, ShopsState> {
   }
 }
 
-String _$allShopsHash() => r'3da30eee1867d6c54152ad679de54a1d244a4587';
+String _$allShopsHash() => r'f01786f30dc7ae289d2df2e99f3017d9680963a2';
 
 abstract class _$AllShops extends $Notifier<ShopsState> {
   ShopsState build();
@@ -166,7 +166,7 @@ final class ShopOffersProvider
   }
 }
 
-String _$shopOffersHash() => r'022a41e74b795d0905a48d99b96a4898b5392642';
+String _$shopOffersHash() => r'e81dc7c89322818bcf51460cf1ddd0e3c60afd4e';
 
 final class ShopOffersFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<OfferModel>>, String> {
@@ -243,7 +243,7 @@ final class ShopProductsProvider
   }
 }
 
-String _$shopProductsHash() => r'11a9409e69a5f7e6c8c8a270ec0262f164f1286b';
+String _$shopProductsHash() => r'0f6c3cc9df01a64bf952a075e41f79a3f5aa9dd5';
 
 final class ShopProductsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<ProductModel>>, String> {
@@ -318,7 +318,7 @@ final class GetShopByPartnerIdProvider
 }
 
 String _$getShopByPartnerIdHash() =>
-    r'aca716e3c01f0fcd8b1fa4e78170c46233b6f390';
+    r'e91a4ab33d53afb581c4b03d044093acdd9e6e24';
 
 final class GetShopByPartnerIdFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ShopModel?>, String> {
