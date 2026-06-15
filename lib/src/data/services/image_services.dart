@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
@@ -42,35 +40,6 @@ class MediaService {
 
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     return image != null ? File(image.path) : null;
-  }
-
-
-
-  Future<File?> pickDocument() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: [
-          'pdf',
-          'doc',
-          'docx',
-          'txt',
-          'rtf',
-          'ppt',
-          'pptx',
-          'xls',
-          'xlsx',
-        ],
-        allowMultiple: false,
-      );
-
-      if (result != null && result.files.isNotEmpty) {
-        return File(result.files.single.path!);
-      }
-    } catch (e) {
-      log('Error picking document: $e');
-    }
-    return null;
   }
 }
 
@@ -222,13 +191,6 @@ class _PickSourceDialog extends StatelessWidget {
             Icons.photo_library_rounded,
             () => _pickFromGallery(context),
           ),
-          if (showDocument)
-            _option(
-              context,
-              "Document",
-              Icons.insert_drive_file_rounded,
-              () => _pickDocument(context),
-            ),
         ],
       ),
     );
@@ -316,28 +278,6 @@ class _PickSourceDialog extends StatelessWidget {
     Navigator.pop(context, rawImage);
   }
 
-
-
-  // -------------------------
-  // PICK DOCUMENT
-  // -------------------------
-  Future<void> _pickDocument(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: allowMultiple,
-      type: FileType.custom,
-      allowedExtensions: [
-        "pdf",
-        "doc",
-        "docx",
-        "xls",
-        "xlsx",
-        "png",
-        "jpg",
-        "jpeg",
-      ],
-    );
-    Navigator.pop(context, result);
-  }
 
   Future<XFile?> _cropImage(String path) async {
     final File? cropped = await cropImage(path, cropRatio: cropRatio);
