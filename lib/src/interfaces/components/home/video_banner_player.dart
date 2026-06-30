@@ -125,6 +125,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
     
     if (isPlaying) {
       await _controller!.pause();
+      if (!mounted) return;
       _isManuallyPaused = true;
       setState(() {
         _overlayIcon = Icons.pause;
@@ -132,6 +133,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
       });
     } else {
       await _controller!.play();
+      if (!mounted) return;
       _isManuallyPaused = false;
       setState(() {
         _overlayIcon = Icons.play_arrow;
@@ -150,6 +152,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
 
   void _toggleMute() {
     if (_controller == null || !_isInitialized) return;
+    if (!mounted) return;
     setState(() {
       _isMuted = !_isMuted;
       _controller!.setVolume(_isMuted ? 0.0 : 1.0);
@@ -166,6 +169,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
     return VisibilityDetector(
       key: Key('video_visibility_${widget.videoUrl}'),
       onVisibilityChanged: (info) {
+        if (!mounted) return;
         final isVisible = info.visibleFraction > 0.5;
         if (isVisible != _isVisible) {
           setState(() {

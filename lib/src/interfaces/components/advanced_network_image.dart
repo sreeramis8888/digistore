@@ -22,7 +22,7 @@ class AdvancedNetworkImage extends StatelessWidget {
     this.borderRadius,
     this.errorWidget,
     this.errorIcon,
-    this.disableFade = false,
+    this.disableFade = true,
   });
 
   @override

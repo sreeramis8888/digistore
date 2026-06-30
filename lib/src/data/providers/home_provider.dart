@@ -22,12 +22,16 @@ Future<HomeResponseState?> homeData(Ref ref) async {
   final lat = user?.location?.coordinates?.lat;
   final lng = user?.location?.coordinates?.lng;
 
-  final Map<String, String>? queryParams = (lat != null && lng != null)
-      ? {
-          'lat': lat.toString(),
-          'lng': lng.toString(),
-        }
-      : null;
+  final Map<String, String> queryParams = {};
+
+  if (lat != null && lng != null) {
+    queryParams['lat'] = lat.toString();
+    queryParams['lng'] = lng.toString();
+  }
+
+  if (user?.currentTier?.name != null) {
+    queryParams['tier'] = user!.currentTier!.name!;
+  }
 
   final response = await api.get('/home', queryParams: queryParams);
 

@@ -6,6 +6,7 @@ import '../data/constants/color_constants.dart';
 import '../data/router/nav_router.dart';
 import '../data/services/deep_link_service.dart';
 import '../data/providers/notifications_provider.dart';
+import '../data/providers/partner_products_provider.dart';
 import 'main_pages/home_page.dart';
 import 'main_pages/offers.dart';
 import 'main_pages/shops.dart';
@@ -169,6 +170,9 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
           if (selectedIndex == 1) {
             ref.read(selectedOffersCategoryProvider.notifier).state = 0;
           }
+          if (_currentLabels[selectedIndex] == 'Products') {
+            ref.read(partnerProductsProvider.notifier).updateSearch('');
+          }
           ref.read(selectedIndexProvider.notifier).updateIndex(0);
         }
       },
@@ -225,6 +229,9 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                           )
                                           .state =
                                       0;
+                                }
+                                if (_currentLabels[selectedIndex] == 'Products') {
+                                  ref.read(partnerProductsProvider.notifier).updateSearch('');
                                 }
                                 ref
                                     .read(selectedIndexProvider.notifier)

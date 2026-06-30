@@ -2147,9 +2147,22 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           ),
                                           _buildSupportMenuItem(
                                             context,
-                                            'Terms & Privacy Policy',
+                                            'Privacy Policy',
+                                            Icons.privacy_tip_outlined,
+                                            'privacyPolicy',
+                                          ),
+                                          const Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: kStrokeColor,
+                                            indent: 16,
+                                            endIndent: 16,
+                                          ),
+                                          _buildSupportMenuItem(
+                                            context,
+                                            'Terms & Conditions',
                                             Icons.description_outlined,
-                                            'termsPrivacy',
+                                            'termsConditions',
                                           ),
                                           const Divider(
                                             height: 1,

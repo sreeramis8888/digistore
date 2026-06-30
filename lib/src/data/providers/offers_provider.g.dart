@@ -19,7 +19,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
         argument: null,
         retry: null,
         name: r'offersProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -40,7 +40,7 @@ final class OffersProvider extends $NotifierProvider<Offers, PaginatedOffers> {
   }
 }
 
-String _$offersHash() => r'4b192f6482c645e5632c512c7c98b0623ee77e61';
+String _$offersHash() => r'7118aac532b71d325d95eefc21837327926cfe63';
 
 abstract class _$Offers extends $Notifier<PaginatedOffers> {
   PaginatedOffers build();
@@ -60,17 +60,11 @@ abstract class _$Offers extends $Notifier<PaginatedOffers> {
   }
 }
 
-@ProviderFor(activeDeals)
+@ProviderFor(ActiveDeals)
 final activeDealsProvider = ActiveDealsFamily._();
 
 final class ActiveDealsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<OfferModel>>,
-          List<OfferModel>,
-          FutureOr<List<OfferModel>>
-        >
-    with $FutureModifier<List<OfferModel>>, $FutureProvider<List<OfferModel>> {
+    extends $NotifierProvider<ActiveDeals, PaginatedOffers> {
   ActiveDealsProvider._({
     required ActiveDealsFamily super.from,
     required String super.argument,
@@ -94,14 +88,14 @@ final class ActiveDealsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<OfferModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  ActiveDeals create() => ActiveDeals();
 
-  @override
-  FutureOr<List<OfferModel>> create(Ref ref) {
-    final argument = this.argument as String;
-    return activeDeals(ref, dealType: argument);
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PaginatedOffers value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PaginatedOffers>(value),
+    );
   }
 
   @override
@@ -115,10 +109,17 @@ final class ActiveDealsProvider
   }
 }
 
-String _$activeDealsHash() => r'94d557cdbda81db11a47757b860d6de1286b69dc';
+String _$activeDealsHash() => r'ee97d6cd277d32e5f0e43d8660b8517f1f9c5b4e';
 
 final class ActiveDealsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<OfferModel>>, String> {
+    with
+        $ClassFamilyOverride<
+          ActiveDeals,
+          PaginatedOffers,
+          PaginatedOffers,
+          PaginatedOffers,
+          String
+        > {
   ActiveDealsFamily._()
     : super(
         retry: null,
@@ -133,6 +134,27 @@ final class ActiveDealsFamily extends $Family
 
   @override
   String toString() => r'activeDealsProvider';
+}
+
+abstract class _$ActiveDeals extends $Notifier<PaginatedOffers> {
+  late final _$args = ref.$arg as String;
+  String get dealType => _$args;
+
+  PaginatedOffers build({required String dealType});
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<PaginatedOffers, PaginatedOffers>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<PaginatedOffers, PaginatedOffers>,
+              PaginatedOffers,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, () => build(dealType: _$args));
+  }
 }
 
 @ProviderFor(getOfferById)

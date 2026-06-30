@@ -51,7 +51,10 @@ class PartnerOverviewCards extends StatelessWidget {
       final k = value / 1000;
       return k % 1 == 0 ? '${k.toInt()}k' : '${k.toStringAsFixed(1)}k';
     } else {
-      return value is double ? value.toStringAsFixed(1) : value.toString();
+      if (value is double) {
+        return value % 1 == 0 ? value.toInt().toString() : value.toStringAsFixed(1);
+      }
+      return value.toString();
     }
   }
 
@@ -85,11 +88,13 @@ class PartnerOverviewCards extends StatelessWidget {
                     maxLines: 2,
                   ),
                   SizedBox(height: screenSize.responsivePadding(12)),
-                  Text(
-                    value,
-                    style: kBodyTitleL.copyWith(fontSize: 24, color: kBlue),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: kBodyTitleL.copyWith(fontSize: 24, color: kBlue),
+                    ),
                   ),
                 ],
               ),

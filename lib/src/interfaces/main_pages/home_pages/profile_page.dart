@@ -488,7 +488,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       endIndent: 16,
                     ),
                     _buildMenuItem(
-                      'Terms & Privacy Policy',
+                      'Privacy Policy',
+                      const Icon(
+                        Icons.privacy_tip_outlined,
+                        color: kSecondaryTextColor,
+                        size: 22,
+                      ),
+                      screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'privacyPolicy');
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: kBorder,
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    _buildMenuItem(
+                      'Terms & Conditions',
                       const Icon(
                         Icons.description_outlined,
                         color: kSecondaryTextColor,
@@ -496,7 +515,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       ),
                       screenSize,
                       onTap: () {
-                        Navigator.pushNamed(context, 'termsPrivacy');
+                        Navigator.pushNamed(context, 'termsConditions');
                       },
                     ),
                     const Divider(

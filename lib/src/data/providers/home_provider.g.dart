@@ -48,4 +48,4 @@ final class HomeDataProvider
   }
 }
 
-String _$homeDataHash() => r'dcb83ebc1e017fdf5e23446635c08edfd01b3111';
+String _$homeDataHash() => r'694a340d5d9876ef8d6dc00f6249d94595b87879';

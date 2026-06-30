@@ -25,6 +25,7 @@ import '../../interfaces/main_pages/offers.dart';
 import '../../interfaces/main_pages/products.dart';
 import '../../interfaces/main_pages/partner/partner_history.dart';
 import '../../interfaces/main_pages/partner/sales_calculator_page.dart';
+import '../../interfaces/components/webview_page.dart';
 import '../models/shop_model.dart';
 
 enum TransitionType { slideFromBottom, slideFromRight, fade, fadeScale }
@@ -232,6 +233,24 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'termsPrivacy':
       page = const TermsPrivacyPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'privacyPolicy':
+      page = const InAppWebViewPage(
+        title: 'Privacy Policy',
+        url: 'https://setgoinnovations.com/privacy',
+      );
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'termsConditions':
+      page = const InAppWebViewPage(
+        title: 'Terms & Conditions',
+        url: 'https://setgoinnovations.com/terms',
+      );
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

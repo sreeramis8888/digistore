@@ -333,6 +333,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                         size: 22,
                       ),
                       screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'helpSupport');
+                      },
                     ),
                     const Divider(
                       height: 1,
@@ -342,13 +345,35 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                       endIndent: 16,
                     ),
                     PartnerMenuItem(
-                      title: 'Terms & Privacy Policy',
+                      title: 'Privacy Policy',
+                      icon: const Icon(
+                        Icons.privacy_tip_outlined,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'privacyPolicy');
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
+                      title: 'Terms & Conditions',
                       icon: const Icon(
                         Icons.description_outlined,
                         color: Color(0xFF6B7280),
                         size: 22,
                       ),
                       screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'termsConditions');
+                      },
                     ),
                     const Divider(
                       height: 1,
@@ -365,6 +390,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                         size: 22,
                       ),
                       screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'aboutApp');
+                      },
                     ),
                     const Divider(
                       height: 1,

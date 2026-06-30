@@ -4,7 +4,6 @@ import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:setgo/src/data/providers/user_type_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import '../advanced_network_image.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/providers/offers_provider.dart';
@@ -91,8 +90,8 @@ class DealCard extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     final isPartner = ref.watch(userTypeProvider) == UserType.partner;
 
-    return InteractiveFeedbackButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         final Map<String, dynamic> args = Map<String, dynamic>.from(
           rawOffer?.toJson() ??
               {
@@ -115,7 +114,6 @@ class DealCard extends ConsumerWidget {
           arguments: args,
         );
       },
-      scaleFactor: 0.98,
       child: Container(
         width: width,
         margin: margin,

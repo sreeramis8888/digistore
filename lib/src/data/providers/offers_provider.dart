@@ -5,6 +5,7 @@ import 'api_provider.dart';
 import 'user_provider.dart';
 import 'user_type_provider.dart';
 import 'auth_provider.dart';
+import 'home_provider.dart';
 import '../utils/global_variables.dart';
 
 part 'offers_provider.g.dart';
@@ -118,7 +119,7 @@ class PaginatedOffers {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Offers extends _$Offers {
   @override
   PaginatedOffers build() {
@@ -300,6 +301,7 @@ class Offers extends _$Offers {
       offers: [offer, ...state.offers],
       totalCount: state.totalCount + 1,
     );
+    ref.invalidate(homeDataProvider);
   }
 
   void removeOfferLocally(String id) {
@@ -316,6 +318,7 @@ class Offers extends _$Offers {
       newOffers[index] = updatedOffer;
       state = state.copyWith(offers: newOffers);
     }
+    ref.invalidate(homeDataProvider);
   }
 
   Future<void> deleteOffer(String id) async {
@@ -323,6 +326,7 @@ class Offers extends _$Offers {
     final response = await api.delete('/offers/$id');
     if (response.success) {
       removeOfferLocally(id);
+      ref.invalidate(homeDataProvider);
     } else {
       throw Exception(response.message ?? 'Failed to delete offer');
     }
@@ -379,20 +383,97 @@ class Offers extends _$Offers {
 }
 
 @Riverpod(keepAlive: true)
-Future<List<OfferModel>> activeDeals(Ref ref, {required String dealType}) async {
-  final api = ref.watch(apiProvider);
-  final response = await api.get(
-    '/offers/deals/active',
-    queryParams: {'dealType': dealType},
-  );
+class ActiveDeals extends _$ActiveDeals {
+  @override
+  PaginatedOffers build({required String dealType}) {
+    ref.watch(sessionProvider);
+    Future.microtask(() => fetchDeals(isRefresh: true));
+    return const PaginatedOffers.empty();
+  }
 
-  if (response.success && response.data != null) {
-    final List<dynamic> data = response.data!['data'] as List<dynamic>;
-    return data.map((e) => OfferModel.fromJson(e as Map<String, dynamic>)).toList();
-  } else {
-    throw Exception(response.message ?? 'Failed to fetch active deals');
+  Future<void> fetchDeals({bool isRefresh = true}) async {
+    if (isRefresh) {
+      state = state.copyWith(
+        isLoading: true,
+        error: () => null,
+        offers: [],
+      );
+    } else {
+      if (state.isFetchingMore || !state.hasMore) return;
+      state = state.copyWith(isFetchingMore: true, error: () => null);
+    }
+
+    try {
+      final api = ref.read(apiProvider);
+      final user = ref.read(userProvider);
+      final lat = user?.location?.coordinates?.lat;
+      final lng = user?.location?.coordinates?.lng;
+
+      final queryParams = <String, String>{
+        'dealType': dealType,
+        'page': isRefresh ? '1' : (state.page + 1).toString(),
+        'limit': '20',
+      };
+
+      if (lat != null && lng != null) {
+        queryParams['lat'] = lat.toString();
+        queryParams['lng'] = lng.toString();
+      }
+
+      final response = await api.get(
+        '/offers/deals/active',
+        queryParams: queryParams,
+      );
+
+      if (response.success && response.data != null) {
+        final List<dynamic> data = response.data!['data'] as List<dynamic>;
+        final pagination = response.data!['pagination'] as Map<String, dynamic>?;
+        final newOffers = data
+            .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        final int currentPage = pagination != null
+            ? (pagination['page'] as int? ?? 1)
+            : (isRefresh ? 1 : state.page + 1);
+        final int totalPages =
+            pagination != null ? (pagination['pages'] as int? ?? 1) : 1;
+        final int totalCount = pagination != null
+            ? (pagination['total'] as int? ?? newOffers.length)
+            : (isRefresh
+                ? newOffers.length
+                : state.totalCount + newOffers.length);
+        final bool isHasMore = pagination != null
+            ? (pagination['hasMore'] as bool? ?? (currentPage < totalPages))
+            : (newOffers.length >= 20);
+
+        state = state.copyWith(
+          offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
+          page: currentPage,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          hasMore: isHasMore,
+          isLoading: false,
+          isFetchingMore: false,
+          error: () => null,
+        );
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          isFetchingMore: false,
+          error: () => response.message ?? 'Failed to fetch deals',
+        );
+      }
+    } catch (e, stack) {
+      log('Error fetching active deals: $e', stackTrace: stack);
+      state = state.copyWith(
+        isLoading: false,
+        isFetchingMore: false,
+        error: () => e.toString(),
+      );
+    }
   }
 }
+
 
 @riverpod
 Future<OfferModel?> getOfferById(Ref ref, String offerId) async {
