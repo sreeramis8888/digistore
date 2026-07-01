@@ -91,6 +91,27 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         ? (partnerIdObj['_id'] ?? partnerIdObj['id'] ?? '')
         : (partnerIdObj?.toString() ?? '');
 
+    final offersState = ref.watch(offersProvider);
+    final currentOfferId = widget.args['_id'] ?? widget.args['id'];
+    final cachedOffer = offersState.offers
+            .where((o) => o.id == currentOfferId)
+            .firstOrNull ??
+        offersState.exploreOffers
+            .where((o) => o.id == currentOfferId)
+            .firstOrNull;
+
+    final bool isScratchCard = cachedOffer?.isScratchCard ??
+        (widget.args['isScratchCard'] == true ||
+            widget.args['isScratchCard'] == 'true' ||
+            widget.args['offerTypeCode'] == 'SC');
+
+    final bool isScratched = cachedOffer?.isScratched ??
+        (widget.args['isScratched'] == true ||
+            widget.args['isScratched'] == 'true');
+
+    final num? awardedDiscount =
+        cachedOffer?.awardedDiscount ?? (widget.args['awardedDiscount'] as num?);
+
     List<String> images = [];
     if (widget.args['images'] is List &&
         (widget.args['images'] as List).isNotEmpty) {
@@ -198,7 +219,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         } catch (e) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
+                              SnackBar(content: Text('Something went wrong')),
                             );
                           }
                         }
@@ -392,7 +413,39 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                       fontSize: 16,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
+                  if (isScratchCard && isScratched && awardedDiscount != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDEF7EC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF31C48D)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.celebration,
+                            color: Color(0xFF03543F),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Scratch card revealed! You got ${awardedDiscount}% OFF.',
+                              style: kSmallTitleB.copyWith(
+                                color: const Color(0xFF03543F),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  const SizedBox(height: 16),
 
                   Text('Details', style: kSmallTitleSB),
                   const SizedBox(height: 12),
@@ -446,10 +499,18 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           arguments: offerDetails,
                         );
                       } else {
-                        Navigator.of(context).pushNamed(
-                          'redemptionInstructions',
-                          arguments: offerDetails,
-                        );
+                        if (isScratchCard && !isScratched) {
+                          Navigator.of(context)
+                              .pushNamed('scratchCard', arguments: offerDetails)
+                              .then((_) {
+                            if (mounted) setState(() {});
+                          });
+                        } else {
+                          Navigator.of(context).pushNamed(
+                            'redemptionInstructions',
+                            arguments: offerDetails,
+                          );
+                        }
                       }
                     },
                   ),

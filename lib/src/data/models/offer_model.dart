@@ -41,6 +41,9 @@ class OfferModel {
   final int? shareCount;
   final DateTime? createdAt;
   final BranchApplicability? branchApplicability;
+  final bool? isScratchCard;
+  final bool? isScratched;
+  final num? awardedDiscount;
 
   const OfferModel({
     this.id,
@@ -76,6 +79,9 @@ class OfferModel {
     this.shareCount,
     this.createdAt,
     this.branchApplicability,
+    this.isScratchCard,
+    this.isScratched,
+    this.awardedDiscount,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
@@ -149,6 +155,9 @@ class OfferModel {
         json['branchApplicability'],
         BranchApplicability.fromJson,
       ),
+      isScratchCard: json['isScratchCard'] as bool?,
+      isScratched: json['isScratched'] as bool?,
+      awardedDiscount: json['awardedDiscount'] as num?,
     );
   }
 
@@ -187,7 +196,88 @@ class OfferModel {
       'shareCount': shareCount,
       'createdAt': createdAt?.toIso8601String(),
       'branchApplicability': branchApplicability?.toJson(),
+      'isScratchCard': isScratchCard,
+      'isScratched': isScratched,
+      'awardedDiscount': awardedDiscount,
     };
+  }
+
+  OfferModel copyWith({
+    String? id,
+    PartnerModel? partnerId,
+    String? title,
+    String? description,
+    List<String>? images,
+    CategoryModel? category,
+    String? subcategory,
+    String? offerTypeCode,
+    Map<String, dynamic>? offerMetadata,
+    String? discountType,
+    double? discountValue,
+    RangeModel? discountRange,
+    double? originalPrice,
+    double? offerPrice,
+    RangeModel? priceRange,
+    List<String>? terms,
+    DateTime? validFrom,
+    DateTime? validTo,
+    RedemptionRules? redemptionRules,
+    CoverageAreas? coverageAreas,
+    String? status,
+    bool? isPremium,
+    PremiumPlacement? premiumPlacement,
+    int? totalRedemptions,
+    int? views,
+    bool? isActive,
+    bool? isDealOfDay,
+    TierModel? requiredTier,
+    List<String>? tags,
+    LocationPoint? location,
+    int? shareCount,
+    DateTime? createdAt,
+    BranchApplicability? branchApplicability,
+    bool? isScratchCard,
+    bool? isScratched,
+    num? awardedDiscount,
+  }) {
+    return OfferModel(
+      id: id ?? this.id,
+      partnerId: partnerId ?? this.partnerId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      images: images ?? this.images,
+      category: category ?? this.category,
+      subcategory: subcategory ?? this.subcategory,
+      offerTypeCode: offerTypeCode ?? this.offerTypeCode,
+      offerMetadata: offerMetadata ?? this.offerMetadata,
+      discountType: discountType ?? this.discountType,
+      discountValue: discountValue ?? this.discountValue,
+      discountRange: discountRange ?? this.discountRange,
+      originalPrice: originalPrice ?? this.originalPrice,
+      offerPrice: offerPrice ?? this.offerPrice,
+      priceRange: priceRange ?? this.priceRange,
+      terms: terms ?? this.terms,
+      validFrom: validFrom ?? this.validFrom,
+      validTo: validTo ?? this.validTo,
+      redemptionRules: redemptionRules ?? this.redemptionRules,
+      coverageAreas: coverageAreas ?? this.coverageAreas,
+      status: status ?? this.status,
+      isPremium: isPremium ?? this.isPremium,
+      premiumPlacement: premiumPlacement ?? this.premiumPlacement,
+      totalRedemptions: totalRedemptions ?? this.totalRedemptions,
+      views: views ?? this.views,
+      isActive: isActive ?? this.isActive,
+      isDealOfDay: isDealOfDay ?? this.isDealOfDay,
+      requiredTier: requiredTier ?? this.requiredTier,
+      tags: tags ?? this.tags,
+      location: location ?? this.location,
+      shareCount: shareCount ?? this.shareCount,
+      createdAt: createdAt ?? this.createdAt,
+      branchApplicability: branchApplicability ?? this.branchApplicability,
+      isScratchCard: isScratchCard ?? this.isScratchCard,
+      isScratched: isScratched ?? this.isScratched,
+      awardedDiscount: awardedDiscount ?? this.awardedDiscount,
+    );
   }
 }
 

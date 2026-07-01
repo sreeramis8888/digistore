@@ -349,6 +349,19 @@ class Offers extends _$Offers {
     }
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> scratchOffer(String offerId) async {
+    try {
+      final api = ref.read(publicApiProvider);
+      final response = await api.post('/offers/scratch', {
+        'offerId': offerId,
+      });
+      return response;
+    } catch (e, stack) {
+      log('Error scratching offer: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to reveal scratch card: $e');
+    }
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> verifyRedemptionOtp({
     required String offerId,
     required String userPhone,

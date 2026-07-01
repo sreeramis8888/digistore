@@ -83,11 +83,28 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
         isLoading = false;
       });
       if (mounted) {
-        ToastService().showToast(
-          context,
-          response.message ?? 'Failed to send OTP',
-          type: ToastType.error,
-        );
+        final dataMap = response.data;
+        final bool? isScratched = dataMap != null
+            ? (dataMap['isScratched'] as bool? ??
+                (dataMap['data'] is Map
+                    ? dataMap['data']['isScratched'] as bool?
+                    : null))
+            : null;
+
+        if (isScratched == false) {
+          ToastService().showToast(
+            context,
+            response.message ??
+                'Customer has not scratched this offer yet. Please tell the customer to scratch the card on their phone first.',
+            type: ToastType.warning,
+          );
+        } else {
+          ToastService().showToast(
+            context,
+            response.message ?? 'Failed to send OTP',
+            type: ToastType.error,
+          );
+        }
       }
     }
   }

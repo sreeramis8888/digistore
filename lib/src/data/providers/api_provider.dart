@@ -25,11 +25,12 @@ class ApiResponse<T> {
     return ApiResponse(success: true, data: data, statusCode: statusCode);
   }
 
-  factory ApiResponse.error(String message, [int? statusCode]) {
+  factory ApiResponse.error(String message, [int? statusCode, T? data]) {
     return ApiResponse(
       success: false,
       message: message,
       statusCode: statusCode,
+      data: data,
     );
   }
 }
@@ -118,7 +119,7 @@ class ApiProvider {
       } else {
         final message = decoded['message'] ?? 'Failed to post data';
         log(name: 'API POST ERROR', '$message');
-        return ApiResponse.error(message, response.statusCode);
+        return ApiResponse.error(message, response.statusCode, decoded);
       }
     } catch (e, stackTrace) {
       // await CrashlyticsService.logError(e, stackTrace);

@@ -19,6 +19,8 @@ import '../components/primary_button.dart';
 import '../components/shimmers/card_shimmers.dart';
 import 'partner/create_offer_page.dart';
 import '../../data/utils/global_variables.dart';
+import '../../data/utils/interactive_feedback_button.dart';
+import 'offer_pages/categories_grid_page.dart';
 
 class OffersPage extends ConsumerStatefulWidget {
   const OffersPage({super.key});
@@ -177,6 +179,52 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                   textSize: 14,
                   backgroundColor: kPrimaryColor,
                   textColor: kWhite,
+                ),
+              ),
+            )
+          else
+            Center(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: screenSize.responsivePadding(16),
+                ),
+                child: InteractiveFeedbackButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CategoriesGridPage(),
+                      ),
+                    );
+                  },
+                  scaleFactor: 0.95,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(12),
+                      vertical: screenSize.responsivePadding(7),
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          kPrimaryColor.withValues(alpha: 0.12),
+                          const Color(0xFF33B3C5).withValues(alpha: 0.12),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        color: kPrimaryColor.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Text(
+                      'Search by category',
+                      style: kSmallerTitleL.copyWith(
+                        color: kPrimaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
