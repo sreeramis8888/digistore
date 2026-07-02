@@ -11,6 +11,8 @@ import '../../components/empty_state.dart';
 import '../../components/loading_indicator.dart';
 import '../../components/offers/deal_card.dart';
 import '../../components/shimmers/card_shimmers.dart';
+import '../../../data/providers/banners_provider.dart';
+import '../../components/common/paginated_banner_grid.dart';
 
 class CategoryOffersPage extends ConsumerStatefulWidget {
   final CategoryModel category;
@@ -56,6 +58,8 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final state = ref.watch(categoryOffersProvider(widget.category.id));
+    final bannersAsync = ref.watch(bannersProvider(BannerFilter(category: widget.category.id)));
+    final banners = bannersAsync.value ?? [];
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
     final itemHeight = screenSize.responsivePadding(230);
@@ -155,26 +159,14 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16.0),
-              vertical: screenSize.responsivePadding(16.0),
-            ),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final deal = state.offers[index];
-                  return DealCard.fromOffer(deal);
-                },
-                childCount: state.offers.length,
-              ),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: screenSize.responsivePadding(16.0),
-                crossAxisSpacing: screenSize.responsivePadding(16.0),
-                childAspectRatio: aspectRatio,
-              ),
-            ),
+          SliverToBoxAdapter(child: SizedBox(height: screenSize.responsivePadding(16.0))),
+          ...buildPaginatedGridSliversWithBanners(
+            items: state.offers,
+            itemBuilder: (_, index, deal) => DealCard.fromOffer(deal),
+            banners: banners,
+            hasMore: state.hasMore,
+            screenSize: screenSize,
+            childAspectRatio: aspectRatio,
           ),
           if (state.isFetchingMore)
             SliverToBoxAdapter(

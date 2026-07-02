@@ -9,6 +9,8 @@ import '../../data/providers/screen_size_provider.dart';
 import '../../data/providers/rewards_provider.dart';
 import '../components/rewards/reward_card.dart';
 import '../components/empty_state.dart';
+import '../../data/providers/banners_provider.dart';
+import '../components/common/paginated_banner_grid.dart';
 
 class RewardsPage extends ConsumerStatefulWidget {
   const RewardsPage({super.key});
@@ -52,6 +54,11 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
     final aspectRatio = itemWidth / itemHeight;
 
     final state = ref.watch(rewardsListProvider);
+    final bannerFilter = (selectedCategory != null && selectedCategory != 'All')
+        ? BannerFilter(category: selectedCategory, page: 'reward')
+        : const BannerFilter(page: 'reward');
+    final bannersAsync = ref.watch(bannersProvider(bannerFilter));
+    final banners = bannersAsync.value ?? [];
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -122,22 +129,16 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: screenSize.responsivePadding(16),
-                        crossAxisSpacing: screenSize.responsivePadding(16),
-                        childAspectRatio: aspectRatio,
-                      ),
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final reward = state.rewards[index];
-                        return RewardCard.fromReward(
-                          reward,
-                        ).fadeScaleUp(delayMilliseconds: (index % 10) * 50);
-                      }, childCount: state.rewards.length),
-                    ),
+                  SliverToBoxAdapter(child: SizedBox(height: screenSize.responsivePadding(16.0))),
+                  ...buildPaginatedGridSliversWithBanners(
+                    items: state.rewards,
+                    itemBuilder: (context, index, reward) => RewardCard.fromReward(
+                      reward,
+                    ).fadeScaleUp(delayMilliseconds: (index % 10) * 50),
+                    banners: banners,
+                    hasMore: state.page < state.pages,
+                    screenSize: screenSize,
+                    childAspectRatio: aspectRatio,
                   ),
                   SliverToBoxAdapter(
                     child: Padding(

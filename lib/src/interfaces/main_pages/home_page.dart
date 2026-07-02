@@ -18,6 +18,7 @@ import '../../data/providers/home_provider.dart';
 import '../../data/models/home_data_model.dart';
 import 'partner/partner_home.dart';
 import 'offer_pages/active_deals_page.dart';
+import '../../data/providers/banners_provider.dart';
 
 import '../../data/constants/style_constants.dart';
 
@@ -155,6 +156,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       return const Center(child: Text('No data available'));
     }
 
+    final homeBannersAsync = ref.watch(bannersProvider(const BannerFilter(page: 'home')));
+    final effectiveBanners = (homeBannersAsync.value != null && homeBannersAsync.value!.isNotEmpty)
+        ? homeBannersAsync.value
+        : data.premiumBanners;
+
     final q = _searchQuery.trim();
 
     final categories = data.categories
@@ -263,11 +269,11 @@ class _HomePageState extends ConsumerState<HomePage> {
         //   ),
         //   SizedBox(height: screenSize.responsivePadding(16)),
         // ],
-        if (data.premiumBanners != null && data.premiumBanners!.isNotEmpty) ...[
+        if (effectiveBanners != null && effectiveBanners.isNotEmpty) ...[
           SizedBox(height: screenSize.responsivePadding(4)),
           BannerSection(
             key: const ValueKey('home_banner_section'),
-            banners: data.premiumBanners,
+            banners: effectiveBanners,
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],

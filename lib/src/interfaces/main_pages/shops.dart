@@ -13,6 +13,8 @@ import '../../data/utils/location_utils.dart';
 import '../../data/utils/global_variables.dart';
 import '../components/shops/shop_grid_card.dart';
 import '../components/loading_indicator.dart';
+import '../../data/providers/banners_provider.dart';
+import '../components/common/paginated_banner_grid.dart';
 
 class ShopsPage extends ConsumerStatefulWidget {
   const ShopsPage({super.key});
@@ -225,6 +227,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
 
     final nearbyState = ref.watch(shopsProvider);
     final exploreState = ref.watch(allShopsProvider);
+    final bannersAsync = ref.watch(bannersProvider(const BannerFilter(page: 'shops')));
+    final banners = bannersAsync.value ?? [];
     final user = ref.watch(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
@@ -354,28 +358,20 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     ),
                   )
                 else
-                  SliverPadding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
+                  ...buildPaginatedGridSliversWithBanners(
+                    items: nearbyState.shops,
+                    itemBuilder: (_, index, shop) => _buildShopCard(
+                      shop,
+                      index,
+                      userLat,
+                      userLng,
+                      screenSize,
                     ),
-                    sliver: SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                        (_, index) => _buildShopCard(
-                          nearbyState.shops[index],
-                          index,
-                          userLat,
-                          userLng,
-                          screenSize,
-                        ),
-                        childCount: nearbyState.shops.length,
-                      ),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: screenSize.responsivePadding(16),
-                        crossAxisSpacing: screenSize.responsivePadding(16),
-                        childAspectRatio: aspectRatio,
-                      ),
-                    ),
+                    banners: banners,
+                    hasMore: nearbyState.pagination != null &&
+                        nearbyState.pagination!.page < nearbyState.pagination!.pages,
+                    screenSize: screenSize,
+                    childAspectRatio: aspectRatio,
                   ),
                 SliverToBoxAdapter(
                   child: SizedBox(height: screenSize.responsivePadding(24)),
@@ -441,27 +437,22 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     );
                   }
 
-                  return SliverPadding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                    ),
-                    sliver: SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                        (_, index) => _buildShopCard(
-                          exploreShops[index],
-                          index,
-                          userLat,
-                          userLng,
-                          screenSize,
-                        ),
-                        childCount: exploreShops.length,
+                  return SliverMainAxisGroup(
+                    slivers: buildPaginatedGridSliversWithBanners(
+                      items: exploreShops,
+                      itemBuilder: (_, index, shop) => _buildShopCard(
+                        shop,
+                        index,
+                        userLat,
+                        userLng,
+                        screenSize,
                       ),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: screenSize.responsivePadding(16),
-                        crossAxisSpacing: screenSize.responsivePadding(16),
-                        childAspectRatio: aspectRatio,
-                      ),
+                      banners: banners,
+                      hasMore: exploreState.pagination != null &&
+                          exploreState.pagination!.page < exploreState.pagination!.pages,
+                      screenSize: screenSize,
+                      childAspectRatio: aspectRatio,
+                      bannerIndexOffset: nearbyState.shops.length ~/ 10,
                     ),
                   );
                 }(),

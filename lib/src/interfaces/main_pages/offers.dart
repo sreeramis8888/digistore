@@ -21,6 +21,8 @@ import 'partner/create_offer_page.dart';
 import '../../data/utils/global_variables.dart';
 import '../../data/utils/interactive_feedback_button.dart';
 import 'offer_pages/categories_grid_page.dart';
+import '../../data/providers/banners_provider.dart';
+import '../components/common/paginated_banner_grid.dart';
 
 class OffersPage extends ConsumerStatefulWidget {
   const OffersPage({super.key});
@@ -301,6 +303,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     required ScreenSizeData screenSize,
     required bool isPartner,
   }) {
+    final categoryId = offersState.currentCategoryId;
+    final bannerFilter = (categoryId != null && categoryId != 'All')
+        ? BannerFilter(category: categoryId, page: 'offer')
+        : const BannerFilter(page: 'offer');
+    final bannersAsync = ref.watch(bannersProvider(bannerFilter));
+    final banners = bannersAsync.value ?? [];
+
     // Partner & Guest view — simple grid, no split
     if (isPartner || GlobalVariables.isGuest) {
       if (offersState.isLoading && offersState.offers.isEmpty) {
@@ -346,22 +355,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            SliverPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(16.0),
-              ),
-              sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate((_, index) {
-                  final o = offersState.offers[index];
-                  return DealCard.fromOffer(o);
-                }, childCount: offersState.offers.length),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: screenSize.responsivePadding(16.0),
-                  crossAxisSpacing: screenSize.responsivePadding(16.0),
-                  childAspectRatio: aspectRatio,
-                ),
-              ),
+            ...buildPaginatedGridSliversWithBanners(
+              items: offersState.offers,
+              itemBuilder: (_, index, o) => DealCard.fromOffer(o),
+              banners: banners,
+              hasMore: offersState.hasMore,
+              screenSize: screenSize,
+              childAspectRatio: aspectRatio,
             ),
             if (offersState.isFetchingMore)
               SliverToBoxAdapter(
@@ -450,22 +450,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
             )
           else
-            SliverPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(16.0),
-              ),
-              sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate((_, index) {
-                  final o = offersState.offers[index];
-                  return DealCard.fromOffer(o);
-                }, childCount: offersState.offers.length),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: screenSize.responsivePadding(16.0),
-                  crossAxisSpacing: screenSize.responsivePadding(16.0),
-                  childAspectRatio: aspectRatio,
-                ),
-              ),
+            ...buildPaginatedGridSliversWithBanners(
+              items: offersState.offers,
+              itemBuilder: (_, index, o) => DealCard.fromOffer(o),
+              banners: banners,
+              hasMore: offersState.hasMore,
+              screenSize: screenSize,
+              childAspectRatio: aspectRatio,
             ),
           SliverToBoxAdapter(
             child: SizedBox(height: screenSize.responsivePadding(24.0)),
@@ -506,22 +497,14 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
             )
           else
-            SliverPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(16.0),
-              ),
-              sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate((_, index) {
-                  final o = offersState.exploreOffers[index];
-                  return DealCard.fromOffer(o);
-                }, childCount: offersState.exploreOffers.length),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: screenSize.responsivePadding(16.0),
-                  crossAxisSpacing: screenSize.responsivePadding(16.0),
-                  childAspectRatio: aspectRatio,
-                ),
-              ),
+            ...buildPaginatedGridSliversWithBanners(
+              items: offersState.exploreOffers,
+              itemBuilder: (_, index, o) => DealCard.fromOffer(o),
+              banners: banners,
+              hasMore: offersState.exploreHasMore,
+              screenSize: screenSize,
+              childAspectRatio: aspectRatio,
+              bannerIndexOffset: offersState.offers.length ~/ 10,
             ),
 
           SliverToBoxAdapter(

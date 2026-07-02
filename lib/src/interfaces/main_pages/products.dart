@@ -14,6 +14,8 @@ import '../../data/router/nav_router.dart';
 import '../../data/providers/category_provider.dart';
 import '../components/products/products_filter_chips.dart';
 import 'dart:async';
+import '../../data/providers/banners_provider.dart';
+import '../components/common/paginated_banner_grid.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
   const ProductsPage({super.key});
@@ -78,6 +80,12 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final productsState = ref.watch(partnerProductsProvider);
+    final categoryId = productsState.currentCategoryId;
+    final bannerFilter = (categoryId != null && categoryId != 'All')
+        ? BannerFilter(category: categoryId, page: 'products')
+        : const BannerFilter(page: 'products');
+    final bannersAsync = ref.watch(bannersProvider(bannerFilter));
+    final banners = bannersAsync.value ?? [];
     final isPartner = ref.watch(userTypeProvider) == UserType.partner;
     final currentCategoryIndex = ref.watch(selectedProductsCategoryProvider);
 
@@ -220,42 +228,25 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                           controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: EdgeInsets.only(
-                                bottom: screenSize.responsivePadding(24),
-                                left: screenSize.responsivePadding(16),
-                                right: screenSize.responsivePadding(16),
+                            ...buildPaginatedGridSliversWithBanners(
+                              items: productsState.products,
+                              itemBuilder: (context, index, p) => ProductCard(
+                                index: index,
+                                name: p.title,
+                                image: (p.images != null && p.images!.isNotEmpty)
+                                    ? p.images![0]
+                                    : '',
+                                price: (p.price == null || p.price == 0)
+                                    ? null
+                                    : '₹ ${p.price}',
+                                tags: p.tags,
+                                rawProduct: p,
                               ),
-                              sliver: SliverGrid(
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing:
-                                      screenSize.responsivePadding(16),
-                                  crossAxisSpacing:
-                                      screenSize.responsivePadding(16),
-                                  childAspectRatio: 0.8,
-                                ),
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final p = productsState.products[index];
-                                    return ProductCard(
-                                      index: index,
-                                      name: p.title,
-                                      image: (p.images != null &&
-                                              p.images!.isNotEmpty)
-                                          ? p.images![0]
-                                          : '',
-                                      price: (p.price == null || p.price == 0)
-                                          ? null
-                                          : '₹ ${p.price}',
-                                      tags: p.tags,
-                                      rawProduct: p,
-                                    );
-                                  },
-                                  childCount: productsState.products.length,
-                                ),
-                              ),
+                              banners: banners,
+                              hasMore: productsState.pagination != null &&
+                                  productsState.pagination!.page < productsState.pagination!.pages,
+                              screenSize: screenSize,
+                              childAspectRatio: 0.8,
                             ),
                             if (productsState.isLoadingMore)
                               SliverToBoxAdapter(
