@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'src/data/router/router.dart';
 import 'src/data/providers/screen_size_provider.dart';
 
+import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -12,10 +13,26 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'firebase_options.dart';
 import 'src/data/services/notification_service/notification_controller.dart';
 import 'src/data/services/navigation_service.dart';
+import 'src/utils/http_overrides.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
+  // Configure global HTTP proxy overrides if PROXY_HOST is set (e.g. for JMeter interception)
+  final proxyHost = dotenv.env['PROXY_HOST'];
+  final proxyPort = dotenv.env['PROXY_PORT'] ?? '8888';
+  if (proxyHost != null && proxyHost.isNotEmpty) {
+    print('--- PROXY INTERCEPTION ENABLED ---');
+    print('Routing all app HTTP/HTTPS traffic through proxy: $proxyHost:$proxyPort');
+    print('----------------------------------');
+    HttpOverrides.global = DevHttpOverrides(
+      proxyHost: proxyHost,
+      proxyPort: proxyPort,
+    );
+  } else {
+    print('--- PROXY INTERCEPTION DISABLED ---');
+  }
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
