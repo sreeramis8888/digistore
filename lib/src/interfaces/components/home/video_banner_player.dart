@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -40,6 +40,10 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
 
   bool _isVisible = false;
   bool _isManuallyPaused = false;
+  
+  bool _isUsingCachedFile = false;
+  Timer? _cacheTimer;
+  StreamSubscription? _downloadSubscription;
 
   @override
   bool get wantKeepAlive => true;
@@ -55,16 +59,16 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
     try {
       final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
       
-      late File videoFile;
+      if (!mounted) return;
+
       if (fileInfo != null) {
-        videoFile = fileInfo.file;
+        _isUsingCachedFile = true;
+        _controller = VideoPlayerController.file(fileInfo.file);
       } else {
-        videoFile = await DefaultCacheManager().getSingleFile(widget.videoUrl);
+        _isUsingCachedFile = false;
+        _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       }
 
-      if (!mounted) return;
-      _controller = VideoPlayerController.file(videoFile);
-      
       await _controller!.initialize();
       if (!mounted) return;
 
@@ -94,11 +98,45 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
       if (!_controller!.value.isPlaying) {
         _controller!.play();
       }
+      _triggerCacheTimerIfNeeded();
     } else {
       if (_controller!.value.isPlaying) {
         _controller!.pause();
       }
+      _cancelCacheAndDownload();
     }
+  }
+
+  void _triggerCacheTimerIfNeeded() {
+    if (_isUsingCachedFile || _cacheTimer != null || _downloadSubscription != null) return;
+
+    _cacheTimer = Timer(const Duration(seconds: 3), () {
+      _startBackgroundDownload();
+    });
+  }
+
+  void _startBackgroundDownload() {
+    if (_downloadSubscription != null) return;
+
+    _downloadSubscription = DefaultCacheManager().getFileStream(widget.videoUrl).listen(
+      (fileResponse) {
+        if (fileResponse is FileInfo) {
+          _isUsingCachedFile = true;
+          _cancelCacheAndDownload();
+        }
+      },
+      onError: (e) {
+        _cancelCacheAndDownload();
+      },
+      cancelOnError: true,
+    );
+  }
+
+  void _cancelCacheAndDownload() {
+    _cacheTimer?.cancel();
+    _cacheTimer = null;
+    _downloadSubscription?.cancel();
+    _downloadSubscription = null;
   }
 
   @override
@@ -114,6 +152,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
 
   @override
   void dispose() {
+    _cancelCacheAndDownload();
     _controller?.dispose();
     super.dispose();
   }

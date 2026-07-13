@@ -50,7 +50,6 @@ class DealCard extends ConsumerWidget {
     EdgeInsetsGeometry? margin,
     bool hideShopName = false,
   }) {
-
     final code = offer.offerTypeCode?.toUpperCase();
     String? badgeText;
 
@@ -109,10 +108,7 @@ class DealCard extends ConsumerWidget {
         if (hideShopName || isPartner) {
           args['hideShopInfo'] = true;
         }
-        Navigator.of(context).pushNamed(
-          'offerDetail',
-          arguments: args,
-        );
+        Navigator.of(context).pushNamed('offerDetail', arguments: args);
       },
       child: Container(
         width: width,
@@ -208,14 +204,17 @@ class DealCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: screenSize.responsivePadding(2)),
-                      Text(
-                        subtitle,
-                        style: kSmallerTitleL.copyWith(
-                          color: kSecondaryTextColor,
+                      if (subtitle.isNotEmpty &&
+                          subtitle != 'null' &&
+                          subtitle != 'nil')
+                        Text(
+                          subtitle,
+                          style: kSmallerTitleL.copyWith(
+                            color: kSecondaryTextColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ],
                   ),
                   if (!hideShopName && !isPartner) ...[

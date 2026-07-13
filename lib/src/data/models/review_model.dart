@@ -6,6 +6,7 @@ class ReviewModel {
   final String? userPhoto;
   final num? rating;
   final String? comment;
+  final List<String>? images;
   final DateTime? createdAt;
 
   const ReviewModel({
@@ -16,6 +17,7 @@ class ReviewModel {
     this.userPhoto,
     this.rating,
     this.comment,
+    this.images,
     this.createdAt,
   });
 
@@ -29,6 +31,7 @@ class ReviewModel {
       userPhoto: userData is Map ? userData['profileImage'] as String? : json['userPhoto'] as String?,
       rating: json['rating'] as num?,
       comment: json['comment'] as String?,
+      images: json['images'] != null ? List<String>.from(json['images'] as List) : null,
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
     );
   }

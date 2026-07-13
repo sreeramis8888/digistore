@@ -93,24 +93,26 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
 
     final offersState = ref.watch(offersProvider);
     final currentOfferId = widget.args['_id'] ?? widget.args['id'];
-    final cachedOffer = offersState.offers
-            .where((o) => o.id == currentOfferId)
-            .firstOrNull ??
+    final cachedOffer =
+        offersState.offers.where((o) => o.id == currentOfferId).firstOrNull ??
         offersState.exploreOffers
             .where((o) => o.id == currentOfferId)
             .firstOrNull;
 
-    final bool isScratchCard = cachedOffer?.isScratchCard ??
+    final bool isScratchCard =
+        cachedOffer?.isScratchCard ??
         (widget.args['isScratchCard'] == true ||
             widget.args['isScratchCard'] == 'true' ||
             widget.args['offerTypeCode'] == 'SC');
 
-    final bool isScratched = cachedOffer?.isScratched ??
+    final bool isScratched =
+        cachedOffer?.isScratched ??
         (widget.args['isScratched'] == true ||
             widget.args['isScratched'] == 'true');
 
     final num? awardedDiscount =
-        cachedOffer?.awardedDiscount ?? (widget.args['awardedDiscount'] as num?);
+        cachedOffer?.awardedDiscount ??
+        (widget.args['awardedDiscount'] as num?);
 
     List<String> images = [];
     if (widget.args['images'] is List &&
@@ -323,7 +325,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!(widget.args['hideShopInfo'] ?? false) && !isPartner) ...[
+                  if (!(widget.args['hideShopInfo'] ?? false) &&
+                      !isPartner) ...[
                     InkWell(
                       onTap: partnerId.isNotEmpty
                           ? () => _navigateToShop(context, partnerId)
@@ -406,15 +409,23 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
 
                   Text(title, style: kSubHeadingL.copyWith(fontSize: 24)),
                   const SizedBox(height: 8),
-                  Text(
-                    subtitle,
-                    style: kBodyTitleSB.copyWith(
-                      color: kSecondaryTextColor,
-                      fontSize: 16,
+                  if (subtitle.isNotEmpty &&
+                      subtitle != 'null' &&
+                      subtitle != 'nil')
+                    Text(
+                      subtitle,
+                      style: kBodyTitleSB.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (isScratchCard && isScratched && awardedDiscount != null) ...[
+                  if (subtitle.isNotEmpty &&
+                      subtitle != 'null' &&
+                      subtitle != 'nil')
+                    const SizedBox(height: 16),
+                  if (isScratchCard &&
+                      isScratched &&
+                      awardedDiscount != null) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -503,8 +514,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           Navigator.of(context)
                               .pushNamed('scratchCard', arguments: offerDetails)
                               .then((_) {
-                            if (mounted) setState(() {});
-                          });
+                                if (mounted) setState(() {});
+                              });
                         } else {
                           Navigator.of(context).pushNamed(
                             'redemptionInstructions',

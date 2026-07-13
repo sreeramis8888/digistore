@@ -12,6 +12,8 @@ import '../../../data/utils/interactive_feedback_button.dart';
 import '../../animations/index.dart';
 import '../../../data/providers/notifications_provider.dart';
 import '../../main_pages/history.dart';
+import '../../../data/providers/home_provider.dart';
+import '../../../data/models/home_data_model.dart';
 
 class HomeAppBar extends ConsumerWidget {
   const HomeAppBar({super.key});
@@ -24,13 +26,32 @@ class HomeAppBar extends ConsumerWidget {
         ? user.name!
         : 'Guest User';
     final initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
-    final locationName = (user?.location?.localBody != null &&
+    final locationName =
+        (user?.location?.localBody != null &&
             user!.location!.localBody!.isNotEmpty)
         ? user.location!.localBody!.split(' ').first
         : (user?.location?.district != null &&
-                user!.location!.district!.isNotEmpty)
-            ? user.location!.district!.split(' ').first
-            : 'Unspecified Location';
+              user!.location!.district!.isNotEmpty)
+        ? user.location!.district!.split(' ').first
+        : 'Unspecified Location';
+    final homeDataState = ref.watch(homeDataProvider).value;
+    int points = user?.pointsBalance ?? 0;
+    String tierName = user?.currentTier?.name ?? '';
+
+    if (homeDataState is CustomerHomeState) {
+      final loyaltyCard = homeDataState.data.loyaltyCard;
+      if (loyaltyCard != null) {
+        if (loyaltyCard.pointsBalance != null) {
+          points = loyaltyCard.pointsBalance!;
+        }
+        if (loyaltyCard.tier != null) {
+          tierName = loyaltyCard.tier!;
+        }
+      }
+    }
+
+    final isSilver = tierName.toLowerCase() == 'silver';
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -108,14 +129,34 @@ class HomeAppBar extends ConsumerWidget {
                   MaterialPageRoute(builder: (context) => const HistoryPage()),
                 );
               },
-              scaleFactor: 1.1,
+              scaleFactor: 1.05,
               child: Container(
-                padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(12),
+                  vertical: screenSize.responsivePadding(8),
+                ),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: kBorder),
                 ),
-                child: const Icon(Icons.history, color: kBlack, size: 20),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      isSilver
+                          ? 'assets/svg/silver_coin.svg'
+                          : 'assets/svg/coin.svg',
+                      height: 20,
+                    ),
+                    SizedBox(width: screenSize.responsivePadding(6)),
+                    Text(
+                      '$points',
+                      style: kSmallTitleSB.copyWith(
+                        color: const Color(0xFF3B4859),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ).fadeIn(delayMilliseconds: 200),
             SizedBox(width: screenSize.responsivePadding(12)),

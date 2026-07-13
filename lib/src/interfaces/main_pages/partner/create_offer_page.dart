@@ -841,7 +841,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Buy 1 Get... Details',
+                        'Buy X Get Y Details',
                         style: kSmallTitleB.copyWith(
                           color: const Color(0xFF1565C0),
                         ),
