@@ -111,6 +111,58 @@ abstract class _$AllShops extends $Notifier<ShopsState> {
   }
 }
 
+@ProviderFor(FeaturedShops)
+final featuredShopsProvider = FeaturedShopsProvider._();
+
+final class FeaturedShopsProvider
+    extends $NotifierProvider<FeaturedShops, ShopsState> {
+  FeaturedShopsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'featuredShopsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$featuredShopsHash();
+
+  @$internal
+  @override
+  FeaturedShops create() => FeaturedShops();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShopsState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShopsState>(value),
+    );
+  }
+}
+
+String _$featuredShopsHash() => r'dc23a52f4a8ed35005df63554989a30eb301c82f';
+
+abstract class _$FeaturedShops extends $Notifier<ShopsState> {
+  ShopsState build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<ShopsState, ShopsState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ShopsState, ShopsState>,
+              ShopsState,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(shopOffers)
 final shopOffersProvider = ShopOffersFamily._();
 

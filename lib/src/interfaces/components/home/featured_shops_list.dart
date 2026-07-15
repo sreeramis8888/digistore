@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../../data/router/nav_router.dart';
 import 'section_title.dart';
 import '../shops/featured_shop_card.dart';
 
 import '../../../data/models/shop_model.dart';
+import '../../main_pages/shop_pages/featured_shops_page.dart';
 
 class FeaturedShopsList extends ConsumerWidget {
   final List<ShopModel>? shops;
@@ -26,7 +26,12 @@ class FeaturedShopsList extends ConsumerWidget {
           child: SectionTitle(
             title: 'Featured Shops',
             onViewAll: () {
-              ref.read(selectedIndexProvider.notifier).updateIndex(2);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FeaturedShopsPage(),
+                ),
+              );
             },
           ),
         ),
