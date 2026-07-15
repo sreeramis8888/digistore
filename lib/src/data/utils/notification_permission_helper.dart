@@ -183,25 +183,25 @@ class _ModernPermissionDialog extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-            if (permissionList != null && permissionList!.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  permissionList!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF4B5563),
-                  ),
-                ),
-              ),
-            ],
+            // if (permissionList != null && permissionList!.isNotEmpty) ...[
+            //   const SizedBox(height: 12),
+            //   Container(
+            //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            //     decoration: BoxDecoration(
+            //       color: const Color(0xFFF3F4F6),
+            //       borderRadius: BorderRadius.circular(8),
+            //     ),
+            //     child: Text(
+            //       permissionList!,
+            //       textAlign: TextAlign.center,
+            //       style: const TextStyle(
+            //         fontSize: 12,
+            //         fontWeight: FontWeight.w600,
+            //         color: Color(0xFF4B5563),
+            //       ),
+            //     ),
+            //   ),
+            // ],
             const SizedBox(height: 24),
             Row(
               children: [

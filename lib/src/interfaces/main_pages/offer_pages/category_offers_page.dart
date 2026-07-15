@@ -39,12 +39,31 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       final state = ref.read(categoryOffersProvider(widget.category.id));
-      if (!state.isLoading && !state.isFetchingMore && state.hasMore) {
+      if (!state.isLoading && state.hasMore) {
         ref
             .read(categoryOffersProvider(widget.category.id).notifier)
             .fetchOffers(isRefresh: false);
+      } else if (!state.isExploreLoading && state.exploreHasMore) {
+        ref
+            .read(categoryOffersProvider(widget.category.id).notifier)
+            .fetchExploreOffers(isRefresh: false);
       }
     }
+  }
+
+  Widget _sectionHeader(String title, dynamic screenSize) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        screenSize.responsivePadding(16.0),
+        0,
+        screenSize.responsivePadding(16.0),
+        screenSize.responsivePadding(12.0),
+      ),
+      child: Text(
+        title,
+        style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
+      ),
+    );
   }
 
   @override
@@ -67,7 +86,7 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
 
     Widget bodyContent;
 
-    if (state.isLoading && state.offers.isEmpty) {
+    if (state.isLoading && state.offers.isEmpty && state.exploreOffers.isEmpty) {
       bodyContent = GridView.builder(
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(16.0),
@@ -83,7 +102,9 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
         itemBuilder: (context, index) =>
             CardShimmers.dealCardShimmer(screenSize),
       );
-    } else if (state.error != null && state.offers.isEmpty) {
+    } else if (state.error != null &&
+        state.offers.isEmpty &&
+        state.exploreOffers.isEmpty) {
       bodyContent = CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -140,7 +161,7 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
           ),
         ],
       );
-    } else if (state.offers.isEmpty) {
+    } else if (state.offers.isEmpty && state.exploreOffers.isEmpty) {
       bodyContent = CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -159,20 +180,123 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(child: SizedBox(height: screenSize.responsivePadding(16.0))),
-          ...buildPaginatedGridSliversWithBanners(
-            items: state.offers,
-            itemBuilder: (_, index, deal) => DealCard.fromOffer(deal),
-            banners: banners,
-            hasMore: state.hasMore,
-            screenSize: screenSize,
-            childAspectRatio: aspectRatio,
+          SliverToBoxAdapter(
+            child: _sectionHeader('Offers Near You', screenSize),
           ),
-          if (state.isFetchingMore)
+          if (state.isLoading)
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                  childCount: 4,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            )
+          else if (state.error != null && state.offers.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: screenSize.responsivePadding(24.0),
+                  horizontal: screenSize.responsivePadding(16.0),
+                  vertical: screenSize.responsivePadding(8.0),
+                ),
+                child: Text(
+                  'No nearby offers',
+                  style: kSmallerTitleL.copyWith(
+                    color: kSecondaryTextColor,
+                  ),
+                ),
+              ),
+            )
+          else if (state.offers.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16.0),
+                  vertical: screenSize.responsivePadding(8.0),
+                ),
+                child: Text(
+                  'No offers found near your location.',
+                  style: kSmallerTitleL.copyWith(
+                    color: kSecondaryTextColor,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...buildPaginatedGridSliversWithBanners(
+              items: state.offers,
+              itemBuilder: (_, index, deal) => DealCard.fromOffer(deal),
+              banners: banners,
+              hasMore: state.hasMore,
+              screenSize: screenSize,
+              childAspectRatio: aspectRatio,
+            ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: screenSize.responsivePadding(24.0)),
+          ),
+
+          // ── Explore More Offers ──────────────────────────────────────
+          SliverToBoxAdapter(
+            child: _sectionHeader('Explore More Offers', screenSize),
+          ),
+          if (state.isExploreLoading)
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16.0),
+              ),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (_, i) => CardShimmers.dealCardShimmer(screenSize),
+                  childCount: 4,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: screenSize.responsivePadding(16.0),
+                  crossAxisSpacing: screenSize.responsivePadding(16.0),
+                  childAspectRatio: aspectRatio,
+                ),
+              ),
+            )
+          else if (state.exploreOffers.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(screenSize.responsivePadding(32.0)),
+                child: Center(
+                  child: Text(
+                    'No more offers to explore.',
+                    style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                  ),
+                ),
+              ),
+            )
+          else
+            ...buildPaginatedGridSliversWithBanners(
+              items: state.exploreOffers,
+              itemBuilder: (_, index, deal) => DealCard.fromOffer(deal),
+              banners: banners,
+              hasMore: state.exploreHasMore,
+              screenSize: screenSize,
+              childAspectRatio: aspectRatio,
+              bannerIndexOffset: state.offers.length ~/ 10,
+            ),
+
+          SliverToBoxAdapter(
+            child: SizedBox(height: screenSize.responsivePadding(24.0)),
+          ),
+          if (state.isFetchingMore || state.isExploreFetchingMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: screenSize.responsivePadding(24.0),
                 ),
                 child: Center(
                   child: LoadingAnimation(
@@ -181,9 +305,6 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
                 ),
               ),
             ),
-          SliverToBoxAdapter(
-            child: SizedBox(height: screenSize.responsivePadding(24.0)),
-          ),
         ],
       );
     }

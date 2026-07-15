@@ -17,7 +17,7 @@ List<Widget> buildPaginatedGridSliversWithBanners<T>({
   if (items.isEmpty) return [];
 
   final int totalItems = items.length;
-  if (banners.isEmpty || totalItems < 10) {
+  if (banners.isEmpty) {
     return [
       SliverPadding(
         padding: EdgeInsets.symmetric(
@@ -116,7 +116,7 @@ List<Widget> buildPaginatedGridSliversWithBanners<T>({
         }
       }
     } else {
-      if (totalFullBlocks >= 1 && !hasMore) {
+      if (!hasMore || totalItems < 10) {
         if (currentBannerIndex < banners.length) {
           final remainingBanners = banners.sublist(currentBannerIndex);
           slivers.add(
