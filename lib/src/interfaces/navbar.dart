@@ -30,6 +30,8 @@ class NavBar extends ConsumerStatefulWidget {
 }
 
 class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
+  bool _wasInBackground = false;
+
   static const List<String> _inactiveIcons = [
     'assets/svg/inactive_home.svg',
     'assets/svg/inactive_offer.svg',
@@ -153,8 +155,13 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(notificationsProvider.notifier).fetchUnreadCount();
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _wasInBackground = true;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_wasInBackground) {
+        _wasInBackground = false;
+        ref.read(notificationsProvider.notifier).fetchUnreadCount();
+      }
     }
   }
 

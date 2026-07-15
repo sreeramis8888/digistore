@@ -26,6 +26,7 @@ class PartnerProfilePage extends ConsumerStatefulWidget {
 
 class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
     with WidgetsBindingObserver {
+  bool _wasInBackground = false;
   bool _isNotificationsEnabled = true;
   bool _isTokenRegistered = true;
   bool _isHiding = false;
@@ -46,8 +47,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkNotificationStatus();
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _wasInBackground = true;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_wasInBackground) {
+        _wasInBackground = false;
+        _checkNotificationStatus();
+      }
     }
   }
 

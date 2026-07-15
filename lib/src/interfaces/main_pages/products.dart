@@ -15,7 +15,9 @@ import '../../data/providers/category_provider.dart';
 import '../components/products/products_filter_chips.dart';
 import 'dart:async';
 import '../../data/providers/banners_provider.dart';
+import '../../data/models/banner_model.dart';
 import '../components/common/paginated_banner_grid.dart';
+import '../../data/utils/global_variables.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
   const ProductsPage({super.key});
@@ -28,7 +30,8 @@ class ProductsPage extends ConsumerStatefulWidget {
 class _ProductsPageState extends ConsumerState<ProductsPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  int? _lastFetchedCategoryIndex;
+  final FocusNode _searchFocusNode = FocusNode();
+  int _lastFetchedCategoryIndex = -1;
   Timer? _debounce;
 
   @override
@@ -41,6 +44,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -80,13 +84,14 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final productsState = ref.watch(partnerProductsProvider);
+    final isPartner = ref.watch(userTypeProvider) == UserType.partner || GlobalVariables.isPartner;
     final categoryId = productsState.currentCategoryId;
     final bannerFilter = (categoryId != null && categoryId != 'All')
         ? BannerFilter(category: categoryId, page: 'products')
         : const BannerFilter(page: 'products');
-    final bannersAsync = ref.watch(bannersProvider(bannerFilter));
-    final banners = bannersAsync.value ?? [];
-    final isPartner = ref.watch(userTypeProvider) == UserType.partner;
+    final banners = isPartner
+        ? const <BannerModel>[]
+        : (ref.watch(bannersProvider(bannerFilter)).value ?? []);
     final currentCategoryIndex = ref.watch(selectedProductsCategoryProvider);
 
     ref.listen<int>(selectedProductsCategoryProvider, (previous, next) {

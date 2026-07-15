@@ -42,6 +42,15 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _maxDiscountController;
   late TextEditingController _bgBuyQtyController;
   late TextEditingController _bgGetDescController;
+  late TextEditingController _dnpDiscountController;
+  late TextEditingController _comboDescController;
+  late TextEditingController _ldMinPurchaseController;
+  late TextEditingController _ldPrizeDescController;
+  late TextEditingController _loPurchaseCountController;
+  late TextEditingController _loFreeItemDescController;
+  late TextEditingController _csDiscountController;
+  late TextEditingController _ltoMessageController;
+  late TextEditingController _rcCouponCodeController;
   late TextEditingController _tagsController;
   List<String> _tags = [];
   late TextEditingController _minPriceController;
@@ -54,6 +63,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   late TextEditingController _minPurchaseAmountController;
 
   String _discountType = 'percentage';
+  bool _isScratchCard = false;
 
   String _branchApplicabilityType = 'all';
   List<String> _selectedBranchIds = [];
@@ -65,8 +75,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   bool _isActive = true;
 
   String? _selectedSubcategory;
+  List<String> _selectedSubcategories = [];
   TierModel? _selectedTier;
   String? _selectedOfferTypeCode;
+
+  String? _selectedDealType;
+  bool _isDealActive = false;
+  DateTime? _dealStartDate;
+  TimeOfDay? _dealStartTime;
+  DateTime? _dealExpiryDate;
+  TimeOfDay? _dealExpiryTime;
 
   @override
   void initState() {
@@ -89,6 +107,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
 
     _selectedSubcategory = widget.offer?['subcategory'] as String?;
+    final initialSubs = widget.offer?['subcategories'];
+    if (initialSubs is List) {
+      _selectedSubcategories = initialSubs.map((e) => e.toString()).toList();
+    } else if (_selectedSubcategory != null && _selectedSubcategory!.isNotEmpty) {
+      _selectedSubcategories = [_selectedSubcategory!];
+    }
     _selectedOfferTypeCode = widget.offer?['offerTypeCode'] as String?;
 
     final requiredTierData = widget.offer?['requiredTier'];
@@ -103,6 +127,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
 
     _discountType = widget.offer?['discountType'] as String? ?? 'percentage';
+    _isScratchCard = widget.offer?['isScratchCard'] == true || widget.offer?['isScratchCard'] == 'true';
 
     _minDiscountController = TextEditingController(
       text: widget.offer?['discountRange']?['min']?.toString(),
@@ -110,7 +135,6 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _maxDiscountController = TextEditingController(
       text: widget.offer?['discountRange']?['max']?.toString(),
     );
-    bool _isDiscountRange = widget.offer?['discountRange'] != null;
 
     final meta = widget.offer?['offerMetadata'];
     _bgBuyQtyController = TextEditingController(
@@ -123,6 +147,73 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           ? meta['getDescription'].toString()
           : '',
     );
+    _dnpDiscountController = TextEditingController(
+      text: meta != null && meta['nextPurchaseDiscount'] != null
+          ? meta['nextPurchaseDiscount'].toString()
+          : '',
+    );
+    _comboDescController = TextEditingController(
+      text: meta != null && meta['comboDescription'] != null
+          ? meta['comboDescription'].toString()
+          : '',
+    );
+    _ldMinPurchaseController = TextEditingController(
+      text: meta != null && meta['minPurchaseLimit'] != null
+          ? meta['minPurchaseLimit'].toString()
+          : '',
+    );
+    _ldPrizeDescController = TextEditingController(
+      text: meta != null && meta['prizeDescription'] != null
+          ? meta['prizeDescription'].toString()
+          : '',
+    );
+    _loPurchaseCountController = TextEditingController(
+      text: meta != null && meta['purchaseCount'] != null
+          ? meta['purchaseCount'].toString()
+          : '',
+    );
+    _loFreeItemDescController = TextEditingController(
+      text: meta != null && meta['freeItemDescription'] != null
+          ? meta['freeItemDescription'].toString()
+          : '',
+    );
+    _csDiscountController = TextEditingController(
+      text: meta != null && meta['clearanceDiscount'] != null
+          ? meta['clearanceDiscount'].toString()
+          : '',
+    );
+    _ltoMessageController = TextEditingController(
+      text: meta != null && meta['timeLimitedMessage'] != null
+          ? meta['timeLimitedMessage'].toString()
+          : 'Hurry! Limited time offer!',
+    );
+    _rcCouponCodeController = TextEditingController(
+      text: meta != null && meta['couponCode'] != null
+          ? meta['couponCode'].toString()
+          : '',
+    );
+
+    final dealObj = widget.offer?['deal'];
+    if (dealObj is Map) {
+      _selectedDealType = dealObj['type'] as String?;
+      _isDealActive = dealObj['isActive'] == true || dealObj['isActive'] == 'true';
+      final sDate = dealObj['startDate'];
+      if (sDate != null && sDate.toString().isNotEmpty) {
+        final dt = DateTime.tryParse(sDate.toString())?.toLocal();
+        if (dt != null) {
+          _dealStartDate = dt;
+          _dealStartTime = TimeOfDay.fromDateTime(dt);
+        }
+      }
+      final eDate = dealObj['expiryDate'];
+      if (eDate != null && eDate.toString().isNotEmpty) {
+        final dt = DateTime.tryParse(eDate.toString())?.toLocal();
+        if (dt != null) {
+          _dealExpiryDate = dt;
+          _dealExpiryTime = TimeOfDay.fromDateTime(dt);
+        }
+      }
+    }
 
     _tagsController = TextEditingController();
     final initialTags = widget.offer?['tags'];
@@ -201,6 +292,15 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _maxDiscountController.dispose();
     _bgBuyQtyController.dispose();
     _bgGetDescController.dispose();
+    _dnpDiscountController.dispose();
+    _comboDescController.dispose();
+    _ldMinPurchaseController.dispose();
+    _ldPrizeDescController.dispose();
+    _loPurchaseCountController.dispose();
+    _loFreeItemDescController.dispose();
+    _csDiscountController.dispose();
+    _ltoMessageController.dispose();
+    _rcCouponCodeController.dispose();
     _minPriceController.dispose();
     _maxPriceController.dispose();
     _validFromController.dispose();
@@ -542,6 +642,96 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       }
     }
 
+    if (_selectedOfferTypeCode == 'DO' && _isScratchCard) {
+      if (_minDiscountController.text.trim().isEmpty ||
+          _maxDiscountController.text.trim().isEmpty) {
+        ToastService().showToast(
+          context,
+          'Discount range (min and max) is required for scratch card discount offers',
+          type: ToastType.error,
+        );
+        return;
+      }
+    }
+
+    if (_selectedDealType != null && _selectedDealType!.isNotEmpty && _isDealActive) {
+      if (_dealStartDate == null || _dealStartTime == null) {
+        ToastService().showToast(
+          context,
+          'Please select a start date and time for the deal',
+          type: ToastType.error,
+        );
+        return;
+      }
+      if (_dealExpiryDate == null || _dealExpiryTime == null) {
+        ToastService().showToast(
+          context,
+          'Please select an expiry date and time for the deal',
+          type: ToastType.error,
+        );
+        return;
+      }
+      final startDt = DateTime(
+        _dealStartDate!.year,
+        _dealStartDate!.month,
+        _dealStartDate!.day,
+        _dealStartTime!.hour,
+        _dealStartTime!.minute,
+      );
+      final expiryDt = DateTime(
+        _dealExpiryDate!.year,
+        _dealExpiryDate!.month,
+        _dealExpiryDate!.day,
+        _dealExpiryTime!.hour,
+        _dealExpiryTime!.minute,
+      );
+      if (startDt.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+        ToastService().showToast(
+          context,
+          'Start date and time cannot be in the past',
+          type: ToastType.error,
+        );
+        return;
+      }
+      if (expiryDt.isBefore(startDt) || expiryDt.isAtSameMomentAs(startDt)) {
+        ToastService().showToast(
+          context,
+          'Expiry date and time must be after start date and time',
+          type: ToastType.error,
+        );
+        return;
+      }
+      final diffHours = expiryDt.difference(startDt).inMinutes / 60.0;
+      if (diffHours < 1.0) {
+        ToastService().showToast(
+          context,
+          'Expiry must be at least 1 hour after start time',
+          type: ToastType.error,
+        );
+        return;
+      }
+      double maxDuration = 24;
+      String maxMsg = 'Deal duration must be between 1 and 24 hours';
+      if (_selectedDealType == 'deal_of_day') {
+        maxDuration = 7 * 24;
+        maxMsg = 'Deal duration must be at least 1 hour and cannot exceed 7 days';
+      } else if (_selectedDealType == 'deal_of_week') {
+        maxDuration = 30 * 24;
+        maxMsg = 'Deal duration must be at least 1 hour and cannot exceed 30 days';
+      } else if (_selectedDealType == 'deal_of_month') {
+        maxDuration = 90 * 24;
+        maxMsg = 'Deal duration must be at least 1 hour and cannot exceed 90 days';
+      }
+      if (diffHours > maxDuration) {
+        ToastService().showToast(
+          context,
+          maxMsg,
+          type: ToastType.error,
+        );
+        return;
+      }
+    }
+
     setState(() => _isLoading = true);
     try {
       final api = ref.read(apiProvider);
@@ -620,20 +810,94 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         'branchIds': _selectedBranchIds,
       });
 
-      if (_selectedSubcategory != null) {
+      body['isScratchCard'] = _isScratchCard.toString();
+
+      if (_selectedSubcategories.isNotEmpty) {
+        body['subcategories'] = json.encode(_selectedSubcategories);
+        body['subcategory'] = _selectedSubcategories.first;
+      } else if (_selectedSubcategory != null && _selectedSubcategory!.isNotEmpty) {
         body['subcategory'] = _selectedSubcategory!;
+        body['subcategories'] = json.encode([_selectedSubcategory!]);
       }
 
       if (_selectedOfferTypeCode != null) {
         body['offerTypeCode'] = _selectedOfferTypeCode!;
+        Map<String, dynamic>? metaMap;
         if (_selectedOfferTypeCode == 'BG') {
-          body['offerMetadata'] = json.encode({
+          metaMap = {
             if (_bgBuyQtyController.text.trim().isNotEmpty)
               'buyQuantity': int.tryParse(_bgBuyQtyController.text.trim()),
             if (_bgGetDescController.text.trim().isNotEmpty)
               'getDescription': _bgGetDescController.text.trim(),
-          });
+          };
+        } else if (_selectedOfferTypeCode == 'DNP') {
+          metaMap = {
+            if (_dnpDiscountController.text.trim().isNotEmpty)
+              'nextPurchaseDiscount': double.tryParse(_dnpDiscountController.text.trim()),
+          };
+        } else if (_selectedOfferTypeCode == 'CO' || _selectedOfferTypeCode == 'CP') {
+          metaMap = {
+            if (_comboDescController.text.trim().isNotEmpty)
+              'comboDescription': _comboDescController.text.trim(),
+          };
+        } else if (_selectedOfferTypeCode == 'LD') {
+          metaMap = {
+            if (_ldMinPurchaseController.text.trim().isNotEmpty)
+              'minPurchaseLimit': double.tryParse(_ldMinPurchaseController.text.trim()),
+            if (_ldPrizeDescController.text.trim().isNotEmpty)
+              'prizeDescription': _ldPrizeDescController.text.trim(),
+          };
+        } else if (_selectedOfferTypeCode == 'LO') {
+          metaMap = {
+            if (_loPurchaseCountController.text.trim().isNotEmpty)
+              'purchaseCount': int.tryParse(_loPurchaseCountController.text.trim()),
+            if (_loFreeItemDescController.text.trim().isNotEmpty)
+              'freeItemDescription': _loFreeItemDescController.text.trim(),
+          };
+        } else if (_selectedOfferTypeCode == 'CS') {
+          metaMap = {
+            if (_csDiscountController.text.trim().isNotEmpty)
+              'clearanceDiscount': _csDiscountController.text.trim(),
+          };
+        } else if (_selectedOfferTypeCode == 'LTO') {
+          metaMap = {
+            if (_ltoMessageController.text.trim().isNotEmpty)
+              'timeLimitedMessage': _ltoMessageController.text.trim(),
+          };
+        } else if (_selectedOfferTypeCode == 'RC') {
+          metaMap = {
+            if (_rcCouponCodeController.text.trim().isNotEmpty)
+              'couponCode': _rcCouponCodeController.text.trim(),
+          };
         }
+        if (metaMap != null && metaMap.isNotEmpty) {
+          body['offerMetadata'] = json.encode(metaMap);
+        } else {
+          body['offerMetadata'] = json.encode({});
+        }
+      }
+
+      if (_selectedDealType != null && _selectedDealType!.isNotEmpty && _isDealActive && _dealStartDate != null && _dealStartTime != null && _dealExpiryDate != null && _dealExpiryTime != null) {
+        final startDt = DateTime(
+          _dealStartDate!.year,
+          _dealStartDate!.month,
+          _dealStartDate!.day,
+          _dealStartTime!.hour,
+          _dealStartTime!.minute,
+        );
+        final expiryDt = DateTime(
+          _dealExpiryDate!.year,
+          _dealExpiryDate!.month,
+          _dealExpiryDate!.day,
+          _dealExpiryTime!.hour,
+          _dealExpiryTime!.minute,
+        );
+        body['deal'] = json.encode({
+          'type': _selectedDealType,
+          'isActive': _isDealActive,
+          'startDate': startDt.toUtc().toIso8601String(),
+          'expiryDate': expiryDt.toUtc().toIso8601String(),
+        });
       }
 
       if (_selectedTier != null) {
@@ -828,54 +1092,13 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                   );
                 }).toList(),
               ),
-              if (_selectedOfferTypeCode == 'BG') ...[
+              if (_selectedOfferTypeCode != null && _selectedOfferTypeCode != 'DO') ...[
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD), // Light blue bg
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFBBDEFB)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Buy X Get Y Details',
-                        style: kSmallTitleB.copyWith(
-                          color: const Color(0xFF1565C0),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: PrimaryTextField(
-                              controller: _bgBuyQtyController,
-                              label: 'Buy Quantity *',
-                              hint: 'e.g. 1',
-                              type: TextFieldType.number,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: PrimaryTextField(
-                              controller: _bgGetDescController,
-                              label: 'Get (Free Item) *',
-                              hint: 'e.g. 1 free or 50% off',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ] else ...[
-                const SizedBox(height: 20),
+                _buildDynamicOfferFields(),
               ],
+              const SizedBox(height: 20),
               Text(
-                'Subcategory',
+                'Service Categories (Subcategories)',
                 style: kSmallTitleM.copyWith(
                   color: const Color(0xFF0A0A0A),
                   fontWeight: FontWeight.w500,
@@ -897,18 +1120,67 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                           ),
                         );
                       }
-                      return AnimatedDropdown<String>(
-                        hint: 'Select Subcategory',
-                        value: _selectedSubcategory,
-                        items: list,
-                        itemLabel: (val) => val,
-                        fillColor: const Color(0xFFF5F5F5),
-                        borderRadius: 10,
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedSubcategory = val;
-                          });
-                        },
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE5E5E5)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select applicable subcategories (Optional):',
+                              style: kSmallerTitleL.copyWith(
+                                color: kSecondaryTextColor,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8.0,
+                              runSpacing: 8.0,
+                              children: list.map((sub) {
+                                final isSelected = _selectedSubcategories.contains(sub);
+                                return FilterChip(
+                                  label: Text(
+                                    sub,
+                                    style: kSmallerTitleM.copyWith(
+                                      color: isSelected ? kWhite : kSecondaryTextColor,
+                                    ),
+                                  ),
+                                  selected: isSelected,
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      if (selected) {
+                                        if (!_selectedSubcategories.contains(sub)) {
+                                          _selectedSubcategories.add(sub);
+                                        }
+                                        _selectedSubcategory = sub;
+                                      } else {
+                                        _selectedSubcategories.remove(sub);
+                                        if (_selectedSubcategories.isNotEmpty) {
+                                          _selectedSubcategory = _selectedSubcategories.first;
+                                        } else {
+                                          _selectedSubcategory = null;
+                                        }
+                                      }
+                                    });
+                                  },
+                                  selectedColor: kPrimaryColor,
+                                  backgroundColor: kWhite,
+                                  checkmarkColor: kWhite,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(
+                                      color: isSelected ? kPrimaryColor : const Color(0xFFE5E5E5),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
                       );
                     },
                     loading: () => Container(
@@ -989,6 +1261,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       ),
                     ),
                   ),
+              const SizedBox(height: 20),
+
+              _buildDealPromotionSection(context),
               const SizedBox(height: 20),
 
               Text(
@@ -1106,6 +1381,31 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                   ),
                 ],
               ),
+              if (_selectedOfferTypeCode == 'DO') ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: SwitchListTile(
+                    value: _isScratchCard,
+                    onChanged: (val) => setState(() => _isScratchCard = val),
+                    title: Text(
+                      'Use Scratch Card',
+                      style: kSmallTitleM.copyWith(fontSize: 14),
+                    ),
+                    subtitle: Text(
+                      'Random discount within min & max range when scratched',
+                      style: kSmallerTitleL.copyWith(color: kSecondaryTextColor, fontSize: 12),
+                    ),
+                    activeThumbColor: kPrimaryColor,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1512,5 +1812,489 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildDynamicOfferFields() {
+    switch (_selectedOfferTypeCode) {
+      case 'BG':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF3E8FF), // purple-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFD8B4FE)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Buy X Get Y Details',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF6B21A8)),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _bgBuyQtyController,
+                      label: 'Buy Quantity *',
+                      hint: 'e.g. 1',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _bgGetDescController,
+                      label: 'Get (Free Item) *',
+                      hint: 'e.g. 1 free or 50% off',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      case 'DNP':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF), // blue-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFBFDBFE)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Discount Amount on Next Purchase (₹) *',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF1E40AF)),
+              ),
+              const SizedBox(height: 12),
+              PrimaryTextField(
+                controller: _dnpDiscountController,
+                hint: 'e.g. 500',
+                type: TextFieldType.number,
+              ),
+            ],
+          ),
+        );
+      case 'CO':
+      case 'CP':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFECFDF5), // green-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFA7F3D0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Combo Details *',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF065F46)),
+              ),
+              const SizedBox(height: 12),
+              PrimaryTextField(
+                controller: _comboDescController,
+                hint: 'e.g. Get Pizza + Drink at ₹299',
+              ),
+            ],
+          ),
+        );
+      case 'LD':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFBEB), // amber-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFFDE68A)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Lucky Draw Details',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF92400E)),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _ldMinPurchaseController,
+                      label: 'Minimum Purchase (₹)',
+                      hint: 'e.g. 1000',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _ldPrizeDescController,
+                      label: 'Prize Description *',
+                      hint: 'e.g. Gift voucher worth ₹500',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      case 'LO':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEF2FF), // indigo-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFC7D2FE)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Loyalty Offer Details',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF3730A3)),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _loPurchaseCountController,
+                      label: 'Purchase Count *',
+                      hint: 'e.g. 5',
+                      type: TextFieldType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _loFreeItemDescController,
+                      label: 'Free Item Description *',
+                      hint: 'e.g. 1 service free',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      case 'CS':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFEF2F2), // red-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFFECACA)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Clearance Discount Details *',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF991B1B)),
+              ),
+              const SizedBox(height: 12),
+              PrimaryTextField(
+                controller: _csDiscountController,
+                hint: 'e.g. 50% off or Flat ₹100 off',
+              ),
+            ],
+          ),
+        );
+      case 'LTO':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDFA), // teal-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF99F6E4)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Urgency Message',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF115E59)),
+              ),
+              const SizedBox(height: 12),
+              PrimaryTextField(
+                controller: _ltoMessageController,
+                hint: 'e.g. Only 24 hours left!',
+              ),
+            ],
+          ),
+        );
+      case 'RC':
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFDF2F8), // pink-50
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFFBCFE8)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Coupon Code (Optional)',
+                style: kSmallTitleB.copyWith(color: const Color(0xFF9D174D)),
+              ),
+              const SizedBox(height: 12),
+              PrimaryTextField(
+                controller: _rcCouponCodeController,
+                hint: 'e.g. SAVE20',
+              ),
+            ],
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildDealPromotionSection(BuildContext context) {
+    final dealTypes = [
+      {'value': 'deal_of_hour', 'label': 'Deal of the Hour', 'desc': 'Up to 24 hours', 'max': 24, 'unit': 'hours'},
+      {'value': 'deal_of_day', 'label': 'Deal of the Day', 'desc': 'Up to 7 days', 'max': 7, 'unit': 'days'},
+      {'value': 'deal_of_week', 'label': 'Deal of the Week', 'desc': 'Up to 30 days', 'max': 30, 'unit': 'days'},
+      {'value': 'deal_of_month', 'label': 'Deal of the Month', 'desc': 'Up to 90 days', 'max': 90, 'unit': 'days'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Deal Promotion (Optional)',
+              style: kSmallTitleM.copyWith(
+                color: const Color(0xFF0A0A0A),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (_selectedDealType != null)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedDealType = null;
+                    _isDealActive = false;
+                    _dealStartDate = null;
+                    _dealStartTime = null;
+                    _dealExpiryDate = null;
+                    _dealExpiryTime = null;
+                  });
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red, padding: EdgeInsets.zero),
+                child: const Text('Remove Deal'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Promote your offer as a special deal. Only one deal type can be active at a time.',
+          style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 8.0,
+          children: dealTypes.map((deal) {
+            final isSelected = _selectedDealType == deal['value'];
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedDealType = deal['value'] as String;
+                  _isDealActive = true;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFFFFFBEB) : kWhite,
+                  border: Border.all(
+                    color: isSelected ? const Color(0xFFF59E0B) : const Color(0xFFE5E5E5),
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      deal['label'] as String,
+                      style: kSmallerTitleM.copyWith(
+                        color: isSelected ? const Color(0xFFB45309) : kTextColor,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      deal['desc'] as String,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isSelected ? const Color(0xFFD97706) : kSecondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        if (_selectedDealType != null && _selectedDealType!.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_selectedDealType == 'deal_of_hour')
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '⏰ Deal of the Hour lasts up to 24 hours from start time. Minimum 1 hour gap required for approval.',
+                      style: TextStyle(fontSize: 12, color: Colors.blue[800]),
+                    ),
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectDealDateTime(context, true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: kWhite,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFCBD5E1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Start Date & Time', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                              const SizedBox(height: 4),
+                              Text(
+                                _dealStartDate != null && _dealStartTime != null
+                                    ? '${DateFormat('dd MMM yyyy').format(_dealStartDate!)} at ${_dealStartTime!.format(context)}'
+                                    : 'Select Start',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: _dealStartDate != null ? FontWeight.w600 : FontWeight.normal,
+                                  color: _dealStartDate != null ? kTextColor : Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectDealDateTime(context, false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: kWhite,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFCBD5E1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Expiry Date & Time', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                              const SizedBox(height: 4),
+                              Text(
+                                _dealExpiryDate != null && _dealExpiryTime != null
+                                    ? '${DateFormat('dd MMM yyyy').format(_dealExpiryDate!)} at ${_dealExpiryTime!.format(context)}'
+                                    : 'Select Expiry',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: _dealExpiryDate != null ? FontWeight.w600 : FontWeight.normal,
+                                  color: _dealExpiryDate != null ? kTextColor : Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  value: _isDealActive,
+                  onChanged: (val) => setState(() => _isDealActive = val),
+                  title: Text('Activate this deal on start date', style: kSmallTitleM.copyWith(fontSize: 14)),
+                  activeThumbColor: kPrimaryColor,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                if (_isDealActive && _dealStartDate != null && _dealStartTime != null && _dealExpiryDate != null && _dealExpiryTime != null)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Deal Schedule', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.green[800])),
+                        const SizedBox(height: 2),
+                        Text('Starts: ${DateFormat('dd MMM yyyy').format(_dealStartDate!)} at ${_dealStartTime!.format(context)}', style: TextStyle(fontSize: 12, color: Colors.green[700])),
+                        Text('Ends: ${DateFormat('dd MMM yyyy').format(_dealExpiryDate!)} at ${_dealExpiryTime!.format(context)}', style: TextStyle(fontSize: 12, color: Colors.green[700])),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _selectDealDateTime(BuildContext context, bool isStart) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    DateTime initialDate = (isStart ? _dealStartDate : _dealExpiryDate) ?? DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 0)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (pickedDate != null && mounted) {
+      TimeOfDay initialTime = (isStart ? _dealStartTime : _dealExpiryTime) ?? TimeOfDay.now();
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: initialTime,
+      );
+      if (pickedTime != null && mounted) {
+        setState(() {
+          if (isStart) {
+            _dealStartDate = pickedDate;
+            _dealStartTime = pickedTime;
+          } else {
+            _dealExpiryDate = pickedDate;
+            _dealExpiryTime = pickedTime;
+          }
+        });
+      }
+    }
   }
 }

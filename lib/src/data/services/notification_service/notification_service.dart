@@ -73,8 +73,8 @@ class NotificationService {
   void _handleForegroundMessage(RemoteMessage message) {
     log("Notification received in FOREGROUND: ${message.data}");
 
-    // Refresh unread count when message is received
-    _ref.read(notificationsProvider.notifier).fetchUnreadCount();
+    // Update unread count and notification list locally without calling unread-count API
+    _ref.read(notificationsProvider.notifier).addNotificationFromPush(message);
 
     try {
       if (message.notification != null) {
@@ -151,7 +151,7 @@ class NotificationService {
 
   void _handleMessageOpenedApp(RemoteMessage message) {
     try {
-      // Refresh unread count when app is opened via notification
+      // Refresh unread count when app is opened via notification (throttled)
       _ref.read(notificationsProvider.notifier).fetchUnreadCount();
 
       String? deepLink;
@@ -176,7 +176,6 @@ class NotificationService {
           .getInitialMessage();
       if (initialMessage != null) {
         debugPrint('Handling initial message');
-        _ref.read(notificationsProvider.notifier).fetchUnreadCount();
         _handleMessageOpenedApp(initialMessage);
       }
     } catch (e) {

@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/banner_model.dart';
 import '../../utils/safe_parser.dart';
+import '../utils/global_variables.dart';
 import 'api_provider.dart';
+import 'user_type_provider.dart';
 
 class BannerFilter {
   final String? page;
@@ -26,6 +28,9 @@ class BannerFilter {
 }
 
 final bannersProvider = FutureProvider.family<List<BannerModel>, BannerFilter>((ref, filter) async {
+  if (GlobalVariables.isPartner || ref.watch(userTypeProvider) == UserType.partner) {
+    return [];
+  }
   try {
     final api = ref.watch(apiProvider);
     final queryParams = <String, String>{};
