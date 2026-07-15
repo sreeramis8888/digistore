@@ -28,6 +28,14 @@ class _AddBranchPageState extends State<AddBranchPage> {
   late TextEditingController _addressCtrl;
   late TextEditingController _phoneCtrl;
   late TextEditingController _locationCtrl;
+  late TextEditingController _emailCtrl;
+  late TextEditingController _contactNameCtrl;
+  late TextEditingController _contactDesignationCtrl;
+  late TextEditingController _landmarkCtrl;
+  late TextEditingController _cityCtrl;
+  late TextEditingController _districtCtrl;
+  late TextEditingController _stateCtrl;
+  late TextEditingController _pincodeCtrl;
 
   OperatingHours? _operatingHours;
   LocationPoint? _location;
@@ -46,13 +54,21 @@ class _AddBranchPageState extends State<AddBranchPage> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.initialBranch?.name ?? '');
-    _addressCtrl = TextEditingController(text: widget.initialBranch?.address ?? '');
+    _addressCtrl = TextEditingController(text: widget.initialBranch?.address ?? widget.initialBranch?.location?.address ?? '');
     _phoneCtrl = TextEditingController(text: widget.initialBranch?.phone ?? '');
+    _emailCtrl = TextEditingController(text: widget.initialBranch?.email ?? '');
+    _contactNameCtrl = TextEditingController(text: widget.initialBranch?.contactPersonName ?? '');
+    _contactDesignationCtrl = TextEditingController(text: widget.initialBranch?.contactPersonDesignation ?? '');
+    _landmarkCtrl = TextEditingController(text: widget.initialBranch?.location?.landmark ?? '');
+    _cityCtrl = TextEditingController(text: widget.initialBranch?.location?.city ?? '');
+    _districtCtrl = TextEditingController(text: widget.initialBranch?.location?.district ?? '');
+    _stateCtrl = TextEditingController(text: widget.initialBranch?.location?.state ?? '');
+    _pincodeCtrl = TextEditingController(text: widget.initialBranch?.location?.pincode ?? '');
     
     _location = widget.initialBranch?.location;
     _locationCtrl = TextEditingController(
       text: _location?.coordinates != null && _location!.coordinates!.length >= 2
-          ? 'Location Selected'
+          ? 'Location Selected (${_location!.coordinates![1].toStringAsFixed(4)}, ${_location!.coordinates![0].toStringAsFixed(4)})'
           : '',
     );
     
@@ -68,6 +84,14 @@ class _AddBranchPageState extends State<AddBranchPage> {
     _addressCtrl.dispose();
     _phoneCtrl.dispose();
     _locationCtrl.dispose();
+    _emailCtrl.dispose();
+    _contactNameCtrl.dispose();
+    _contactDesignationCtrl.dispose();
+    _landmarkCtrl.dispose();
+    _cityCtrl.dispose();
+    _districtCtrl.dispose();
+    _stateCtrl.dispose();
+    _pincodeCtrl.dispose();
     super.dispose();
   }
 
@@ -95,11 +119,19 @@ class _AddBranchPageState extends State<AddBranchPage> {
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
+        final double selectedLng = result['lng'] as double;
+        final double selectedLat = result['lat'] as double;
         _location = LocationPoint(
           type: 'Point',
-          coordinates: [result['lng'] as double, result['lat'] as double],
+          coordinates: [selectedLng, selectedLat],
+          address: _addressCtrl.text.trim(),
+          landmark: _landmarkCtrl.text.trim(),
+          city: _cityCtrl.text.trim(),
+          district: _districtCtrl.text.trim(),
+          state: _stateCtrl.text.trim(),
+          pincode: _pincodeCtrl.text.trim(),
         );
-        _locationCtrl.text = 'Location Selected';
+        _locationCtrl.text = 'Location Selected (${selectedLat.toStringAsFixed(4)}, ${selectedLng.toStringAsFixed(4)})';
       });
     }
   }
@@ -118,7 +150,19 @@ class _AddBranchPageState extends State<AddBranchPage> {
         name: _nameCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
         phone: _phoneCtrl.text.trim(),
-        location: _location,
+        email: _emailCtrl.text.trim(),
+        contactPersonName: _contactNameCtrl.text.trim(),
+        contactPersonDesignation: _contactDesignationCtrl.text.trim(),
+        location: LocationPoint(
+          type: 'Point',
+          coordinates: _location?.coordinates ?? [0.0, 0.0],
+          address: _addressCtrl.text.trim(),
+          landmark: _landmarkCtrl.text.trim(),
+          city: _cityCtrl.text.trim(),
+          district: _districtCtrl.text.trim(),
+          state: _stateCtrl.text.trim(),
+          pincode: _pincodeCtrl.text.trim(),
+        ),
         operatingHours: _operatingHours,
         isActive: _isActive,
         branchType: _branchType,
@@ -221,14 +265,25 @@ class _AddBranchPageState extends State<AddBranchPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
+                      const Divider(color: Color(0xFFF3F4F6), height: 1),
+                      _buildSectionTitle('Contact Person'),
                       PrimaryTextField(
-                        label: 'Address',
-                        hint: 'Enter address',
-                        controller: _addressCtrl,
-                        prefixIcon: const Icon(Icons.location_on_outlined, color: kSecondaryColor, size: 18),
+                        label: 'Contact Name',
+                        hint: 'Manager / Owner Name',
+                        controller: _contactNameCtrl,
+                        prefixIcon: const Icon(Icons.person_outline_rounded, color: kSecondaryColor, size: 18),
                       ),
                       const SizedBox(height: 16),
+                      PrimaryTextField(
+                        label: 'Designation',
+                        hint: 'e.g. Branch Manager',
+                        controller: _contactDesignationCtrl,
+                        prefixIcon: const Icon(Icons.badge_outlined, color: kSecondaryColor, size: 18),
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(color: Color(0xFFF3F4F6), height: 1),
+                      _buildSectionTitle('Contact Details'),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -285,6 +340,16 @@ class _AddBranchPageState extends State<AddBranchPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      PrimaryTextField(
+                        label: 'Email Address',
+                        hint: 'Enter contact email',
+                        controller: _emailCtrl,
+                        type: TextFieldType.email,
+                        prefixIcon: const Icon(Icons.email_outlined, color: kSecondaryColor, size: 18),
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(color: Color(0xFFF3F4F6), height: 1),
+                      _buildSectionTitle('Location & Address'),
                       GestureDetector(
                         onTap: _pickLocation,
                         child: AbsorbPointer(
@@ -297,7 +362,64 @@ class _AddBranchPageState extends State<AddBranchPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      PrimaryTextField(
+                        label: 'Full Address',
+                        hint: 'Complete physical address',
+                        controller: _addressCtrl,
+                        prefixIcon: const Icon(Icons.location_on_outlined, color: kSecondaryColor, size: 18),
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: PrimaryTextField(
+                              label: 'Landmark',
+                              hint: 'Near landmark',
+                              controller: _landmarkCtrl,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: PrimaryTextField(
+                              label: 'City',
+                              hint: 'City name',
+                              controller: _cityCtrl,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: PrimaryTextField(
+                              label: 'District',
+                              hint: 'District name',
+                              controller: _districtCtrl,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: PrimaryTextField(
+                              label: 'State',
+                              hint: 'State name',
+                              controller: _stateCtrl,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      PrimaryTextField(
+                        label: 'Pincode',
+                        hint: 'PIN / Zip Code',
+                        controller: _pincodeCtrl,
+                        type: TextFieldType.number,
+                      ),
                       const SizedBox(height: 24),
+                      const Divider(color: Color(0xFFF3F4F6), height: 1),
+                      _buildSectionTitle('Branch Settings'),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -379,7 +501,7 @@ class _AddBranchPageState extends State<AddBranchPage> {
                 color: kWhite,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),

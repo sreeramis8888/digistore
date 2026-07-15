@@ -33,7 +33,7 @@ class ShopGallery extends ConsumerWidget {
                 Navigator.of(context).push(
                   PageRouteBuilder(
                     opaque: false,
-                    pageBuilder: (context, _, __) {
+                    pageBuilder: (context, animation, secondaryAnimation) {
                       return FullScreenGallery(
                         images: images,
                         initialIndex: index,
@@ -72,7 +72,7 @@ class ShopGallery extends ConsumerWidget {
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                             ),
                             alignment: Alignment.center,
                             child: Material(

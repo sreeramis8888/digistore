@@ -31,7 +31,7 @@ class BranchCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -84,7 +84,7 @@ class BranchCard extends StatelessWidget {
                     color: const Color(0XFFDFEAFF),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: kPrimaryColor.withOpacity(0.3),
+                      color: kPrimaryColor.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -143,6 +143,55 @@ class BranchCard extends StatelessWidget {
               ],
             ),
           ],
+          if (branch.location?.landmark?.isNotEmpty == true || branch.location?.district?.isNotEmpty == true || branch.location?.city?.isNotEmpty == true) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.map_outlined,
+                  size: 16,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    [
+                      if (branch.location?.landmark?.isNotEmpty == true) branch.location!.landmark!,
+                      if (branch.location?.city?.isNotEmpty == true) branch.location!.city!,
+                      if (branch.location?.district?.isNotEmpty == true) branch.location!.district!,
+                    ].join(', '),
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF6B7280),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (branch.contactPersonName?.isNotEmpty == true) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.person_outline_rounded,
+                  size: 16,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    branch.contactPersonDesignation?.isNotEmpty == true
+                        ? '${branch.contactPersonName!} (${branch.contactPersonDesignation!})'
+                        : branch.contactPersonName!,
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF4B5563),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (branch.phone?.isNotEmpty == true) ...[
             const SizedBox(height: 8),
             Row(
@@ -156,6 +205,27 @@ class BranchCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     branch.phone!,
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF4B5563),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (branch.email?.isNotEmpty == true) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.email_outlined,
+                  size: 16,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    branch.email!,
                     style: kSmallTitleM.copyWith(
                       color: const Color(0xFF4B5563),
                     ),

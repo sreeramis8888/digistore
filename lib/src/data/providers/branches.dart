@@ -60,7 +60,10 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
 
     // Ensure fallback values are not null to prevent backend substring errors on null values
     final String branchType = 'outlet';
-    final String contactPerson = partner?.businessInfo?.ownerName ?? '';
+    final String contactPersonName = branch.contactPersonName?.isNotEmpty == true
+        ? branch.contactPersonName!
+        : (partner?.businessInfo?.ownerName ?? '');
+    final String contactPersonDesig = branch.contactPersonDesignation ?? '';
     final String partnerPincode = partner?.businessDetails?.pincode ?? '000000';
     final String partnerAddress = partner?.businessDetails?.address ?? '';
 
@@ -73,7 +76,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
     }
 
     final List<String> emailList = [];
-    if (partner?.businessInfo?.email != null &&
+    if (branch.email != null && branch.email!.isNotEmpty) {
+      emailList.add(branch.email!);
+    } else if (partner?.businessInfo?.email != null &&
         partner!.businessInfo!.email!.isNotEmpty) {
       emailList.add(partner.businessInfo!.email!);
     }
@@ -93,7 +98,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       'type': 'Point',
       'coordinates': [lng, lat],
       'address': branch.address ?? partnerAddress,
+      'landmark': branch.location?.landmark ?? '',
       'city': branch.location?.city ?? '',
+      'district': branch.location?.district ?? '',
       'state': branch.location?.state ?? '',
       'pincode':
           (branch.location?.pincode != null &&
@@ -107,15 +114,25 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
     final payload = {
       'branchName': branch.name ?? '',
       'branchType': branch.branchType ?? branchType,
-      'contactPerson': contactPerson,
+      'contactPerson': {
+        'name': contactPersonName,
+        'designation': contactPersonDesig,
+        'phone': phoneList.isNotEmpty ? phoneList.first : '',
+        'email': emailList.isNotEmpty ? emailList.first : '',
+      },
       'phoneNumbers': phoneList,
       'emailAddresses': emailList,
       'location': locationMap,
       'operatingHours': _mapOperatingHours(branch.operatingHours),
-      'staff': <String>[],
-      'capacity': 0,
+      'staff': <Map<String, dynamic>>[],
+      'capacity': {
+        'maxCustomersPerDay': 0,
+        'currentStaffCount': 0,
+        'serviceAreaRadius': 5,
+      },
       'coverageHexagons': <String>[],
       'isPrimary': branch.isPrimary ?? false,
+      'isActive': branch.isActive ?? true,
     };
 
     final response = await api.post('/branches', payload, requireAuth: true);
@@ -135,7 +152,10 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
 
     // Ensure fallback values are not null to prevent backend substring errors on null values
     final String branchType = 'outlet';
-    final String contactPerson = partner?.businessInfo?.ownerName ?? '';
+    final String contactPersonName = branch.contactPersonName?.isNotEmpty == true
+        ? branch.contactPersonName!
+        : (partner?.businessInfo?.ownerName ?? '');
+    final String contactPersonDesig = branch.contactPersonDesignation ?? '';
     final String partnerPincode = partner?.businessDetails?.pincode ?? '000000';
     final String partnerAddress = partner?.businessDetails?.address ?? '';
 
@@ -148,7 +168,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
     }
 
     final List<String> emailList = [];
-    if (partner?.businessInfo?.email != null &&
+    if (branch.email != null && branch.email!.isNotEmpty) {
+      emailList.add(branch.email!);
+    } else if (partner?.businessInfo?.email != null &&
         partner!.businessInfo!.email!.isNotEmpty) {
       emailList.add(partner.businessInfo!.email!);
     }
@@ -168,7 +190,9 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
       'type': 'Point',
       'coordinates': [lng, lat],
       'address': branch.address ?? partnerAddress,
+      'landmark': branch.location?.landmark ?? '',
       'city': branch.location?.city ?? '',
+      'district': branch.location?.district ?? '',
       'state': branch.location?.state ?? '',
       'pincode':
           (branch.location?.pincode != null &&
@@ -182,15 +206,25 @@ class BranchesNotifier extends Notifier<List<BusinessBranch>> {
     final payload = {
       'branchName': branch.name ?? '',
       'branchType': branch.branchType ?? branchType,
-      'contactPerson': contactPerson,
+      'contactPerson': {
+        'name': contactPersonName,
+        'designation': contactPersonDesig,
+        'phone': phoneList.isNotEmpty ? phoneList.first : '',
+        'email': emailList.isNotEmpty ? emailList.first : '',
+      },
       'phoneNumbers': phoneList,
       'emailAddresses': emailList,
       'location': locationMap,
       'operatingHours': _mapOperatingHours(branch.operatingHours),
-      'staff': <String>[],
-      'capacity': 0,
+      'staff': <Map<String, dynamic>>[],
+      'capacity': {
+        'maxCustomersPerDay': 0,
+        'currentStaffCount': 0,
+        'serviceAreaRadius': 5,
+      },
       'coverageHexagons': <String>[],
       'isPrimary': branch.isPrimary ?? false,
+      'isActive': branch.isActive ?? true,
     };
 
     final response = await api.put(

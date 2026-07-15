@@ -2,7 +2,9 @@ class LocationPoint {
   final String? type;
   final List<double>? coordinates;
   final String? address;
+  final String? landmark;
   final String? city;
+  final String? district;
   final String? state;
   final String? pincode;
 
@@ -10,7 +12,9 @@ class LocationPoint {
     this.type,
     this.coordinates,
     this.address,
+    this.landmark,
     this.city,
+    this.district,
     this.state,
     this.pincode,
   });
@@ -20,7 +24,9 @@ class LocationPoint {
       type: json['type'] as String?,
       coordinates: (json['coordinates'] as List?)?.map((e) => (e as num).toDouble()).toList(),
       address: json['address'] as String?,
+      landmark: json['landmark'] as String?,
       city: json['city'] as String?,
+      district: json['district'] as String?,
       state: json['state'] as String?,
       pincode: json['pincode'] as String?,
     );
@@ -31,7 +37,9 @@ class LocationPoint {
       'type': type,
       'coordinates': coordinates,
       'address': address,
+      'landmark': landmark,
       'city': city,
+      'district': district,
       'state': state,
       'pincode': pincode,
       if (coordinates != null && coordinates!.length >= 2) 'lng': coordinates![0],
