@@ -196,6 +196,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                     iconData: Icons.history_rounded,
                     onTap: () => Navigator.pushNamed(context, 'partnerHistory'),
                   ),
+                  SizedBox(width: screenSize.responsivePadding(12)),
+                  PartnerActionCard(
+                    screenSize: screenSize,
+                    title: 'Reviews',
+                    iconData: Icons.star_outline_rounded,
+                    onTap: () => Navigator.pushNamed(context, 'partnerReviews'),
+                  ),
                 ],
               ),
               SizedBox(height: screenSize.responsivePadding(16)),
@@ -322,6 +329,25 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           'partnerAccount',
                           arguments: {'isEditMode': false},
                         );
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
+                      title: 'Shop Reviews',
+                      icon: const Icon(
+                        Icons.star_outline_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'partnerReviews');
                       },
                     ),
                     const Divider(

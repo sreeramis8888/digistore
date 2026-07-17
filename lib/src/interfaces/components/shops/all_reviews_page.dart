@@ -8,6 +8,7 @@ import '../../../../src/data/models/shop_model.dart';
 import '../../../../src/data/models/review_model.dart';
 import '../../../../src/data/providers/reviews_provider.dart';
 import '../../../../src/data/providers/api_provider.dart';
+import '../../../../src/data/providers/partner_provider.dart';
 import '../advanced_network_image.dart';
 import '../full_screen_gallery.dart';
 import '../loading_indicator.dart';
@@ -56,8 +57,9 @@ class ShopAllReviewsState {
 class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
   final Ref ref;
   final String shopId;
+  final bool isPartner;
 
-  ShopAllReviewsNotifier(this.ref, this.shopId) : super(ShopAllReviewsState()) {
+  ShopAllReviewsNotifier(this.ref, this.shopId, {this.isPartner = false}) : super(ShopAllReviewsState()) {
     fetchReviews(refresh: true);
   }
 
@@ -72,7 +74,9 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
     try {
       final api = ref.read(apiProvider);
       final currentPage = refresh ? 1 : state.page;
-      final response = await api.get('/reviews/shop/$shopId?page=$currentPage&limit=15');
+      final response = isPartner || shopId == 'partner' || shopId == 'partner_reviews' || shopId.isEmpty
+          ? await api.get('/reviews?page=$currentPage&limit=15')
+          : await api.get('/reviews/shop/$shopId?page=$currentPage&limit=15');
 
       if (response.success && response.data != null) {
         final paginated = PaginatedReviews.fromJson(response.data!);
@@ -85,7 +89,7 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
           hasMore: paginated.page < paginated.pages && newReviews.isNotEmpty,
           isLoading: false,
           isLoadingMore: false,
-          totalReviews: paginated.total > 0 ? paginated.total : allReviews.length,
+          totalReviews: paginated.total > 0 ? paginated.total : (isPartner ? (ref.read(partnerProvider)?.businessInfo?.totalReviews ?? allReviews.length) : allReviews.length),
         );
       } else {
         state = state.copyWith(
@@ -114,13 +118,18 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
 
 final shopAllReviewsProvider =
     StateNotifierProvider.family<ShopAllReviewsNotifier, ShopAllReviewsState, String>(
-  (ref, shopId) => ShopAllReviewsNotifier(ref, shopId),
+  (ref, shopId) => ShopAllReviewsNotifier(
+    ref,
+    shopId,
+    isPartner: shopId == 'partner' || shopId == 'partner_reviews',
+  ),
 );
 
 class AllReviewsPage extends ConsumerStatefulWidget {
-  final ShopModel shop;
+  final ShopModel? shop;
+  final bool isPartner;
 
-  const AllReviewsPage({super.key, required this.shop});
+  const AllReviewsPage({super.key, this.shop, this.isPartner = false});
 
   @override
   ConsumerState<AllReviewsPage> createState() => _AllReviewsPageState();
@@ -145,22 +154,25 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      final shopId = widget.shop.id;
-      if (shopId != null) {
+      final isPartner = widget.isPartner || widget.shop == null;
+      final shopId = isPartner ? 'partner' : (widget.shop?.id ?? '');
+      if (shopId.isNotEmpty) {
         ref.read(shopAllReviewsProvider(shopId).notifier).fetchReviews();
       }
     }
   }
 
   void _openAddReviewSheet() async {
-    final shopId = widget.shop.id;
-    if (shopId == null) return;
+    final isPartner = widget.isPartner || widget.shop == null;
+    if (isPartner) return;
+    final shopId = widget.shop?.id;
+    if (shopId == null || widget.shop == null) return;
 
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddReviewSheet(shop: widget.shop),
+      builder: (context) => AddReviewSheet(shop: widget.shop!),
     );
 
     if (result == true) {
@@ -172,9 +184,17 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final shopId = widget.shop.id ?? '';
+    final isPartner = widget.isPartner || widget.shop == null;
+    final shopId = isPartner ? 'partner' : (widget.shop?.id ?? '');
     final reviewsState = ref.watch(shopAllReviewsProvider(shopId));
-    final rating = widget.shop.businessInfo?.rating ?? 0.0;
+    final double rating = isPartner
+        ? (ref.watch(partnerProvider)?.businessInfo?.rating ?? 0.0)
+        : (widget.shop?.businessInfo?.rating ?? 0.0);
+    final int displayTotalReviews = reviewsState.totalReviews > 0
+        ? reviewsState.totalReviews
+        : (isPartner
+            ? (ref.watch(partnerProvider)?.businessInfo?.totalReviews ?? 0)
+            : (widget.shop?.businessInfo?.totalReviews ?? 0));
 
     final displayedReviews = reviewsState.reviews;
 
@@ -188,18 +208,20 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kTextColor, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Customer Reviews', style: kBodyTitleSB),
-        actions: [
-          TextButton.icon(
-            onPressed: _openAddReviewSheet,
-            icon: const Icon(Icons.edit_rounded, color: kPrimaryColor, size: 16),
-            label: Text(
-              'Review',
-              style: kSmallTitleSB.copyWith(color: kPrimaryColor),
-            ),
-          ),
-          SizedBox(width: screenSize.responsivePadding(8)),
-        ],
+        title: Text(isPartner ? 'Shop Reviews' : 'Customer Reviews', style: kBodyTitleSB),
+        actions: isPartner
+            ? null
+            : [
+                TextButton.icon(
+                  onPressed: _openAddReviewSheet,
+                  icon: const Icon(Icons.edit_rounded, color: kPrimaryColor, size: 16),
+                  label: Text(
+                    'Review',
+                    style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                  ),
+                ),
+                SizedBox(width: screenSize.responsivePadding(8)),
+              ],
       ),
       body: reviewsState.isLoading && reviewsState.reviews.isEmpty
           ? const Center(child: LoadingAnimation())
@@ -215,7 +237,7 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
                       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
                       child: Column(
                         children: [
-                          _buildRatingOverviewCard(screenSize, rating, reviewsState.totalReviews),
+                          _buildRatingOverviewCard(screenSize, rating, displayTotalReviews),
                         ],
                       ),
                     ),
@@ -253,20 +275,22 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
                               'No reviews yet',
                               style: kBodyTitleM.copyWith(color: kSecondaryTextColor),
                             ),
-                            SizedBox(height: screenSize.responsivePadding(16)),
-                            ElevatedButton.icon(
-                              onPressed: _openAddReviewSheet,
-                              icon: const Icon(Icons.star_outline_rounded, color: kWhite, size: 18),
-                              label: const Text('Be the first to review', style: TextStyle(color: kWhite)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: kPrimaryColor,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenSize.responsivePadding(20),
-                                  vertical: screenSize.responsivePadding(12),
+                            if (!isPartner) ...[
+                              SizedBox(height: screenSize.responsivePadding(16)),
+                              ElevatedButton.icon(
+                                onPressed: _openAddReviewSheet,
+                                icon: const Icon(Icons.star_outline_rounded, color: kWhite, size: 18),
+                                label: const Text('Be the first to review', style: TextStyle(color: kWhite)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kPrimaryColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: screenSize.responsivePadding(20),
+                                    vertical: screenSize.responsivePadding(12),
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                                 ),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),

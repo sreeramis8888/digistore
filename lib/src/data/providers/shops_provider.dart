@@ -297,7 +297,7 @@ class FeaturedShops extends _$FeaturedShops {
 
     final queryParams = {
       'page': page.toString(),
-      'limit': '20',
+      'limit': '10',
     };
 
     if (lat != null && lng != null) {
