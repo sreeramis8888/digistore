@@ -475,6 +475,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 child: Column(
                   children: [
                     _buildMenuItem(
+                      'Support Ticket',
+                      const Icon(
+                        Icons.support_agent_rounded,
+                        color: kSecondaryTextColor,
+                        size: 22,
+                      ),
+                      screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'support');
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: kBorder,
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    _buildMenuItem(
                       'Help & Support',
                       const Icon(
                         Icons.headphones_outlined,

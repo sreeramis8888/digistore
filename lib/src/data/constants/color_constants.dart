@@ -27,6 +27,7 @@ final Color kShimmerBaseColor = Colors.grey[100]!;
 const Color kGreyDark = Color.fromARGB(255, 118, 121, 124);
 const Color kGreyDarker = Color(0xFF585858);
 const Color kRed = Color(0xFFE52022);
+const Color kErrorColor = Color(0xFFE52022);
 const Color kRedDark = Color(0xFFC9300E);
 const Color kBlack = Color.fromARGB(255, 5, 5, 5);
 const Color kBlack54 = Color(0xff8a000000);

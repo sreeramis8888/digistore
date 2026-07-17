@@ -105,7 +105,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
           SliverAppBar(
             expandedHeight: screenSize.responsivePadding(260),
             scrolledUnderElevation: 0,
-            floating: false,
+            floating: false,titleSpacing: 0,
             pinned: false,
             leading: IconButton(
               icon: const Icon(

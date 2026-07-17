@@ -143,7 +143,7 @@ final class FeaturedShopsProvider
   }
 }
 
-String _$featuredShopsHash() => r'dc23a52f4a8ed35005df63554989a30eb301c82f';
+String _$featuredShopsHash() => r'075b5a112c2bad145cbd5b3eb38b5de9dd5de75b';
 
 abstract class _$FeaturedShops extends $Notifier<ShopsState> {
   ShopsState build();

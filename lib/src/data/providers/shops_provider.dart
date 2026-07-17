@@ -298,7 +298,6 @@ class FeaturedShops extends _$FeaturedShops {
     final queryParams = {
       'page': page.toString(),
       'limit': '20',
-      'isFeatured': 'true',
     };
 
     if (lat != null && lng != null) {
@@ -310,7 +309,7 @@ class FeaturedShops extends _$FeaturedShops {
       queryParams['search'] = currentSearch;
     }
 
-    final response = await api.get('/shops', queryParams: queryParams);
+    final response = await api.get('/shops/featured', queryParams: queryParams);
 
     if (response.success && response.data != null) {
       final List<dynamic> data = response.data!['data'] as List<dynamic>;

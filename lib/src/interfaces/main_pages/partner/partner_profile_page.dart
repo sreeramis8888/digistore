@@ -332,6 +332,25 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                       endIndent: 16,
                     ),
                     PartnerMenuItem(
+                      title: 'Support Ticket',
+                      icon: const Icon(
+                        Icons.support_agent_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'support');
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
                       title: 'Help & Support',
                       icon: const Icon(
                         Icons.headphones_outlined,
