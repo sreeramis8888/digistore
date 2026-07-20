@@ -11,6 +11,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
 import '../../components/partner/partner_profile_header.dart';
+import '../../components/partner/partner_plan_details_sheet.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../animations/index.dart';
 import '../../../data/utils/notification_permission_helper.dart';
@@ -329,6 +330,25 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           'partnerAccount',
                           arguments: {'isEditMode': false},
                         );
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
+                      title: 'Plan Details',
+                      icon: const Icon(
+                        Icons.card_membership_outlined,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        PartnerPlanDetailsSheet.show(context);
                       },
                     ),
                     const Divider(
