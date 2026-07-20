@@ -5,11 +5,8 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/shops_provider.dart';
-import '../../../data/providers/user_provider.dart';
 import '../../../data/models/shop_model.dart';
-import '../../../data/models/business_info.dart';
-import '../../../data/utils/location_utils.dart';
-import '../../components/shops/shop_grid_card.dart';
+import '../../components/shops/featured_shop_card.dart';
 import '../../components/loading_indicator.dart';
 import '../../../data/providers/banners_provider.dart';
 import '../../components/common/paginated_banner_grid.dart';
@@ -23,7 +20,6 @@ class FeaturedShopsPage extends ConsumerStatefulWidget {
 }
 
 class _FeaturedShopsPageState extends ConsumerState<FeaturedShopsPage> {
-  final Map<String, Map<String, dynamic>> _distanceCache = {};
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -106,110 +102,14 @@ class _FeaturedShopsPageState extends ConsumerState<FeaturedShopsPage> {
     }
   }
 
-  Widget _buildShopCard(
-    ShopModel shop,
-    int index,
-    double? userLat,
-    double? userLng,
-    screenSize,
-  ) {
-    final type = shop.businessDetails?.businessType;
-    final coverImage =
-        shop.businessInfo?.coverImage ??
-        (shop.businessInfo?.businessLogo != null
-            ? shop.businessInfo!.businessLogo!
-            : null);
 
-    final branches = shop.businessInfo?.branches ?? [];
-    BusinessBranch? primaryBranch;
-    for (final b in branches) {
-      if (b.isPrimary == true) {
-        primaryBranch = b;
-        break;
-      }
-    }
-    if (primaryBranch == null && branches.isNotEmpty) {
-      primaryBranch = branches.first;
-    }
-
-    String address = 'No address provided';
-    if (primaryBranch != null) {
-      if (primaryBranch.address != null && primaryBranch.address!.isNotEmpty) {
-        address = primaryBranch.address!;
-      }
-    } else if (shop.businessDetails?.address != null) {
-      address = shop.businessDetails!.address!;
-      if (shop.businessDetails?.pincode != null) {
-        address += ', ${shop.businessDetails!.pincode}';
-      }
-    }
-
-    String distance = '0 km';
-    final shopId = shop.id ?? index.toString();
-    final shopCoords = primaryBranch?.location?.coordinates;
-
-    final cachedData = _distanceCache[shopId];
-    if (cachedData != null) {
-      distance = cachedData['distance'] as String;
-    } else if (userLat != null &&
-        userLng != null &&
-        shopCoords != null &&
-        shopCoords.length >= 2) {
-      final initialDistance = shop.distance ?? LocationUtils.calculateDistance(
-        userLat,
-        userLng,
-        shopCoords[1],
-        shopCoords[0],
-      );
-      distance = '${initialDistance.toStringAsFixed(1)} km';
-
-      LocationUtils.calculateRoadDistanceAndDuration(
-        fromLat: userLat,
-        fromLng: userLng,
-        toLat: shopCoords[1],
-        toLng: shopCoords[0],
-      ).then((result) {
-        if (mounted && result != null) {
-          setState(() {
-            _distanceCache[shopId] = {
-              'distance': '${result['distance']!.toStringAsFixed(1)} km',
-              'duration': result['duration'],
-            };
-          });
-        }
-      });
-    } else if (shop.distance != null) {
-      distance = '${shop.distance!.toStringAsFixed(1)} km';
-    }
-
-    final passingShop = shop.copyWith(
-      roadDistance: cachedData?['distance'] != null
-          ? (cachedData!['distance'] as String).replaceAll(' km', '')
-          : null,
-      roadDuration: cachedData?['duration'] as double?,
-    );
-
-    return ShopGridCard(
-      category: shop.serviceCategories?.isNotEmpty == true
-          ? shop.serviceCategories!.first
-          : 'Other',
-      shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
-      address: address,
-      distance: distance,
-      rating: shop.businessInfo?.rating?.toString() ?? '0.0',
-      avatarColor: _getCategoryColor(type),
-      avatarIcon: _getCategoryIcon(type),
-      logoUrl: coverImage,
-      imageUrl: coverImage,
-      shop: passingShop,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
-    final itemHeight = screenSize.responsivePadding(230);
+    final crossAxisCount = 4;
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(32) - (screenSize.responsivePadding(16) * (crossAxisCount - 1))) / crossAxisCount;
+    final itemHeight = itemWidth + screenSize.responsivePadding(50);
     final aspectRatio = itemWidth / itemHeight;
 
     final featuredState = ref.watch(featuredShopsProvider);
@@ -217,9 +117,6 @@ class _FeaturedShopsPageState extends ConsumerState<FeaturedShopsPage> {
       bannersProvider(const BannerFilter(page: 'shops')),
     );
     final banners = bannersAsync.value ?? [];
-    final user = ref.watch(userProvider);
-    final userLat = user?.location?.coordinates?.lat;
-    final userLng = user?.location?.coordinates?.lng;
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -301,7 +198,7 @@ class _FeaturedShopsPageState extends ConsumerState<FeaturedShopsPage> {
                       childCount: 6,
                     ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: crossAxisCount,
                       mainAxisSpacing: screenSize.responsivePadding(16),
                       crossAxisSpacing: screenSize.responsivePadding(16),
                       childAspectRatio: aspectRatio,
@@ -340,12 +237,9 @@ class _FeaturedShopsPageState extends ConsumerState<FeaturedShopsPage> {
                 SliverMainAxisGroup(
                   slivers: buildPaginatedGridSliversWithBanners(
                     items: featuredState.shops,
-                    itemBuilder: (_, index, shop) => _buildShopCard(
-                      shop,
-                      index,
-                      userLat,
-                      userLng,
-                      screenSize,
+                    itemBuilder: (_, index, shop) => Align(
+                      alignment: Alignment.topCenter,
+                      child: FeaturedShopCard(shop: shop),
                     ),
                     banners: banners,
                     hasMore:
@@ -354,6 +248,7 @@ class _FeaturedShopsPageState extends ConsumerState<FeaturedShopsPage> {
                             featuredState.pagination!.pages,
                     screenSize: screenSize,
                     childAspectRatio: aspectRatio,
+                    crossAxisCount: crossAxisCount,
                   ),
                 ),
                 if (featuredState.isLoadingMore)

@@ -69,14 +69,26 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         },
       );
     }
+    // Featured shops return a minimal payload (no address, no branches, no contact info)
+    // Full shops return complete nested objects.
+    final needsFetch = widget.shop == null ||
+        (widget.shop!.businessDetails?.address == null &&
+         widget.shop!.businessInfo?.contactPhone == null &&
+         (widget.shop!.businessInfo?.branches == null || widget.shop!.businessInfo!.branches!.isEmpty));
+
+    final fullShopAsync = (shopId.isNotEmpty && needsFetch)
+        ? ref.watch(getShopByPartnerIdProvider(shopId))
+        : null;
+    final currentShop = fullShopAsync?.value ?? widget.shop;
+
     final currentShopName =
-        widget.shop?.businessDetails?.businessName ??
+        currentShop?.businessDetails?.businessName ??
         widget.shopName ??
         'Unknown Shop';
     final heroImage =
-        widget.shop?.businessInfo?.coverImage ??
-        (widget.shop?.businessInfo?.businessImages?.isNotEmpty == true
-            ? widget.shop!.businessInfo!.businessImages!.first
+        currentShop?.businessInfo?.coverImage ??
+        (currentShop?.businessInfo?.businessImages?.isNotEmpty == true
+            ? currentShop!.businessInfo!.businessImages!.first
             : null);
     final offersAsync = shopId.isNotEmpty
         ? ref.watch(shopOffersProvider(shopId))
@@ -100,7 +112,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
-      body: CustomScrollView(
+      body: fullShopAsync?.isLoading == true && widget.shop == null
+          ? const Center(child: CircularProgressIndicator(color: kPrimaryColor))
+          : CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: screenSize.responsivePadding(260),
@@ -152,7 +166,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                 children: [
                   ShopHeader(
                     shopName: currentShopName,
-                    shop: widget.shop,
+                    shop: currentShop,
                     selectedBranch: _selectedBranch,
                   ),
                   SizedBox(height: screenSize.responsivePadding(16)),
@@ -165,24 +179,24 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                       });
                     },
                   ),
-                  ShopAbout(shop: widget.shop),
+                  ShopAbout(shop: currentShop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  if (widget.shop?.businessInfo?.businessImages != null &&
-                      widget.shop!.businessInfo!.businessImages!.length >
+                  if (currentShop?.businessInfo?.businessImages != null &&
+                      currentShop!.businessInfo!.businessImages!.length >
                           1) ...[
                     ShopGallery(
-                      images: widget.shop!.businessInfo!.businessImages!,
+                      images: currentShop!.businessInfo!.businessImages!,
                     ),
                     SizedBox(height: screenSize.responsivePadding(20)),
                   ],
                   ShopAddress(
-                    shop: widget.shop,
+                    shop: currentShop,
                     selectedBranch: _selectedBranch,
                   ),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  ShopReviews(shop: widget.shop),
+                  ShopReviews(shop: currentShop),
                   SizedBox(height: screenSize.responsivePadding(20)),
-                  ShopSocials(shop: widget.shop),
+                  ShopSocials(shop: currentShop),
                   SizedBox(height: screenSize.responsivePadding(32)),
                   if (offersAsync != null)
                     offersAsync.when(
