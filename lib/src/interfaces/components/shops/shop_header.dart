@@ -264,23 +264,32 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                     ),
                   );
                 },
-                child: RichText(
+                child: Row(
                   key: ValueKey('$address$distanceLabel'),
-                  text: TextSpan(
-                    style: kSmallTitleL.copyWith(
-                      color: const Color(0xFF4E4E4E),
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        address,
+                        style: kSmallTitleL.copyWith(
+                          color: const Color(0xFF4E4E4E),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    children: [
-                      TextSpan(text: address),
-                      if (distanceLabel.isNotEmpty)
-                        TextSpan(
-                          text: distanceLabel,
+                    if (distanceLabel.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: screenSize.responsivePadding(4),
+                        ),
+                        child: Text(
+                          distanceLabel.trim(),
                           style: kSmallTitleSB.copyWith(color: kPrimaryColor),
                         ),
-                    ],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
                 ),
               ),
             ),

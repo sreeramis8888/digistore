@@ -595,17 +595,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       cancelText: 'Cancel',
                       isDestructive: true,
                       icon: Icons.logout_rounded,
+                      onConfirm: () async {
+                        await ref.read(authProvider.notifier).logout();
+                      },
                     );
 
-                    if (confirmed == true) {
-                      await ref.read(authProvider.notifier).logout();
-                      if (context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          'login',
-                          (route) => false,
-                        );
-                      }
+                    if (confirmed == true && context.mounted) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        'login',
+                        (route) => false,
+                      );
                     }
                   },
                 ).fadeSlideInFromBottom(delayMilliseconds: 300),
@@ -632,17 +632,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         cancelText: 'Cancel',
                         isDestructive: true,
                         icon: Icons.person_remove_rounded,
+                        onConfirm: () async {
+                          await ref.read(authProvider.notifier).logout();
+                        },
                       );
 
-                      if (confirmed == true) {
-                        await ref.read(authProvider.notifier).logout();
-                        if (context.mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            'login',
-                            (route) => false,
-                          );
-                        }
+                      if (confirmed == true && context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          'login',
+                          (route) => false,
+                        );
                       }
                     },
                   ).fadeSlideInFromBottom(delayMilliseconds: 400),

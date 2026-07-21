@@ -134,21 +134,21 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                         message: 'Are you sure you want to delete this product?',
                         confirmText: 'Delete',
                         isDestructive: true,
+                        onConfirm: () async {
+                          try {
+                            await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                            }
+                          }
+                        },
                       );
 
                       if (confirm == true && context.mounted) {
-                        try {
-                          await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
-                          if (context.mounted) {
-                            Navigator.pop(context); // Go back to products list
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
-                            );
-                          }
-                        }
+                        Navigator.pop(context); // Go back to products list
                       }
                     },
                   ),

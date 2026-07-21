@@ -506,17 +506,17 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           cancelText: 'Cancel',
                           isDestructive: true,
                           icon: Icons.logout_rounded,
+                          onConfirm: () async {
+                            await ref.read(authProvider.notifier).logout();
+                          },
                         );
 
-                        if (confirmed == true) {
-                          await ref.read(authProvider.notifier).logout();
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              'login',
-                              (route) => false,
-                            );
-                          }
+                        if (confirmed == true && context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
                         }
                       },
                     ),
@@ -540,17 +540,17 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           cancelText: 'Cancel',
                           isDestructive: true,
                           icon: Icons.person_remove_rounded,
+                          onConfirm: () async {
+                            await ref.read(authProvider.notifier).logout();
+                          },
                         );
 
-                        if (confirmed == true) {
-                          await ref.read(authProvider.notifier).logout();
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              'login',
-                              (route) => false,
-                            );
-                          }
+                        if (confirmed == true && context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
                         }
                       },
                     ),

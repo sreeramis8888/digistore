@@ -1,5 +1,4 @@
 import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
-import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
@@ -62,7 +61,14 @@ class PrimaryButton extends StatelessWidget {
             elevation: 0,
           ),
           child: isLoading
-              ? const SizedBox(height: 24, width: 24, child: LoadingAnimation())
+              ? SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: !isEnabled ? kWhite : (textColor ?? kWhite),
+                  ),
+                )
               : child ??
                     Row(
                       mainAxisSize: MainAxisSize.min,

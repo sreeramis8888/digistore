@@ -206,25 +206,25 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         message: 'Are you sure you want to delete this offer?',
                         confirmText: 'Delete',
                         isDestructive: true,
+                        onConfirm: () async {
+                          try {
+                            await ref
+                                .read(offersProvider.notifier)
+                                .deleteOffer(
+                                  widget.args['_id'] ?? widget.args['id'] ?? '',
+                                );
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Something went wrong')),
+                              );
+                            }
+                          }
+                        },
                       );
 
                       if (confirm == true && context.mounted) {
-                        try {
-                          await ref
-                              .read(offersProvider.notifier)
-                              .deleteOffer(
-                                widget.args['_id'] ?? widget.args['id'] ?? '',
-                              );
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Something went wrong')),
-                            );
-                          }
-                        }
+                        Navigator.pop(context);
                       }
                     },
                   ),
