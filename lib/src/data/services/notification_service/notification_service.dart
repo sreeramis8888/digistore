@@ -112,14 +112,54 @@ class NotificationService {
                 _deepLinkService.handleDeepLink(Uri.parse(deepLink));
               }
             },
+            onTimeout: () {
+              debugPrint('Overlay timed out, adding silent notification to tray');
+              _showSystemNotification(message, deepLink);
+            },
           );
         } else {
-          debugPrint('Context not available for in-app notification overlay');
+          debugPrint('Context not available, adding silent notification to tray');
+          _showSystemNotification(message, deepLink);
         }
       }
     } catch (e) {
       debugPrint('Foreground message handling error: $e');
     }
+  }
+
+  void _showSystemNotification(RemoteMessage message, String? deepLink) {
+    debugPrint('Creating silent tray notification');
+    final title = message.notification?.title ?? message.data['title'] ?? message.data['heading'];
+    final body = message.notification?.body ?? message.data['body'] ?? message.data['message'];
+
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: message.hashCode,
+        channelKey: 'channel_setgo_silent_v2', // Silent channel with status bar icon
+        title: title?.toString(),
+        body: body?.toString(),
+        bigPicture: message.notification?.android?.imageUrl ?? message.data['imageUrl']?.toString(),
+        largeIcon: message.notification?.android?.imageUrl ?? message.data['imageUrl']?.toString(),
+        notificationLayout: (message.notification?.android?.imageUrl != null || message.data['imageUrl'] != null)
+            ? NotificationLayout.BigPicture
+            : NotificationLayout.Default,
+        payload: deepLink != null ? {'deepLink': deepLink} : null,
+        category: NotificationCategory.Message,
+        autoDismissible: true,
+        showWhen: true,
+        criticalAlert: false, // Don't pop up
+        wakeUpScreen: false, // Don't turn on screen
+        fullScreenIntent: false, // Keep strictly in tray
+        locked: false,
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          key: 'OPEN',
+          label: 'Open',
+          autoDismissible: true,
+        ),
+      ],
+    );
   }
 
   void _handleMessageOpenedApp(RemoteMessage message) {

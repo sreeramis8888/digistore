@@ -23,7 +23,11 @@ import UserNotifications
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    completionHandler([])
+    if let original = UNUserNotificationCenter.current().delegate, original !== self {
+      original.userNotificationCenter?(center, willPresent: notification, withCompletionHandler: completionHandler)
+    } else {
+      completionHandler([])
+    }
   }
 }
 
@@ -36,14 +40,32 @@ class ForegroundNotificationSuppressor: NSObject, UNUserNotificationCenterDelega
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
+    let isPush = notification.request.trigger is UNPushNotificationTrigger
+
     if let original = originalDelegate {
-      // Forward to originalDelegate so FirebaseMessaging processes APNs payload and fires FirebaseMessaging.onMessage in Flutter
       original.userNotificationCenter?(center, willPresent: notification) { _ in
-        // Always force completionHandler([]) so iOS native OS device banner pop-up is suppressed
-        completionHandler([])
+        if isPush {
+          // Push notification in foreground: 0 banners, 0 sounds, 0 popups
+          completionHandler([])
+        } else {
+          // Silent local tray notification (after in-app overlay timeout): place silently in Notification Center (list) without banner pop-up
+          if #available(iOS 14.0, *) {
+            completionHandler([.list])
+          } else {
+            completionHandler([.badge])
+          }
+        }
       }
     } else {
-      completionHandler([])
+      if isPush {
+        completionHandler([])
+      } else {
+        if #available(iOS 14.0, *) {
+          completionHandler([.list])
+        } else {
+          completionHandler([.badge])
+        }
+      }
     }
   }
 
