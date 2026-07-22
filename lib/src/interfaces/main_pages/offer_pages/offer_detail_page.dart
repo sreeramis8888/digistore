@@ -135,6 +135,30 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final String? logoText = widget.args['logoText'];
     final Color? logoColor = widget.args['logoColor'];
 
+    final priceRange = widget.args['priceRange'];
+    final requiredTier = widget.args['requiredTier'];
+    final discountRange = widget.args['discountRange'];
+
+    bool hasPriceRange = priceRange != null && priceRange.toString() != 'null' && (priceRange is Map ? priceRange.isNotEmpty : priceRange.toString().isNotEmpty);
+    bool hasRequiredTier = requiredTier != null && requiredTier.toString() != 'null' && requiredTier.toString().isNotEmpty;
+    bool hasDiscountRange = discountRange != null && discountRange.toString() != 'null' && (discountRange is Map ? discountRange.isNotEmpty : discountRange.toString().isNotEmpty);
+
+    String getPriceRangeText() {
+      if (priceRange is Map) {
+        final min = priceRange['min'] ?? 0;
+        final max = priceRange['max'] ?? 0;
+        return '₹$min - ₹$max';
+      }
+      return priceRange.toString();
+    }
+
+    String getDiscountRangeText() {
+      if (discountRange is Map) {
+        return '${discountRange['min'] ?? 0}% - ${discountRange['max'] ?? 0}% OFF';
+      }
+      return discountRange.toString();
+    }
+
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
@@ -458,6 +482,76 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                   ],
                   const SizedBox(height: 16),
 
+                  if (hasPriceRange || hasRequiredTier || hasDiscountRange) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: kWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                            spreadRadius: 0,
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: kPrimaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.star_rounded, color: kPrimaryColor, size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Offer Highlights',
+                                style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          if (hasRequiredTier)
+                            _buildHighlightRow(
+                              Icons.shield_rounded,
+                              'Required Tier',
+                              requiredTier.toString().toUpperCase(),
+                              Colors.amber.shade700,
+                            ),
+                          if (hasRequiredTier && (hasPriceRange || hasDiscountRange))
+                            const SizedBox(height: 12),
+                          if (hasPriceRange)
+                            _buildHighlightRow(
+                              Icons.account_balance_wallet_rounded,
+                              'Price Range',
+                              getPriceRangeText(),
+                              Colors.blue.shade600,
+                            ),
+                          if (hasPriceRange && hasDiscountRange)
+                            const SizedBox(height: 12),
+                          if (hasDiscountRange)
+                            _buildHighlightRow(
+                              Icons.local_offer_rounded,
+                              'Discount',
+                              getDiscountRangeText(),
+                              Colors.green.shade600,
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
                   Text('Details', style: kSmallTitleSB),
                   const SizedBox(height: 12),
                   if (widget.args['validTo'] != null) ...[
@@ -626,6 +720,39 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
           fontSize: 10,
         ),
       ),
+    );
+  }
+
+  Widget _buildHighlightRow(IconData icon, String label, String value, Color color) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 16, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: kSmallTitleSB.copyWith(color: kTextColor),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
