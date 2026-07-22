@@ -24,6 +24,13 @@ void main() async {
     return true;
   };
   
+  // Disable OS device notifications when app is in foreground
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: false,
+    badge: false,
+    sound: false,
+  );
+  
   await AwesomeNotifications().initialize(
     null, 
     [

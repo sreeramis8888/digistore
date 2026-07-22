@@ -31,6 +31,12 @@ Future<void> handleNotificationPermissions(
 Future<void> _handleIOSPermissions(BuildContext context, WidgetRef ref) async {
   final settings = await FirebaseMessaging.instance.getNotificationSettings();
 
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: false,
+    badge: false,
+    sound: false,
+  );
+
   if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
     final resourceettings = await FirebaseMessaging.instance.requestPermission(
       alert: true,
@@ -40,6 +46,11 @@ Future<void> _handleIOSPermissions(BuildContext context, WidgetRef ref) async {
       criticalAlert: false,
       provisional: false,
       sound: true,
+    );
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: false,
+      badge: false,
+      sound: false,
     );
     if (resourceettings.authorizationStatus == AuthorizationStatus.authorized) {
       await _setupFCM(context, ref);

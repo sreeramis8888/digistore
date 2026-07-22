@@ -44,6 +44,13 @@ class NotificationService {
     try {
       debugPrint('🔔 Initializing Notification Service...');
 
+      // Configure FCM foreground presentation options to prevent OS duplicate system notifications in foreground
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: false,
+        badge: true,
+        sound: false,
+      );
+
       // Channel is already initialized in main.dart
       // Just verify it exists
       final isAllowed = await AwesomeNotifications().isNotificationAllowed();
@@ -77,7 +84,10 @@ class NotificationService {
     _ref.read(notificationsProvider.notifier).addNotificationFromPush(message);
 
     try {
-      if (message.notification != null) {
+      final title = message.notification?.title ?? message.data['title'] ?? message.data['heading'];
+      final body = message.notification?.body ?? message.data['body'] ?? message.data['message'];
+
+      if (title != null || body != null) {
         String? deepLink;
         String? screen = message.data['screen'] ?? message.data['actionScreen'];
         String? id = message.data['id'] ?? message.data['actionTargetId'];
@@ -87,66 +97,29 @@ class NotificationService {
         }
 
         // ALWAYS show in-app notification overlay when app is in foreground
-        // DO NOT show system notification
         final context = NavigationService.navigatorKey.currentContext;
         if (context != null && context.mounted) {
           debugPrint('Showing IN-APP notification overlay');
           InAppNotificationOverlay.show(
             context,
             overlayState: NavigationService.navigatorKey.currentState?.overlay,
-            title: message.notification?.title ?? 'Notification',
-            message: message.notification?.body ?? '',
-            imageUrl: message.notification?.android?.imageUrl,
+            title: title?.toString() ?? 'Notification',
+            message: body?.toString() ?? '',
+            imageUrl: message.notification?.android?.imageUrl ?? message.data['imageUrl']?.toString(),
             accentColor: const Color(0xFF1e3a81),
             onTap: () {
               if (deepLink != null) {
                 _deepLinkService.handleDeepLink(Uri.parse(deepLink));
               }
             },
-            onTimeout: () {
-              debugPrint('Overlay timed out, showing system notification');
-              _showSystemNotification(message, deepLink);
-            },
           );
         } else {
-          debugPrint('Context not available, cannot show in-app notification');
+          debugPrint('Context not available for in-app notification overlay');
         }
       }
     } catch (e) {
       debugPrint('Foreground message handling error: $e');
     }
-  }
-
-  void _showSystemNotification(RemoteMessage message, String? deepLink) {
-    debugPrint('Creating SYSTEM notification with MAX priority');
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: message.hashCode,
-        channelKey: 'channel_setgo_silent_v2', // Silent channel with status bar icon
-        title: message.notification?.title,
-        body: message.notification?.body,
-        bigPicture: message.notification?.android?.imageUrl,
-        largeIcon: message.notification?.android?.imageUrl,
-        notificationLayout: message.notification?.android?.imageUrl != null
-            ? NotificationLayout.BigPicture
-            : NotificationLayout.Default,
-        payload: deepLink != null ? {'deepLink': deepLink} : null,
-        category: NotificationCategory.Message,
-        autoDismissible: true,
-        showWhen: true,
-        criticalAlert: false, // Don't pop up
-        wakeUpScreen: false, // Don't turn on screen
-        fullScreenIntent: false, // Keep it strictly in tray
-        locked: false,
-      ),
-      actionButtons: [
-        NotificationActionButton(
-          key: 'OPEN',
-          label: 'Open',
-          autoDismissible: true,
-        ),
-      ],
-    );
   }
 
   void _handleMessageOpenedApp(RemoteMessage message) {
