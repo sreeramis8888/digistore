@@ -23,7 +23,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       await ref
           .read(notificationsProvider.notifier)
           .fetchNotifications(refresh: true);
-      await ref.read(notificationsProvider.notifier).markAllAsRead();
     });
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=

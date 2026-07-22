@@ -6,6 +6,7 @@ import 'api_provider.dart';
 import 'user_provider.dart';
 import 'partner_provider.dart';
 import 'user_type_provider.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class NotificationsState {
   final List<AppNotificationModel> notifications;
@@ -48,6 +49,14 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
 
   NotificationsNotifier(this.ref) : super(NotificationsState()) {
     fetchUnreadCount();
+  }
+
+  @override
+  set state(NotificationsState value) {
+    if (super.state.unreadCount != value.unreadCount) {
+      AwesomeNotifications().setGlobalBadgeCounter(value.unreadCount);
+    }
+    super.state = value;
   }
 
   bool _isFetchingUnreadCount = false;
