@@ -200,6 +200,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             ),
             SizedBox(width: screenSize.responsivePadding(12)),
             Expanded(
+              flex: 3,
               child: Text(
                 widget.shopName,
                 style: kBodyTitleM.copyWith(fontSize: 24),
@@ -208,20 +209,25 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
               ),
             ),
             SizedBox(width: screenSize.responsivePadding(8)),
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(8),
-                vertical: screenSize.responsivePadding(4),
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0XFFDFEAFF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                category,
-                style: kSmallerTitleSB.copyWith(
-                  color: kPrimaryColor,
-                  fontSize: 10,
+            Flexible(
+              flex: 1,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(8),
+                  vertical: screenSize.responsivePadding(4),
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0XFFDFEAFF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  category,
+                  style: kSmallerTitleSB.copyWith(
+                    color: kPrimaryColor,
+                    fontSize: 10,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
