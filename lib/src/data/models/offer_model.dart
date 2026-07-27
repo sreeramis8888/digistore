@@ -41,6 +41,7 @@ class OfferModel {
   final int? shareCount;
   final DateTime? createdAt;
   final BranchApplicability? branchApplicability;
+  final List<dynamic>? branchLocations;
   final bool? isScratchCard;
   final bool? isScratched;
   final num? awardedDiscount;
@@ -79,6 +80,7 @@ class OfferModel {
     this.shareCount,
     this.createdAt,
     this.branchApplicability,
+    this.branchLocations,
     this.isScratchCard,
     this.isScratched,
     this.awardedDiscount,
@@ -155,6 +157,7 @@ class OfferModel {
         json['branchApplicability'],
         BranchApplicability.fromJson,
       ),
+      branchLocations: json['branchLocations'] as List<dynamic>?,
       isScratchCard: json['isScratchCard'] as bool?,
       isScratched: json['isScratched'] as bool?,
       awardedDiscount: json['awardedDiscount'] as num?,
@@ -196,6 +199,7 @@ class OfferModel {
       'shareCount': shareCount,
       'createdAt': createdAt?.toIso8601String(),
       'branchApplicability': branchApplicability?.toJson(),
+      'branchLocations': branchLocations,
       'isScratchCard': isScratchCard,
       'isScratched': isScratched,
       'awardedDiscount': awardedDiscount,
@@ -236,6 +240,7 @@ class OfferModel {
     int? shareCount,
     DateTime? createdAt,
     BranchApplicability? branchApplicability,
+    List<dynamic>? branchLocations,
     bool? isScratchCard,
     bool? isScratched,
     num? awardedDiscount,
@@ -274,6 +279,7 @@ class OfferModel {
       shareCount: shareCount ?? this.shareCount,
       createdAt: createdAt ?? this.createdAt,
       branchApplicability: branchApplicability ?? this.branchApplicability,
+      branchLocations: branchLocations ?? this.branchLocations,
       isScratchCard: isScratchCard ?? this.isScratchCard,
       isScratched: isScratched ?? this.isScratched,
       awardedDiscount: awardedDiscount ?? this.awardedDiscount,

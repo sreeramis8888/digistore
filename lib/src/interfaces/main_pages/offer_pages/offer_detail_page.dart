@@ -139,7 +139,31 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final requiredTier = widget.args['requiredTier'];
     final discountRange = widget.args['discountRange'];
 
+    final branchApplicability = widget.args['branchApplicability'];
+    final branchLocationsObj = widget.args['branchLocations'];
+    final List branchLocations = branchLocationsObj is List ? branchLocationsObj : [];
+    
+    bool isAllBranches = false;
+    List specificBranches = [];
+    
+    if (branchApplicability != null && branchApplicability is Map) {
+      if (branchApplicability['type'] == 'all') {
+        isAllBranches = true;
+      } else if (branchApplicability['type'] == 'specific') {
+        final branchIdsObj = branchApplicability['branchIds'];
+        final List branchIds = branchIdsObj is List ? branchIdsObj : [];
+        final List<String> stringBranchIds = branchIds.map((e) => e.toString()).toList();
+        
+        specificBranches = branchLocations.where((branch) {
+          if (branch is! Map) return false;
+          final String bId = branch['branchId']?.toString() ?? '';
+          return stringBranchIds.contains(bId);
+        }).toList();
+      }
+    }
+
     bool hasPriceRange = priceRange != null && priceRange.toString() != 'null' && (priceRange is Map ? priceRange.isNotEmpty : priceRange.toString().isNotEmpty);
+
     bool hasRequiredTier = requiredTier != null && requiredTier.toString() != 'null' && requiredTier.toString().isNotEmpty;
     bool hasDiscountRange = discountRange != null && discountRange.toString() != 'null' && (discountRange is Map ? discountRange.isNotEmpty : discountRange.toString().isNotEmpty);
 
@@ -481,6 +505,103 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     const SizedBox(height: 16),
                   ],
                   const SizedBox(height: 16),
+
+                  if (isAllBranches || specificBranches.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: kWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                            spreadRadius: 0,
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: kPrimaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.storefront_rounded, color: kPrimaryColor, size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Available At',
+                                style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          if (isAllBranches)
+                            Row(
+                              children: [
+                                const Icon(Icons.check_circle_outline, size: 18, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Available on all branches',
+                                  style: kSmallerTitleL.copyWith(color: kTextColor),
+                                ),
+                              ],
+                            )
+                          else
+                            ...specificBranches.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final branch = entry.value;
+                              final isLast = index == specificBranches.length - 1;
+                              final branchName = branch['branchName']?.toString() ?? 'Branch';
+                              final address = branch['address']?.toString() ?? '';
+                              final city = branch['city']?.toString() ?? '';
+                              final locationDetails = [address, city].where((e) => e.trim().isNotEmpty).join(', ');
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: isLast ? 0 : 12.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 2.0),
+                                      child: Icon(Icons.location_on_outlined, size: 18, color: kPrimaryColor),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            branchName,
+                                            style: kSmallerTitleL.copyWith(color: kTextColor, fontWeight: FontWeight.w600),
+                                          ),
+                                          if (locationDetails.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              locationDetails,
+                                              style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
                   if (hasPriceRange || hasRequiredTier || hasDiscountRange) ...[
                     Container(
