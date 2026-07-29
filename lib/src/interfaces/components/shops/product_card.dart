@@ -132,9 +132,21 @@ class ProductCard extends ConsumerWidget {
                               ),
                             )
                           : const SizedBox.shrink()
-                      : Text(
-                          product['price'] as String,
-                          style: kSmallTitleB.copyWith(fontWeight: FontWeight.w600),
+                      : Builder(
+                          builder: (context) {
+                            String priceStr = product['price'] as String;
+                            final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(priceStr);
+                            if (match != null) {
+                              final val = double.tryParse(match.group(1)!);
+                              if (val != null) {
+                                priceStr = priceStr.replaceFirst(match.group(1)!, val.toStringAsFixed(2));
+                              }
+                            }
+                            return Text(
+                              priceStr,
+                              style: kSmallTitleB.copyWith(fontWeight: FontWeight.w600),
+                            );
+                          },
                         ),
                 ],
               ),

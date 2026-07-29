@@ -144,6 +144,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     Widget icon,
     ScreenSizeData screenSize, {
     VoidCallback? onTap,
+    Color? textColor,
   }) {
     return InteractiveFeedbackButton(
       onPressed: onTap ?? () {},
@@ -161,7 +162,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               child: Center(child: icon),
             ),
             SizedBox(width: screenSize.responsivePadding(16)),
-            Expanded(child: Text(title, style: kSmallTitleL)),
+            Expanded(
+              child: Text(
+                title,
+                style: textColor != null 
+                    ? kSmallTitleL.copyWith(color: textColor) 
+                    : kSmallTitleL,
+              ),
+            ),
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: screenSize.responsivePadding(14),
@@ -568,86 +576,97 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
               SizedBox(height: screenSize.responsivePadding(24)),
 
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16),
+              Container(
+                decoration: BoxDecoration(
+                  color: kWhite,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: kBorder),
                 ),
-                child: PrimaryButton(
-                  text: GlobalVariables.isGuest ? 'Login / Register' : 'Log out',
-                  backgroundColor: kWhite,
-                  textColor: GlobalVariables.isGuest ? kPrimaryColor : kRed,
-                  onPressed: () async {
-                    if (GlobalVariables.isGuest) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        'login',
-                        (route) => false,
-                      );
-                      return;
-                    }
+                child: Column(
+                  children: [
+                    _buildMenuItem(
+                      GlobalVariables.isGuest ? 'Login / Register' : 'Logout',
+                      Icon(
+                        GlobalVariables.isGuest ? Icons.login_rounded : Icons.logout_rounded,
+                        color: GlobalVariables.isGuest ? kPrimaryColor : kRed,
+                        size: 22,
+                      ),
+                      screenSize,
+                      textColor: GlobalVariables.isGuest ? kPrimaryColor : kRed,
+                      onTap: () async {
+                        if (GlobalVariables.isGuest) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
+                          return;
+                        }
 
-                    final confirmed = await showConfirmationDialog(
-                      context: context,
-                      title: 'Logout',
-                      message:
-                          'Are you sure you want to logout from your account?',
-                      confirmText: 'Logout',
-                      cancelText: 'Cancel',
-                      isDestructive: true,
-                      icon: Icons.logout_rounded,
-                      onConfirm: () async {
-                        await ref.read(authProvider.notifier).logout();
-                      },
-                    );
-
-                    if (confirmed == true && context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        'login',
-                        (route) => false,
-                      );
-                    }
-                  },
-                ).fadeSlideInFromBottom(delayMilliseconds: 300),
-              ),
-
-              if (!GlobalVariables.isGuest) ...[
-                SizedBox(height: screenSize.responsivePadding(16)),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(16),
-                  ),
-                  child: PrimaryButton(
-                    text: 'Delete Account',
-                    backgroundColor: kWhite,
-                    textColor: kRed,
-                    onPressed: () async {
-                      final confirmed = await showConfirmationDialog(
-                        context: context,
-                        title: 'Delete Account',
-                        message:
-                            'Are you sure you want to delete your account? This action cannot be undone.',
-                        confirmText: 'Delete',
-                        cancelText: 'Cancel',
-                        isDestructive: true,
-                        icon: Icons.person_remove_rounded,
-                        onConfirm: () async {
-                          await ref.read(authProvider.notifier).logout();
-                        },
-                      );
-
-                      if (confirmed == true && context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          'login',
-                          (route) => false,
+                        final confirmed = await showConfirmationDialog(
+                          context: context,
+                          title: 'Logout',
+                          message:
+                              'Are you sure you want to logout from your account?',
+                          confirmText: 'Logout',
+                          cancelText: 'Cancel',
+                          isDestructive: true,
+                          icon: Icons.logout_rounded,
+                          onConfirm: () async {
+                            await ref.read(authProvider.notifier).logout();
+                          },
                         );
-                      }
-                    },
-                  ).fadeSlideInFromBottom(delayMilliseconds: 400),
+
+                        if (confirmed == true && context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
+                        }
+                      },
+                    ),
+                    if (!GlobalVariables.isGuest) ...[
+                      const Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: kBorder,
+                        indent: 16,
+                        endIndent: 16,
+                      ),
+                      _buildMenuItem(
+                        'Delete Account',
+                        const Icon(Icons.person_remove_rounded, color: kRed, size: 22),
+                        screenSize,
+                        textColor: kRed,
+                        onTap: () async {
+                          final confirmed = await showConfirmationDialog(
+                            context: context,
+                            title: 'Delete Account',
+                            message:
+                                'Are you sure you want to delete your account? This action cannot be undone.',
+                            confirmText: 'Delete',
+                            cancelText: 'Cancel',
+                            isDestructive: true,
+                            icon: Icons.person_remove_rounded,
+                            onConfirm: () async {
+                              await ref.read(authProvider.notifier).logout();
+                            },
+                          );
+
+                          if (confirmed == true && context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              'login',
+                              (route) => false,
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ],
                 ),
-              ],
+              ).fadeSlideInFromBottom(delayMilliseconds: 300),
 
               SizedBox(height: screenSize.responsivePadding(40)),
             ],

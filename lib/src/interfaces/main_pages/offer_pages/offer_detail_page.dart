@@ -8,6 +8,7 @@ import '../../components/advanced_network_image.dart';
 import '../../components/primary_button.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/date_formatter.dart';
+import '../../../data/models/offer_model.dart';
 
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
@@ -114,6 +115,31 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         cachedOffer?.awardedDiscount ??
         (widget.args['awardedDiscount'] as num?);
 
+    final dealsJson = widget.args['deals'];
+    DealsModel? deals;
+    if (cachedOffer?.deals != null) {
+      deals = cachedOffer!.deals;
+    } else if (dealsJson != null) {
+      if (dealsJson is Map<String, dynamic>) {
+        deals = DealsModel.fromJson(dealsJson);
+      } else if (dealsJson is Map) {
+        deals = DealsModel.fromJson(Map<String, dynamic>.from(dealsJson));
+      }
+    }
+
+    String? activeDealText;
+    if (deals != null) {
+      if (deals.dealOfMonth?.isActive == true) {
+        activeDealText = 'Deal of the Month';
+      } else if (deals.dealOfWeek?.isActive == true) {
+        activeDealText = 'Deal of the Week';
+      } else if (deals.dealOfDay?.isActive == true) {
+        activeDealText = 'Deal of the Day';
+      } else if (deals.dealOfHour?.isActive == true) {
+        activeDealText = 'Deal of the Hour';
+      }
+    }
+
     List<String> images = [];
     if (widget.args['images'] is List &&
         (widget.args['images'] as List).isNotEmpty) {
@@ -171,7 +197,12 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       if (priceRange is Map) {
         final min = priceRange['min'] ?? 0;
         final max = priceRange['max'] ?? 0;
-        return '₹$min - ₹$max';
+        final minStr = (min is num) ? min.toStringAsFixed(2) : min.toString();
+        final maxStr = (max is num) ? max.toStringAsFixed(2) : max.toString();
+        return '₹$minStr - ₹$maxStr';
+      }
+      if (priceRange is num) {
+        return priceRange.toStringAsFixed(2);
       }
       return priceRange.toString();
     }
@@ -373,6 +404,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (activeDealText != null) _buildDealBadge(activeDealText!),
                   if (!(widget.args['hideShopInfo'] ?? false) &&
                       !isPartner) ...[
                     InkWell(
@@ -603,7 +635,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     const SizedBox(height: 24),
                   ],
 
-                  if (hasPriceRange || hasRequiredTier || hasDiscountRange) ...[
+                  if (hasPriceRange || hasDiscountRange) ...[
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -642,15 +674,6 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          if (hasRequiredTier)
-                            _buildHighlightRow(
-                              Icons.shield_rounded,
-                              'Required Tier',
-                              requiredTier.toString().toUpperCase(),
-                              Colors.amber.shade700,
-                            ),
-                          if (hasRequiredTier && (hasPriceRange || hasDiscountRange))
-                            const SizedBox(height: 12),
                           if (hasPriceRange)
                             _buildHighlightRow(
                               Icons.account_balance_wallet_rounded,
@@ -791,6 +814,43 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDealBadge(String text) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFF3366), Color(0xFFFF9933)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF3366).withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            text.toUpperCase(),
+            style: kSmallTitleB.copyWith(
+              color: Colors.white,
+              fontSize: 12,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
