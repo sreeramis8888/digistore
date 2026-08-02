@@ -264,6 +264,100 @@ class AllShops extends _$AllShops {
   }
 }
 
+@Riverpod(keepAlive: true)
+class FeaturedShops extends _$FeaturedShops {
+  @override
+  ShopsState build() {
+    ref.watch(sessionProvider);
+    Future(() => getShops());
+    return ShopsState();
+  }
+
+  Future<void> getShops({
+    int page = 1,
+    String? search,
+  }) async {
+    final currentSearch = search ?? state.searchQuery;
+
+    if (page == 1) {
+      state = state.copyWith(
+        isLoading: true,
+        error: null,
+        searchQuery: currentSearch,
+        shops: search != null ? [] : state.shops,
+      );
+    } else {
+      state = state.copyWith(isLoadingMore: true, error: null);
+    }
+
+    final api = ref.read(apiProvider);
+    final user = ref.read(userProvider);
+    final lat = user?.location?.coordinates?.lat;
+    final lng = user?.location?.coordinates?.lng;
+
+    final queryParams = {
+      'page': page.toString(),
+      'limit': '10',
+    };
+
+    if (lat != null && lng != null) {
+      queryParams['lat'] = lat.toString();
+      queryParams['lng'] = lng.toString();
+    }
+
+    if (currentSearch.isNotEmpty) {
+      queryParams['search'] = currentSearch;
+    }
+
+    final response = await api.get('/shops/featured', queryParams: queryParams);
+
+    if (response.success && response.data != null) {
+      final List<dynamic> data = response.data!['data'] as List<dynamic>;
+      final pagination = PaginationModel.fromJson(
+        response.data!['pagination'] as Map<String, dynamic>,
+      );
+      final newShops = data
+          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      if (page == 1) {
+        state = state.copyWith(
+          shops: newShops,
+          pagination: pagination,
+          isLoading: false,
+        );
+      } else {
+        state = state.copyWith(
+          shops: [...state.shops, ...newShops],
+          pagination: pagination,
+          isLoadingMore: false,
+        );
+      }
+    } else {
+      state = state.copyWith(
+        error: response.message ?? 'Failed to fetch shops',
+        isLoading: false,
+        isLoadingMore: false,
+      );
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || state.pagination == null) return;
+    if (state.pagination!.page >= state.pagination!.pages) return;
+    await getShops(page: state.pagination!.page + 1);
+  }
+
+  Future<void> refresh() async {
+    await getShops(page: 1);
+  }
+
+  void updateSearch(String query) {
+    if (state.searchQuery == query) return;
+    getShops(page: 1, search: query);
+  }
+}
+
 @riverpod
 Future<List<OfferModel>> shopOffers(Ref ref, String shopId) async {
   if (shopId.isEmpty) return [];

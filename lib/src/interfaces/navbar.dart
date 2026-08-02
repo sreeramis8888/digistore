@@ -7,6 +7,8 @@ import '../data/router/nav_router.dart';
 import '../data/services/deep_link_service.dart';
 import '../data/providers/notifications_provider.dart';
 import '../data/providers/partner_products_provider.dart';
+import '../data/providers/shops_provider.dart';
+import '../data/providers/offers_provider.dart';
 import 'main_pages/home_page.dart';
 import 'main_pages/offers.dart';
 import 'main_pages/shops.dart';
@@ -28,6 +30,8 @@ class NavBar extends ConsumerStatefulWidget {
 }
 
 class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
+  bool _wasInBackground = false;
+
   static const List<String> _inactiveIcons = [
     'assets/svg/inactive_home.svg',
     'assets/svg/inactive_offer.svg',
@@ -151,9 +155,34 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(notificationsProvider.notifier).fetchUnreadCount();
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _wasInBackground = true;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_wasInBackground) {
+        _wasInBackground = false;
+        ref.read(notificationsProvider.notifier).fetchUnreadCount();
+      }
     }
+  }
+
+  void _switchTab(int newIndex) {
+    final selectedIndex = ref.read(selectedIndexProvider);
+    if (selectedIndex == newIndex) return;
+
+    final currentLabel = _currentLabels[selectedIndex];
+    if (currentLabel == 'Offers') {
+      ref.read(selectedOffersCategoryProvider.notifier).state = 0;
+      ref.read(offersProvider.notifier).updateSearch('');
+    } else if (currentLabel == 'Shops') {
+      if (!GlobalVariables.isGuest) {
+        ref.read(shopsProvider.notifier).updateSearch('');
+      }
+      ref.read(allShopsProvider.notifier).updateSearch('');
+    } else if (currentLabel == 'Products') {
+      ref.read(partnerProductsProvider.notifier).updateSearch('');
+    }
+
+    ref.read(selectedIndexProvider.notifier).updateIndex(newIndex);
   }
 
   @override
@@ -167,13 +196,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
       onPopInvokedWithResult: (didPop, result) {
         log('inside navbar popscope');
         if (selectedIndex != 0) {
-          if (selectedIndex == 1) {
-            ref.read(selectedOffersCategoryProvider.notifier).state = 0;
-          }
-          if (_currentLabels[selectedIndex] == 'Products') {
-            ref.read(partnerProductsProvider.notifier).updateSearch('');
-          }
-          ref.read(selectedIndexProvider.notifier).updateIndex(0);
+          _switchTab(0);
         }
       },
       child: Scaffold(
@@ -220,23 +243,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                         return Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              if (selectedIndex != index) {
-                                if (selectedIndex == 1) {
-                                  ref
-                                          .read(
-                                            selectedOffersCategoryProvider
-                                                .notifier,
-                                          )
-                                          .state =
-                                      0;
-                                }
-                                if (_currentLabels[selectedIndex] == 'Products') {
-                                  ref.read(partnerProductsProvider.notifier).updateSearch('');
-                                }
-                                ref
-                                    .read(selectedIndexProvider.notifier)
-                                    .updateIndex(index);
-                              }
+                              _switchTab(index);
                             },
                             behavior: HitTestBehavior.opaque,
                             child: Column(

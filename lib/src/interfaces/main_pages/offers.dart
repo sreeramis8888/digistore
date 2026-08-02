@@ -22,6 +22,7 @@ import '../../data/utils/global_variables.dart';
 import '../../data/utils/interactive_feedback_button.dart';
 import 'offer_pages/categories_grid_page.dart';
 import '../../data/providers/banners_provider.dart';
+import '../../data/models/banner_model.dart';
 import '../components/common/paginated_banner_grid.dart';
 
 class OffersPage extends ConsumerStatefulWidget {
@@ -307,8 +308,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final bannerFilter = (categoryId != null && categoryId != 'All')
         ? BannerFilter(category: categoryId, page: 'offer')
         : const BannerFilter(page: 'offer');
-    final bannersAsync = ref.watch(bannersProvider(bannerFilter));
-    final banners = bannersAsync.value ?? [];
+    final banners = isPartner
+        ? const <BannerModel>[]
+        : (ref.watch(bannersProvider(bannerFilter)).value ?? []);
 
     // Partner & Guest view — simple grid, no split
     if (isPartner || GlobalVariables.isGuest) {

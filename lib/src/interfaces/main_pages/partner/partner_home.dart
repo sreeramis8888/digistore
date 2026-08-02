@@ -74,7 +74,7 @@ class PartnerHomePage extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Today's Overview",
+                            "Overview",
                             style: kSmallTitleB.copyWith(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,

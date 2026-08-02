@@ -41,9 +41,11 @@ class OfferModel {
   final int? shareCount;
   final DateTime? createdAt;
   final BranchApplicability? branchApplicability;
+  final List<dynamic>? branchLocations;
   final bool? isScratchCard;
   final bool? isScratched;
   final num? awardedDiscount;
+  final DealsModel? deals;
 
   const OfferModel({
     this.id,
@@ -79,9 +81,11 @@ class OfferModel {
     this.shareCount,
     this.createdAt,
     this.branchApplicability,
+    this.branchLocations,
     this.isScratchCard,
     this.isScratched,
     this.awardedDiscount,
+    this.deals,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
@@ -155,9 +159,11 @@ class OfferModel {
         json['branchApplicability'],
         BranchApplicability.fromJson,
       ),
+      branchLocations: json['branchLocations'] as List<dynamic>?,
       isScratchCard: json['isScratchCard'] as bool?,
       isScratched: json['isScratched'] as bool?,
       awardedDiscount: json['awardedDiscount'] as num?,
+      deals: SafeParser.parseObject(json['deals'], DealsModel.fromJson),
     );
   }
 
@@ -196,9 +202,11 @@ class OfferModel {
       'shareCount': shareCount,
       'createdAt': createdAt?.toIso8601String(),
       'branchApplicability': branchApplicability?.toJson(),
+      'branchLocations': branchLocations,
       'isScratchCard': isScratchCard,
       'isScratched': isScratched,
       'awardedDiscount': awardedDiscount,
+      'deals': deals?.toJson(),
     };
   }
 
@@ -236,9 +244,11 @@ class OfferModel {
     int? shareCount,
     DateTime? createdAt,
     BranchApplicability? branchApplicability,
+    List<dynamic>? branchLocations,
     bool? isScratchCard,
     bool? isScratched,
     num? awardedDiscount,
+    DealsModel? deals,
   }) {
     return OfferModel(
       id: id ?? this.id,
@@ -274,9 +284,11 @@ class OfferModel {
       shareCount: shareCount ?? this.shareCount,
       createdAt: createdAt ?? this.createdAt,
       branchApplicability: branchApplicability ?? this.branchApplicability,
+      branchLocations: branchLocations ?? this.branchLocations,
       isScratchCard: isScratchCard ?? this.isScratchCard,
       isScratched: isScratched ?? this.isScratched,
       awardedDiscount: awardedDiscount ?? this.awardedDiscount,
+      deals: deals ?? this.deals,
     );
   }
 }
@@ -319,6 +331,70 @@ class RangeModel {
     return {
       if (min != null) 'min': min,
       if (max != null) 'max': max,
+    };
+  }
+}
+
+class DealsModel {
+  final DealItemModel? dealOfDay;
+  final DealItemModel? dealOfHour;
+  final DealItemModel? dealOfWeek;
+  final DealItemModel? dealOfMonth;
+
+  const DealsModel({
+    this.dealOfDay,
+    this.dealOfHour,
+    this.dealOfWeek,
+    this.dealOfMonth,
+  });
+
+  factory DealsModel.fromJson(Map<String, dynamic> json) {
+    return DealsModel(
+      dealOfDay: SafeParser.parseObject(json['deal_of_day'], DealItemModel.fromJson),
+      dealOfHour: SafeParser.parseObject(json['deal_of_hour'], DealItemModel.fromJson),
+      dealOfWeek: SafeParser.parseObject(json['deal_of_week'], DealItemModel.fromJson),
+      dealOfMonth: SafeParser.parseObject(json['deal_of_month'], DealItemModel.fromJson),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'deal_of_day': dealOfDay?.toJson(),
+      'deal_of_hour': dealOfHour?.toJson(),
+      'deal_of_week': dealOfWeek?.toJson(),
+      'deal_of_month': dealOfMonth?.toJson(),
+    };
+  }
+}
+
+class DealItemModel {
+  final bool? isActive;
+  final DateTime? startDate;
+  final DateTime? expiryDate;
+
+  const DealItemModel({
+    this.isActive,
+    this.startDate,
+    this.expiryDate,
+  });
+
+  factory DealItemModel.fromJson(Map<String, dynamic> json) {
+    return DealItemModel(
+      isActive: json['isActive'] as bool?,
+      startDate: json['startDate'] != null
+          ? DateTime.tryParse(json['startDate'])?.toLocal()
+          : null,
+      expiryDate: json['expiryDate'] != null
+          ? DateTime.tryParse(json['expiryDate'])?.toLocal()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isActive': isActive,
+      'startDate': startDate?.toIso8601String(),
+      'expiryDate': expiryDate?.toIso8601String(),
     };
   }
 }

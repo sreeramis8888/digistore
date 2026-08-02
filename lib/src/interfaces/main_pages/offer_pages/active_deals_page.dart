@@ -194,7 +194,7 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
-      appBar: AppBar(
+      appBar: AppBar(   titleSpacing: 0,
         title: Text(
           widget.dealTitle,
           style: kBodyTitleM.copyWith(

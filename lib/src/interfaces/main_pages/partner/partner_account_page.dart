@@ -23,10 +23,11 @@ import '../../components/advanced_network_image.dart';
 import '../../../data/models/partner_model.dart';
 import '../../../data/models/business_details.dart';
 import '../../../data/models/business_info.dart';
-import '../../../data/models/location_point.dart';
 import '../../components/add_specialty_dialog.dart';
+import '../../components/partner/add_achievement_dialog.dart';
+import '../../components/partner/add_faq_dialog.dart';
+import '../../components/partner/add_service_category_dialog.dart';
 import 'add_branch_page.dart';
-import '../../components/map_location_picker_page.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/full_screen_gallery.dart';
 import '../../components/operating_hours_editor.dart';
@@ -65,12 +66,16 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
   late TextEditingController _taglineCtrl;
   late TextEditingController _descriptionCtrl;
+  late TextEditingController _yearsOfExperienceCtrl;
   late TextEditingController _websiteUrlCtrl;
   late TextEditingController _instagramCtrl;
   late TextEditingController _facebookCtrl;
   late TextEditingController _youtubeCtrl;
 
   List<String> _specialties = [];
+  List<String> _achievements = [];
+  List<String> _serviceCategories = [];
+  List<BusinessFAQ> _faqs = [];
   List<String> _tags = [];
   List<BusinessBranch> _branches = [];
   final List<BusinessBranch> _newBranches = [];
@@ -136,6 +141,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _descriptionCtrl = TextEditingController(
       text: partner?.businessInfo?.description ?? '',
     );
+    _yearsOfExperienceCtrl = TextEditingController(
+      text: partner?.businessInfo?.yearsOfExperience != null
+          ? partner!.businessInfo!.yearsOfExperience.toString()
+          : '',
+    );
     _websiteUrlCtrl = TextEditingController(
       text: partner?.businessInfo?.websiteUrl ?? '',
     );
@@ -150,6 +160,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     );
 
     _specialties = List.from(partner?.businessInfo?.specialties ?? []);
+    _achievements = List.from(partner?.businessInfo?.achievements ?? []);
+    _serviceCategories = List.from(partner?.serviceCategories ?? []);
+    _faqs = List.from(partner?.businessInfo?.faqs ?? []);
     _tags = List.from(partner?.tags ?? []);
     _branches = List.from(partner?.businessInfo?.branches ?? []);
     
@@ -187,6 +200,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
     _taglineCtrl.dispose();
     _descriptionCtrl.dispose();
+    _yearsOfExperienceCtrl.dispose();
     _websiteUrlCtrl.dispose();
     _instagramCtrl.dispose();
     _facebookCtrl.dispose();
@@ -314,6 +328,45 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     final result = await showAddSpecialtyDialog(context);
     if (result != null && mounted) {
       setState(() => _specialties.add(result));
+    }
+  }
+
+  void _showAddAchievementDialog() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result = await showAddAchievementDialog(context);
+    if (result != null && mounted) {
+      setState(() => _achievements.add(result));
+    }
+  }
+
+  void _showAddServiceCategoryDialog() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result = await showAddServiceCategoryDialog(
+      context,
+      existingCategories: _serviceCategories,
+    );
+    if (result != null && mounted) {
+      setState(() {
+        for (final cat in result) {
+          if (!_serviceCategories.contains(cat)) {
+            _serviceCategories.add(cat);
+          }
+        }
+      });
+    }
+  }
+
+  void _showAddFaqDialog({int? index, BusinessFAQ? initialFaq}) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result = await showAddFaqDialog(context, initialFaq: initialFaq);
+    if (result != null && mounted) {
+      setState(() {
+        if (index != null) {
+          _faqs[index] = result;
+        } else {
+          _faqs.add(result);
+        }
+      });
     }
   }
 
@@ -1394,6 +1447,236 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                   ),
                                 ],
 
+                                _buildSectionHeader('Business Description'),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      if (isEditMode) ...[
+                                        PrimaryTextField(
+                                          label: 'Tagline',
+                                          controller: _taglineCtrl,
+                                          hint: 'Short catchy phrase for your business',
+                                        ),
+                                        const SizedBox(height: 12),
+                                        PrimaryTextField(
+                                          label: 'Description',
+                                          controller: _descriptionCtrl,
+                                          hint: 'Detailed overview of your business & offerings',
+                                          maxLines: 4,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        PrimaryTextField(
+                                          label: 'Years of Experience',
+                                          controller: _yearsOfExperienceCtrl,
+                                          hint: 'e.g. 5',
+                                          type: TextFieldType.number,
+                                        ),
+                                      ] else ...[
+                                        _buildReadOnlyRow('Tagline', _taglineCtrl.text),
+                                        _buildReadOnlyRow('Description', _descriptionCtrl.text),
+                                        _buildReadOnlyRow('Years of Experience', _yearsOfExperienceCtrl.text),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+
+                                _buildSectionHeader(
+                                  'Service Categories (Subcategories)',
+                                  showAdd: true,
+                                  onAdd: () => _showAddServiceCategoryDialog(),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        ..._serviceCategories.map(
+                                          (s) => _buildRemovableChip(
+                                            s,
+                                            onDelete: () => setState(
+                                              () => _serviceCategories.remove(s),
+                                            ),
+                                          ),
+                                        ),
+                                        if (_serviceCategories.isEmpty)
+                                          Text(
+                                            'No service categories added',
+                                            style: kSmallTitleL.copyWith(
+                                              color: kGrey,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                _buildSectionHeader(
+                                  'Achievements',
+                                  showAdd: true,
+                                  onAdd: () => _showAddAchievementDialog(),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        ..._achievements.map(
+                                          (s) => _buildRemovableChip(
+                                            s,
+                                            onDelete: () => setState(
+                                              () => _achievements.remove(s),
+                                            ),
+                                          ),
+                                        ),
+                                        if (_achievements.isEmpty)
+                                          Text(
+                                            'No achievements added',
+                                            style: kSmallTitleL.copyWith(
+                                              color: kGrey,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                _buildSectionHeader(
+                                  'Frequently Asked Questions (FAQs)',
+                                  showAdd: true,
+                                  onAdd: () => _showAddFaqDialog(),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      if (_faqs.isEmpty)
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 24,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF9FAFB),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(0xFFE5E7EB),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'No FAQs added',
+                                              style: kSmallTitleL.copyWith(
+                                                color: const Color(0xFF6B7280),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        ..._faqs.asMap().entries.map((entry) {
+                                          final idx = entry.key;
+                                          final faq = entry.value;
+                                          return Container(
+                                            margin: const EdgeInsets.only(
+                                              bottom: 12,
+                                            ),
+                                            padding: const EdgeInsets.all(14),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF9FAFB),
+                                              borderRadius: BorderRadius.circular(
+                                                12,
+                                              ),
+                                              border: Border.all(
+                                                color: const Color(0xFFE5E7EB),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        faq.question ?? '',
+                                                        style: kSmallTitleM
+                                                            .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: kBlack,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    if (isEditMode) ...[
+                                                      IconButton(
+                                                        icon: const Icon(
+                                                          Icons.edit_outlined,
+                                                          size: 18,
+                                                          color: kSecondaryColor,
+                                                        ),
+                                                        constraints:
+                                                            const BoxConstraints(),
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                          4,
+                                                        ),
+                                                        onPressed: () =>
+                                                            _showAddFaqDialog(
+                                                          index: idx,
+                                                          initialFaq: faq,
+                                                        ),
+                                                      ),
+                                                      IconButton(
+                                                        icon: const Icon(
+                                                          Icons.delete_outline,
+                                                          size: 18,
+                                                          color: Colors.red,
+                                                        ),
+                                                        constraints:
+                                                            const BoxConstraints(),
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                          4,
+                                                        ),
+                                                        onPressed: () => setState(
+                                                          () => _faqs
+                                                              .removeAt(idx),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  faq.answer ?? '',
+                                                  style: kSmallTitleL.copyWith(
+                                                    color: kSecondaryTextColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                    ],
+                                  ),
+                                ),
+
                                 _buildSectionHeader(
                                   'Branches',
                                   showAdd: true,
@@ -2269,8 +2552,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             businessImages: _businessImages,
                             tagline: _taglineCtrl.text,
                             description: _descriptionCtrl.text,
+                            yearsOfExperience: int.tryParse(_yearsOfExperienceCtrl.text.trim()),
                             websiteUrl: _websiteUrlCtrl.text,
                             specialties: _specialties,
+                            achievements: _achievements,
+                            faqs: _faqs,
                             branches: _branches.where((b) => !_newBranches.contains(b)).toList(),
                             socialLinks: SocialLinks(
                               instagram: _instagramCtrl.text,
@@ -2279,7 +2565,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             ),
                             operatingHours: _operatingHours,
                           ),
-                          serviceCategories: currentPartner.serviceCategories,
+                          serviceCategories: _serviceCategories,
                           coverageAreas: currentPartner.coverageAreas,
                           tags: _tags,
                           isActive: currentPartner.isActive,

@@ -134,21 +134,21 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                         message: 'Are you sure you want to delete this product?',
                         confirmText: 'Delete',
                         isDestructive: true,
+                        onConfirm: () async {
+                          try {
+                            await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                            }
+                          }
+                        },
                       );
 
                       if (confirm == true && context.mounted) {
-                        try {
-                          await ref.read(partnerProductsProvider.notifier).deleteProduct(product['_id'] ?? product['id']);
-                          if (context.mounted) {
-                            Navigator.pop(context); // Go back to products list
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
-                            );
-                          }
-                        }
+                        Navigator.pop(context); // Go back to products list
                       }
                     },
                   ),
@@ -258,9 +258,27 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                   ),
                   if (product['price'] != null && (product['price'] is num ? product['price'] > 0 : (product['price'].toString().trim().isNotEmpty && product['price'].toString().trim() != '0' && product['price'].toString().trim() != '0.0'))) ...[
                     const SizedBox(height: 8),
-                    Text(
-                      product['price'] is num ? '₹ ${product['price']}' : (product['price']?.toString() ?? ''),
-                      style: kBodyTitleL.copyWith(fontSize: 24),
+                    Builder(
+                      builder: (context) {
+                        String displayPrice = '';
+                        if (product['price'] is num) {
+                          displayPrice = '₹ ${(product['price'] as num).toStringAsFixed(2)}';
+                        } else {
+                          String pStr = product['price']?.toString() ?? '';
+                          final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(pStr);
+                          if (match != null) {
+                            final val = double.tryParse(match.group(1)!);
+                            if (val != null) {
+                              pStr = pStr.replaceFirst(match.group(1)!, val.toStringAsFixed(2));
+                            }
+                          }
+                          displayPrice = pStr.startsWith('₹') ? pStr : (pStr.isNotEmpty ? '₹ $pStr' : '');
+                        }
+                        return Text(
+                          displayPrice,
+                          style: kBodyTitleL.copyWith(fontSize: 24),
+                        );
+                      }
                     ),
                   ],
                   const SizedBox(height: 24),

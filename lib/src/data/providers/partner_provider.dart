@@ -70,6 +70,11 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
         body['tags'] = json.encode(tags);
       }
 
+      final serviceCategories = updatedPartner.serviceCategories;
+      if (serviceCategories != null && serviceCategories.isNotEmpty) {
+        body['serviceCategories'] = json.encode(serviceCategories);
+      }
+
       if (uploadField != null) {
         body['uploadField'] = uploadField;
       }

@@ -393,6 +393,45 @@ class Offers extends _$Offers {
       return ApiResponse.error('Failed to verify OTP: $e');
     }
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> customerInitiateRedemption(
+    String offerId,
+  ) async {
+    try {
+      final api = ref.read(publicApiProvider);
+      final response = await api.post('/offers/$offerId/redeem', {
+        'offerId': offerId,
+      });
+      return response;
+    } catch (e, stack) {
+      log('Error initiating customer redemption: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to initiate redemption: $e');
+    }
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> customerVerifyRedemptionOtp({
+    required String redemptionId,
+    required String otp,
+    double? saleAmount,
+  }) async {
+    try {
+      final api = ref.read(publicApiProvider);
+      final Map<String, dynamic> payload = {
+        'otp': otp,
+      };
+      if (saleAmount != null) {
+        payload['saleAmount'] = saleAmount;
+      }
+      final response = await api.post(
+        '/offers/redemptions/$redemptionId/verify',
+        payload,
+      );
+      return response;
+    } catch (e, stack) {
+      log('Error verifying customer redemption OTP: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to verify redemption OTP: $e');
+    }
+  }
 }
 
 @Riverpod(keepAlive: true)

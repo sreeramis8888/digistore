@@ -36,15 +36,6 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     _scrollController.addListener(_onScroll);
   }
 
-  @override
-  void deactivate() {
-    // Clear search state when leaving the page — ref is still safe here
-    if (!GlobalVariables.isGuest) {
-      ref.read(shopsProvider.notifier).updateSearch('');
-    }
-    ref.read(allShopsProvider.notifier).updateSearch('');
-    super.deactivate();
-  }
 
   @override
   void dispose() {

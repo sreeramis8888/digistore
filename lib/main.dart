@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'src/data/router/router.dart';
 import 'src/data/providers/screen_size_provider.dart';
-
 import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,6 +40,13 @@ void main() async {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
+  
+  // Disable OS device notifications when app is in foreground
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: false,
+    badge: false,
+    sound: false,
+  );
   
   await AwesomeNotifications().initialize(
     null, 

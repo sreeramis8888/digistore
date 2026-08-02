@@ -8,6 +8,7 @@ import '../../components/advanced_network_image.dart';
 import '../../components/primary_button.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/date_formatter.dart';
+import '../../../data/models/offer_model.dart';
 
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
@@ -93,24 +94,51 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
 
     final offersState = ref.watch(offersProvider);
     final currentOfferId = widget.args['_id'] ?? widget.args['id'];
-    final cachedOffer = offersState.offers
-            .where((o) => o.id == currentOfferId)
-            .firstOrNull ??
+    final cachedOffer =
+        offersState.offers.where((o) => o.id == currentOfferId).firstOrNull ??
         offersState.exploreOffers
             .where((o) => o.id == currentOfferId)
             .firstOrNull;
 
-    final bool isScratchCard = cachedOffer?.isScratchCard ??
+    final bool isScratchCard =
+        cachedOffer?.isScratchCard ??
         (widget.args['isScratchCard'] == true ||
             widget.args['isScratchCard'] == 'true' ||
             widget.args['offerTypeCode'] == 'SC');
 
-    final bool isScratched = cachedOffer?.isScratched ??
+    final bool isScratched =
+        cachedOffer?.isScratched ??
         (widget.args['isScratched'] == true ||
             widget.args['isScratched'] == 'true');
 
     final num? awardedDiscount =
-        cachedOffer?.awardedDiscount ?? (widget.args['awardedDiscount'] as num?);
+        cachedOffer?.awardedDiscount ??
+        (widget.args['awardedDiscount'] as num?);
+
+    final dealsJson = widget.args['deals'];
+    DealsModel? deals;
+    if (cachedOffer?.deals != null) {
+      deals = cachedOffer!.deals;
+    } else if (dealsJson != null) {
+      if (dealsJson is Map<String, dynamic>) {
+        deals = DealsModel.fromJson(dealsJson);
+      } else if (dealsJson is Map) {
+        deals = DealsModel.fromJson(Map<String, dynamic>.from(dealsJson));
+      }
+    }
+
+    String? activeDealText;
+    if (deals != null) {
+      if (deals.dealOfMonth?.isActive == true) {
+        activeDealText = 'Deal of the Month';
+      } else if (deals.dealOfWeek?.isActive == true) {
+        activeDealText = 'Deal of the Week';
+      } else if (deals.dealOfDay?.isActive == true) {
+        activeDealText = 'Deal of the Day';
+      } else if (deals.dealOfHour?.isActive == true) {
+        activeDealText = 'Deal of the Hour';
+      }
+    }
 
     List<String> images = [];
     if (widget.args['images'] is List &&
@@ -132,6 +160,59 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final IconData? icon = widget.args['icon'];
     final String? logoText = widget.args['logoText'];
     final Color? logoColor = widget.args['logoColor'];
+
+    final priceRange = widget.args['priceRange'];
+    final requiredTier = widget.args['requiredTier'];
+    final discountRange = widget.args['discountRange'];
+
+    final branchApplicability = widget.args['branchApplicability'];
+    final branchLocationsObj = widget.args['branchLocations'];
+    final List branchLocations = branchLocationsObj is List ? branchLocationsObj : [];
+    
+    bool isAllBranches = false;
+    List specificBranches = [];
+    
+    if (branchApplicability != null && branchApplicability is Map) {
+      if (branchApplicability['type'] == 'all') {
+        isAllBranches = true;
+      } else if (branchApplicability['type'] == 'specific') {
+        final branchIdsObj = branchApplicability['branchIds'];
+        final List branchIds = branchIdsObj is List ? branchIdsObj : [];
+        final List<String> stringBranchIds = branchIds.map((e) => e.toString()).toList();
+        
+        specificBranches = branchLocations.where((branch) {
+          if (branch is! Map) return false;
+          final String bId = branch['branchId']?.toString() ?? '';
+          return stringBranchIds.contains(bId);
+        }).toList();
+      }
+    }
+
+    bool hasPriceRange = priceRange != null && priceRange.toString() != 'null' && (priceRange is Map ? priceRange.isNotEmpty : priceRange.toString().isNotEmpty);
+
+    bool hasRequiredTier = requiredTier != null && requiredTier.toString() != 'null' && requiredTier.toString().isNotEmpty;
+    bool hasDiscountRange = discountRange != null && discountRange.toString() != 'null' && (discountRange is Map ? discountRange.isNotEmpty : discountRange.toString().isNotEmpty);
+
+    String getPriceRangeText() {
+      if (priceRange is Map) {
+        final min = priceRange['min'] ?? 0;
+        final max = priceRange['max'] ?? 0;
+        final minStr = (min is num) ? min.toStringAsFixed(2) : min.toString();
+        final maxStr = (max is num) ? max.toStringAsFixed(2) : max.toString();
+        return '₹$minStr - ₹$maxStr';
+      }
+      if (priceRange is num) {
+        return priceRange.toStringAsFixed(2);
+      }
+      return priceRange.toString();
+    }
+
+    String getDiscountRangeText() {
+      if (discountRange is Map) {
+        return '${discountRange['min'] ?? 0}% - ${discountRange['max'] ?? 0}% OFF';
+      }
+      return discountRange.toString();
+    }
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -204,25 +285,25 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         message: 'Are you sure you want to delete this offer?',
                         confirmText: 'Delete',
                         isDestructive: true,
+                        onConfirm: () async {
+                          try {
+                            await ref
+                                .read(offersProvider.notifier)
+                                .deleteOffer(
+                                  widget.args['_id'] ?? widget.args['id'] ?? '',
+                                );
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Something went wrong')),
+                              );
+                            }
+                          }
+                        },
                       );
 
                       if (confirm == true && context.mounted) {
-                        try {
-                          await ref
-                              .read(offersProvider.notifier)
-                              .deleteOffer(
-                                widget.args['_id'] ?? widget.args['id'] ?? '',
-                              );
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Something went wrong')),
-                            );
-                          }
-                        }
+                        Navigator.pop(context);
                       }
                     },
                   ),
@@ -323,7 +404,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!(widget.args['hideShopInfo'] ?? false) && !isPartner) ...[
+                  if (activeDealText != null) _buildDealBadge(activeDealText!),
+                  if (!(widget.args['hideShopInfo'] ?? false) &&
+                      !isPartner) ...[
                     InkWell(
                       onTap: partnerId.isNotEmpty
                           ? () => _navigateToShop(context, partnerId)
@@ -406,15 +489,23 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
 
                   Text(title, style: kSubHeadingL.copyWith(fontSize: 24)),
                   const SizedBox(height: 8),
-                  Text(
-                    subtitle,
-                    style: kBodyTitleSB.copyWith(
-                      color: kSecondaryTextColor,
-                      fontSize: 16,
+                  if (subtitle.isNotEmpty &&
+                      subtitle != 'null' &&
+                      subtitle != 'nil')
+                    Text(
+                      subtitle,
+                      style: kBodyTitleSB.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (isScratchCard && isScratched && awardedDiscount != null) ...[
+                  if (subtitle.isNotEmpty &&
+                      subtitle != 'null' &&
+                      subtitle != 'nil')
+                    const SizedBox(height: 16),
+                  if (isScratchCard &&
+                      isScratched &&
+                      awardedDiscount != null) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -446,6 +537,164 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     const SizedBox(height: 16),
                   ],
                   const SizedBox(height: 16),
+
+                  if (isAllBranches || specificBranches.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: kWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                            spreadRadius: 0,
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: kPrimaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.storefront_rounded, color: kPrimaryColor, size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Available At',
+                                style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          if (isAllBranches)
+                            Row(
+                              children: [
+                                const Icon(Icons.check_circle_outline, size: 18, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Available on all branches',
+                                  style: kSmallerTitleL.copyWith(color: kTextColor),
+                                ),
+                              ],
+                            )
+                          else
+                            ...specificBranches.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final branch = entry.value;
+                              final isLast = index == specificBranches.length - 1;
+                              final branchName = branch['branchName']?.toString() ?? 'Branch';
+                              final address = branch['address']?.toString() ?? '';
+                              final city = branch['city']?.toString() ?? '';
+                              final locationDetails = [address, city].where((e) => e.trim().isNotEmpty).join(', ');
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: isLast ? 0 : 12.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 2.0),
+                                      child: Icon(Icons.location_on_outlined, size: 18, color: kPrimaryColor),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            branchName,
+                                            style: kSmallerTitleL.copyWith(color: kTextColor, fontWeight: FontWeight.w600),
+                                          ),
+                                          if (locationDetails.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              locationDetails,
+                                              style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  if (hasPriceRange || hasDiscountRange) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: kWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                            spreadRadius: 0,
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: kPrimaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.star_rounded, color: kPrimaryColor, size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Offer Highlights',
+                                style: kSmallTitleSB.copyWith(color: kPrimaryColor),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          if (hasPriceRange)
+                            _buildHighlightRow(
+                              Icons.account_balance_wallet_rounded,
+                              'Price Range',
+                              getPriceRangeText(),
+                              Colors.blue.shade600,
+                            ),
+                          if (hasPriceRange && hasDiscountRange)
+                            const SizedBox(height: 12),
+                          if (hasDiscountRange)
+                            _buildHighlightRow(
+                              Icons.local_offer_rounded,
+                              'Discount',
+                              getDiscountRangeText(),
+                              Colors.green.shade600,
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
                   Text('Details', style: kSmallTitleSB),
                   const SizedBox(height: 12),
@@ -503,8 +752,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           Navigator.of(context)
                               .pushNamed('scratchCard', arguments: offerDetails)
                               .then((_) {
-                            if (mounted) setState(() {});
-                          });
+                                if (mounted) setState(() {});
+                              });
                         } else {
                           Navigator.of(context).pushNamed(
                             'redemptionInstructions',
@@ -568,6 +817,43 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     );
   }
 
+  Widget _buildDealBadge(String text) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFF3366), Color(0xFFFF9933)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF3366).withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            text.toUpperCase(),
+            style: kSmallTitleB.copyWith(
+              color: Colors.white,
+              fontSize: 12,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatusChip(String status) {
     Color bgColor;
     Color textColor;
@@ -615,6 +901,39 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
           fontSize: 10,
         ),
       ),
+    );
+  }
+
+  Widget _buildHighlightRow(IconData icon, String label, String value, Color color) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 16, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: kSmallTitleSB.copyWith(color: kTextColor),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

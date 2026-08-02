@@ -200,25 +200,6 @@ class LoyaltyRewardCard extends ConsumerWidget {
                             color: const Color(0xFF3B4859),
                           ),
                         ),
-                        SizedBox(height: screenSize.responsivePadding(4)),
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              isSilver
-                                  ? 'assets/svg/silver_coin.svg'
-                                  : 'assets/svg/coin.svg',
-                              height: 24,
-                            ),
-                            SizedBox(width: screenSize.responsivePadding(8)),
-                            Text(
-                              '${loyaltyCard?.pointsBalance ?? 0} points',
-                              style: kHeadTitleB.copyWith(
-                                color: const Color(0xFF3B4859),
-                                fontSize: 22,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                     SizedBox(height: screenSize.responsivePadding(10)),

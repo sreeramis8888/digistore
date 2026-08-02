@@ -11,6 +11,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
 import '../../components/partner/partner_profile_header.dart';
+import '../../components/partner/partner_plan_details_sheet.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../animations/index.dart';
 import '../../../data/utils/notification_permission_helper.dart';
@@ -26,6 +27,7 @@ class PartnerProfilePage extends ConsumerStatefulWidget {
 
 class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
     with WidgetsBindingObserver {
+  bool _wasInBackground = false;
   bool _isNotificationsEnabled = true;
   bool _isTokenRegistered = true;
   bool _isHiding = false;
@@ -46,8 +48,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkNotificationStatus();
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _wasInBackground = true;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_wasInBackground) {
+        _wasInBackground = false;
+        _checkNotificationStatus();
+      }
     }
   }
 
@@ -190,6 +197,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                     iconData: Icons.history_rounded,
                     onTap: () => Navigator.pushNamed(context, 'partnerHistory'),
                   ),
+                  SizedBox(width: screenSize.responsivePadding(12)),
+                  PartnerActionCard(
+                    screenSize: screenSize,
+                    title: 'Reviews',
+                    iconData: Icons.star_outline_rounded,
+                    onTap: () => Navigator.pushNamed(context, 'partnerReviews'),
+                  ),
                 ],
               ),
               SizedBox(height: screenSize.responsivePadding(16)),
@@ -326,6 +340,63 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                       endIndent: 16,
                     ),
                     PartnerMenuItem(
+                      title: 'Plan Details',
+                      icon: const Icon(
+                        Icons.card_membership_outlined,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        PartnerPlanDetailsSheet.show(context);
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
+                      title: 'Shop Reviews',
+                      icon: const Icon(
+                        Icons.star_outline_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'partnerReviews');
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
+                      title: 'Support Ticket',
+                      icon: const Icon(
+                        Icons.support_agent_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
+                      screenSize: screenSize,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'support');
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    PartnerMenuItem(
                       title: 'Help & Support',
                       icon: const Icon(
                         Icons.headphones_outlined,
@@ -435,17 +506,17 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           cancelText: 'Cancel',
                           isDestructive: true,
                           icon: Icons.logout_rounded,
+                          onConfirm: () async {
+                            await ref.read(authProvider.notifier).logout();
+                          },
                         );
 
-                        if (confirmed == true) {
-                          await ref.read(authProvider.notifier).logout();
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              'login',
-                              (route) => false,
-                            );
-                          }
+                        if (confirmed == true && context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
                         }
                       },
                     ),
@@ -469,17 +540,17 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           cancelText: 'Cancel',
                           isDestructive: true,
                           icon: Icons.person_remove_rounded,
+                          onConfirm: () async {
+                            await ref.read(authProvider.notifier).logout();
+                          },
                         );
 
-                        if (confirmed == true) {
-                          await ref.read(authProvider.notifier).logout();
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              'login',
-                              (route) => false,
-                            );
-                          }
+                        if (confirmed == true && context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            'login',
+                            (route) => false,
+                          );
                         }
                       },
                     ),

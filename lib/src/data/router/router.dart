@@ -15,6 +15,8 @@ import '../../interfaces/main_pages/offer_pages/scratch_card_page.dart';
 import '../../interfaces/main_pages/home_pages/my_account_page.dart';
 import '../../interfaces/main_pages/home_pages/claimed_rewards_page.dart';
 import '../../interfaces/main_pages/home_pages/help_support_page.dart';
+import '../../interfaces/main_pages/support_pages/support_tickets_page.dart';
+import '../../interfaces/main_pages/support_pages/support_ticket_detail_page.dart';
 import '../../interfaces/main_pages/home_pages/terms_privacy_page.dart';
 import '../../interfaces/main_pages/home_pages/about_app_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_page.dart';
@@ -26,6 +28,7 @@ import '../../interfaces/main_pages/offers.dart';
 import '../../interfaces/main_pages/products.dart';
 import '../../interfaces/main_pages/partner/partner_history.dart';
 import '../../interfaces/main_pages/partner/sales_calculator_page.dart';
+import '../../interfaces/main_pages/partner/partner_reviews_page.dart';
 import '../../interfaces/components/webview_page.dart';
 import '../models/shop_model.dart';
 
@@ -239,6 +242,23 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       transitionDuration = const Duration(milliseconds: 300);
       break;
 
+    case 'support':
+    case 'supportTickets':
+      page = const SupportTicketsPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'supportTicketDetail':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      page = SupportTicketDetailPage(
+        initialTicket: args['ticket'],
+        ticketId: args['ticketId']?.toString(),
+      );
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
     case 'termsPrivacy':
       page = const TermsPrivacyPage();
       transitionToUse = TransitionType.slideFromRight;
@@ -297,6 +317,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'partnerHistory':
       page = const PartnerHistoryPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'partnerReviews':
+      page = const PartnerReviewsPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

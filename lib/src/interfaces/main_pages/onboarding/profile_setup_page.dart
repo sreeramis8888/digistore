@@ -73,16 +73,19 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: () async {
-                    final confirm = await showConfirmationDialog(
+                    final confirmed = await showConfirmationDialog(
                       context: context,
                       title: 'Logout',
                       message: 'Are you sure you want to log out?',
                       confirmText: 'Logout',
                       isDestructive: true,
                       icon: Icons.logout_rounded,
+                      onConfirm: () async {
+                        await ref.read(authProvider.notifier).logout();
+                      },
                     );
-                    if (confirm == true && context.mounted) {
-                      await ref.read(authProvider.notifier).logout();
+
+                    if (confirmed == true && context.mounted) {
                       Navigator.of(
                         context,
                       ).pushNamedAndRemoveUntil('login', (route) => false);

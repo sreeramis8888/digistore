@@ -12,30 +12,33 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   debugPrint('Handling background message: ${message.messageId}');
 
-  // Show system notification when app is in background
-  if (message.notification != null) {
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: message.hashCode,
-        channelKey: 'channel_setgo',
-        title: message.notification?.title,
-        body: message.notification?.body,
-        bigPicture: message.notification?.android?.imageUrl,
-        largeIcon: message.notification?.android?.imageUrl,
-        notificationLayout: message.notification?.android?.imageUrl != null
-            ? NotificationLayout.BigPicture
-            : NotificationLayout.Default,
-        payload: message.data.isNotEmpty
-            ? message.data.map((key, value) => MapEntry(key, value.toString()))
-            : null,
-        category: NotificationCategory.Message,
-        autoDismissible: true,
-        showWhen: true,
-        criticalAlert: true,
-        wakeUpScreen: true,
-        fullScreenIntent: true,
-      ),
-    );
+  // FCM automatically presents system notifications for message.notification != null.
+  // Only create a local notification for data-only push messages to avoid duplicate notifications.
+  if (message.notification == null && message.data.isNotEmpty) {
+    final title = message.data['title'] ?? message.data['heading'];
+    final body = message.data['body'] ?? message.data['message'];
+    if (title != null || body != null) {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: message.hashCode,
+          channelKey: 'channel_setgo',
+          title: title.toString(),
+          body: body.toString(),
+          bigPicture: message.data['imageUrl']?.toString(),
+          largeIcon: message.data['imageUrl']?.toString(),
+          notificationLayout: message.data['imageUrl'] != null
+              ? NotificationLayout.BigPicture
+              : NotificationLayout.Default,
+          payload: message.data.map((key, value) => MapEntry(key, value.toString())),
+          category: NotificationCategory.Message,
+          autoDismissible: true,
+          showWhen: true,
+          criticalAlert: true,
+          wakeUpScreen: true,
+          fullScreenIntent: true,
+        ),
+      );
+    }
   }
 }
 

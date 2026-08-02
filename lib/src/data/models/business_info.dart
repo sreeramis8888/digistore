@@ -224,6 +224,9 @@ class BusinessBranch {
   final String? name;
   final String? address;
   final String? phone;
+  final String? email;
+  final String? contactPersonName;
+  final String? contactPersonDesignation;
   final LocationPoint? location;
   final OperatingHours? operatingHours;
   final bool? isActive;
@@ -235,6 +238,9 @@ class BusinessBranch {
     this.name,
     this.address,
     this.phone,
+    this.email,
+    this.contactPersonName,
+    this.contactPersonDesignation,
     this.location,
     this.operatingHours,
     this.isActive,
@@ -247,6 +253,9 @@ class BusinessBranch {
     String? name,
     String? address,
     String? phone,
+    String? email,
+    String? contactPersonName,
+    String? contactPersonDesignation,
     LocationPoint? location,
     OperatingHours? operatingHours,
     bool? isActive,
@@ -258,6 +267,9 @@ class BusinessBranch {
       name: name ?? this.name,
       address: address ?? this.address,
       phone: phone ?? this.phone,
+      email: email ?? this.email,
+      contactPersonName: contactPersonName ?? this.contactPersonName,
+      contactPersonDesignation: contactPersonDesignation ?? this.contactPersonDesignation,
       location: location ?? this.location,
       operatingHours: operatingHours ?? this.operatingHours,
       isActive: isActive ?? this.isActive,
@@ -270,6 +282,20 @@ class BusinessBranch {
     String? phoneVal = json['phone'] as String?;
     if (phoneVal == null && json['phoneNumbers'] is List && (json['phoneNumbers'] as List).isNotEmpty) {
       phoneVal = (json['phoneNumbers'] as List).first as String?;
+    }
+
+    String? emailVal = json['email'] as String?;
+    if (emailVal == null && json['emailAddresses'] is List && (json['emailAddresses'] as List).isNotEmpty) {
+      emailVal = (json['emailAddresses'] as List).first as String?;
+    }
+
+    String? cName;
+    String? cDesig;
+    if (json['contactPerson'] is Map) {
+      cName = json['contactPerson']['name'] as String?;
+      cDesig = json['contactPerson']['designation'] as String?;
+    } else if (json['contactPerson'] is String) {
+      cName = json['contactPerson'] as String?;
     }
 
     OperatingHours? opHours;
@@ -294,6 +320,9 @@ class BusinessBranch {
       name: (json['name'] ?? json['branchName']) as String?,
       address: (json['address'] ?? (json['location'] is Map ? json['location']['address'] : null)) as String?,
       phone: phoneVal,
+      email: emailVal,
+      contactPersonName: cName,
+      contactPersonDesignation: cDesig,
       location: SafeParser.parseObject(
         json['location'],
         LocationPoint.fromJson,
@@ -311,6 +340,9 @@ class BusinessBranch {
       'name': name,
       'address': address,
       'phone': phone,
+      'email': email,
+      'contactPersonName': contactPersonName,
+      'contactPersonDesignation': contactPersonDesignation,
       'location': location?.toJson(),
       'operatingHours': operatingHours?.toJson(),
       'isActive': isActive,

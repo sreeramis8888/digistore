@@ -60,12 +60,28 @@ class ShopModel {
   }
 
   factory ShopModel.fromJson(Map<String, dynamic> json) {
+    var bDetails = SafeParser.parseObject(
+      json['businessDetails'],
+      BusinessDetails.fromJson,
+    );
+    if (bDetails == null && json['name'] != null) {
+      bDetails = BusinessDetails(businessName: json['name'] as String?);
+    }
+
+    var bInfo = SafeParser.parseObject(
+      json['businessInfo'],
+      BusinessInfo.fromJson,
+    );
+    if (bInfo == null && (json['logo'] != null || json['cover'] != null)) {
+      bInfo = BusinessInfo(
+        businessLogo: json['logo'] as String?,
+        coverImage: json['cover'] as String?,
+      );
+    }
+
     return ShopModel(
       id: json['_id'] as String?,
-      businessDetails: SafeParser.parseObject(
-        json['businessDetails'],
-        BusinessDetails.fromJson,
-      ),
+      businessDetails: bDetails,
       serviceCategories: json['serviceCategories'] != null
           ? List<String>.from(json['serviceCategories'])
           : null,
@@ -73,10 +89,7 @@ class ShopModel {
         json['coverageAreas'],
         CoverageAreas.fromJson,
       ),
-      businessInfo: SafeParser.parseObject(
-        json['businessInfo'],
-        BusinessInfo.fromJson,
-      ),
+      businessInfo: bInfo,
       isFeatured: json['isFeatured'] as bool?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isOpenNow: json['isOpenNow'] as bool?,

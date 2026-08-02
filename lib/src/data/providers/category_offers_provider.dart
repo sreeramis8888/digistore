@@ -12,6 +12,13 @@ class CategoryOffersState {
   final int page;
   final String? error;
 
+  // Explore (no-location) section
+  final List<OfferModel> exploreOffers;
+  final bool isExploreLoading;
+  final bool isExploreFetchingMore;
+  final bool exploreHasMore;
+  final int explorePage;
+
   const CategoryOffersState({
     this.offers = const [],
     this.isLoading = true,
@@ -19,6 +26,11 @@ class CategoryOffersState {
     this.hasMore = true,
     this.page = 1,
     this.error,
+    this.exploreOffers = const [],
+    this.isExploreLoading = false,
+    this.isExploreFetchingMore = false,
+    this.exploreHasMore = false,
+    this.explorePage = 1,
   });
 
   CategoryOffersState copyWith({
@@ -28,6 +40,11 @@ class CategoryOffersState {
     bool? hasMore,
     int? page,
     String? Function()? error,
+    List<OfferModel>? exploreOffers,
+    bool? isExploreLoading,
+    bool? isExploreFetchingMore,
+    bool? exploreHasMore,
+    int? explorePage,
   }) {
     return CategoryOffersState(
       offers: offers ?? this.offers,
@@ -36,6 +53,11 @@ class CategoryOffersState {
       hasMore: hasMore ?? this.hasMore,
       page: page ?? this.page,
       error: error != null ? error() : this.error,
+      exploreOffers: exploreOffers ?? this.exploreOffers,
+      isExploreLoading: isExploreLoading ?? this.isExploreLoading,
+      isExploreFetchingMore: isExploreFetchingMore ?? this.isExploreFetchingMore,
+      exploreHasMore: exploreHasMore ?? this.exploreHasMore,
+      explorePage: explorePage ?? this.explorePage,
     );
   }
 }
@@ -55,6 +77,7 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
         isLoading: true,
         error: () => null,
         offers: [],
+        exploreOffers: [],
       );
     } else {
       if (state.isFetchingMore || !state.hasMore) return;
@@ -75,10 +98,25 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
       if (lat != null && lng != null) {
         queryParams['lat'] = lat.toString();
         queryParams['lng'] = lng.toString();
+      } else {
+        state = state.copyWith(
+          offers: [],
+          isLoading: false,
+          isFetchingMore: false,
+          hasMore: false,
+        );
+        if (isRefresh) {
+          fetchExploreOffers(isRefresh: true);
+        }
+        return;
       }
 
       if (categoryId != null && categoryId != 'All' && categoryId!.isNotEmpty) {
         queryParams['category'] = categoryId!;
+      }
+
+      if (user?.currentTier?.name != null) {
+        queryParams['tier'] = user!.currentTier!.name!;
       }
 
       final response = await api.get('/offers', queryParams: queryParams);
@@ -92,8 +130,8 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
             .toList();
 
         final bool isHasMore = pagination != null
-            ? ((pagination['page'] as int? ?? 1) <
-                (pagination['pages'] as int? ?? 1))
+            ? (pagination['hasMore'] as bool? ?? ((pagination['page'] as int? ?? 1) <
+                (pagination['pages'] as int? ?? 1)))
             : (newOffers.length >= 20);
 
         state = state.copyWith(
@@ -115,6 +153,79 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
         isLoading: false,
         isFetchingMore: false,
         error: () => 'Failed to fetch category offers: $e',
+      );
+    }
+
+    if (isRefresh) {
+      fetchExploreOffers(isRefresh: true);
+    }
+  }
+
+  Future<void> fetchExploreOffers({bool isRefresh = true}) async {
+    if (isRefresh) {
+      if (state.isExploreLoading) return;
+      state = state.copyWith(isExploreLoading: true);
+    } else {
+      if (state.isExploreFetchingMore || !state.exploreHasMore) return;
+      state = state.copyWith(isExploreFetchingMore: true);
+    }
+
+    try {
+      final api = ref.read(apiProvider);
+      final user = ref.read(userProvider);
+
+      final queryParams = <String, String>{
+        'page': isRefresh ? '1' : (state.explorePage + 1).toString(),
+        'limit': '20',
+      };
+
+      if (categoryId != null && categoryId != 'All' && categoryId!.isNotEmpty) {
+        queryParams['category'] = categoryId!;
+      }
+
+      if (user?.currentTier?.name != null) {
+        queryParams['tier'] = user!.currentTier!.name!;
+      }
+
+      final response = await api.get('/offers', queryParams: queryParams);
+
+      if (response.success && response.data != null) {
+        final List<dynamic> data = response.data!['data'] as List<dynamic>;
+        final pagination =
+            response.data!['pagination'] as Map<String, dynamic>?;
+        final newOffers = data
+            .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        final nearbyIds = state.offers.map((o) => o.id).toSet();
+        final filteredOffers = newOffers
+            .where((o) => !nearbyIds.contains(o.id))
+            .toList();
+
+        final bool isExploreHasMore = pagination != null
+            ? (pagination['hasMore'] as bool? ?? ((pagination['page'] as int? ?? 1) <
+                (pagination['pages'] as int? ?? 1)))
+            : (newOffers.length >= 20);
+
+        state = state.copyWith(
+          exploreOffers: isRefresh
+              ? filteredOffers
+              : [...state.exploreOffers, ...filteredOffers],
+          isExploreLoading: false,
+          isExploreFetchingMore: false,
+          exploreHasMore: isExploreHasMore,
+          explorePage: isRefresh ? 1 : state.explorePage + 1,
+        );
+      } else {
+        state = state.copyWith(
+          isExploreLoading: false,
+          isExploreFetchingMore: false,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isExploreLoading: false,
+        isExploreFetchingMore: false,
       );
     }
   }
