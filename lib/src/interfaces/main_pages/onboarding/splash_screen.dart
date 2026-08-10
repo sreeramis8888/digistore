@@ -116,10 +116,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _playAnimations() async {
-    final notifService = ref.read(notificationServiceProvider);
-    final token = await notifService.getToken();
-    log('FCM Token: $token');
-    await _entranceController.forward();
+    // Start the animation immediately so the screen doesn't stay blank
+    final animationFuture = _entranceController.forward();
+    
+    // Fetch the FCM token in the background without blocking the UI
+    ref.read(notificationServiceProvider).getToken().then((token) {
+      log('FCM Token: $token');
+    }).catchError((error) {
+      log('FCM Token error: $error');
+    });
+
+    await animationFuture;
     await Future.delayed(const Duration(milliseconds: 100));
     await _sloganController.forward();
     

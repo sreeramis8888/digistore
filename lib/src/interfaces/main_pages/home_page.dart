@@ -129,18 +129,41 @@ class _HomePageState extends ConsumerState<HomePage> {
               homeDataAsync.when(
                 data: (state) {
                   if (state == null) {
-                    return const Center(child: Text('No data available'));
+                    return _buildEmptyState(context, 'No data available');
                   }
                   if (state is CustomerHomeState) {
                     return _buildContent(context, ref, state.data, screenSize);
                   }
-                  return const Center(child: Text('Invalid state'));
+                  return _buildEmptyState(context, 'Invalid state');
                 },
                 loading: () => const HomeShimmer(),
-                error: (err, stack) => Center(child: Text('No Data Available')),
+                error: (err, stack) => _buildEmptyState(context, 'No Data Available'),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, String message) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.5,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -153,7 +176,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     ScreenSizeData screenSize,
   ) {
     if (data == null) {
-      return const Center(child: Text('No data available'));
+      return _buildEmptyState(context, 'No data available');
     }
 
     final homeBannersAsync = ref.watch(bannersProvider(const BannerFilter(page: 'home')));
