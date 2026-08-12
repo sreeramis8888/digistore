@@ -5,6 +5,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../offers/deal_card.dart';
+import 'section_title.dart';
 
 class DealsCarousel extends ConsumerWidget {
   final String title;
@@ -28,34 +29,9 @@ class DealsCarousel extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: padding),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: kBodyTitleM.copyWith(
-                  color: kTextColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (onViewAllTap != null)
-                GestureDetector(
-                  onTap: onViewAllTap,
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Text(
-                      'View all',
-                      style: kSmallTitleSB.copyWith(
-                        color: kPrimaryColor,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+        SectionTitle(
+          title: title,
+          onViewAll: onViewAllTap,
         ),
         SizedBox(height: screenSize.responsivePadding(12)),
         CarouselSlider.builder(

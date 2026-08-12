@@ -92,8 +92,7 @@ class HomeAppBar extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: kSubHeadingM),
-                        SizedBox(height: screenSize.responsivePadding(4)),
+                        Text(name, style: kSubHeadingM.copyWith(height: 1.1)),
                         Row(
                           children: [
                             const Icon(
@@ -105,7 +104,7 @@ class HomeAppBar extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 locationName,
-                                style: kBodyTitleL.copyWith(
+                                style: kSmallTitleR.copyWith(
                                   color: kSecondaryTextColor,
                                 ),
                                 maxLines: 1,
@@ -143,15 +142,14 @@ class HomeAppBar extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SvgPicture.asset(
-                      isSilver
-                          ? 'assets/svg/silver_coin.svg'
-                          : 'assets/svg/coin.svg',
-                      height: 20,
+                      'assets/svg/coin.svg',
+                      height: 16,
                     ),
                     SizedBox(width: screenSize.responsivePadding(6)),
                     Text(
                       '$points',
-                      style: kSmallTitleSB.copyWith(
+                      style: kSmallerTitleSB.copyWith(
+                        fontSize: 10,
                         color: const Color(0xFF3B4859),
                       ),
                     ),

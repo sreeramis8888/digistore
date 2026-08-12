@@ -19,21 +19,16 @@ class FeaturedShopsList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenSize.responsivePadding(8),
-          ),
-          child: SectionTitle(
-            title: 'Featured Shops',
-            onViewAll: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const FeaturedShopsPage(),
-                ),
-              );
-            },
-          ),
+        SectionTitle(
+          title: 'Featured Shops',
+          onViewAll: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FeaturedShopsPage(),
+              ),
+            );
+          },
         ),
         SizedBox(height: screenSize.responsivePadding(10)),
         Padding(
