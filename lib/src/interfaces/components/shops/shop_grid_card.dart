@@ -180,6 +180,7 @@ class ShopGridCard extends ConsumerWidget {
                             address,
                             style: kSmallerTitleL.copyWith(
                               color: kSecondaryTextColor,
+                              fontSize: 10,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -105,19 +106,19 @@ class PartnerHomeHeader extends ConsumerWidget {
           child: Stack(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(screenSize.responsivePadding(10)),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                  border: Border.all(color: kBorder),
                 ),
-                child: const Icon(Icons.notifications_none, size: 24, color: kBlack),
+                child: SvgPicture.asset('assets/svg/bell.svg'),
               ),
               if (ref.watch(notificationsProvider).unreadCount > 0)
                 Positioned(
                   right: 0,
                   top: 0,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(5),
                     decoration: const BoxDecoration(
                       color: kRed,
                       shape: BoxShape.circle,
