@@ -61,14 +61,6 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
 
       if (response.success && response.data?['success'] == true) {
         state = const AsyncData(null);
-        if (response.data != null && response.data!['_devOtp'] != null) {
-          final devOtp = response.data!['_devOtp'].toString();
-          log('DEV OTP: $devOtp', name: 'OTP');
-          final storage = ref.read(secureStorageServiceProvider);
-          final regData = await storage.getRegistrationData() ?? {};
-          regData['devOtp'] = devOtp;
-          await storage.saveRegistrationData(regData);
-        }
         return true;
       } else {
         throw Exception(response.message ?? 'Failed to send OTP');
@@ -79,13 +71,14 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
     }
   }
 
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
+  Future<Map<String, dynamic>> verifyOtp(String phone, String otp, bool termsAccepted) async {
     state = const AsyncLoading();
     try {
       final api = ref.read(apiProvider);
       final response = await api.post('/auth/verify-otp', {
         'phone': phone,
         'otp': otp,
+        'termsAccepted': termsAccepted,
       });
 
       if (response.success && response.data?['success'] == true) {

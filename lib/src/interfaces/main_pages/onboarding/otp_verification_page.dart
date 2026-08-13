@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -25,6 +26,7 @@ class OtpVerificationPage extends ConsumerStatefulWidget {
 class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
   final PinInputController _otpController = PinInputController();
   String otp = '';
+  bool _termsAccepted = false;
   late Future<Map<String, dynamic>?> _registrationDataFuture;
   int _resendTimerSeconds = 90;
   Timer? _resendTimer;
@@ -150,7 +152,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                                     vertical: screenSize.responsivePadding(2),
                                   ),
                                   decoration: BoxDecoration(
-                                    color: kPrimaryColor.withOpacity(0.1),
+                                    color: kPrimaryColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(100),
                                   ),
                                   child: Text(
@@ -202,19 +204,82 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
               ),
 
               SizedBox(height: screenSize.responsivePadding(24)),
-              PrimaryButton(
-                text: 'Verify',
-                isLoading: ref.watch(authProvider).isLoading,
-                onPressed: () async {
-                  if (otp.length == 6) {
-                    final storage = ref.read(secureStorageServiceProvider);
-                    final data = await storage.getRegistrationData();
-                    final phone = data?['phone'] ?? '';
-
-                    if (phone.isNotEmpty) {
-                      final result = await ref
-                          .read(authProvider.notifier)
-                          .verifyOtp(phone, otp);
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: Checkbox(
+                      value: _termsAccepted,
+                      activeColor: kPrimaryColor.withValues(alpha: 0.8),
+                      side: const BorderSide(color: Color(0xFFC4C4C4), width: 1.5),
+                      onChanged: (value) {
+                        setState(() {
+                          _termsAccepted = value ?? false;
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(width: screenSize.responsivePadding(12)),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: kSmallTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                          height: 1.5,
+                          fontSize: 11,
+                        ),
+                        children: [
+                          const TextSpan(text: 'I agree to the '),
+                          TextSpan(
+                            text: 'Terms & Conditions',
+                            style: kSmallTitleSB.copyWith(
+                              color: kPrimaryColor,
+                              height: 1.5,
+                              fontSize: 11,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushNamed(context, 'termsConditions');
+                              },
+                          ),
+                          const TextSpan(text: ' and '),
+                          TextSpan(
+                            text: 'Privacy Policy',
+                            style: kSmallTitleSB.copyWith(
+                              color: kPrimaryColor,
+                              height: 1.5,
+                              fontSize: 11,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushNamed(context, 'privacyPolicy');
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: screenSize.responsivePadding(24)),
+              Opacity(
+                opacity: (otp.length == 6 && _termsAccepted) ? 1.0 : 0.5,
+                child: PrimaryButton(
+                  text: 'Verify',
+                  isEnabled: otp.length == 6 && _termsAccepted,
+                  isLoading: ref.watch(authProvider).isLoading,
+                  onPressed: () async {
+                    if (otp.length == 6 && _termsAccepted) {
+                      final storage = ref.read(secureStorageServiceProvider);
+                      final data = await storage.getRegistrationData();
+                      final phone = data?['phone'] ?? '';
+  
+                      if (phone.isNotEmpty) {
+                        final result = await ref
+                            .read(authProvider.notifier)
+                            .verifyOtp(phone, otp, _termsAccepted);
                       if (result['success'] == true && context.mounted) {
                         final userType = ref.read(userTypeProvider);
 
@@ -229,9 +294,11 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
 
                         if (result['onboardingComplete'] == false &&
                             userType == UserType.customer) {
+                          if (!context.mounted) return;
                           Navigator.of(context).pushNamed('profileSetup');
                         } else {
                           await storage.clearRegistrationData();
+                          if (!context.mounted) return;
                           // For partners or completed customers, go to navbar
                           Navigator.of(
                             context,
@@ -249,12 +316,19 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                         );
                       }
                     } else {
+                      if (!context.mounted) return;
                       ToastService().showToast(
                         context,
                         'Phone number not found. Please login again.',
                         type: ToastType.error,
                       );
                     }
+                  } else if (!_termsAccepted) {
+                    ToastService().showToast(
+                      context,
+                      'Please accept the Terms & Conditions and Privacy Policy',
+                      type: ToastType.warning,
+                    );
                   } else {
                     ToastService().showToast(
                       context,
@@ -264,6 +338,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                   }
                 },
               ),
+            ),
               SizedBox(height: screenSize.responsivePadding(24)),
               _resendTimerSeconds > 0
                   ? Row(

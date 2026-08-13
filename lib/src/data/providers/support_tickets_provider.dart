@@ -171,7 +171,7 @@ class SupportTickets extends _$SupportTickets {
       if (!forceRefresh) {
         return existing;
       }
-    } catch (_) {}
+    } catch (e) { log('Error: $e'); }
 
     return await _fetchSingleTicket(ticketId);
   }
