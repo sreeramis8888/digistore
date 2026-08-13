@@ -61,7 +61,7 @@ class CategoryCard extends ConsumerWidget {
               style: kSmallTitleL.copyWith(fontSize: 11, height: 1.2),
               textAlign: TextAlign.center,
               maxLines: 2,
-              overflow: TextOverflow.visible,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
