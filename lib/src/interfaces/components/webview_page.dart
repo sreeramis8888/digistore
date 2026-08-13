@@ -47,6 +47,7 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
         child: Stack(
           children: [
             InAppWebView(
+              initialSettings: InAppWebViewSettings(transparentBackground: true),
               initialUrlRequest: URLRequest(
                 url: WebUri(widget.url),
               ),

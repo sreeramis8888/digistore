@@ -79,13 +79,14 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
     }
   }
 
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
+  Future<Map<String, dynamic>> verifyOtp(String phone, String otp, bool termsAccepted) async {
     state = const AsyncLoading();
     try {
       final api = ref.read(apiProvider);
       final response = await api.post('/auth/verify-otp', {
         'phone': phone,
         'otp': otp,
+        'termsAccepted': termsAccepted,
       });
 
       if (response.success && response.data?['success'] == true) {
