@@ -276,7 +276,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         maxTotalRedemptions = (rules as dynamic).maxTotalRedemptions?.toString() ?? '';
         maxPerUser = (rules as dynamic).maxPerUser?.toString() ?? '';
         minPurchaseAmount = (rules as dynamic).minPurchaseAmount?.toString() ?? '';
-      } catch (_) {}
+      } catch (e) { print('Offer Error: $e'); }
     }
 
     _maxTotalRedemptionsController = TextEditingController(text: maxTotalRedemptions);

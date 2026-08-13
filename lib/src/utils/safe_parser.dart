@@ -25,7 +25,7 @@ class SafeParser {
         if (item is Map<String, dynamic>) {
           try {
             result.add(fromJson(item));
-          } catch (e) {}
+          } catch (e) { print('Parse Error: $e'); }
         }
       }
       return result;

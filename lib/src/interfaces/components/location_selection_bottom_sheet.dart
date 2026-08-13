@@ -96,7 +96,7 @@ class _LocationSelectionBottomSheetState
               place.subAdministrativeArea ?? place.administrativeArea ?? '';
           _localBodyController.text = place.locality ?? place.subLocality ?? '';
         }
-      } catch (_) {}
+      } catch (e) { print('Location Error: $e'); }
 
       setState(() {
         _lat = position.latitude;
