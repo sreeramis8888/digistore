@@ -334,8 +334,8 @@ class LoyaltyRewardCard extends ConsumerWidget {
                   ),
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(12),
-                      vertical: screenSize.responsivePadding(6),
+                      horizontal: screenSize.responsivePadding(10),
+                      vertical: screenSize.responsivePadding(4),
                     ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -367,12 +367,12 @@ class LoyaltyRewardCard extends ConsumerWidget {
                           isSilver
                               ? 'assets/svg/silver_coin.svg'
                               : 'assets/svg/gold_icon.svg',
-                          height: 25,
+                          height: 18,
                         ),
                         SizedBox(width: screenSize.responsivePadding(4)),
                         Text(
                           (loyaltyCard?.tier ?? 'BRONZE').toUpperCase(),
-                          style: kBodyTitleSB.copyWith(
+                          style: kSmallTitleSB.copyWith(
                             color: isSilver
                                 ? const Color(0xFF757575)
                                 : const Color(0xFFE67E22),

@@ -53,10 +53,10 @@ class FeaturedShopCard extends ConsumerWidget {
             SizedBox(height: screenSize.responsivePadding(8)),
             Text(
               shop.businessDetails?.businessName ?? '',
-              style: kSmallTitleL,
+              style: kSmallTitleL.copyWith(fontSize: 11, height: 1.2),
               textAlign: TextAlign.center,
               maxLines: 2,
-              overflow: TextOverflow.visible,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
