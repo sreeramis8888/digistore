@@ -5,8 +5,45 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:flutter/foundation.dart';
 import '../services/secure_storage_service.dart';
 import 'user_type_provider.dart';
+
+void _safeLog(String name, dynamic message) {
+  if (kDebugMode) {
+    String safeMessage = message.toString();
+    try {
+      if (safeMessage.startsWith('{') || safeMessage.startsWith('[')) {
+        final dynamic decoded = json.decode(safeMessage);
+        if (decoded is Map) {
+          final sanitized = Map.from(decoded);
+          final sensitiveKeys = ['otp', 'token', 'password', 'fcmToken', '_devOtp'];
+          for (var key in sensitiveKeys) {
+            if (sanitized.containsKey(key)) {
+              sanitized[key] = '***REDACTED***';
+            }
+          }
+          if (sanitized.containsKey('data') && sanitized['data'] is Map) {
+            final dataMap = Map.from(sanitized['data']);
+            for (var key in sensitiveKeys) {
+              if (dataMap.containsKey(key)) {
+                dataMap[key] = '***REDACTED***';
+              }
+            }
+            sanitized['data'] = dataMap;
+          }
+          safeMessage = json.encode(sanitized);
+        }
+      }
+    } catch (_) {}
+    
+    safeMessage = safeMessage.replaceAll(RegExp(r'"token"\s*:\s*"[^"]+"'), '"token":"***REDACTED***"');
+    safeMessage = safeMessage.replaceAll(RegExp(r'"otp"\s*:\s*"[^"]+"'), '"otp":"***REDACTED***"');
+
+    log(name: name, safeMessage);
+  }
+}
+
 
 class ApiResponse<T> {
   final bool success;
@@ -37,13 +74,11 @@ class ApiResponse<T> {
 
 class ApiProvider {
   final String baseUrl;
-  final String apiKey;
   final SecureStorageService secureStorage;
   final http.Client _client;
 
   ApiProvider({
     required this.baseUrl,
-    required this.apiKey,
     required this.secureStorage,
     http.Client? client,
   }) : _client = client ?? http.Client();
@@ -52,7 +87,6 @@ class ApiProvider {
     final headers = {
       'Content-Type': 'application/json',
       'accept': '*/*',
-      'x-api-key': apiKey,
     };
 
     if (requireAuth) {
@@ -79,10 +113,10 @@ class ApiProvider {
 
       final response = await _client.get(uriWithParams, headers: headers);
 
-      log(name: 'API GET', '$baseUrl$endpoint');
+      _safeLog('API GET', '$baseUrl$endpoint');
       final decoded = json.decode(response.body);
-      log(name: 'DATA', response.body);
-      log(name: 'QUERY PARAMS', queryParams.toString());
+      _safeLog('DATA', response.body);
+      _safeLog('QUERY PARAMS', queryParams.toString());
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
       } else {
@@ -109,23 +143,23 @@ class ApiProvider {
         headers: headers,
         body: json.encode(data),
       );
-      log(name: 'API POST', '$baseUrl$endpoint');
-      log(name: 'API POST body', json.encode(data));
+      _safeLog('API POST', '$baseUrl$endpoint');
+      _safeLog('API POST body', json.encode(data));
       final decoded = json.decode(response.body);
-      log(name: 'API POST data ', '${decoded['data']}');
-      log(name: 'API POST message', '${decoded['message']}');
+      _safeLog('API POST data ', '${decoded['data']}');
+      _safeLog('API POST message', '${decoded['message']}');
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
       } else {
         final message = decoded['message'] ?? 'Failed to post data';
-        log(name: 'API POST ERROR', '$message');
+        _safeLog('API POST ERROR', '$message');
         return ApiResponse.error(message, response.statusCode, decoded);
       }
     } catch (e, stackTrace) {
       // await CrashlyticsService.logError(e, stackTrace);
       // await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
       // await CrashlyticsService.setCustomKey('api_method', 'POST');
-      log(name: 'API POST EXCEPTION', '$e');
+      _safeLog('API POST EXCEPTION', '$e');
       return ApiResponse.error('Failed to connect to the server: $e');
     }
   }
@@ -137,7 +171,7 @@ class ApiProvider {
   }) async {
     try {
       final headers = await _buildHeaders(requireAuth: requireAuth);
-      log(name: 'API PATCH', '$baseUrl$endpoint');
+      _safeLog('API PATCH', '$baseUrl$endpoint');
       final response = await _client.patch(
         Uri.parse('$baseUrl$endpoint'),
         headers: headers,
@@ -145,8 +179,8 @@ class ApiProvider {
       );
 
       final decoded = json.decode(response.body);
-      log(name: 'API PATCH data ', '${decoded['data']}');
-      log(name: 'API PATCH message', '${decoded['message']}');
+      _safeLog('API PATCH data ', '${decoded['data']}');
+      _safeLog('API PATCH message', '${decoded['message']}');
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
       } else {
@@ -173,13 +207,13 @@ class ApiProvider {
         headers: headers,
         body: json.encode(data),
       );
-      log(name: 'API PUT', '$baseUrl$endpoint');
-      log(name: 'API PUT payload', json.encode(data));
+      _safeLog('API PUT', '$baseUrl$endpoint');
+      _safeLog('API PUT payload', json.encode(data));
       final decoded = json.decode(response.body);
 
-      log(name: 'API PUT', '$baseUrl$endpoint');
-      log(name: 'API PUT data', '${decoded['data']}');
-      log(name: 'API PUT message', '${decoded['message']}');
+      _safeLog('API PUT', '$baseUrl$endpoint');
+      _safeLog('API PUT data', '${decoded['data']}');
+      _safeLog('API PUT message', '${decoded['message']}');
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
       } else {
@@ -215,14 +249,14 @@ class ApiProvider {
         request.files.addAll(files);
       }
 
-      log(name: 'API PUT MULTIPART', '$baseUrl$endpoint');
+      _safeLog('API PUT MULTIPART', '$baseUrl$endpoint');
 
       final streamedResponse = await request.send();
       final responseBody = await streamedResponse.stream.bytesToString();
       final decoded = json.decode(responseBody);
-      log(name: 'API PUT MULTIPART data ', '$decoded');
-      log(name: 'API PUT MULTIPART message', '${decoded['message']}');
-      log(name: 'API PUT MULTIPART body', '${decoded['body']}');
+      _safeLog('API PUT MULTIPART data ', '$decoded');
+      _safeLog('API PUT MULTIPART message', '${decoded['message']}');
+      _safeLog('API PUT MULTIPART body', '${decoded['body']}');
       if (streamedResponse.statusCode >= 200 &&
           streamedResponse.statusCode < 300) {
         return ApiResponse.success(decoded, streamedResponse.statusCode);
@@ -231,7 +265,7 @@ class ApiProvider {
         return ApiResponse.error(message, streamedResponse.statusCode);
       }
     } catch (e, stackTrace) {
-      log(name: 'API PUT MULTIPART Error', '$e');
+      _safeLog('API PUT MULTIPART Error', '$e');
       await CrashlyticsService.logError(e, stackTrace);
       return ApiResponse.error('Failed to connect to the server: $e');
     }
@@ -258,14 +292,14 @@ class ApiProvider {
         request.files.addAll(files);
       }
 
-      log(name: 'API POST MULTIPART', '$baseUrl$endpoint');
-      log(name: 'API POST MULTIPART fields', '${request.fields}');
+      _safeLog('API POST MULTIPART', '$baseUrl$endpoint');
+      _safeLog('API POST MULTIPART fields', '${request.fields}');
       final streamedResponse = await request.send();
       final responseBody = await streamedResponse.stream.bytesToString();
       final decoded = json.decode(responseBody);
 
-      log(name: 'API POST MULTIPART data ', '$decoded');
-      log(name: 'API POST MULTIPART message', '${decoded['message']}');
+      _safeLog('API POST MULTIPART data ', '$decoded');
+      _safeLog('API POST MULTIPART message', '${decoded['message']}');
       if (streamedResponse.statusCode >= 200 &&
           streamedResponse.statusCode < 300) {
         return ApiResponse.success(decoded, streamedResponse.statusCode);
@@ -289,7 +323,7 @@ class ApiProvider {
         Uri.parse('$baseUrl$endpoint'),
         headers: headers,
       );
-      log(name: 'API DELETE', '$baseUrl$endpoint');
+      _safeLog('API DELETE', '$baseUrl$endpoint');
       final decoded = json.decode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiResponse.success(decoded, response.statusCode);
@@ -315,7 +349,6 @@ final publicApiProvider = Provider<ApiProvider>((ref) {
   final baseUrl = dotenv.env['BASE_URL'] ?? '';
 
   return ApiProvider(
-    apiKey: dotenv.env['API_KEY'] ?? '',
     baseUrl: baseUrl,
     secureStorage: secureStorage,
   );
@@ -336,7 +369,6 @@ final apiProvider = Provider<ApiProvider>((ref) {
   }
 
   return ApiProvider(
-    apiKey: publicApi.apiKey,
     baseUrl: baseUrl,
     secureStorage: publicApi.secureStorage,
   );

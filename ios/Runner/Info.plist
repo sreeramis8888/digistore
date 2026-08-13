@@ -28,10 +28,6 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Setgo needs camera access to capture images for your business profile and products.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Setgo uses your location to show nearby stores and services.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Setgo uses your location to show nearby stores and services.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Setgo uses your location to show nearby stores and services.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

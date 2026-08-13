@@ -101,9 +101,7 @@ Future<void> _setupFCM(BuildContext context, WidgetRef ref) async {
           retries++;
         }
       }
-      print("APNs Token: $apnsToken");
       if (apnsToken == null) {
-        print("APNs token still null after retries. Skipping FCM token fetch.");
         return;
       }
     }
@@ -112,7 +110,6 @@ Future<void> _setupFCM(BuildContext context, WidgetRef ref) async {
     if (token != null && token.isNotEmpty) {
       final secureStorage = ref.read(secureStorageServiceProvider);
       await secureStorage.saveFcmToken(token);
-      print("FCM Token: $token");
     }
   } catch (e) {
     print('Error setting up FCM: $e');

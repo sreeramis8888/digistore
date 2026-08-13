@@ -129,7 +129,7 @@ class SecureStorageService {
   /// Check if bearer token exists
   Future<bool> hasBearerToken() async {
     final token = await getBearerToken();
-    log('$token', name: 'BEARER');
+    
     return token != null && token.isNotEmpty;
   }
 
@@ -143,11 +143,7 @@ class SecureStorageService {
     return await _storage.read(key: _fcmTokenKey);
   }
 
-  /// Check if current user is the demo account for App Store Connect
-  Future<bool> isDemoAccount() async {
-    final user = await getUserData();
-    return user?.phone == '+919645398555';
-  }
+  
 
   /// Save registration data temporarily during the registration process
   Future<void> saveRegistrationData(Map<String, dynamic> data) async {
