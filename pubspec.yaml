@@ -42,7 +42,6 @@ dependencies:
   flutter_inappwebview: ^6.1.5
   mime: ^2.0.0
   image: ^4.8.0
-  flutter_dotenv: ^6.0.0
   dio: ^5.9.1
   file_saver: ^0.3.1
   http: ^1.6.0
@@ -100,7 +99,6 @@ flutter:
     - assets/svg/
     - assets/png/
     - assets/jpg/
-    - .env
 
   fonts:
     - family: Inter

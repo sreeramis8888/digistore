@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:setgo/src/data/services/crashlytics_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -346,7 +346,7 @@ class ApiProvider {
 
 final publicApiProvider = Provider<ApiProvider>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
-  final baseUrl = dotenv.env['BASE_URL'] ?? '';
+  const baseUrl = String.fromEnvironment('BASE_URL', defaultValue: '');
 
   return ApiProvider(
     baseUrl: baseUrl,
