@@ -321,6 +321,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                 children: [
                   CarouselSlider(
                     options: CarouselOptions(
+                      height: MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.height * 0.5 : null,
                       aspectRatio: 16 / 9,
                       viewportFraction: 1.0,
                       enableInfiniteScroll: images.length > 1,
@@ -373,7 +374,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
             else
               Container(
                 width: double.infinity,
-                height: screenSize.responsivePadding(220),
+                height: MediaQuery.of(context).orientation == Orientation.landscape 
+                    ? MediaQuery.of(context).size.height * 0.5 
+                    : screenSize.responsivePadding(220),
                 color: kGreyLight,
                 alignment: Alignment.center,
                 child: icon != null

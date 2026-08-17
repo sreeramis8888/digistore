@@ -160,118 +160,122 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!isPartner) ...[
-                const ProductsFilterChips(),
-                SizedBox(height: screenSize.responsivePadding(16)),
-              ],
-              if (isPartner) SizedBox(height: screenSize.responsivePadding(16)),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F6F8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextField(
-                  controller: _searchController,
-                  onChanged: _onSearchChanged,
-                  decoration: InputDecoration(
-                    hintText: "Search for 'products'",
-                    hintStyle: kSmallerTitleM.copyWith(
-                      color: const Color(0xFF99A1AF),
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFF99A1AF),
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                      vertical: screenSize.responsivePadding(14),
-                    ),
-                  ),
-                ),
-              ),
-              ),
-              SizedBox(height: screenSize.responsivePadding(24)),
-              Expanded(
-                child: productsState.isLoading
-                    ? GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.only(
-                          bottom: screenSize.responsivePadding(24),
-                          left: screenSize.responsivePadding(16),
-                          right: screenSize.responsivePadding(16),
+        child: RefreshIndicator(
+          color: kPrimaryColor,
+          onRefresh: () => ref.read(partnerProductsProvider.notifier).refresh(),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isPartner) ...[
+                      const ProductsFilterChips(),
+                      SizedBox(height: screenSize.responsivePadding(16)),
+                    ],
+                    if (isPartner) SizedBox(height: screenSize.responsivePadding(16)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F6F8),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: screenSize.responsivePadding(16),
-                          crossAxisSpacing: screenSize.responsivePadding(16),
-                          childAspectRatio: 0.8,
-                        ),
-                        itemCount: 6,
-                        itemBuilder: (context, index) {
-                          return CardShimmers.productCardShimmer(screenSize);
-                        },
-                      )
-                    : productsState.error != null
-                    ? Center(child: Text(productsState.error!))
-                    : productsState.products.isEmpty
-                    ? const Center(child: Text('No products found'))
-                    : RefreshIndicator(
-                        color: kPrimaryColor,
-                        onRefresh: () => ref
-                            .read(partnerProductsProvider.notifier)
-                            .refresh(),
-                        child: CustomScrollView(
-                          controller: _scrollController,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          slivers: [
-                            ...buildPaginatedGridSliversWithBanners(
-                              items: productsState.products,
-                              itemBuilder: (context, index, p) => ProductCard(
-                                index: index,
-                                name: p.title,
-                                image: (p.images != null && p.images!.isNotEmpty)
-                                    ? p.images![0]
-                                    : '',
-                                price: (p.price == null || p.price == 0)
-                                    ? null
-                                    : '₹ ${p.price}',
-                                tags: p.tags,
-                                rawProduct: p,
-                              ),
-                              banners: banners,
-                              hasMore: productsState.pagination != null &&
-                                  productsState.pagination!.page < productsState.pagination!.pages,
-                              screenSize: screenSize,
-                              childAspectRatio: 0.8,
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _onSearchChanged,
+                          decoration: InputDecoration(
+                            hintText: "Search for 'products'",
+                            hintStyle: kSmallerTitleM.copyWith(
+                              color: const Color(0xFF99A1AF),
                             ),
-                            if (productsState.isLoadingMore)
-                              SliverToBoxAdapter(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: screenSize.responsivePadding(24),
-                                  ),
-                                  child: const Center(
-                                    child: LoadingAnimation(
-                                      loadingColor: kPrimaryColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Color(0xFF99A1AF),
+                              size: 20,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: screenSize.responsivePadding(16),
+                              vertical: screenSize.responsivePadding(14),
+                            ),
+                          ),
                         ),
                       ),
+                    ),
+                    SizedBox(height: screenSize.responsivePadding(24)),
+                  ],
+                ),
               ),
+              if (productsState.isLoading)
+                SliverPadding(
+                  padding: EdgeInsets.only(
+                    bottom: screenSize.responsivePadding(24),
+                    left: screenSize.responsivePadding(16),
+                    right: screenSize.responsivePadding(16),
+                  ),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2,
+                      mainAxisSpacing: screenSize.responsivePadding(16),
+                      crossAxisSpacing: screenSize.responsivePadding(16),
+                      childAspectRatio: MediaQuery.of(context).orientation == Orientation.landscape ? 1.0 : 0.8,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return CardShimmers.productCardShimmer(screenSize);
+                      },
+                      childCount: 6,
+                    ),
+                  ),
+                )
+              else if (productsState.error != null)
+                SliverFillRemaining(child: Center(child: Text(productsState.error!)))
+              else if (productsState.products.isEmpty)
+                const SliverFillRemaining(child: Center(child: Text('No products found')))
+              else ...[
+                ...buildPaginatedGridSliversWithBanners(
+                  items: productsState.products,
+                  itemBuilder: (context, index, p) => ProductCard(
+                    index: index,
+                    name: p.title,
+                    image: (p.images != null && p.images!.isNotEmpty)
+                        ? p.images![0]
+                        : '',
+                    price: (p.price == null || p.price == 0)
+                        ? null
+                        : '₹ ${p.price}',
+                    tags: p.tags,
+                    rawProduct: p,
+                  ),
+                  banners: banners,
+                  hasMore: productsState.pagination != null &&
+                      productsState.pagination!.page < productsState.pagination!.pages,
+                  screenSize: screenSize,
+                  childAspectRatio: MediaQuery.of(context).orientation == Orientation.landscape ? 1.0 : 0.8,
+                  crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2,
+                ),
+                if (productsState.isLoadingMore)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: screenSize.responsivePadding(24),
+                      ),
+                      child: const Center(
+                        child: LoadingAnimation(
+                          loadingColor: kPrimaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ],
           ),
+        ),
       ),
     );
   }

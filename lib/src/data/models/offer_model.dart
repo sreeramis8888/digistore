@@ -46,6 +46,7 @@ class OfferModel {
   final bool? isScratched;
   final num? awardedDiscount;
   final DealsModel? deals;
+  final double? distance;
 
   const OfferModel({
     this.id,
@@ -86,6 +87,7 @@ class OfferModel {
     this.isScratched,
     this.awardedDiscount,
     this.deals,
+    this.distance,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
@@ -164,6 +166,7 @@ class OfferModel {
       isScratched: json['isScratched'] as bool?,
       awardedDiscount: json['awardedDiscount'] as num?,
       deals: SafeParser.parseObject(json['deals'], DealsModel.fromJson),
+      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
     );
   }
 
@@ -207,6 +210,7 @@ class OfferModel {
       'isScratched': isScratched,
       'awardedDiscount': awardedDiscount,
       'deals': deals?.toJson(),
+      'distance': distance,
     };
   }
 
@@ -249,6 +253,7 @@ class OfferModel {
     bool? isScratched,
     num? awardedDiscount,
     DealsModel? deals,
+    double? distance,
   }) {
     return OfferModel(
       id: id ?? this.id,
@@ -289,6 +294,7 @@ class OfferModel {
       isScratched: isScratched ?? this.isScratched,
       awardedDiscount: awardedDiscount ?? this.awardedDiscount,
       deals: deals ?? this.deals,
+      distance: distance ?? this.distance,
     );
   }
 }

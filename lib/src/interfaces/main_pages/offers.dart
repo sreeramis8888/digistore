@@ -145,7 +145,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     }
 
 
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = isLandscape ? 4 : 2;
+    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = isPartner
         ? screenSize.responsivePadding(190)
         : screenSize.responsivePadding(230);
@@ -234,64 +237,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            if (!isPartner) const OffersFilterChips(),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.responsivePadding(16),
-              ),
-              child: Container(
-                height: screenSize.responsivePadding(54),
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(20),
-                ),
-                decoration: BoxDecoration(
-                  color: kField,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.search,
-                      color: Color(0xFF7D848D),
-                      size: 24,
-                    ),
-                    SizedBox(width: screenSize.responsivePadding(12)),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        onTapOutside: (event) => _searchFocusNode.unfocus(),
-                        onChanged: _onSearchChanged,
-                        style: kSmallerTitleL.copyWith(color: kBlack),
-                        decoration: InputDecoration(
-                          hintText: "Search for 'offers'",
-                          hintStyle: kSmallerTitleL.copyWith(
-                            color: kBlack.withOpacity(.5),
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            Expanded(
-              child: _buildBody(
-                context,
-                offersState: offersState,
-                aspectRatio: aspectRatio,
-                screenSize: screenSize,
-                isPartner: isPartner,
-              ),
-            ),
-          ],
+        child: _buildBody(
+          context,
+          offersState: offersState,
+          aspectRatio: aspectRatio,
+          screenSize: screenSize,
+          isPartner: isPartner,
+          crossAxisCount: crossAxisCount,
         ),
       ),
     );
@@ -303,6 +255,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     required double aspectRatio,
     required ScreenSizeData screenSize,
     required bool isPartner,
+    required int crossAxisCount,
   }) {
     final categoryId = offersState.currentCategoryId;
     final bannerFilter = (categoryId != null && categoryId != 'All')
@@ -319,6 +272,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           screenSize,
           aspectRatio,
           isPartner: isPartner,
+          crossAxisCount: crossAxisCount,
           key: ValueKey('${isPartner ? 'partner' : 'guest'}_shimmer'),
         );
       }
@@ -357,6 +311,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            _buildSearchAndFilters(screenSize, isPartner),
             ...buildPaginatedGridSliversWithBanners(
               items: offersState.offers,
               itemBuilder: (_, index, o) => DealCard.fromOffer(o),
@@ -364,6 +319,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               hasMore: offersState.hasMore,
               screenSize: screenSize,
               childAspectRatio: aspectRatio,
+              crossAxisCount: crossAxisCount,
             ),
             if (offersState.isFetchingMore)
               SliverToBoxAdapter(
@@ -400,6 +356,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          _buildSearchAndFilters(screenSize, isPartner),
           SliverToBoxAdapter(
             child: _sectionHeader('Offers Near You', screenSize),
           ),
@@ -411,10 +368,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (_, i) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
-                  childCount: 4,
+                  childCount: crossAxisCount * 2,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                  crossAxisCount: crossAxisCount,
                   mainAxisSpacing: screenSize.responsivePadding(16.0),
                   crossAxisSpacing: screenSize.responsivePadding(16.0),
                   childAspectRatio: aspectRatio,
@@ -459,6 +416,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               hasMore: offersState.hasMore,
               screenSize: screenSize,
               childAspectRatio: aspectRatio,
+              crossAxisCount: crossAxisCount,
             ),
           SliverToBoxAdapter(
             child: SizedBox(height: screenSize.responsivePadding(24.0)),
@@ -476,10 +434,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (_, i) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
-                  childCount: 4,
+                  childCount: crossAxisCount * 2,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                  crossAxisCount: crossAxisCount,
                   mainAxisSpacing: screenSize.responsivePadding(16.0),
                   crossAxisSpacing: screenSize.responsivePadding(16.0),
                   childAspectRatio: aspectRatio,
@@ -507,6 +465,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               screenSize: screenSize,
               childAspectRatio: aspectRatio,
               bannerIndexOffset: offersState.offers.length ~/ 10,
+              crossAxisCount: crossAxisCount,
             ),
 
           SliverToBoxAdapter(
@@ -545,6 +504,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     ScreenSizeData screenSize,
     double aspectRatio, {
     required bool isPartner,
+    required int crossAxisCount,
     Key? key,
   }) {
     return GridView.builder(
@@ -554,37 +514,71 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         horizontal: screenSize.responsivePadding(16.0),
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: crossAxisCount,
         mainAxisSpacing: screenSize.responsivePadding(16.0),
         crossAxisSpacing: screenSize.responsivePadding(16.0),
         childAspectRatio: aspectRatio,
       ),
-      itemCount: 6,
-      itemBuilder: (_, __) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
+      itemCount: crossAxisCount * 3,
+      itemBuilder: (context, index) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
     );
   }
 
-  Widget _offersGrid(
-    List<OfferModel> offers,
-    double aspectRatio,
-    ScreenSizeData screenSize,
-  ) {
-    return GridView.builder(
-      controller: _scrollController,
-      padding: EdgeInsets.symmetric(
-        horizontal: screenSize.responsivePadding(16.0),
+  Widget _buildSearchAndFilters(ScreenSizeData screenSize, bool isPartner) {
+    return SliverToBoxAdapter(
+      child: Column(
+        children: [
+          if (!isPartner) const OffersFilterChips(),
+          SizedBox(height: screenSize.responsivePadding(16)),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16),
+            ),
+            child: Container(
+              height: screenSize.responsivePadding(54),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(20),
+              ),
+              decoration: BoxDecoration(
+                color: kField,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.search,
+                    color: Color(0xFF7D848D),
+                    size: 24,
+                  ),
+                  SizedBox(width: screenSize.responsivePadding(12)),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      onTapOutside: (event) => _searchFocusNode.unfocus(),
+                      onChanged: _onSearchChanged,
+                      style: kSmallerTitleL.copyWith(color: kBlack),
+                      decoration: InputDecoration(
+                        hintText: "Search for 'offers'",
+                        hintStyle: kSmallerTitleL.copyWith(
+                          color: kBlack.withValues(alpha: .5),
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+        ],
       ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: screenSize.responsivePadding(16.0),
-        crossAxisSpacing: screenSize.responsivePadding(16.0),
-        childAspectRatio: aspectRatio,
-      ),
-      itemCount: offers.length,
-      itemBuilder: (_, index) {
-        final o = offers[index];
-        return DealCard.fromOffer(o);
-      },
     );
   }
+
+
+
 }

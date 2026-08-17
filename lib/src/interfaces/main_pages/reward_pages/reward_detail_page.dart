@@ -68,7 +68,9 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
             if (imageUrl != null)
               SizedBox(
                 width: double.infinity,
-                height: screenSize.responsivePadding(220),
+                height: MediaQuery.of(context).orientation == Orientation.landscape 
+                    ? MediaQuery.of(context).size.height * 0.5 
+                    : screenSize.responsivePadding(220),
                 child: AdvancedNetworkImage(
                   imageUrl: imageUrl,
                   fit: BoxFit.cover,
@@ -78,7 +80,9 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
             else
               Container(
                 width: double.infinity,
-                height: screenSize.responsivePadding(220),
+                height: MediaQuery.of(context).orientation == Orientation.landscape 
+                    ? MediaQuery.of(context).size.height * 0.5 
+                    : screenSize.responsivePadding(220),
                 color: kGreyLight,
                 alignment: Alignment.center,
                 child: icon != null

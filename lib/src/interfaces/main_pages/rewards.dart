@@ -49,7 +49,10 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = isLandscape ? 4 : 2;
+    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = screenSize.responsivePadding(200);
     final aspectRatio = itemWidth / itemHeight;
 
@@ -81,12 +84,12 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                 return GridView.builder(
                   padding: EdgeInsets.all(screenSize.responsivePadding(16)),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                    crossAxisCount: crossAxisCount,
                     mainAxisSpacing: screenSize.responsivePadding(16),
                     crossAxisSpacing: screenSize.responsivePadding(16),
                     childAspectRatio: aspectRatio,
                   ),
-                  itemCount: 6,
+                  itemCount: crossAxisCount * 3,
                   itemBuilder: (context, index) =>
                       CardShimmers.rewardCardShimmer(screenSize),
                 );
@@ -139,6 +142,7 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                     hasMore: state.page < state.pages,
                     screenSize: screenSize,
                     childAspectRatio: aspectRatio,
+                    crossAxisCount: crossAxisCount,
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
