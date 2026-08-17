@@ -118,7 +118,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
           : CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: screenSize.responsivePadding(260),
+            expandedHeight: MediaQuery.of(context).orientation == Orientation.landscape
+                ? MediaQuery.of(context).size.height * 0.5
+                : screenSize.responsivePadding(260),
             scrolledUnderElevation: 0,
             floating: false,titleSpacing: 0,
             pinned: false,

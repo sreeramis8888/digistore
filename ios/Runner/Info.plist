@@ -19,15 +19,19 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.7</string>
+	<string>0.0.8</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>7</string>
+	<string>8</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Setgo needs camera access to capture images for your business profile and products.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Setgo uses your location to show nearby stores and services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Setgo uses your location to show nearby stores and services.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Setgo uses your location to show nearby stores and services.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

@@ -212,9 +212,13 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = isLandscape ? 4 : 2;
+    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / crossAxisCount; // wait, spacing logic
+    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final calculatedItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = screenSize.responsivePadding(230);
-    final aspectRatio = itemWidth / itemHeight;
+    final aspectRatio = calculatedItemWidth / itemHeight;
 
     final nearbyState = ref.watch(shopsProvider);
     final exploreState = ref.watch(allShopsProvider);
@@ -308,10 +312,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                     sliver: SliverGrid(
                       delegate: SliverChildBuilderDelegate(
                         (_, __) => CardShimmers.shopCardShimmer(screenSize),
-                        childCount: 4,
+                        childCount: crossAxisCount * 2,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                        crossAxisCount: crossAxisCount,
                         mainAxisSpacing: screenSize.responsivePadding(16),
                         crossAxisSpacing: screenSize.responsivePadding(16),
                         childAspectRatio: aspectRatio,
@@ -363,6 +367,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                         nearbyState.pagination!.page < nearbyState.pagination!.pages,
                     screenSize: screenSize,
                     childAspectRatio: aspectRatio,
+                    crossAxisCount: crossAxisCount,
                   ),
                 SliverToBoxAdapter(
                   child: SizedBox(height: screenSize.responsivePadding(24)),
@@ -379,10 +384,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                       (_, __) => CardShimmers.shopCardShimmer(screenSize),
-                      childCount: 4,
+                      childCount: crossAxisCount * 2,
                     ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: crossAxisCount,
                       mainAxisSpacing: screenSize.responsivePadding(16),
                       crossAxisSpacing: screenSize.responsivePadding(16),
                       childAspectRatio: aspectRatio,
@@ -444,6 +449,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                       screenSize: screenSize,
                       childAspectRatio: aspectRatio,
                       bannerIndexOffset: nearbyState.shops.length ~/ 10,
+                      crossAxisCount: crossAxisCount,
                     ),
                   );
                 }(),

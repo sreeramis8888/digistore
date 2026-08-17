@@ -160,8 +160,11 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
+            SizedBox(
+              width: double.infinity,
+              height: MediaQuery.of(context).orientation == Orientation.landscape 
+                  ? MediaQuery.of(context).size.height * 0.5 
+                  : MediaQuery.of(context).size.width * (9 / 16),
               child: AdvancedNetworkImage(
                 imageUrl: (product['images'] != null && (product['images'] as List).isNotEmpty) ? product['images'][0] : (product['image'] ?? ''),
                 fit: BoxFit.cover,

@@ -93,7 +93,9 @@ class ShopModel {
       isFeatured: json['isFeatured'] as bool?,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isOpenNow: json['isOpenNow'] as bool?,
-      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
+      distance: json['distance'] != null
+          ? (json['distance'] as num).toDouble()
+          : null,
     );
   }
 }

@@ -24,6 +24,7 @@ class DealCard extends ConsumerWidget {
   final List<String>? terms;
   final DateTime? validTo;
   final OfferModel? rawOffer;
+  final double? distance;
 
   const DealCard({
     super.key,
@@ -42,6 +43,7 @@ class DealCard extends ConsumerWidget {
     this.terms,
     this.validTo,
     this.rawOffer,
+    this.distance,
   });
 
   factory DealCard.fromOffer(
@@ -81,6 +83,7 @@ class DealCard extends ConsumerWidget {
       validTo: offer.validTo,
       rawOffer: offer,
       hideShopName: hideShopName,
+      distance: offer.distance,
     );
   }
 
@@ -124,7 +127,7 @@ class DealCard extends ConsumerWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: screenSize.responsivePadding(120),
+                  height: screenSize.responsivePadding(110),
                   width: double.infinity,
                   child: AdvancedNetworkImage(
                     imageUrl: imageUrl ?? '',
@@ -190,7 +193,7 @@ class DealCard extends ConsumerWidget {
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+              padding: EdgeInsets.all(screenSize.responsivePadding(10)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -218,7 +221,7 @@ class DealCard extends ConsumerWidget {
                     ],
                   ),
                   if (!hideShopName && !isPartner) ...[
-                    SizedBox(height: screenSize.responsivePadding(12)),
+                    SizedBox(height: screenSize.responsivePadding(8)),
                     Row(
                       children: [
                         Container(
@@ -247,6 +250,17 @@ class DealCard extends ConsumerWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ],
+                  if (distance != null) ...[
+                    SizedBox(height: screenSize.responsivePadding(6)),
+                    Text(
+                      '${distance!.toStringAsFixed(1)} km',
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 10,
+                      ),
+                      maxLines: 1,
                     ),
                   ],
                 ],
