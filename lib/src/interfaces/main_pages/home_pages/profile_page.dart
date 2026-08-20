@@ -650,16 +650,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             isDestructive: true,
                             icon: Icons.person_remove_rounded,
                             onConfirm: () async {
-                              await ref.read(authProvider.notifier).logout();
+                              final success = await ref.read(authProvider.notifier).deleteAccount();
+                              if (!success && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Failed to delete account. Please try again.'),
+                                    backgroundColor: kRed,
+                                  ),
+                                );
+                              }
                             },
                           );
 
                           if (confirmed == true && context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              'login',
-                              (route) => false,
-                            );
+                            final state = ref.read(authProvider);
+                            if (!state.hasError) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                'login',
+                                (route) => false,
+                              );
+                            }
                           }
                         },
                       ),

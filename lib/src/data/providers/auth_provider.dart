@@ -71,7 +71,11 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
     }
   }
 
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp, bool termsAccepted) async {
+  Future<Map<String, dynamic>> verifyOtp(
+    String phone,
+    String otp,
+    bool termsAccepted,
+  ) async {
     state = const AsyncLoading();
     try {
       final api = ref.read(apiProvider);
@@ -134,7 +138,7 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
 
   Future<void> logout() async {
     final storage = ref.read(secureStorageServiceProvider);
-    
+
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
@@ -158,6 +162,43 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
     ref.invalidate(homeDataProvider);
 
     state = const AsyncData(null);
+  }
+
+  Future<bool> deleteAccount() async {
+    state = const AsyncLoading();
+    try {
+      final api = ref.read(apiProvider);
+      final response = await api.delete('/auth/account');
+      if (!response.success) {
+        throw Exception(response.message ?? 'Failed to delete account');
+      }
+    } catch (e) {
+      debugPrint('Delete Account API error: $e');
+      state = AsyncError(e, StackTrace.current);
+      return false;
+    }
+
+    final storage = ref.read(secureStorageServiceProvider);
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        await FirebaseMessaging.instance.deleteToken();
+      }
+    } catch (e) {
+      debugPrint('FCM cleanup error during account deletion: $e');
+    }
+
+    await storage.clearAll();
+    GlobalVariables.clear();
+    GlobalVariables.setPartnerMode(false);
+    GlobalVariables.resetGuestMode();
+    ref.read(sessionProvider.notifier).reset();
+    ref.invalidate(userProvider);
+    ref.invalidate(offersProvider);
+    ref.invalidate(homeDataProvider);
+
+    state = const AsyncData(null);
+    return true;
   }
 }
 

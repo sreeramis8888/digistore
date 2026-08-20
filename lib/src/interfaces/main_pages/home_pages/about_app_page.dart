@@ -45,28 +45,12 @@ class AboutAppPage extends ConsumerWidget {
               Center(
                 child: Hero(
                   tag: 'app_logo_hero',
-                  child: Container(
+                  child: SizedBox(
                     width: screenSize.responsivePadding(100),
                     height: screenSize.responsivePadding(100),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF3576FF), Color(0xFF33B3C5)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF3576FF).withOpacity(0.25),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.stars_rounded,
-                      color: kWhite,
-                      size: 55,
+                    child: Image.asset(
+                      'assets/png/setgo.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
@@ -74,16 +58,18 @@ class AboutAppPage extends ConsumerWidget {
 
               const SizedBox(height: 20),
 
-              Text(
-                'Setgo',
-                style: kLargeTitleB.copyWith(fontSize: 26, letterSpacing: 0.5),
-              ).fadeIn(delayMilliseconds: 150),
-              
-              const SizedBox(height: 6),
+              // Text(
+              //   'Setgo',
+              //   style: kLargeTitleB.copyWith(fontSize: 26, letterSpacing: 0.5),
+              // ).fadeIn(delayMilliseconds: 150),
 
+              // const SizedBox(height: 6),
               Text(
                 'Version 1.0.0 (Build 7)',
-                style: kSmallerTitleL.copyWith(color: kSecondaryTextColor, fontWeight: FontWeight.w600),
+                style: kSmallerTitleL.copyWith(
+                  color: kSecondaryTextColor,
+                  fontWeight: FontWeight.w600,
+                ),
               ).fadeIn(delayMilliseconds: 200),
 
               const SizedBox(height: 32),
@@ -108,7 +94,10 @@ class AboutAppPage extends ConsumerWidget {
 
                     // Information details card
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: kWhite,
                         borderRadius: BorderRadius.circular(16),
@@ -124,13 +113,15 @@ class AboutAppPage extends ConsumerWidget {
                           _buildDetailRow(
                             label: 'Website',
                             value: 'setgoinnovations.com',
-                            onTap: () => launchURL('https://setgoinnovations.com'),
+                            onTap: () =>
+                                launchURL('https://setgoinnovations.com'),
                           ),
                           const Divider(height: 1, color: kStrokeColor),
                           _buildDetailRow(
                             label: 'Support Contact',
                             value: 'anitta.babu@digistorepay.com',
-                            onTap: () => launchEmail('anitta.babu@digistorepay.com'),
+                            onTap: () =>
+                                launchEmail('anitta.babu@digistorepay.com'),
                           ),
                         ],
                       ),
@@ -171,7 +162,10 @@ class AboutAppPage extends ConsumerWidget {
           children: [
             Text(
               label,
-              style: kSmallTitleM.copyWith(color: kSecondaryTextColor, fontSize: 13.5),
+              style: kSmallTitleM.copyWith(
+                color: kSecondaryTextColor,
+                fontSize: 13.5,
+              ),
             ),
             const SizedBox(width: 16),
             Flexible(
