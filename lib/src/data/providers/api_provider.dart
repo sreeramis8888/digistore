@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:setgo/src/data/services/crashlytics_service.dart';
 
 import 'package:http/http.dart' as http;
@@ -7,7 +9,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/foundation.dart';
 import '../services/secure_storage_service.dart';
+import '../services/connectivity_service.dart';
 import 'user_type_provider.dart';
+
+String _formatErrorMessage(dynamic e) {
+  if (e == null) return 'Something went wrong. Please try again.';
+  final errorStr = e.toString().toLowerCase();
+  if (e is SocketException ||
+      e is http.ClientException ||
+      e is TimeoutException ||
+      errorStr.contains('socketexception') ||
+      errorStr.contains('failed host lookup') ||
+      errorStr.contains('clientexception') ||
+      errorStr.contains('network is unreachable') ||
+      errorStr.contains('connection refused') ||
+      errorStr.contains('connection timed out') ||
+      errorStr.contains('timed out') ||
+      errorStr.contains('no address associated with hostname') ||
+      errorStr.contains('network error') ||
+      errorStr.contains('handshakeexception') ||
+      errorStr.contains('tlsexception')) {
+    ConnectivityService.instance.notifyOffline();
+    return 'You are offline. Please check your internet connection.';
+  }
+  return 'Failed to connect to the server. Please try again.';
+}
 
 void _safeLog(String name, dynamic message) {
   if (kDebugMode) {
@@ -127,7 +153,8 @@ class ApiProvider {
       await CrashlyticsService.logError(e, stackTrace);
       await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
       await CrashlyticsService.setCustomKey('api_method', 'GET');
-      return ApiResponse.error('Failed to connect to the server: $e');
+      _safeLog('API GET EXCEPTION', '$e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 
@@ -156,11 +183,11 @@ class ApiProvider {
         return ApiResponse.error(message, response.statusCode, decoded);
       }
     } catch (e, stackTrace) {
-      // await CrashlyticsService.logError(e, stackTrace);
-      // await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
-      // await CrashlyticsService.setCustomKey('api_method', 'POST');
+      await CrashlyticsService.logError(e, stackTrace);
+      await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
+      await CrashlyticsService.setCustomKey('api_method', 'POST');
       _safeLog('API POST EXCEPTION', '$e');
-      return ApiResponse.error('Failed to connect to the server: $e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 
@@ -191,7 +218,8 @@ class ApiProvider {
       await CrashlyticsService.logError(e, stackTrace);
       await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
       await CrashlyticsService.setCustomKey('api_method', 'PATCH');
-      return ApiResponse.error('Failed to connect to the server: $e');
+      _safeLog('API PATCH EXCEPTION', '$e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 
@@ -224,7 +252,8 @@ class ApiProvider {
       await CrashlyticsService.logError(e, stackTrace);
       await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
       await CrashlyticsService.setCustomKey('api_method', 'PUT');
-      return ApiResponse.error('Failed to connect to the server: $e');
+      _safeLog('API PUT EXCEPTION', '$e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 
@@ -267,7 +296,7 @@ class ApiProvider {
     } catch (e, stackTrace) {
       _safeLog('API PUT MULTIPART Error', '$e');
       await CrashlyticsService.logError(e, stackTrace);
-      return ApiResponse.error('Failed to connect to the server: $e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 
@@ -309,7 +338,8 @@ class ApiProvider {
       }
     } catch (e, stackTrace) {
       await CrashlyticsService.logError(e, stackTrace);
-      return ApiResponse.error('Failed to connect to the server: $e');
+      _safeLog('API POST MULTIPART EXCEPTION', '$e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 
@@ -335,7 +365,8 @@ class ApiProvider {
       await CrashlyticsService.logError(e, stackTrace);
       await CrashlyticsService.setCustomKey('api_endpoint', endpoint);
       await CrashlyticsService.setCustomKey('api_method', 'DELETE');
-      return ApiResponse.error('Failed to connect to the server: $e');
+      _safeLog('API DELETE EXCEPTION', '$e');
+      return ApiResponse.error(_formatErrorMessage(e));
     }
   }
 

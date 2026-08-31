@@ -70,8 +70,6 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
       body: SafeArea(
         child: historyState.isLoading
             ? CardShimmers.partnerHistoryShimmer(screenSize)
-            : historyState.error != null
-            ? Center(child: Text(historyState.error!))
             : RefreshIndicator(
                 color: kPrimaryColor,
                 onRefresh: () =>

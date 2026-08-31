@@ -147,7 +147,7 @@ class _CategorySelectionBottomSheetState
                 );
               },
               loading: () => const Center(child: LoadingAnimation()),
-              error: (e, s) => Center(child: Text('Error: $e')),
+              error: (e, s) => const Center(child: Text('No categories available')),
             ),
           ),
         ],

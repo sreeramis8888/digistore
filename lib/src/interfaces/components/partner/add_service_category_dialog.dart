@@ -8,10 +8,12 @@ import '../primary_button.dart';
 
 class AddServiceCategoryDialog extends ConsumerStatefulWidget {
   final List<String> existingCategories;
+  final String? categoryNameOrId;
 
   const AddServiceCategoryDialog({
     super.key,
     required this.existingCategories,
+    this.categoryNameOrId,
   });
 
   @override
@@ -19,18 +21,31 @@ class AddServiceCategoryDialog extends ConsumerStatefulWidget {
 }
 
 class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDialog> {
-  final TextEditingController _customCtrl = TextEditingController();
+  final TextEditingController _searchCtrl = TextEditingController();
   final Set<String> _selected = {};
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl.addListener(() {
+      setState(() {
+        _searchQuery = _searchCtrl.text.trim().toLowerCase();
+      });
+    });
+  }
 
   @override
   void dispose() {
-    _customCtrl.dispose();
+    _searchCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final subcategoriesAsync = ref.watch(subcategoriesProvider);
+    final subcategoriesAsync = ref.watch(
+      categorySubcategoriesProvider(widget.categoryNameOrId),
+    );
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -75,48 +90,60 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                     child: const Icon(Icons.category_outlined, color: kPrimaryColor, size: 22),
                   ),
                   const SizedBox(width: 12),
-                  Text('Add Service Category', style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Select Subcategories', style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700)),
+                        if (widget.categoryNameOrId != null && widget.categoryNameOrId!.isNotEmpty)
+                          Text(
+                            widget.categoryNameOrId!,
+                            style: kSmallTitleL.copyWith(color: kSecondaryTextColor, fontSize: 12),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
               child: PrimaryTextField(
-                label: 'Custom Category',
-                hint: 'Type category and press Add',
-                controller: _customCtrl,
-                prefixIcon: const Icon(Icons.add_circle_outline, color: kSecondaryColor, size: 18),
+                label: null,
+                hint: 'Search subcategories...',
+                controller: _searchCtrl,
+                prefixIcon: const Icon(Icons.search, color: kGrey, size: 20),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Or select from available subcategories:',
-                  style: kSmallTitleM.copyWith(color: kSecondaryTextColor, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 200),
+              constraints: const BoxConstraints(maxHeight: 250),
               child: subcategoriesAsync.when(
                 data: (list) {
-                  final available = list.where((cat) => !widget.existingCategories.contains(cat)).toList();
+                  final available = list.where((cat) {
+                    final isNotExisting = !widget.existingCategories.contains(cat);
+                    final matchesSearch = _searchQuery.isEmpty || cat.toLowerCase().contains(_searchQuery);
+                    return isNotExisting && matchesSearch;
+                  }).toList();
+
                   if (available.isEmpty) {
                     return Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(24.0),
                         child: Text(
-                          'No new subcategories available.',
+                          _searchQuery.isNotEmpty
+                              ? 'No subcategories match "$_searchQuery".'
+                              : 'No subcategories available.',
                           style: kSmallTitleM.copyWith(color: kGrey),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     );
                   }
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -154,13 +181,21 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                     ),
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+                  ),
+                ),
                 error: (err, stack) => Center(
-                  child: Text('Failed to load categories', style: kSmallTitleM.copyWith(color: Colors.red)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Text('Failed to load subcategories', style: kSmallTitleM.copyWith(color: Colors.red)),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               child: Row(
@@ -178,16 +213,11 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                   const SizedBox(width: 12),
                   Expanded(
                     child: PrimaryButton(
-                      text: 'Add Selected',
+                      text: _selected.isEmpty ? 'Done' : 'Add (${_selected.length})',
                       borderRadius: BorderRadius.circular(12),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       onPressed: () {
-                        final custom = _customCtrl.text.trim();
-                        final result = <String>[..._selected];
-                        if (custom.isNotEmpty && !result.contains(custom)) {
-                          result.add(custom);
-                        }
-                        Navigator.pop(context, result);
+                        Navigator.pop(context, _selected.toList());
                       },
                     ),
                   ),
@@ -201,10 +231,17 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
   }
 }
 
-Future<List<String>?> showAddServiceCategoryDialog(BuildContext context, {required List<String> existingCategories}) {
+Future<List<String>?> showAddServiceCategoryDialog(
+  BuildContext context, {
+  required List<String> existingCategories,
+  String? categoryNameOrId,
+}) {
   return showDialog<List<String>>(
     context: context,
     barrierColor: Colors.black.withOpacity(0.5),
-    builder: (context) => AddServiceCategoryDialog(existingCategories: existingCategories),
+    builder: (context) => AddServiceCategoryDialog(
+      existingCategories: existingCategories,
+      categoryNameOrId: categoryNameOrId,
+    ),
   );
 }

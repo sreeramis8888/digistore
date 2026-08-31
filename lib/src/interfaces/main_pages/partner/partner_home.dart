@@ -138,7 +138,43 @@ class PartnerHomePage extends ConsumerWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: PartnerHomeShimmer(),
                   ),
-                  error: (e, s) => Center(child: Text('Error: $e')),
+                  error: (e, s) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Overview",
+                            style: kSmallTitleB.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: screenSize.responsivePadding(16)),
+                          PartnerOverviewCards(
+                            screenSize: screenSize,
+                            totalCustomers: 0,
+                            commissionAmount: 0.0,
+                            totalSalesViaSetgo: 0,
+                          ),
+                          SizedBox(height: screenSize.responsivePadding(24)),
+                          Text(
+                            "Quick Actions",
+                            style: kSmallTitleB.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: screenSize.responsivePadding(16)),
+                          PartnerQuickActions(screenSize: screenSize),
+                          SizedBox(height: screenSize.responsivePadding(40)),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

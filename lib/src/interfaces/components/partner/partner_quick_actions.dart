@@ -29,7 +29,7 @@ class PartnerQuickActions extends ConsumerWidget {
               ),
               SizedBox(width: screenSize.responsivePadding(16)),
               _quickActionCard(
-                'Create a Offer',
+                'Create an Offer',
                 'assets/svg/create_offer.svg',
                 const Color(0xFF8B5CF6),
                 onTap: () {

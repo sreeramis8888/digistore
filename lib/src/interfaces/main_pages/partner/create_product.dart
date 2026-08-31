@@ -19,7 +19,6 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:image_cropper/image_cropper.dart';
-import '../../../data/providers/partner_provider.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/providers/partner_products_provider.dart';
 import '../../../data/providers/branches.dart';
@@ -44,6 +43,8 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   String? _selectedCategoryId;
 
   File? _pickedImage;
+  String? _existingImageUrl;
+  bool _isImageRemoved = false;
   bool _isLoading = false;
   bool _isActive = true;
 
@@ -64,6 +65,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     }
 
     if (_pickedImage != null) return true;
+    if (_isImageRemoved) return true;
     
     if (_isActive != (widget.product?['isActive'] ?? true)) return true;
 
@@ -94,6 +96,10 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     }
     _selectedCategoryId = widget.product?['category']?['_id'];
     _isActive = widget.product?['isActive'] ?? true;
+    final imgs = widget.product?['images'];
+    if (imgs is List && imgs.isNotEmpty) {
+      _existingImageUrl = imgs[0]?.toString();
+    }
   }
 
   @override
@@ -123,6 +129,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       );
       setState(() {
         _pickedImage = compressedFile;
+        _isImageRemoved = false;
       });
     }
   }
@@ -146,10 +153,29 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   }
 
   Future<void> _saveProduct() async {
-    if (_nameController.text.trim().isEmpty) {
+    final title = _nameController.text.trim();
+    if (title.isEmpty) {
       ToastService().showToast(
         context,
-        'Title is required',
+        'Product name is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (title.length > 50) {
+      ToastService().showToast(
+        context,
+        'Product name cannot exceed 50 characters',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (_descController.text.trim().length > 500) {
+      ToastService().showToast(
+        context,
+        'Product description cannot exceed 500 characters',
         type: ToastType.error,
       );
       return;
@@ -160,7 +186,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       final api = ref.read(apiProvider);
 
       final rawBody = <String, dynamic>{
-        'title': _nameController.text.trim(),
+        'title': title,
         'description': _descController.text.trim(),
         'price': _priceController.text.trim(),
         'tags': _tags.isNotEmpty ? jsonEncode(_tags) : null,
@@ -193,10 +219,6 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
         }
       }
 
-      final cleanedBody = cleanMap(rawBody);
-      final body = cleanedBody.map((key, value) => MapEntry(key, value.toString()));
-      log('body: $body');
-
       List<http.MultipartFile>? files;
       if (_pickedImage != null) {
         files = [
@@ -208,7 +230,15 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
             ),
           ),
         ];
+      } else if (_existingImageUrl != null) {
+        rawBody['images'] = jsonEncode([_existingImageUrl]);
+      } else if (_isImageRemoved) {
+        rawBody['images'] = jsonEncode([]);
       }
+
+      final cleanedBody = cleanMap(rawBody);
+      final body = cleanedBody.map((key, value) => MapEntry(key, value.toString()));
+      log('body: $body');
 
       final isEdit = widget.product != null;
       final response = isEdit
@@ -276,6 +306,8 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                 label: 'Product name',
                 hint: 'Enter product name',
                 isRequired: true,
+                maxLength: 50,
+                showCounter: true,
               ),
               const SizedBox(height: 20),
               PrimaryTextField(
@@ -283,6 +315,8 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                 label: 'Product Description',
                 hint: 'Enter product description',
                 maxLines: 4,
+                maxLength: 500,
+                showCounter: true,
               ),
               const SizedBox(height: 20),
               PrimaryTextField(
@@ -372,42 +406,73 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
               const SizedBox(height: 8),
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    width: double.infinity,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: _pickedImage != null
-                        ? Image.file(_pickedImage!, fit: BoxFit.cover)
-                        : (widget.product != null &&
-                                widget.product!['images'] != null &&
-                                (widget.product!['images'] as List).isNotEmpty)
-                            ? AdvancedNetworkImage(
-                                imageUrl: (widget.product!['images'] as List)[0],
-                                fit: BoxFit.cover,
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.add_photo_alternate_outlined,
-                                    color: Color(0xFF808080),
-                                    size: 30,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Add Image',
-                                    style: kSmallTitleL.copyWith(
-                                      color: const Color(0xFF808080),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                child: Container(
+                  width: double.infinity,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child: (_pickedImage != null || (_existingImageUrl != null && !_isImageRemoved))
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            GestureDetector(
+                              onTap: _pickImage,
+                              child: _pickedImage != null
+                                  ? Image.file(_pickedImage!, fit: BoxFit.cover)
+                                  : AdvancedNetworkImage(
+                                      imageUrl: _existingImageUrl!,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _pickedImage = null;
+                                    _existingImageUrl = null;
+                                    _isImageRemoved = true;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : GestureDetector(
+                          onTap: _pickImage,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.add_photo_alternate_outlined,
+                                color: Color(0xFF808080),
+                                size: 30,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Add Image',
+                                style: kSmallTitleL.copyWith(
+                                  color: const Color(0xFF808080),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ),
             ],

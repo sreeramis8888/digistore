@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
-import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/partner_provider.dart';
-import '../../../data/utils/global_variables.dart';
-import '../../../data/providers/user_type_provider.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../components/partner/partner_menu_item.dart';
 import '../../components/partner/partner_action_card.dart';
@@ -506,40 +503,6 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                           cancelText: 'Cancel',
                           isDestructive: true,
                           icon: Icons.logout_rounded,
-                          onConfirm: () async {
-                            await ref.read(authProvider.notifier).logout();
-                          },
-                        );
-
-                        if (confirmed == true && context.mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            'login',
-                            (route) => false,
-                          );
-                        }
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Delete Account',
-                      icon: const Icon(Icons.person_remove_rounded, color: kRed, size: 22),
-                      screenSize: screenSize,
-                      onTap: () async {
-                        final confirmed = await showConfirmationDialog(
-                          context: context,
-                          title: 'Delete Account',
-                          message: 'Are you sure you want to delete your account? This action cannot be undone.',
-                          confirmText: 'Delete',
-                          cancelText: 'Cancel',
-                          isDestructive: true,
-                          icon: Icons.person_remove_rounded,
                           onConfirm: () async {
                             await ref.read(authProvider.notifier).logout();
                           },

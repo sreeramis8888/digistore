@@ -233,9 +233,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                     ),
                   ),
                 )
-              else if (productsState.error != null)
-                SliverFillRemaining(child: Center(child: Text(productsState.error!)))
-              else if (productsState.products.isEmpty)
+              else if (productsState.error != null || productsState.products.isEmpty)
                 const SliverFillRemaining(child: Center(child: Text('No products found')))
               else ...[
                 ...buildPaginatedGridSliversWithBanners(

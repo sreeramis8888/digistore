@@ -18,6 +18,22 @@ class BranchCard extends StatelessWidget {
     this.onDelete,
   });
 
+  String _getBranchTypeLabel(String? type) {
+    if (type == null || type.isEmpty) return 'Outlet';
+    switch (type.toLowerCase()) {
+      case 'main':
+        return 'Main Branch';
+      case 'franchise':
+        return 'Franchise';
+      case 'outlet':
+        return 'Outlet';
+      case 'service_center':
+        return 'Service Center';
+      default:
+        return type.split('_').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -74,6 +90,30 @@ class BranchCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              if (branch.branchType?.isNotEmpty == true) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFE5E7EB),
+                    ),
+                  ),
+                  child: Text(
+                    _getBranchTypeLabel(branch.branchType),
+                    style: kSmallTitleL.copyWith(
+                      color: const Color(0xFF374151),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               if (branch.isPrimary == true) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -122,8 +162,30 @@ class BranchCard extends StatelessWidget {
               ),
             ],
           ),
-          if (branch.address?.isNotEmpty == true) ...[
+          if (branch.branchType?.isNotEmpty == true) ...[
             const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(
+                  Icons.business_outlined,
+                  size: 16,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Branch Type: ${_getBranchTypeLabel(branch.branchType)}',
+                    style: kSmallTitleM.copyWith(
+                      color: const Color(0xFF4B5563),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (branch.address?.isNotEmpty == true) ...[
+            const SizedBox(height: 8),
             Row(
               children: [
                 const Icon(

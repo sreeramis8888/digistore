@@ -46,27 +46,108 @@ class DealCard extends ConsumerWidget {
     this.distance,
   });
 
+  static String? _resolveBadgeText(OfferModel offer) {
+    final code = offer.offerTypeCode?.toUpperCase();
+    final isFlat = offer.discountType?.toLowerCase() == 'flat' ||
+        offer.discountType?.toLowerCase() == 'amount' ||
+        offer.discountType?.toLowerCase() == 'fixed';
+
+    // 1. Buy X Get Y (BG)
+    if (code == "BG") {
+      final metadata = offer.offerMetadata;
+      final buyQty = metadata?['buyQuantity'] ?? 1;
+      final getDesc = metadata?['getDescription'] ?? '1';
+      return "BUY $buyQty\nGET $getDesc";
+    }
+
+    // 2. Specific Non-Discount Offer Types
+    if (code == "CO" || code == "CP") {
+      return "COMBO\nOFFER";
+    }
+    if (code == "LD") {
+      return "LUCKY\nDRAW";
+    }
+    if (code == "LO") {
+      return "LOYALTY\nOFFER";
+    }
+    if (code == "DNP") {
+      return "NEXT\nPURCHASE";
+    }
+    if (code == "CS") {
+      return "CLEARANCE\nSALE";
+    }
+    if (code == "LTO") {
+      return "LIMITED TIME\nOFFER";
+    }
+    if (code == "RC") {
+      return "REDEEMABLE\nCOUPON";
+    }
+
+    // 3. Discount Range (for DO / Discount offers)
+    final dMin = offer.discountRange?.min;
+    final dMax = offer.discountRange?.max;
+    if (dMin != null && dMax != null && (dMin > 0 || dMax > 0)) {
+      if (dMin == dMax) {
+        final val = dMin % 1 == 0 ? dMin.toInt().toString() : dMin.toStringAsFixed(1);
+        return isFlat ? "₹$val\nOFF" : "$val%\nOFF";
+      } else {
+        final minStr = dMin % 1 == 0 ? dMin.toInt().toString() : dMin.toStringAsFixed(0);
+        final maxStr = dMax % 1 == 0 ? dMax.toInt().toString() : dMax.toStringAsFixed(0);
+        return isFlat ? "₹$minStr - ₹$maxStr\nOFF" : "$minStr% - $maxStr%\nOFF";
+      }
+    } else if (dMax != null && dMax > 0) {
+      final val = dMax % 1 == 0 ? dMax.toInt().toString() : dMax.toStringAsFixed(1);
+      return isFlat ? "UPTO\n₹$val OFF" : "UPTO\n$val% OFF";
+    } else if (dMin != null && dMin > 0) {
+      final val = dMin % 1 == 0 ? dMin.toInt().toString() : dMin.toStringAsFixed(1);
+      return isFlat ? "MIN\n₹$val OFF" : "MIN\n$val% OFF";
+    }
+
+    // 4. Single Discount Value
+    if (offer.discountValue != null && offer.discountValue! > 0) {
+      final val = offer.discountValue! % 1 == 0
+          ? offer.discountValue!.toInt().toString()
+          : offer.discountValue!.toStringAsFixed(1);
+      return isFlat ? "₹$val\nOFF" : "$val%\nOFF";
+    }
+
+    // 5. Price Range
+    final pMin = offer.priceRange?.min;
+    final pMax = offer.priceRange?.max;
+    if (pMin != null && pMax != null && (pMin > 0 || pMax > 0)) {
+      if (pMin == pMax) {
+        final val = pMin % 1 == 0 ? pMin.toInt().toString() : pMin.toStringAsFixed(0);
+        return "₹$val\nONLY";
+      } else {
+        final minStr = pMin % 1 == 0 ? pMin.toInt().toString() : pMin.toStringAsFixed(0);
+        final maxStr = pMax % 1 == 0 ? pMax.toInt().toString() : pMax.toStringAsFixed(0);
+        return "₹$minStr - ₹$maxStr";
+      }
+    }
+
+    if (code == "DO") {
+      return "SPECIAL\nOFFER";
+    }
+
+    // 6. Fallback
+    if (code != null && code.isNotEmpty) {
+      final label = offerTypeLabels[code];
+      if (label != null) {
+        return label.toUpperCase();
+      }
+      return code;
+    }
+
+    return null;
+  }
+
   factory DealCard.fromOffer(
     OfferModel offer, {
     double? width,
     EdgeInsetsGeometry? margin,
     bool hideShopName = false,
   }) {
-    final code = offer.offerTypeCode?.toUpperCase();
-    String? badgeText;
-
-    if (code == "BG") {
-      final metadata = offer.offerMetadata;
-      final buyQty = metadata?['buyQuantity'];
-      final getDesc = metadata?['getDescription'];
-      if (buyQty != null && getDesc != null) {
-        badgeText = "Buy $buyQty Get $getDesc";
-      } else {
-        badgeText = offerTypeLabels["BG"];
-      }
-    } else {
-      badgeText = offerTypeLabels[code];
-    }
+    final badgeText = _resolveBadgeText(offer);
 
     return DealCard(
       id: offer.id,
@@ -119,7 +200,7 @@ class DealCard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: kWhite,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Color(0xFFE8E8E8)),
+          border: Border.all(color: const Color(0xFFE8E8E8)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +208,7 @@ class DealCard extends ConsumerWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: screenSize.responsivePadding(110),
+                  height: screenSize.responsivePadding(140),
                   width: double.infinity,
                   child: AdvancedNetworkImage(
                     imageUrl: imageUrl ?? '',
@@ -142,17 +223,20 @@ class DealCard extends ConsumerWidget {
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: badgeText == null
+                  child: (badgeText == null || badgeText!.isEmpty)
                       ? const SizedBox.shrink()
                       : Container(
+                          constraints: BoxConstraints(
+                            maxWidth: screenSize.responsivePadding(120),
+                          ),
                           padding: EdgeInsets.symmetric(
                             horizontal: screenSize.responsivePadding(8),
-                            vertical: screenSize.responsivePadding(6),
+                            vertical: screenSize.responsivePadding(5),
                           ),
                           decoration: const BoxDecoration(
                             color: kPrimaryColor,
                             borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(12),
+                              bottomLeft: Radius.circular(8),
                               topRight: Radius.circular(12),
                             ),
                           ),
@@ -161,8 +245,12 @@ class DealCard extends ConsumerWidget {
                             style: kSmallerTitleM.copyWith(
                               color: kWhite,
                               fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              height: 1.15,
                             ),
                             textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                 ),
@@ -202,11 +290,14 @@ class DealCard extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        style: kSmallTitleM,
+                        style: kSmallTitleB.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: screenSize.responsivePadding(2)),
+                      SizedBox(height: screenSize.responsivePadding(3)),
                       if (subtitle.isNotEmpty &&
                           subtitle != 'null' &&
                           subtitle != 'nil')
@@ -214,8 +305,10 @@ class DealCard extends ConsumerWidget {
                           subtitle,
                           style: kSmallerTitleL.copyWith(
                             color: kSecondaryTextColor,
+                            fontSize: 12,
+                            height: 1.25,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                     ],

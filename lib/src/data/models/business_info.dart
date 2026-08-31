@@ -329,7 +329,7 @@ class BusinessBranch {
       ),
       operatingHours: opHours,
       isActive: json['isActive'] as bool?,
-      branchType: json['branchType'] as String?,
+      branchType: (json['branchType'] ?? json['type']) as String?,
       isPrimary: json['isPrimary'] as bool?,
     );
   }

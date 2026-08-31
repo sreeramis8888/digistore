@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
-import '../../data/models/offer_model.dart';
 import '../../data/providers/category_provider.dart';
 import '../../data/providers/offers_provider.dart';
 import '../../data/providers/screen_size_provider.dart';
@@ -150,8 +149,8 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = isPartner
-        ? screenSize.responsivePadding(190)
-        : screenSize.responsivePadding(230);
+        ? screenSize.responsivePadding(218)
+        : screenSize.responsivePadding(258);
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(

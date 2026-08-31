@@ -15,6 +15,7 @@ class OfferModel {
   final List<String>? images;
   final CategoryModel? category;
   final String? subcategory;
+  final List<String>? subcategories;
   final String? offerTypeCode;
   final Map<String, dynamic>? offerMetadata;
   final String? discountType;
@@ -56,6 +57,7 @@ class OfferModel {
     this.images,
     this.category,
     this.subcategory,
+    this.subcategories,
     this.offerTypeCode,
     this.offerMetadata,
     this.discountType,
@@ -91,6 +93,24 @@ class OfferModel {
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
+    List<String>? parsedSubcategories;
+    if (json['subcategories'] != null && json['subcategories'] is List) {
+      parsedSubcategories = (json['subcategories'] as List)
+          .map((e) {
+            if (e is Map && e['name'] != null) return e['name'].toString();
+            return e.toString();
+          })
+          .where((s) => s.trim().isNotEmpty)
+          .toList();
+    } else if (json['subcategory'] != null && json['subcategory'].toString().trim().isNotEmpty) {
+      parsedSubcategories = [json['subcategory'].toString().trim()];
+    }
+
+    String? singleSubcategory = json['subcategory'] as String?;
+    if (singleSubcategory == null && parsedSubcategories != null && parsedSubcategories.isNotEmpty) {
+      singleSubcategory = parsedSubcategories.first;
+    }
+
     return OfferModel(
       id: json['_id'] as String?,
       partnerId: SafeParser.parseObject(
@@ -104,7 +124,8 @@ class OfferModel {
         json['category'],
         CategoryModel.fromJson,
       ),
-      subcategory: json['subcategory'] as String?,
+      subcategory: singleSubcategory,
+      subcategories: parsedSubcategories,
       offerTypeCode: json['offerTypeCode'] as String?,
       offerMetadata: json['offerMetadata'] as Map<String, dynamic>?,
       discountType: json['discountType'] as String?,
@@ -179,6 +200,7 @@ class OfferModel {
       'images': images,
       'category': category?.toJson(),
       'subcategory': subcategory,
+      'subcategories': subcategories,
       'offerTypeCode': offerTypeCode,
       'offerMetadata': offerMetadata,
       'discountType': discountType,

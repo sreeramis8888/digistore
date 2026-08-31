@@ -115,7 +115,7 @@ class ShopReviews extends ConsumerWidget {
             );
           },
           loading: () => const Center(child: LoadingAnimation()),
-          error: (e, s) => Center(child: Text(e.toString())),
+          error: (e, s) => const SizedBox.shrink(),
         ),
       ],
     );

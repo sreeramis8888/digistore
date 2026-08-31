@@ -6,9 +6,11 @@ import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/primary_button.dart';
+import 'dart:convert';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/date_formatter.dart';
 import '../../../data/models/offer_model.dart';
+import '../../../data/models/category_model.dart';
 
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
@@ -162,7 +164,6 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final Color? logoColor = widget.args['logoColor'];
 
     final priceRange = widget.args['priceRange'];
-    final requiredTier = widget.args['requiredTier'];
     final discountRange = widget.args['discountRange'];
 
     final branchApplicability = widget.args['branchApplicability'];
@@ -189,8 +190,6 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     }
 
     bool hasPriceRange = priceRange != null && priceRange.toString() != 'null' && (priceRange is Map ? priceRange.isNotEmpty : priceRange.toString().isNotEmpty);
-
-    bool hasRequiredTier = requiredTier != null && requiredTier.toString() != 'null' && requiredTier.toString().isNotEmpty;
     bool hasDiscountRange = discountRange != null && discountRange.toString() != 'null' && (discountRange is Map ? discountRange.isNotEmpty : discountRange.toString().isNotEmpty);
 
     String getPriceRangeText() {
@@ -208,10 +207,88 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     }
 
     String getDiscountRangeText() {
+      final rawType = widget.args['discountType'];
+      final discountType = rawType?.toString().toLowerCase();
+      final isFlat = discountType == 'flat' ||
+          discountType == 'amount' ||
+          discountType == 'fixed';
+
       if (discountRange is Map) {
-        return '${discountRange['min'] ?? 0}% - ${discountRange['max'] ?? 0}% OFF';
+        final min = discountRange['min'] ?? 0;
+        final max = discountRange['max'] ?? 0;
+        final minStr = (min is num && min % 1 != 0)
+            ? min.toStringAsFixed(1)
+            : min.toString();
+        final maxStr = (max is num && max % 1 != 0)
+            ? max.toStringAsFixed(1)
+            : max.toString();
+        if (min == max) {
+          return isFlat ? '₹$minStr OFF' : '$minStr% OFF';
+        }
+        return isFlat ? '₹$minStr - ₹$maxStr OFF' : '$minStr% - $maxStr% OFF';
+      }
+      if (discountRange is num) {
+        final val = (discountRange % 1 != 0)
+            ? discountRange.toStringAsFixed(1)
+            : discountRange.toString();
+        return isFlat ? '₹$val OFF' : '$val% OFF';
       }
       return discountRange.toString();
+    }
+
+    String? categoryName;
+    final catObj = cachedOffer?.category?.name ?? widget.args['category'];
+    if (catObj is String && catObj.isNotEmpty) {
+      categoryName = catObj;
+    } else if (catObj is Map && catObj['name'] != null) {
+      categoryName = catObj['name'].toString();
+    } else if (catObj is CategoryModel) {
+      categoryName = catObj.name;
+    }
+
+    final List<String> subcategories = [];
+    final rawSubs = widget.args['subcategories'] ??
+        cachedOffer?.subcategories ??
+        widget.args['subcategory'] ??
+        cachedOffer?.subcategory ??
+        widget.args['partnerId']?['serviceCategories'] ??
+        cachedOffer?.partnerId?.serviceCategories;
+
+    void addSubcategory(dynamic s) {
+      if (s == null) return;
+      if (s is String && s.trim().isNotEmpty && s != 'null') {
+        final val = s.trim();
+        if (!subcategories.contains(val)) subcategories.add(val);
+      } else if (s is Map) {
+        final name = s['name'] ?? s['category'] ?? s['title'] ?? s['subCategoryName'];
+        if (name != null && name.toString().trim().isNotEmpty && name.toString() != 'null') {
+          final val = name.toString().trim();
+          if (!subcategories.contains(val)) subcategories.add(val);
+        }
+      }
+    }
+
+    if (rawSubs is List) {
+      for (final s in rawSubs) {
+        addSubcategory(s);
+      }
+    } else if (rawSubs is String && rawSubs.trim().isNotEmpty) {
+      if (rawSubs.trim().startsWith('[')) {
+        try {
+          final decoded = json.decode(rawSubs);
+          if (decoded is List) {
+            for (final s in decoded) {
+              addSubcategory(s);
+            }
+          }
+        } catch (_) {
+          addSubcategory(rawSubs);
+        }
+      } else {
+        addSubcategory(rawSubs);
+      }
+    } else if (rawSubs is Map) {
+      addSubcategory(rawSubs);
     }
 
     return Scaffold(
@@ -407,7 +484,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (activeDealText != null) _buildDealBadge(activeDealText!),
+                  if (activeDealText != null) _buildDealBadge(activeDealText),
                   if (!(widget.args['hideShopInfo'] ?? false) &&
                       !isPartner) ...[
                     InkWell(
@@ -488,6 +565,70 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                  ],
+
+                  if (categoryName != null || subcategories.isNotEmpty) ...[
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        if (categoryName != null && categoryName.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0XFFDFEAFF),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              categoryName,
+                              style: kSmallerTitleSB.copyWith(
+                                color: kPrimaryColor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ...subcategories.map(
+                          (sub) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFFE5E7EB),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFF9CA3AF),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  sub,
+                                  style: kSmallerTitleM.copyWith(
+                                    color: const Color(0xFF374151),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                   ],
 
                   Text(title, style: kSubHeadingL.copyWith(fontSize: 24)),

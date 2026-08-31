@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/data/router/router.dart';
@@ -11,9 +12,16 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'firebase_options.dart';
 import 'src/data/services/notification_service/notification_controller.dart';
 import 'src/data/services/navigation_service.dart';
+import 'src/data/services/connectivity_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ConnectivityService.instance.initialize();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FlutterError.onError = (errorDetails) {

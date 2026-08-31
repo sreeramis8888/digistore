@@ -6,6 +6,7 @@ import '../../../data/constants/style_constants.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
 import '../../components/animated_dropdown.dart';
+import '../../components/advanced_network_image.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/providers/branches.dart';
 import '../../../data/services/image_services.dart' as img_service;
@@ -70,6 +71,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
   DateTime? _validFrom;
   DateTime? _validTo;
 
+  List<String> _existingImageUrls = [];
   List<File> _pickedImages = [];
   bool _isLoading = false;
   bool _isActive = true;
@@ -96,6 +98,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
     _titleController = TextEditingController(text: widget.offer?['title']);
     _descController = TextEditingController(text: widget.offer?['description']);
+    _titleController.addListener(() {
+      if (mounted) setState(() {});
+    });
+    _descController.addListener(() {
+      if (mounted) setState(() {});
+    });
 
     final branchApp = widget.offer?['branchApplicability'];
     if (branchApp is Map) {
@@ -129,12 +137,39 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _discountType = widget.offer?['discountType'] as String? ?? 'percentage';
     _isScratchCard = widget.offer?['isScratchCard'] == true || widget.offer?['isScratchCard'] == 'true';
 
-    _minDiscountController = TextEditingController(
-      text: widget.offer?['discountRange']?['min']?.toString(),
-    );
-    _maxDiscountController = TextEditingController(
-      text: widget.offer?['discountRange']?['max']?.toString(),
-    );
+    // Robust discount range extraction
+    String? minDiscountText;
+    String? maxDiscountText;
+    final dynamic rawDiscountRange = widget.offer?['discountRange'];
+    if (rawDiscountRange is Map) {
+      minDiscountText = rawDiscountRange['min']?.toString() ??
+          rawDiscountRange['minDiscount']?.toString();
+      maxDiscountText = rawDiscountRange['max']?.toString() ??
+          rawDiscountRange['maxDiscount']?.toString();
+    } else if (rawDiscountRange is String && rawDiscountRange.trim().startsWith('{')) {
+      try {
+        final decoded = json.decode(rawDiscountRange);
+        if (decoded is Map) {
+          minDiscountText = decoded['min']?.toString() ??
+              decoded['minDiscount']?.toString();
+          maxDiscountText = decoded['max']?.toString() ??
+              decoded['maxDiscount']?.toString();
+        }
+      } catch (_) {}
+    } else if (rawDiscountRange is RangeModel) {
+      minDiscountText = rawDiscountRange.min?.toString();
+      maxDiscountText = rawDiscountRange.max?.toString();
+    } else if (rawDiscountRange != null && rawDiscountRange.toString() != 'null') {
+      minDiscountText = rawDiscountRange.toString();
+    }
+
+    minDiscountText ??= widget.offer?['discountValue']?.toString() ??
+        widget.offer?['discount']?.toString() ??
+        widget.offer?['minDiscount']?.toString();
+    maxDiscountText ??= widget.offer?['maxDiscount']?.toString();
+
+    _minDiscountController = TextEditingController(text: minDiscountText);
+    _maxDiscountController = TextEditingController(text: maxDiscountText);
 
     final meta = widget.offer?['offerMetadata'];
     _bgBuyQtyController = TextEditingController(
@@ -193,26 +228,108 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           : '',
     );
 
-    final dealObj = widget.offer?['deal'];
-    if (dealObj is Map) {
-      _selectedDealType = dealObj['type'] as String?;
-      _isDealActive = dealObj['isActive'] == true || dealObj['isActive'] == 'true';
-      final sDate = dealObj['startDate'];
-      if (sDate != null && sDate.toString().isNotEmpty) {
-        final dt = DateTime.tryParse(sDate.toString())?.toLocal();
-        if (dt != null) {
-          _dealStartDate = dt;
-          _dealStartTime = TimeOfDay.fromDateTime(dt);
+    // Robust Deal Promotion prefill (checks pendingDeal, deal, and deals)
+    dynamic rawDeal = widget.offer?['offerMetadata']?['pendingDeal'] ??
+        widget.offer?['pendingDeal'] ??
+        widget.offer?['deal'] ??
+        widget.offer?['deals'];
+    if (rawDeal is String && rawDeal.trim().startsWith('{')) {
+      try {
+        rawDeal = json.decode(rawDeal);
+      } catch (_) {}
+    }
+
+    if (rawDeal is DealsModel) {
+      rawDeal = rawDeal.toJson();
+    }
+
+    if (rawDeal is Map) {
+      if (rawDeal['type'] != null && rawDeal['type'].toString().isNotEmpty) {
+        _selectedDealType = rawDeal['type'].toString();
+        _isDealActive = rawDeal['isActive'] == true ||
+            rawDeal['isActive'] == 'true' ||
+            rawDeal['pendingActivation'] == true ||
+            rawDeal['startDate'] != null;
+        final sDate = rawDeal['startDate'];
+        if (sDate != null && sDate.toString().isNotEmpty) {
+          final dt = DateTime.tryParse(sDate.toString())?.toLocal();
+          if (dt != null) {
+            _dealStartDate = dt;
+            _dealStartTime = TimeOfDay.fromDateTime(dt);
+          }
+        }
+        final eDate = rawDeal['expiryDate'];
+        if (eDate != null && eDate.toString().isNotEmpty) {
+          final dt = DateTime.tryParse(eDate.toString())?.toLocal();
+          if (dt != null) {
+            _dealExpiryDate = dt;
+            _dealExpiryTime = TimeOfDay.fromDateTime(dt);
+          }
+        }
+      } else {
+        // Check nested deals map: deal_of_day, deal_of_hour, deal_of_week, deal_of_month
+        final dealTypesKeys = [
+          {'key': 'deal_of_hour', 'alt': 'dealOfHour'},
+          {'key': 'deal_of_day', 'alt': 'dealOfDay'},
+          {'key': 'deal_of_week', 'alt': 'dealOfWeek'},
+          {'key': 'deal_of_month', 'alt': 'dealOfMonth'},
+        ];
+
+        for (final item in dealTypesKeys) {
+          final dealData = rawDeal[item['key']] ?? rawDeal[item['alt']];
+          if (dealData != null) {
+            bool active = false;
+            dynamic sDate;
+            dynamic eDate;
+
+            if (dealData is Map) {
+              sDate = dealData['startDate'];
+              eDate = dealData['expiryDate'];
+              active = dealData['isActive'] == true ||
+                  dealData['isActive'] == 'true' ||
+                  sDate != null ||
+                  eDate != null;
+            } else if (dealData is DealItemModel) {
+              active = dealData.isActive == true ||
+                  dealData.startDate != null ||
+                  dealData.expiryDate != null;
+              _dealStartDate = dealData.startDate?.toLocal();
+              if (_dealStartDate != null) {
+                _dealStartTime = TimeOfDay.fromDateTime(_dealStartDate!);
+              }
+              _dealExpiryDate = dealData.expiryDate?.toLocal();
+              if (_dealExpiryDate != null) {
+                _dealExpiryTime = TimeOfDay.fromDateTime(_dealExpiryDate!);
+              }
+            }
+
+            if (active || sDate != null || eDate != null) {
+              _selectedDealType = item['key'];
+              _isDealActive = active;
+              if (sDate != null && sDate.toString().isNotEmpty) {
+                final dt = DateTime.tryParse(sDate.toString())?.toLocal();
+                if (dt != null) {
+                  _dealStartDate = dt;
+                  _dealStartTime = TimeOfDay.fromDateTime(dt);
+                }
+              }
+              if (eDate != null && eDate.toString().isNotEmpty) {
+                final dt = DateTime.tryParse(eDate.toString())?.toLocal();
+                if (dt != null) {
+                  _dealExpiryDate = dt;
+                  _dealExpiryTime = TimeOfDay.fromDateTime(dt);
+                }
+              }
+              break;
+            }
+          }
         }
       }
-      final eDate = dealObj['expiryDate'];
-      if (eDate != null && eDate.toString().isNotEmpty) {
-        final dt = DateTime.tryParse(eDate.toString())?.toLocal();
-        if (dt != null) {
-          _dealExpiryDate = dt;
-          _dealExpiryTime = TimeOfDay.fromDateTime(dt);
-        }
-      }
+    }
+
+    if (_selectedDealType == null && (widget.offer?['isDealOfDay'] == true || widget.offer?['isDealOfDay'] == 'true')) {
+      _selectedDealType = 'deal_of_day';
+      _isDealActive = true;
     }
 
     _tagsController = TextEditingController();
@@ -221,12 +338,78 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       _tags = initialTags.map((e) => e.toString()).toList();
     }
 
-    _minPriceController = TextEditingController(
-      text: widget.offer?['priceRange']?['min']?.toString(),
-    );
-    _maxPriceController = TextEditingController(
-      text: widget.offer?['priceRange']?['max']?.toString(),
-    );
+    // Robust price range extraction
+    String? minPriceText;
+    String? maxPriceText;
+    final dynamic rawPriceRange = widget.offer?['priceRange'];
+    if (rawPriceRange is Map) {
+      minPriceText = rawPriceRange['min']?.toString() ??
+          rawPriceRange['minPrice']?.toString() ??
+          rawPriceRange['minimumPrice']?.toString();
+      maxPriceText = rawPriceRange['max']?.toString() ??
+          rawPriceRange['maxPrice']?.toString() ??
+          rawPriceRange['maximumPrice']?.toString();
+    } else if (rawPriceRange is String && rawPriceRange.trim().startsWith('{')) {
+      try {
+        final decoded = json.decode(rawPriceRange);
+        if (decoded is Map) {
+          minPriceText = decoded['min']?.toString() ??
+              decoded['minPrice']?.toString() ??
+              decoded['minimumPrice']?.toString();
+          maxPriceText = decoded['max']?.toString() ??
+              decoded['maxPrice']?.toString() ??
+              decoded['maximumPrice']?.toString();
+        }
+      } catch (_) {}
+    } else if (rawPriceRange is RangeModel) {
+      minPriceText = rawPriceRange.min?.toString();
+      maxPriceText = rawPriceRange.max?.toString();
+    } else if (rawPriceRange != null && rawPriceRange.toString() != 'null') {
+      minPriceText = rawPriceRange.toString();
+    }
+
+    minPriceText ??= widget.offer?['minPrice']?.toString() ??
+        widget.offer?['minimumPrice']?.toString() ??
+        widget.offer?['min_price']?.toString() ??
+        widget.offer?['price']?.toString();
+    maxPriceText ??= widget.offer?['maxPrice']?.toString() ??
+        widget.offer?['maximumPrice']?.toString() ??
+        widget.offer?['max_price']?.toString();
+
+    _minPriceController = TextEditingController(text: minPriceText);
+    _maxPriceController = TextEditingController(text: maxPriceText);
+
+    // Existing images prefill in edit mode
+    final dynamic rawImages = widget.offer?['images'] ??
+        widget.offer?['imageUrl'] ??
+        widget.offer?['image'] ??
+        widget.offer?['media'];
+    if (rawImages is List) {
+      for (final item in rawImages) {
+        if (item is String && item.isNotEmpty) {
+          _existingImageUrls.add(item);
+        } else if (item is Map && item['url'] != null) {
+          _existingImageUrls.add(item['url'].toString());
+        }
+      }
+    } else if (rawImages is String && rawImages.isNotEmpty) {
+      if (rawImages.trim().startsWith('[')) {
+        try {
+          final decoded = json.decode(rawImages);
+          if (decoded is List) {
+            for (final item in decoded) {
+              if (item != null && item.toString().isNotEmpty) {
+                _existingImageUrls.add(item.toString());
+              }
+            }
+          }
+        } catch (_) {
+          _existingImageUrls.add(rawImages);
+        }
+      } else {
+        _existingImageUrls.add(rawImages);
+      }
+    }
 
     if (widget.offer?['validFrom'] != null) {
       _validFrom = DateTime.tryParse(widget.offer!['validFrom'])?.toLocal();
@@ -316,7 +499,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
   Future<void> _pickImages() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    if (_pickedImages.length >= 5) {
+    final totalCount = _existingImageUrls.length + _pickedImages.length;
+    if (totalCount >= 5) {
       ToastService().showToast(
         context,
         'Maximum limit of 5 images reached',
@@ -333,8 +517,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       showDocument: false,
     );
 
+    final currentTotal = _existingImageUrls.length + _pickedImages.length;
+    final remaining = 5 - currentTotal;
+
     if (result is List<XFile>) {
-      final remaining = 5 - _pickedImages.length;
       if (result.length > remaining) {
         ToastService().showToast(
           context,
@@ -354,7 +540,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         _pickedImages.addAll(newFiles);
       });
     } else if (result is XFile) {
-      if (_pickedImages.length < 5) {
+      if (remaining > 0) {
         File compressedFile = await img_service.compressImageIfNeeded(
           File(result.path),
         );
@@ -488,7 +674,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
   Future<void> _saveOffer() async {
     // Validate required fields
-    if (_titleController.text.trim().isEmpty) {
+    final title = _titleController.text.trim();
+    if (title.isEmpty) {
       ToastService().showToast(
         context,
         'Offer title is required',
@@ -497,10 +684,47 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       return;
     }
 
-    if (_descController.text.trim().isEmpty) {
+    if (title.length < 3) {
+      ToastService().showToast(
+        context,
+        'Offer title must be at least 3 characters',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (title.length > 100) {
+      ToastService().showToast(
+        context,
+        'Offer title must not exceed 100 characters',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    final desc = _descController.text.trim();
+    if (desc.isEmpty) {
       ToastService().showToast(
         context,
         'Description is required',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (desc.length < 10) {
+      ToastService().showToast(
+        context,
+        'Description must be at least 10 characters',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    if (desc.length > 500) {
+      ToastService().showToast(
+        context,
+        'Description must not exceed 500 characters',
         type: ToastType.error,
       );
       return;
@@ -572,7 +796,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       return;
     }
 
-    if (_pickedImages.isEmpty && widget.offer == null) {
+    if (_existingImageUrls.isEmpty && _pickedImages.isEmpty) {
       ToastService().showToast(
         context,
         'At least one offer image is required',
@@ -685,6 +909,26 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         _dealExpiryTime!.hour,
         _dealExpiryTime!.minute,
       );
+      if (_validFrom != null &&
+          _dealStartDate!.isBefore(DateTime(
+              _validFrom!.year, _validFrom!.month, _validFrom!.day))) {
+        ToastService().showToast(
+          context,
+          'Deal start date cannot be before the offer start date (${DateFormat('dd MMM yyyy').format(_validFrom!)})',
+          type: ToastType.error,
+        );
+        return;
+      }
+      if (_validTo != null &&
+          _dealExpiryDate!.isAfter(DateTime(
+              _validTo!.year, _validTo!.month, _validTo!.day, 23, 59, 59))) {
+        ToastService().showToast(
+          context,
+          'Deal expiry date cannot be after the offer expiry date (${DateFormat('dd MMM yyyy').format(_validTo!)})',
+          type: ToastType.error,
+        );
+        return;
+      }
       if (startDt.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
         ToastService().showToast(
           context,
@@ -898,6 +1142,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           'startDate': startDt.toUtc().toIso8601String(),
           'expiryDate': expiryDt.toUtc().toIso8601String(),
         });
+        body['deals'] = json.encode({
+          _selectedDealType!: {
+            'isActive': _isDealActive,
+            'startDate': startDt.toUtc().toIso8601String(),
+            'expiryDate': expiryDt.toUtc().toIso8601String(),
+          }
+        });
+        if (_selectedDealType == 'deal_of_day') {
+          body['isDealOfDay'] = _isDealActive.toString();
+        }
       }
 
       if (_selectedTier != null) {
@@ -918,6 +1172,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
       if (_validFrom != null) body['validFrom'] = _validFrom!.toIso8601String();
       if (_validTo != null) body['validTo'] = _validTo!.toIso8601String();
+
+      final isEdit = widget.offer != null;
+      if (isEdit && _existingImageUrls.isNotEmpty) {
+        body['existingImages'] = json.encode(_existingImageUrls);
+        body['images'] = json.encode(_existingImageUrls);
+      }
 
       // Ensure all values are strings and remove any unwanted empty fields
       final cleanedBody = MapUtils.cleanMap(body);
@@ -940,7 +1200,6 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         );
       }
 
-      final isEdit = widget.offer != null;
       final response = isEdit
           ? await api.putMultipart(
               '/offers/${widget.offer!['_id'] ?? widget.offer!['id']}',
@@ -1012,15 +1271,73 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 controller: _titleController,
                 label: 'Offer title',
                 hint: 'Enter offer title',
+                maxLength: 100,
                 isRequired: true,
               ),
-              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _titleController.text.trim().isNotEmpty &&
+                              _titleController.text.trim().length < 3
+                          ? 'Min. 3 characters (${3 - _titleController.text.trim().length} more needed)'
+                          : 'Min. 3 characters',
+                      style: kSmallerTitleL.copyWith(
+                        fontSize: 11,
+                        color: _titleController.text.trim().isNotEmpty &&
+                                _titleController.text.trim().length < 3
+                            ? Colors.red
+                            : const Color(0xFF808080),
+                      ),
+                    ),
+                    Text(
+                      '${_titleController.text.length} / 100',
+                      style: kSmallerTitleL.copyWith(
+                        fontSize: 11,
+                        color: const Color(0xFF808080),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               PrimaryTextField(
                 controller: _descController,
                 label: 'Description',
                 hint: 'Enter offer description',
                 maxLines: 4,
+                maxLength: 500,
                 isRequired: true,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _descController.text.trim().isNotEmpty &&
+                              _descController.text.trim().length < 10
+                          ? 'Min. 10 characters (${10 - _descController.text.trim().length} more needed)'
+                          : 'Min. 10 characters',
+                      style: kSmallerTitleL.copyWith(
+                        fontSize: 11,
+                        color: _descController.text.trim().isNotEmpty &&
+                                _descController.text.trim().length < 10
+                            ? Colors.red
+                            : const Color(0xFF808080),
+                      ),
+                    ),
+                    Text(
+                      '${_descController.text.length} / 500',
+                      style: kSmallerTitleL.copyWith(
+                        fontSize: 11,
+                        color: const Color(0xFF808080),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -1742,12 +2059,71 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0xFFE5E5E5)),
                       ),
-                      child: const Icon(
-                        Icons.add_a_photo_outlined,
-                        color: kSecondaryTextColor,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.add_a_photo_outlined,
+                            color: kSecondaryTextColor,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${_existingImageUrls.length + _pickedImages.length}/5',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: kSecondaryTextColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
+                  ...List.generate(_existingImageUrls.length, (index) {
+                    return Stack(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(right: 12),
+                          width: double.infinity,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: AdvancedNetworkImage(
+                            imageUrl: _existingImageUrls[index],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 16,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _existingImageUrls.removeAt(index);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: kWhite,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                   ...List.generate(_pickedImages.length, (index) {
                     return Stack(
                       children: [
@@ -2109,6 +2485,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 setState(() {
                   _selectedDealType = deal['value'] as String;
                   _isDealActive = true;
+                  if (_dealStartDate != null && _dealExpiryDate != null) {
+                    int maxDays = (deal['unit'] == 'hours')
+                        ? 1
+                        : (deal['max'] as int);
+                    DateTime maxDealExpiry = _dealStartDate!.add(Duration(days: maxDays));
+                    if (_dealExpiryDate!.isAfter(maxDealExpiry)) {
+                      _dealExpiryDate = null;
+                      _dealExpiryTime = null;
+                    }
+                  }
                 });
               },
               child: AnimatedContainer(
@@ -2271,12 +2657,71 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
   Future<void> _selectDealDateTime(BuildContext context, bool isStart) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    DateTime initialDate = (isStart ? _dealStartDate : _dealExpiryDate) ?? DateTime.now();
+
+    if (!isStart && _dealStartDate == null) {
+      ToastService().showToast(
+        context,
+        'Please select a deal start date first',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    final now = DateTime.now();
+    int maxDays = 365;
+    if (_selectedDealType == 'deal_of_hour') {
+      maxDays = 1;
+    } else if (_selectedDealType == 'deal_of_day') {
+      maxDays = 7;
+    } else if (_selectedDealType == 'deal_of_week') {
+      maxDays = 30;
+    } else if (_selectedDealType == 'deal_of_month') {
+      maxDays = 90;
+    }
+
+    DateTime firstDate;
+    DateTime lastDate;
+
+    if (isStart) {
+      firstDate = _validFrom ?? now;
+      lastDate = _validTo ?? now.add(const Duration(days: 365));
+    } else {
+      firstDate = _dealStartDate!;
+      DateTime maxDealExpiry = _dealStartDate!.add(Duration(days: maxDays));
+      lastDate = (_validTo != null && _validTo!.isBefore(maxDealExpiry))
+          ? _validTo!
+          : maxDealExpiry;
+    }
+
+    if (firstDate.isAfter(lastDate)) {
+      lastDate = firstDate;
+    }
+
+    DateTime initialDate = (isStart ? _dealStartDate : _dealExpiryDate) ?? firstDate;
+    if (initialDate.isBefore(firstDate)) initialDate = firstDate;
+    if (initialDate.isAfter(lastDate)) initialDate = lastDate;
+
+    String? helpText;
+    if (!isStart) {
+      if (_selectedDealType == 'deal_of_hour') {
+        helpText = 'SELECT EXPIRY (MAX 24 HOURS)';
+      } else if (_selectedDealType == 'deal_of_day') {
+        helpText = 'SELECT EXPIRY (MAX 7 DAYS)';
+      } else if (_selectedDealType == 'deal_of_week') {
+        helpText = 'SELECT EXPIRY (MAX 30 DAYS)';
+      } else if (_selectedDealType == 'deal_of_month') {
+        helpText = 'SELECT EXPIRY (MAX 90 DAYS)';
+      }
+    } else {
+      helpText = 'SELECT DEAL START DATE';
+    }
+
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 0)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      firstDate: firstDate,
+      lastDate: lastDate,
+      helpText: helpText,
     );
     if (pickedDate != null && mounted) {
       TimeOfDay initialTime = (isStart ? _dealStartTime : _dealExpiryTime) ?? TimeOfDay.now();
@@ -2289,6 +2734,15 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           if (isStart) {
             _dealStartDate = pickedDate;
             _dealStartTime = pickedTime;
+            if (_dealExpiryDate != null) {
+              DateTime maxDealExpiry = pickedDate.add(Duration(days: maxDays));
+              if (_dealExpiryDate!.isBefore(pickedDate) ||
+                  _dealExpiryDate!.isAfter(maxDealExpiry) ||
+                  (_validTo != null && _dealExpiryDate!.isAfter(_validTo!))) {
+                _dealExpiryDate = null;
+                _dealExpiryTime = null;
+              }
+            }
           } else {
             _dealExpiryDate = pickedDate;
             _dealExpiryTime = pickedTime;

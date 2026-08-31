@@ -17,6 +17,21 @@ class PartnerRedemptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (redemptions.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: screenSize.responsivePadding(24),
+          ),
+          child: Text(
+            'No redemption history',
+            style: kSmallerTitleM.copyWith(
+              color: const Color(0xFF99A1AF),
+            ),
+          ),
+        ),
+      );
+    }
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,

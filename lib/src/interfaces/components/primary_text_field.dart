@@ -20,6 +20,8 @@ class PrimaryTextField extends StatefulWidget {
   final bool readOnly;
   final bool isRequired;
   final int maxLines;
+  final int? maxLength;
+  final bool showCounter;
 
   const PrimaryTextField({
     super.key,
@@ -38,6 +40,8 @@ class PrimaryTextField extends StatefulWidget {
     this.readOnly = false,
     this.isRequired = false,
     this.maxLines = 1,
+    this.maxLength,
+    this.showCounter = false,
   });
 
   @override
@@ -101,6 +105,10 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,
           maxLines: widget.maxLines,
+          maxLength: widget.maxLength,
+          buildCounter: widget.showCounter
+              ? null
+              : (context, {required currentLength, required isFocused, maxLength}) => null,
           style: kSmallTitleL,
           decoration: InputDecoration(
             hintText: widget.hint,

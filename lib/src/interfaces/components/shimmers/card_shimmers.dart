@@ -66,7 +66,7 @@ class CardShimmers {
         children: [
           _shimmerRect(
             double.infinity,
-            screenSize.responsivePadding(120),
+            screenSize.responsivePadding(140),
             radius: 12,
           ),
           Padding(
