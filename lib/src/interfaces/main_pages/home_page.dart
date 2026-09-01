@@ -244,7 +244,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           DealsCarousel(
             title: 'Deal of the Hour',
             deals: dealOfTheHour
-                .map((offer) => DealCard.fromOffer(offer))
+                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
                 .toList(),
             onViewAllTap: () => _navigateToDealsGrid(
               context,
@@ -262,7 +262,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           DealsCarousel(
             title: 'Deal of the Day',
             deals: dealOfTheDay
-                .map((offer) => DealCard.fromOffer(offer))
+                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
                 .toList(),
             onViewAllTap: () =>
                 _navigateToDealsGrid(context, 'deal_of_day', 'Deal of the Day'),
@@ -273,7 +273,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           DealsCarousel(
             title: 'Deal of the Week',
             deals: dealOfTheWeek
-                .map((offer) => DealCard.fromOffer(offer))
+                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
                 .toList(),
             onViewAllTap: () => _navigateToDealsGrid(
               context,
@@ -287,7 +287,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         //   DealsCarousel(
         //     title: 'Specials for You',
         //     deals: dealsOfDay
-        //         .map((offer) => DealCard.fromOffer(offer))
+        //         .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
         //         .toList(),
         //   ),
         //   SizedBox(height: screenSize.responsivePadding(16)),
@@ -304,7 +304,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           DealsCarousel(
             title: 'Deal of the Month',
             deals: dealOfTheMonth
-                .map((offer) => DealCard.fromOffer(offer))
+                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
                 .toList(),
             onViewAllTap: () => _navigateToDealsGrid(
               context,

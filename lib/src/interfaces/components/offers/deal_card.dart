@@ -25,6 +25,7 @@ class DealCard extends ConsumerWidget {
   final DateTime? validTo;
   final OfferModel? rawOffer;
   final double? distance;
+  final int descriptionMaxLines;
 
   const DealCard({
     super.key,
@@ -44,6 +45,7 @@ class DealCard extends ConsumerWidget {
     this.validTo,
     this.rawOffer,
     this.distance,
+    this.descriptionMaxLines = 2,
   });
 
   static String? _resolveBadgeText(OfferModel offer) {
@@ -146,6 +148,7 @@ class DealCard extends ConsumerWidget {
     double? width,
     EdgeInsetsGeometry? margin,
     bool hideShopName = false,
+    int descriptionMaxLines = 2,
   }) {
     final badgeText = _resolveBadgeText(offer);
 
@@ -165,6 +168,7 @@ class DealCard extends ConsumerWidget {
       rawOffer: offer,
       hideShopName: hideShopName,
       distance: offer.distance,
+      descriptionMaxLines: descriptionMaxLines,
     );
   }
 
@@ -308,7 +312,7 @@ class DealCard extends ConsumerWidget {
                             fontSize: 12,
                             height: 1.25,
                           ),
-                          maxLines: 2,
+                          maxLines: descriptionMaxLines,
                           overflow: TextOverflow.ellipsis,
                         ),
                     ],
