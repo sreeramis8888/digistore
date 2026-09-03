@@ -250,13 +250,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       children: [
                         Row(
                           children: [
-                            Text(name, style: kBodyTitleM),
-                            Text(
-                              ' • $phone',
-                              style: kSmallTitleL.copyWith(
-                                color: kSecondaryTextColor,
+                            Flexible(
+                              child: Text(
+                                name,
+                                style: kBodyTitleM,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            if (phone.isNotEmpty)
+                              Text(
+                                ' • $phone',
+                                style: kSmallTitleL.copyWith(
+                                  color: kSecondaryTextColor,
+                                ),
+                              ),
                           ],
                         ),
                         SizedBox(height: screenSize.responsivePadding(4)),
@@ -268,10 +276,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                               size: 16,
                             ),
                             SizedBox(width: screenSize.responsivePadding(4)),
-                            Text(
-                              locationName,
-                              style: kSmallTitleL.copyWith(
-                                color: kSecondaryTextColor,
+                            Expanded(
+                              child: Text(
+                                locationName,
+                                style: kSmallTitleL.copyWith(
+                                  color: kSecondaryTextColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

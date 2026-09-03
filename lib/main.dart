@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 
 import 'src/data/router/router.dart';
 import 'src/data/providers/screen_size_provider.dart';
@@ -17,6 +19,14 @@ import 'src/data/services/connectivity_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ConnectivityService.instance.initialize();
+
+  if (Platform.isAndroid) {
+    try {
+      await FlutterDisplayMode.setHighRefreshRate();
+    } catch (_) {
+      // Gracefully ignore if the device or OS does not support display mode switching
+    }
+  }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
