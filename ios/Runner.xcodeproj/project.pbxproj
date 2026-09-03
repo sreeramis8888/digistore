@@ -193,6 +193,7 @@
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
 				9CEC8AD75DF4F36C81A3C31A /* [CP] Check Pods Manifest.lock */,
+				A1B2C3D4E5F6789012345678 /* Load Environment Variables */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
@@ -329,6 +330,25 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		A1B2C3D4E5F6789012345678 /* Load Environment Variables */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Load Environment Variables";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ENV_FILE=\"${SRCROOT}/../.env\"\nGENERATED_CONFIG=\"${SRCROOT}/Flutter/Generated.xcconfig\"\nEXPORT_ENV=\"${SRCROOT}/Flutter/flutter_export_environment.sh\"\n\nif [ -f \"$ENV_FILE\" ]; then\n    DEFINES=\"\"\n    while IFS= read -r line || [ -n \"$line\" ]; do\n        [[ \"$line\" =~ ^[[:space:]]*# ]] && continue\n        [[ -z \"${line// }\" ]] && continue\n        line=$(echo \"$line\" | xargs)\n        ENCODED=$(printf \"%s\" \"$line\" | base64 | tr -d '\\n')\n        if [ -z \"$DEFINES\" ]; then\n            DEFINES=\"$ENCODED\"\n        else\n            DEFINES=\"$DEFINES,$ENCODED\"\n        fi\n    done < \"$ENV_FILE\"\n    \n    if [ -n \"$DEFINES\" ]; then\n        if [ -f \"$GENERATED_CONFIG\" ]; then\n            if grep -q \"^DART_DEFINES=\" \"$GENERATED_CONFIG\"; then\n                CURRENT_DEFINES=$(grep \"^DART_DEFINES=\" \"$GENERATED_CONFIG\" | cut -d'=' -f2-)\n                if [[ \"$CURRENT_DEFINES\" != *\"$DEFINES\"* ]]; then\n                    sed -i '' \"s|^DART_DEFINES=.*|DART_DEFINES=$DEFINES,$CURRENT_DEFINES|g\" \"$GENERATED_CONFIG\"\n                fi\n            else\n                echo \"DART_DEFINES=$DEFINES\" >> \"$GENERATED_CONFIG\"\n            fi\n        fi\n        \n        if [ -f \"$EXPORT_ENV\" ]; then\n            if grep -q \"DART_DEFINES=\" \"$EXPORT_ENV\"; then\n                CURRENT_EXPORT=$(grep \"DART_DEFINES=\" \"$EXPORT_ENV\" | cut -d'=' -f2- | tr -d '\"')\n                if [[ \"$CURRENT_EXPORT\" != *\"$DEFINES\"* ]]; then\n                    sed -i '' \"s|^export \\\"DART_DEFINES=.*|export \\\"DART_DEFINES=$DEFINES,$CURRENT_EXPORT\\\"|g\" \"$EXPORT_ENV\"\n                fi\n            else\n                echo \"export \\\"DART_DEFINES=$DEFINES\\\"\" >> \"$EXPORT_ENV\"\n            fi\n        fi\n    fi\nfi\n";
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
