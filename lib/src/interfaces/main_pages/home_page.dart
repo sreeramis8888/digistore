@@ -82,50 +82,50 @@ class _HomePageState extends ConsumerState<HomePage> {
             children: [
               SizedBox(height: screenSize.responsivePadding(45)),
               const HomeAppBar().fadeIn(),
-              SizedBox(height: screenSize.responsivePadding(16)),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(16),
-                ),
-                child: Container(
-                  height: screenSize.responsivePadding(54),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(20),
-                  ),
-                  decoration: BoxDecoration(
-                    color: kField,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.search,
-                        color: Color(0xFF7D848D),
-                        size: 24,
-                      ),
-                      SizedBox(width: screenSize.responsivePadding(12)),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocusNode,
-                          onTapOutside: (event) => _searchFocusNode.unfocus(),
-                          onChanged: _onSearchChanged,
-                          style: kSmallerTitleL.copyWith(color: kBlack),
-                          decoration: InputDecoration(
-                            hintText: "Search for 'services'",
-                            hintStyle: kSmallerTitleL.copyWith(
-                              color: kBlack.withOpacity(.5),
-                            ),
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ).fadeSlideInFromBottom(delayMilliseconds: 100),
-              ),
+              // SizedBox(height: screenSize.responsivePadding(16)),
+              // Padding(
+              //   padding: EdgeInsets.symmetric(
+              //     horizontal: screenSize.responsivePadding(16),
+              //   ),
+              //   child: Container(
+              //     height: screenSize.responsivePadding(54),
+              //     padding: EdgeInsets.symmetric(
+              //       horizontal: screenSize.responsivePadding(20),
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: kField,
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //     child: Row(
+              //       children: [
+              //         const Icon(
+              //           Icons.search,
+              //           color: Color(0xFF7D848D),
+              //           size: 24,
+              //         ),
+              //         SizedBox(width: screenSize.responsivePadding(12)),
+              //         Expanded(
+              //           child: TextField(
+              //             controller: _searchController,
+              //             focusNode: _searchFocusNode,
+              //             onTapOutside: (event) => _searchFocusNode.unfocus(),
+              //             onChanged: _onSearchChanged,
+              //             style: kSmallerTitleL.copyWith(color: kBlack),
+              //             decoration: InputDecoration(
+              //               hintText: "Search for 'services'",
+              //               hintStyle: kSmallerTitleL.copyWith(
+              //                 color: kBlack.withOpacity(.5),
+              //               ),
+              //               border: InputBorder.none,
+              //               isDense: true,
+              //               contentPadding: EdgeInsets.zero,
+              //             ),
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ).fadeSlideInFromBottom(delayMilliseconds: 100),
+              // ),
               homeDataAsync.when(
                 data: (state) {
                   if (state == null) {

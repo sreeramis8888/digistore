@@ -50,12 +50,12 @@ class PartnerHomePage extends ConsumerWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ).fadeSlideInFromBottom(delayMilliseconds: 100),
-                      SizedBox(height: screenSize.responsivePadding(16)),
-                      HomeSearchBar(
-                        hintText: "Search for 'offers'",
-                        padding: EdgeInsets.zero,
-                        onTap: () {},
-                      ).fadeSlideInFromBottom(delayMilliseconds: 200),
+                      // SizedBox(height: screenSize.responsivePadding(16)),
+                      // HomeSearchBar(
+                      //   hintText: "Search for 'offers'",
+                      //   padding: EdgeInsets.zero,
+                      //   onTap: () {},
+                      // ).fadeSlideInFromBottom(delayMilliseconds: 200),
                       SizedBox(height: screenSize.responsivePadding(24)),
                     ],
                   ),

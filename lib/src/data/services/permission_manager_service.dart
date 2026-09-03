@@ -11,7 +11,6 @@ class PermissionManagerService {
     }
     
     if (status.isPermanentlyDenied) {
-      await openAppSettings();
       return false;
     }
     

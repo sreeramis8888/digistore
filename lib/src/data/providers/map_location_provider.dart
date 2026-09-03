@@ -5,12 +5,21 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/permission_manager_service.dart';
 
+enum LocationErrorReason {
+  none,
+  permissionDenied,
+  permissionPermanentlyDenied,
+  serviceDisabled,
+  general,
+}
+
 class MapLocationState {
   final LatLng center;
   final bool isFetching;
   final String address;
   final String localBody;
   final String errorMessage;
+  final LocationErrorReason errorReason;
 
   const MapLocationState({
     required this.center,
@@ -18,6 +27,7 @@ class MapLocationState {
     this.address = '',
     this.localBody = '',
     this.errorMessage = '',
+    this.errorReason = LocationErrorReason.none,
   });
 
   MapLocationState copyWith({
@@ -26,6 +36,7 @@ class MapLocationState {
     String? address,
     String? localBody,
     String? errorMessage,
+    LocationErrorReason? errorReason,
   }) {
     return MapLocationState(
       center: center ?? this.center,
@@ -33,6 +44,7 @@ class MapLocationState {
       address: address ?? this.address,
       localBody: localBody ?? this.localBody,
       errorMessage: errorMessage ?? this.errorMessage,
+      errorReason: errorReason ?? this.errorReason,
     );
   }
 }
@@ -56,15 +68,44 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
   }
 
   Future<void> determineCurrentLocation() async {
-    state = state.copyWith(isFetching: true, errorMessage: '');
+    state = state.copyWith(
+      isFetching: true,
+      errorMessage: '',
+      errorReason: LocationErrorReason.none,
+    );
     try {
-      final permissionManager = ref.read(permissionManagerServiceProvider);
-      final isGranted = await permissionManager.requestLocationPermission();
-
-      if (!isGranted) throw Exception('Location permissions are required.');
-
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) throw Exception('Location services are disabled.');
+      if (!serviceEnabled) {
+        state = state.copyWith(
+          isFetching: false,
+          errorReason: LocationErrorReason.serviceDisabled,
+          errorMessage: 'Location services are disabled.',
+        );
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        state = state.copyWith(
+          isFetching: false,
+          errorReason: LocationErrorReason.permissionPermanentlyDenied,
+          errorMessage: 'Location permission is permanently denied.',
+        );
+        return;
+      }
+
+      if (permission == LocationPermission.denied) {
+        state = state.copyWith(
+          isFetching: false,
+          errorReason: LocationErrorReason.permissionDenied,
+          errorMessage: 'Location permission was denied.',
+        );
+        return;
+      }
 
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -75,6 +116,7 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
     } catch (e) {
       state = state.copyWith(
         isFetching: false,
+        errorReason: LocationErrorReason.general,
         errorMessage: e.toString().replaceAll('Exception: ', ''),
       );
     }
