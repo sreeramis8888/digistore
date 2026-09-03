@@ -15,6 +15,7 @@ class ProductCard extends ConsumerWidget {
   final String? price;
   final List<String>? tags;
   final ProductModel? rawProduct;
+  final bool hideShopInfo;
 
   const ProductCard({
     super.key,
@@ -25,6 +26,7 @@ class ProductCard extends ConsumerWidget {
     this.price,
     this.tags,
     this.rawProduct,
+    this.hideShopInfo = false,
   });
 
   @override
@@ -43,11 +45,18 @@ class ProductCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
+        final Map<String, dynamic> productData =
+            Map<String, dynamic>.from(rawProduct?.toJson() ?? product);
+        if (hideShopInfo) {
+          productData['hideShopInfo'] = true;
+        }
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ProductDetailsPage(
-              product: rawProduct?.toJson() ?? product,
+              product: productData,
+              hideShopInfo: hideShopInfo,
             ),
           ),
         );

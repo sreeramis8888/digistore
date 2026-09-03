@@ -285,6 +285,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                                       '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
                                   tags: product.tags,
                                   rawProduct: product,
+                                  hideShopInfo: true,
                                 );
                               },
                             ),

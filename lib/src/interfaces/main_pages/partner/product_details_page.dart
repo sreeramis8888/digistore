@@ -11,8 +11,13 @@ import 'create_product.dart';
 
 class ProductDetailsPage extends ConsumerStatefulWidget {
   final Map<String, dynamic> product;
+  final bool hideShopInfo;
 
-  const ProductDetailsPage({super.key, required this.product});
+  const ProductDetailsPage({
+    super.key,
+    required this.product,
+    this.hideShopInfo = false,
+  });
 
   @override
   ConsumerState<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -175,7 +180,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!isPartner) ...[
+                  if (!isPartner &&
+                      !widget.hideShopInfo &&
+                      !(widget.product['hideShopInfo'] ?? false)) ...[
                     InkWell(
                       onTap: partnerId.isNotEmpty
                           ? () => _navigateToShop(context, partnerId)

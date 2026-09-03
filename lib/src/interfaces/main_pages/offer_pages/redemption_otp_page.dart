@@ -31,6 +31,16 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
       return;
     }
 
+    final billAmt = double.tryParse(_saleAmountController.text.trim());
+    if (billAmt == null || billAmt <= 0) {
+      ToastService().showToast(
+        context,
+        'Please enter a valid bill amount',
+        type: ToastType.warning,
+      );
+      return;
+    }
+
     if (otp.length < 6) {
       ToastService().showToast(
         context,
@@ -201,10 +211,10 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Sale Amount Field
+                      // Bill Amount Field
                       PrimaryTextField(
                         controller: _saleAmountController,
-                        label: 'Sale Amount (₹)',
+                        label: 'Bill Amount (₹)',
                         hint: '0.00',
                         type: TextFieldType.number,
                         isRequired: true,
@@ -215,11 +225,11 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Sale amount is required';
+                            return 'Bill amount is required';
                           }
                           final amt = double.tryParse(value.trim());
                           if (amt == null || amt <= 0) {
-                            return 'Enter a valid amount';
+                            return 'Enter a valid bill amount';
                           }
                           
                           final priceRange = widget.args?['priceRange'];
@@ -228,10 +238,10 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                             final max = double.tryParse(priceRange['max']?.toString() ?? '');
                             
                             if (min != null && amt < min) {
-                              return 'Minimum amount should be ₹${min.toInt() == min ? min.toInt() : min}';
+                              return 'Minimum bill amount should be ₹${min.toInt() == min ? min.toInt() : min}';
                             }
                             if (max != null && amt > max) {
-                              return 'Maximum amount should be ₹${max.toInt() == max ? max.toInt() : max}';
+                              return 'Maximum bill amount should be ₹${max.toInt() == max ? max.toInt() : max}';
                             }
                           }
                           
