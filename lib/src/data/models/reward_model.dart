@@ -17,6 +17,8 @@ class RewardModel {
   final bool? isAffordable;
   final bool? isAccessible;
   final int? totalRedeemed;
+  final List<String>? images;
+  final DateTime? expiresAt;
 
   const RewardModel({
     this.id,
@@ -35,6 +37,8 @@ class RewardModel {
     this.isAffordable,
     this.isAccessible,
     this.totalRedeemed,
+    this.images,
+    this.expiresAt,
   });
 
   factory RewardModel.fromJson(Map<String, dynamic> json) {
@@ -45,9 +49,20 @@ class RewardModel {
       image: json['image'] as String?,
       pointsCost: json['pointsCost'] as int?,
       category: json['category'] as String?,
-      value: (json['value'] as num?)?.toDouble(),
-      valueType: json['valueType'] as String?,
-      terms: json['terms'] != null ? List<String>.from(json['terms']) : null,
+      value: (json['value'] as num? ??
+              json['discountValue'] as num? ??
+              json['discount'] as num? ??
+              json['discountPercent'] as num? ??
+              json['discountAmount'] as num?)?.toDouble(),
+      valueType: (json['valueType'] as String? ??
+                  json['discountType'] as String?),
+      terms: _parseTerms(
+        json['terms'] ??
+            json['termsAndConditions'] ??
+            json['terms_and_conditions'] ??
+            json['conditions'] ??
+            json['rules'],
+      ),
       stock: json['stock'] as int?,
       maxPerUser: json['maxPerUser'] as int?,
       isActive: json['isActive'] as bool?,
@@ -55,6 +70,24 @@ class RewardModel {
       isAffordable: json['isAffordable'] as bool?,
       isAccessible: json['isAccessible'] as bool?,
       totalRedeemed: json['totalRedeemed'] as int?,
+      images: json['images'] != null
+          ? List<String>.from(json['images'] as List)
+          : json['gallery'] != null
+              ? List<String>.from(json['gallery'] as List)
+              : json['galleryImages'] != null
+                  ? List<String>.from(json['galleryImages'] as List)
+                  : null,
+      expiresAt: json['expiresAt'] != null
+          ? DateTime.tryParse(json['expiresAt'].toString())?.toLocal()
+          : json['validUntil'] != null
+              ? DateTime.tryParse(json['validUntil'].toString())?.toLocal()
+              : json['validTo'] != null
+                  ? DateTime.tryParse(json['validTo'].toString())?.toLocal()
+                  : json['expiryDate'] != null
+                      ? DateTime.tryParse(json['expiryDate'].toString())?.toLocal()
+                      : json['endDate'] != null
+                          ? DateTime.tryParse(json['endDate'].toString())?.toLocal()
+                          : null,
     );
   }
 
@@ -76,7 +109,28 @@ class RewardModel {
       'isAffordable': isAffordable,
       'isAccessible': isAccessible,
       'totalRedeemed': totalRedeemed,
+      'images': images,
+      'expiresAt': expiresAt?.toIso8601String(),
     };
+  }
+
+  static List<String>? _parseTerms(dynamic rawTerms) {
+    if (rawTerms == null) return null;
+    if (rawTerms is List) {
+      final list = rawTerms
+          .map((e) => e is Map ? (e['text'] ?? e['title'] ?? e['term'] ?? e.values.first).toString() : e.toString())
+          .where((s) => s.trim().isNotEmpty)
+          .toList();
+      return list.isNotEmpty ? list : null;
+    } else if (rawTerms is String && rawTerms.trim().isNotEmpty) {
+      final list = rawTerms
+          .split(RegExp(r'[\r\n]+'))
+          .map((s) => s.replaceAll(RegExp(r'^\s*[\d\.\-\*•]+\s*'), '').trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      return list.isNotEmpty ? list : null;
+    }
+    return null;
   }
 }
 

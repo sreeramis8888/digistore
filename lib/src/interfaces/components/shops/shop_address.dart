@@ -68,12 +68,21 @@ class ShopAddress extends ConsumerWidget {
       }
     } else if (shop?.businessDetails?.address != null) {
       addressText = shop!.businessDetails!.address!;
-      if (shop?.businessDetails?.pincode != null) {
-        cityStateText = 'Pincode: ${shop?.businessDetails?.pincode}';
+      final parts = <String>[];
+      if (shop?.businessDetails?.district != null && shop!.businessDetails!.district!.isNotEmpty) {
+        parts.add(shop!.businessDetails!.district!);
+      }
+      if (shop?.businessDetails?.pincode != null && shop!.businessDetails!.pincode!.isNotEmpty) {
+        parts.add('PIN: ${shop!.businessDetails!.pincode!}');
+      }
+      if (parts.isNotEmpty) {
+        cityStateText = parts.join(' • ');
       }
     } else if (shop?.coverageAreas?.districts?.isNotEmpty == true) {
       addressText = shop!.coverageAreas!.districts!.join(', ');
     }
+
+    final branchContact = selectedBranch?.contactPersonName ?? primaryBranch?.contactPersonName;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,6 +118,13 @@ class ShopAddress extends ConsumerWidget {
                 Text(
                   cityStateText!,
                   style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                ),
+              ],
+              if (branchContact != null && branchContact.isNotEmpty) ...[
+                SizedBox(height: screenSize.responsivePadding(4)),
+                Text(
+                  'Contact Person: $branchContact',
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor, fontSize: 11),
                 ),
               ],
             ],

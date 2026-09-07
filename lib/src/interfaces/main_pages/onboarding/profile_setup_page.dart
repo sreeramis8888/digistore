@@ -7,10 +7,12 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
 import '../../components/location_selection_bottom_sheet.dart';
+import 'package:flutter/services.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/secure_storage_service.dart';
+import '../../../data/services/toast_service.dart';
 
 class ProfileSetupPage extends ConsumerStatefulWidget {
   const ProfileSetupPage({super.key});
@@ -30,6 +32,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   String? _district;
   String? _localBody;
   bool _isSubmitting = false;
+  String? _nameError;
+  String? _emailError;
+  String? _locationError;
   @override
   void initState() {
     super.initState();
@@ -55,6 +60,59 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     _emailController.dispose();
     _locationController.dispose();
     super.dispose();
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Full name is required';
+    }
+    final trimmed = value.trim();
+    if (trimmed.length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    if (trimmed.length > 30) {
+      return 'Name cannot exceed 30 characters';
+    }
+    if (RegExp(r'[0-9]').hasMatch(trimmed)) {
+      return 'Numbers are not allowed in name';
+    }
+    final emojiRegex = RegExp(
+      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])',
+      unicode: true,
+    );
+    if (emojiRegex.hasMatch(trimmed)) {
+      return 'Emojis are not allowed in name';
+    }
+    if (!RegExp(r"^[a-zA-Z\u00C0-\u024F\s.'-]+$").hasMatch(trimmed)) {
+      return 'Special characters are not allowed';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    final trimmed = value.trim();
+    if (trimmed.contains(' ')) {
+      return 'Email cannot contain spaces';
+    }
+    if (!trimmed.contains('@')) {
+      return 'Email must contain an @';
+    }
+    final parts = trimmed.split('@');
+    if (parts.length != 2 || parts[0].isEmpty) {
+      return 'Please enter a valid email prefix';
+    }
+    final domain = parts[1];
+    if (domain.isEmpty || !domain.contains('.') || domain.split('.').last.length < 2) {
+      return 'Please enter a valid domain (e.g. example.com)';
+    }
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(trimmed)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
   }
 
   @override
@@ -154,6 +212,14 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                         hint: 'Enter full name',
                         controller: _nameController,
                         isRequired: true,
+                        maxLength: 30,
+                        showCounter: false,
+                        errorText: _nameError,
+                        onChanged: (_) {
+                          if (_nameError != null) {
+                            setState(() => _nameError = null);
+                          }
+                        },
                       ),
                       SizedBox(height: screenSize.responsivePadding(24)),
                       PrimaryTextField(
@@ -169,6 +235,15 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                         hint: 'Enter email',
                         controller: _emailController,
                         type: TextFieldType.email,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        ],
+                        errorText: _emailError,
+                        onChanged: (_) {
+                          if (_emailError != null) {
+                            setState(() => _emailError = null);
+                          }
+                        },
                       ),
                       SizedBox(height: screenSize.responsivePadding(24)),
                       PrimaryTextField(
@@ -177,6 +252,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                         controller: _locationController,
                         isRequired: true,
                         readOnly: true,
+                        errorText: _locationError,
                         suffixIcon: const Icon(
                           Icons.my_location_rounded,
                           size: 20,
@@ -203,6 +279,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                                       _localBody = localBody;
                                       _lat = lat;
                                       _lng = lng;
+                                      _locationError = null;
                                     });
                                   },
                             ),
@@ -233,17 +310,41 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                     : PrimaryButton(
                         text: 'Submit',
                         onPressed: () async {
-                          if (_nameController.text.isEmpty ||
-                              _locationController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Please fill all required fields.',
-                                ),
-                              ),
-                            );
+                          final nameErr = _validateName(_nameController.text);
+                          final emailErr = _validateEmail(_emailController.text);
+                          final locErr = _locationController.text.trim().isEmpty
+                              ? 'Location is required'
+                              : null;
+
+                          setState(() {
+                            _nameError = nameErr;
+                            _emailError = emailErr;
+                            _locationError = locErr;
+                          });
+
+                          if (nameErr != null || emailErr != null || locErr != null) {
+                            if (locErr != null && nameErr == null && emailErr == null) {
+                              ToastService().showToast(
+                                context,
+                                'Please select your location',
+                                type: ToastType.warning,
+                              );
+                            }
                             return;
                           }
+
+                          // Auto-trim leading/trailing spaces and normalize multiple spaces
+                          final cleanedName = _nameController.text
+                              .trim()
+                              .replaceAll(RegExp(r'\s+'), ' ');
+                          _nameController.text = cleanedName;
+
+                          // Auto-trim spaces and convert uppercase email to lowercase
+                          final rawEmail = _emailController.text
+                              .trim()
+                              .replaceAll(' ', '');
+                          final cleanedEmail = rawEmail.toLowerCase();
+                          _emailController.text = cleanedEmail;
 
                           setState(() {
                             _isSubmitting = true;
@@ -253,8 +354,8 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                             final successProfile = await ref
                                 .read(userProvider.notifier)
                                 .updateProfile(
-                                  name: _nameController.text,
-                                  email: _emailController.text,
+                                  name: cleanedName,
+                                  email: cleanedEmail,
                                   onboardingComplete: true,
                                 );
 
@@ -285,10 +386,12 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Error: ${e.toString()}'),
-                                ),
+                              final errorMsg =
+                                  e.toString().replaceAll('Exception: ', '');
+                              ToastService().showToast(
+                                context,
+                                errorMsg,
+                                type: ToastType.error,
                               );
                             }
                           } finally {

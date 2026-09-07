@@ -19,9 +19,17 @@ class RewardCard extends ConsumerWidget {
   final Color? iconColor;
   final EdgeInsetsGeometry? margin;
   final double? width;
+  final double? height;
   final String? imageUrl;
   final bool isClaimed;
   final String? couponCode;
+  final double? value;
+  final String? valueType;
+  final String? category;
+  final String? requiredTier;
+  final List<String>? terms;
+  final List<String>? images;
+  final dynamic expiresAt;
 
   const RewardCard({
     super.key,
@@ -35,15 +43,24 @@ class RewardCard extends ConsumerWidget {
     this.iconColor,
     this.margin,
     this.width,
+    this.height,
     this.imageUrl,
     this.isClaimed = false,
     this.couponCode,
+    this.value,
+    this.valueType,
+    this.category,
+    this.requiredTier,
+    this.terms,
+    this.images,
+    this.expiresAt,
   });
 
   factory RewardCard.fromReward(
     dynamic reward, {
     EdgeInsetsGeometry? margin,
     double? width,
+    double? height,
   }) {
     return RewardCard(
       id: reward.id,
@@ -52,9 +69,17 @@ class RewardCard extends ConsumerWidget {
       points: reward.pointsCost?.toString() ?? '0',
       imageUrl: reward.image,
       logoText: reward.category,
-      logoColor: Colors.blue.withOpacity(0.1),
+      logoColor: Colors.blue.withValues(alpha: 0.1),
       margin: margin,
       width: width,
+      height: height,
+      value: reward.value,
+      valueType: reward.valueType,
+      category: reward.category,
+      requiredTier: reward.requiredTier,
+      terms: reward.terms,
+      images: reward.images,
+      expiresAt: reward.expiresAt,
     );
   }
 
@@ -62,6 +87,7 @@ class RewardCard extends ConsumerWidget {
     dynamic claimed, {
     EdgeInsetsGeometry? margin,
     double? width,
+    double? height,
   }) {
     final reward = claimed.rewardId;
     return RewardCard(
@@ -71,11 +97,19 @@ class RewardCard extends ConsumerWidget {
       points: claimed.pointsSpent?.toString() ?? '0',
       imageUrl: reward?.image,
       logoText: reward?.category,
-      logoColor: Colors.blue.withOpacity(0.1),
+      logoColor: Colors.blue.withValues(alpha: 0.1),
       margin: margin,
       width: width,
+      height: height,
       isClaimed: true,
       couponCode: claimed.couponCode,
+      value: reward?.value,
+      valueType: reward?.valueType,
+      category: reward?.category,
+      requiredTier: reward?.requiredTier,
+      terms: reward?.terms,
+      images: reward?.images,
+      expiresAt: claimed.validUntil ?? reward?.expiresAt,
     );
   }
 
@@ -83,37 +117,49 @@ class RewardCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
 
+    final detailArgs = {
+      'id': id,
+      'title': title,
+      'subtitle': subtitle,
+      'description': subtitle,
+      'points': points,
+      'logoText': logoText,
+      'logoColor': logoColor,
+      'icon': icon,
+      'imageUrl': imageUrl,
+      'shopName': '',
+      'isClaimed': isClaimed,
+      'couponCode': couponCode,
+      'value': value,
+      'valueType': valueType,
+      'category': category ?? logoText,
+      'requiredTier': requiredTier,
+      'terms': terms,
+      'images': images,
+      'gallery': images,
+      'expiresAt': expiresAt,
+    };
+
     return InteractiveFeedbackButton(
       onPressed: () {
         Navigator.of(context).pushNamed(
           'rewardDetail',
-          arguments: {
-            'id': id,
-            'title': title,
-            'subtitle': subtitle,
-            'points': points,
-            'logoText': logoText,
-            'logoColor': logoColor,
-            'icon': icon,
-            'imageUrl': imageUrl,
-            'shopName': logoText ?? title,
-            'isClaimed': isClaimed,
-            'couponCode': couponCode,
-          },
+          arguments: detailArgs,
         );
       },
       scaleFactor: 0.98,
       child: Container(
         width: width,
+        height: height ?? double.infinity,
         margin: margin,
         padding: EdgeInsets.all(screenSize.responsivePadding(5)),
         decoration: BoxDecoration(
           color: kWhite,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: kBorder.withOpacity(0.5)),
+          border: Border.all(color: kBorder.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -122,31 +168,36 @@ class RewardCard extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              children: [
-                SizedBox(height: screenSize.responsivePadding(10)),
-                Text(
-                  title,
-                  style: kSmallerTitleL.copyWith(
-                    color: kTextColor,
-                    fontWeight: FontWeight.w700,
+            SizedBox(
+              height: screenSize.responsivePadding(46),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: kSmallerTitleL.copyWith(
+                      color: kTextColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: screenSize.responsivePadding(4)),
-                Text(
-                  subtitle,
-                  style: kSmallerTitleL.copyWith(
-                    color: kSecondaryTextColor,
-                    fontSize: 10,
-                    letterSpacing: .5,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  if (subtitle.isNotEmpty && subtitle != 'null' && subtitle != 'nil') ...[
+                    SizedBox(height: screenSize.responsivePadding(2)),
+                    Text(
+                      subtitle,
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 10,
+                        letterSpacing: .5,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
             ),
             SizedBox(
               height: screenSize.responsivePadding(60),
@@ -160,10 +211,10 @@ class RewardCard extends ConsumerWidget {
                         width: screenSize.responsivePadding(60),
                         height: screenSize.responsivePadding(60),
                         decoration: BoxDecoration(
-                          color: logoColor!.withOpacity(0.05),
+                          color: logoColor!.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: logoColor!.withOpacity(0.1),
+                            color: logoColor!.withValues(alpha: 0.1),
                           ),
                         ),
                         alignment: Alignment.center,
@@ -172,7 +223,7 @@ class RewardCard extends ConsumerWidget {
                           children: [
                             Icon(
                               Icons.image_not_supported_outlined,
-                              color: logoColor!.withOpacity(0.4),
+                              color: logoColor!.withValues(alpha: 0.4),
                               size: 24,
                             ),
                           ],
@@ -199,7 +250,7 @@ class RewardCard extends ConsumerWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: kPrimaryColor.withOpacity(0.1),
+                    color: kPrimaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -223,19 +274,7 @@ class RewardCard extends ConsumerWidget {
                 onPressed: () {
                   Navigator.of(context).pushNamed(
                     'rewardDetail',
-                    arguments: {
-                      'id': id,
-                      'title': title,
-                      'subtitle': subtitle,
-                      'points': points,
-                      'logoText': logoText,
-                      'logoColor': logoColor,
-                      'icon': icon,
-                      'imageUrl': imageUrl,
-                      'shopName': logoText ?? title,
-                      'isClaimed': isClaimed,
-                      'couponCode': couponCode,
-                    },
+                    arguments: detailArgs,
                   );
                 },
                 padding: const EdgeInsets.symmetric(horizontal: 4),

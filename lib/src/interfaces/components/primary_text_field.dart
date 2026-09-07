@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 
+import 'package:flutter/services.dart';
+
 enum TextFieldType { text, email, number, date }
 
 class PrimaryTextField extends StatefulWidget {
@@ -22,6 +24,9 @@ class PrimaryTextField extends StatefulWidget {
   final int maxLines;
   final int? maxLength;
   final bool showCounter;
+  final List<TextInputFormatter>? inputFormatters;
+  final AutovalidateMode? autovalidateMode;
+  final String? errorText;
 
   const PrimaryTextField({
     super.key,
@@ -42,6 +47,9 @@ class PrimaryTextField extends StatefulWidget {
     this.maxLines = 1,
     this.maxLength,
     this.showCounter = false,
+    this.inputFormatters,
+    this.autovalidateMode,
+    this.errorText,
   });
 
   @override
@@ -100,6 +108,8 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           keyboardType: _getKeyboardType(),
           obscureText: _isObscured,
           validator: widget.validator,
+          autovalidateMode: widget.autovalidateMode,
+          inputFormatters: widget.inputFormatters,
           readOnly: widget.type == TextFieldType.date || widget.readOnly,
           onTap: widget.onTap,
           onChanged: widget.onChanged,
@@ -154,6 +164,12 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Colors.red),
             ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+            errorText: widget.errorText,
+            errorMaxLines: 2,
           ),
         ),
       ],

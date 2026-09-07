@@ -5,7 +5,6 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/primary_button.dart';
-import '../../components/social_login_button.dart';
 import '../../../data/services/secure_storage_service.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/toast_service.dart';
@@ -22,6 +21,8 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   String phoneNumber = '';
+  String rawPhoneNumber = '';
+  String? _phoneError;
 
   @override
   Widget build(BuildContext context) {
@@ -100,9 +101,37 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             width: 1.5,
                           ),
                         ),
+                        errorText: _phoneError,
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 1.5,
+                          ),
+                        ),
                       ),
                       onChanged: (phone) {
                         phoneNumber = phone.completeNumber;
+                        rawPhoneNumber = phone.number;
+                        if (_phoneError != null) {
+                          setState(() {
+                            _phoneError = null;
+                          });
+                        }
+                      },
+                      onCountryChanged: (_) {
+                        if (_phoneError != null) {
+                          setState(() {
+                            _phoneError = null;
+                          });
+                        }
                       },
                     ),
                   ),
@@ -113,49 +142,58 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 text: 'Login',
                 isLoading: ref.watch(authProvider).isLoading,
                 onPressed: () async {
-                  if (phoneNumber.isNotEmpty) {
-                    try {
-                      final storage = ref.read(secureStorageServiceProvider);
-                      await storage.saveRegistrationData({
-                        'phone': phoneNumber,
-                      });
-
-                      final success = await ref
-                          .read(authProvider.notifier)
-                          .sendOtp(phoneNumber);
-
-                      if (success && context.mounted) {
-                        Navigator.of(context).pushNamed('otp');
-                      } else if (!success && context.mounted) {
-                        final error =
-                            ref.read(authProvider).error?.toString() ??
-                            'Failed to send OTP';
-
-                        ToastService().showToast(
-                          context,
-                          error.replaceAll('Exception: ', ''),
-                          type: ToastType.error,
-                        );
-                      }
-                    } catch (e, stack) {
-                      // Optional: log stack trace for debugging
-                      debugPrint('Send OTP Error: $e');
-                      debugPrintStack(stackTrace: stack);
-
-                      if (context.mounted) {
-                        ToastService().showToast(
-                          context,
-                          e.toString().replaceAll('Exception: ', ''),
-                          type: ToastType.error,
-                        );
-                      }
-                    }
-                  } else {
+                  final trimmedDigits = rawPhoneNumber.trim();
+                  if (trimmedDigits.isEmpty) {
+                    setState(() {
+                      _phoneError = 'Phone number is required';
+                    });
                     ToastService().showToast(
                       context,
-                      'Please enter a valid phone number',
+                      'Phone number is required',
                       type: ToastType.warning,
                     );
+                    return;
+                  }
+
+                  setState(() {
+                    _phoneError = null;
+                  });
+
+                  try {
+                    final storage = ref.read(secureStorageServiceProvider);
+                    await storage.saveRegistrationData({
+                      'phone': phoneNumber,
+                    });
+
+                    final success = await ref
+                        .read(authProvider.notifier)
+                        .sendOtp(phoneNumber);
+
+                    if (success && context.mounted) {
+                      Navigator.of(context).pushNamed('otp');
+                    } else if (!success && context.mounted) {
+                      final error =
+                          ref.read(authProvider).error?.toString() ??
+                          'Failed to send OTP';
+
+                      ToastService().showToast(
+                        context,
+                        error.replaceAll('Exception: ', ''),
+                        type: ToastType.error,
+                      );
+                    }
+                  } catch (e, stack) {
+                    // Optional: log stack trace for debugging
+                    debugPrint('Send OTP Error: $e');
+                    debugPrintStack(stackTrace: stack);
+
+                    if (context.mounted) {
+                      ToastService().showToast(
+                        context,
+                        e.toString().replaceAll('Exception: ', ''),
+                        type: ToastType.error,
+                      );
+                    }
                   }
                 },
               ),

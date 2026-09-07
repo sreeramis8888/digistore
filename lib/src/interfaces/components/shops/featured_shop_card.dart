@@ -55,7 +55,7 @@ class FeaturedShopCard extends ConsumerWidget {
               shop.businessDetails?.businessName ?? '',
               style: kSmallTitleL.copyWith(fontSize: 11, height: 1.2),
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ],

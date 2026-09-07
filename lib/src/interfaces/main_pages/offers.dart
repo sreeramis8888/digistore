@@ -149,8 +149,8 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = isPartner
-        ? screenSize.responsivePadding(218)
-        : screenSize.responsivePadding(258);
+        ? screenSize.responsivePadding(210)
+        : screenSize.responsivePadding(245);
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(

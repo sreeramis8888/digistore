@@ -182,6 +182,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: screenSize.responsivePadding(40),
@@ -201,34 +202,89 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
             SizedBox(width: screenSize.responsivePadding(12)),
             Expanded(
               flex: 3,
-              child: Text(
-                widget.shopName,
-                style: kBodyTitleM.copyWith(fontSize: 24),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.shopName,
+                    style: kBodyTitleM.copyWith(fontSize: 24),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (widget.shop?.businessInfo?.tagline != null &&
+                      widget.shop!.businessInfo!.tagline!.trim().isNotEmpty) ...[
+                    SizedBox(height: screenSize.responsivePadding(2)),
+                    Text(
+                      widget.shop!.businessInfo!.tagline!.trim(),
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
               ),
             ),
             SizedBox(width: screenSize.responsivePadding(8)),
             Flexible(
               flex: 1,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(8),
-                  vertical: screenSize.responsivePadding(4),
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0XFFDFEAFF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  category,
-                  style: kSmallerTitleSB.copyWith(
-                    color: kPrimaryColor,
-                    fontSize: 10,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.shop?.isFeatured == true) ...[
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(6),
+                        vertical: screenSize.responsivePadding(4),
+                      ),
+                      margin: EdgeInsets.only(right: screenSize.responsivePadding(4)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF9E6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFFD54F).withValues(alpha: 0.6)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star, size: 10, color: Color(0xFFD97706)),
+                          SizedBox(width: screenSize.responsivePadding(2)),
+                          Text(
+                            'Featured',
+                            style: kSmallerTitleSB.copyWith(
+                              color: const Color(0xFF92400E),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  Flexible(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(8),
+                        vertical: screenSize.responsivePadding(4),
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0XFFDFEAFF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        category,
+                        style: kSmallerTitleSB.copyWith(
+                          color: kPrimaryColor,
+                          fontSize: 10,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
               ),
             ),
           ],
@@ -318,6 +374,28 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                   '($totalSales reviews)',
                   style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
+                if (widget.shop?.businessInfo?.yearsOfExperience != null &&
+                    widget.shop!.businessInfo!.yearsOfExperience! > 0) ...[
+                  SizedBox(width: screenSize.responsivePadding(8)),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(6),
+                      vertical: screenSize.responsivePadding(2),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '${widget.shop!.businessInfo!.yearsOfExperience}+ yrs exp',
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
             OutlinedButton.icon(
