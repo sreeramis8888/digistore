@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
@@ -26,6 +27,10 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
   double? _lng;
   String? _district;
   String? _localBody;
+
+  String? _nameError;
+  String? _emailError;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -56,6 +61,59 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
     _emailController.dispose();
     _locationController.dispose();
     super.dispose();
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Full name is required';
+    }
+    final trimmed = value.trim();
+    if (trimmed.length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    if (trimmed.length > 30) {
+      return 'Name cannot exceed 30 characters';
+    }
+    if (RegExp(r'[0-9]').hasMatch(trimmed)) {
+      return 'Numbers are not allowed in name';
+    }
+    final emojiRegex = RegExp(
+      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])',
+      unicode: true,
+    );
+    if (emojiRegex.hasMatch(trimmed)) {
+      return 'Emojis are not allowed in name';
+    }
+    if (!RegExp(r"^[a-zA-Z\u00C0-\u024F\s.'-]+$").hasMatch(trimmed)) {
+      return 'Special characters are not allowed';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    final trimmed = value.trim();
+    if (trimmed.contains(' ')) {
+      return 'Email cannot contain spaces';
+    }
+    if (!trimmed.contains('@')) {
+      return 'Email must contain an @';
+    }
+    final parts = trimmed.split('@');
+    if (parts.length != 2 || parts[0].isEmpty) {
+      return 'Please enter a valid email prefix';
+    }
+    final domain = parts[1];
+    if (domain.isEmpty || !domain.contains('.') || domain.split('.').last.length < 2) {
+      return 'Please enter a valid domain (e.g. example.com)';
+    }
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(trimmed)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
   }
 
   @override
@@ -93,6 +151,15 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                           label: 'Name',
                           hint: 'Enter your name',
                           controller: _nameController,
+                          isRequired: true,
+                          maxLength: 30,
+                          showCounter: false,
+                          errorText: _nameError,
+                          onChanged: (_) {
+                            if (_nameError != null) {
+                              setState(() => _nameError = null);
+                            }
+                          },
                         ),
                         SizedBox(height: screenSize.responsivePadding(24)),
                         PrimaryTextField(
@@ -106,6 +173,16 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                           label: 'Email',
                           hint: 'Enter email',
                           controller: _emailController,
+                          type: TextFieldType.email,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                          ],
+                          errorText: _emailError,
+                          onChanged: (_) {
+                            if (_emailError != null) {
+                              setState(() => _emailError = null);
+                            }
+                          },
                         ),
                         SizedBox(height: screenSize.responsivePadding(24)),
                         PrimaryTextField(
@@ -160,23 +237,63 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                 SizedBox(height: screenSize.responsivePadding(16)),
                 PrimaryButton(
                   text: 'Save',
+                  isLoading: _isLoading,
                   onPressed: () async {
-                    final success = await ref.read(userProvider.notifier).updateProfile(
-                      name: _nameController.text,
-                      email: _emailController.text,
-                    );
+                    final nameErr = _validateName(_nameController.text);
+                    final emailErr = _validateEmail(_emailController.text);
 
-                    if (success && _lat != null && _lng != null) {
-                      await ref.read(userProvider.notifier).updateLocation(
-                        lat: _lat!,
-                        lng: _lng!,
-                        district: _district ?? '',
-                        localBody: _localBody ?? '',
-                      );
+                    setState(() {
+                      _nameError = nameErr;
+                      _emailError = emailErr;
+                    });
+
+                    if (nameErr != null || emailErr != null) {
+                      return;
                     }
 
-                    if (success && context.mounted) {
-                      Navigator.pop(context);
+                    // Auto-trim leading/trailing spaces and normalize multiple spaces
+                    final cleanedName = _nameController.text
+                        .trim()
+                        .replaceAll(RegExp(r'\s+'), ' ');
+                    _nameController.text = cleanedName;
+
+                    // Auto-trim spaces and convert uppercase email to lowercase
+                    final rawEmail = _emailController.text
+                        .trim()
+                        .replaceAll(' ', '');
+                    final cleanedEmail = rawEmail.toLowerCase();
+                    _emailController.text = cleanedEmail;
+
+                    setState(() {
+                      _isLoading = true;
+                    });
+
+                    try {
+                      final success = await ref
+                          .read(userProvider.notifier)
+                          .updateProfile(
+                            name: cleanedName,
+                            email: cleanedEmail,
+                          );
+
+                      if (success && _lat != null && _lng != null) {
+                        await ref.read(userProvider.notifier).updateLocation(
+                          lat: _lat!,
+                          lng: _lng!,
+                          district: _district ?? '',
+                          localBody: _localBody ?? '',
+                        );
+                      }
+
+                      if (success && context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
                     }
                   },
                 ),

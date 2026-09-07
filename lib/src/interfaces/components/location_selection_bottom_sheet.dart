@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../../data/services/permission_manager_service.dart';
+import 'confirmation_dialog.dart';
 import 'primary_button.dart';
 import 'primary_text_field.dart';
 
@@ -32,9 +34,12 @@ class LocationSelectionBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _LocationSelectionBottomSheetState
-    extends ConsumerState<LocationSelectionBottomSheet> {
+    extends ConsumerState<LocationSelectionBottomSheet>
+    with WidgetsBindingObserver {
   bool _isFetching = false;
   String _errorMessage = '';
+  bool _openedLocationSettings = false;
+  bool _openedAppSettings = false;
 
   late final TextEditingController _districtController;
   late final TextEditingController _localBodyController;
@@ -45,6 +50,7 @@ class _LocationSelectionBottomSheetState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _districtController = TextEditingController(
       text: widget.initialDistrict ?? '',
     );
@@ -57,9 +63,62 @@ class _LocationSelectionBottomSheetState
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _districtController.dispose();
     _localBodyController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_openedLocationSettings || _openedAppSettings) {
+        _openedLocationSettings = false;
+        _openedAppSettings = false;
+        _checkLocationOnResume();
+      }
+    }
+  }
+
+  Future<void> _checkLocationOnResume() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (serviceEnabled && mounted) {
+      _detectLocation();
+    }
+  }
+
+  Future<void> _showLocationServiceDisabledDialog() async {
+    await showConfirmationDialog(
+      context: context,
+      title: 'Location Services Disabled',
+      message:
+          'Location service (GPS) is turned off on your device. Please turn on location services in device settings to detect your current location.',
+      confirmText: 'Open Settings',
+      cancelText: 'Not Now',
+      icon: Icons.location_disabled_rounded,
+      confirmColor: kPrimaryColor,
+      onConfirm: () async {
+        _openedLocationSettings = true;
+        await Geolocator.openLocationSettings();
+      },
+    );
+  }
+
+  Future<void> _showPermissionPermanentlyDeniedDialog() async {
+    await showConfirmationDialog(
+      context: context,
+      title: 'Location Permission Required',
+      message:
+          'Location access is permanently disabled for Setgo. Please enable location permission in app settings to detect your current location.',
+      confirmText: 'Open Settings',
+      cancelText: 'Not Now',
+      icon: Icons.location_off_rounded,
+      confirmColor: kPrimaryColor,
+      onConfirm: () async {
+        _openedAppSettings = true;
+        await openAppSettings();
+      },
+    );
   }
 
   Future<void> _detectLocation() async {
@@ -69,17 +128,39 @@ class _LocationSelectionBottomSheetState
     });
 
     try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _isFetching = false;
+          _errorMessage = 'Location services are disabled on your device.';
+        });
+        if (mounted) {
+          await _showLocationServiceDisabledDialog();
+        }
+        return;
+      }
+
       final permissionManager = ref.read(permissionManagerServiceProvider);
       final isGranted = await permissionManager.requestLocationPermission();
 
-      if (!isGranted)
+      if (!isGranted) {
+        final isPermanentlyDenied =
+            await Permission.locationWhenInUse.isPermanentlyDenied;
+        if (isPermanentlyDenied) {
+          setState(() {
+            _isFetching = false;
+            _errorMessage = 'Location permission is permanently denied.';
+          });
+          if (mounted) {
+            await _showPermissionPermanentlyDeniedDialog();
+          }
+          return;
+        }
+
         throw Exception(
           'Location permissions are required to capture geolocation.',
         );
-
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled)
-        throw Exception('Location services are disabled on your device.');
+      }
 
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -96,7 +177,9 @@ class _LocationSelectionBottomSheetState
               place.subAdministrativeArea ?? place.administrativeArea ?? '';
           _localBodyController.text = place.locality ?? place.subLocality ?? '';
         }
-      } catch (e) { print('Location Error: $e'); }
+      } catch (e) {
+        print('Location Error: $e');
+      }
 
       setState(() {
         _lat = position.latitude;
@@ -107,7 +190,9 @@ class _LocationSelectionBottomSheetState
         () => _errorMessage = e.toString().replaceAll('Exception: ', ''),
       );
     } finally {
-      setState(() => _isFetching = false);
+      if (mounted) {
+        setState(() => _isFetching = false);
+      }
     }
   }
 
@@ -291,26 +376,45 @@ class _LocationSelectionBottomSheetState
             ),
             if (_errorMessage.isNotEmpty) ...[
               const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: kRed.withOpacity(0.06),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: kRed, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _errorMessage,
-                        style: kSmallerTitleR.copyWith(
-                          fontSize: 11,
-                          color: kRed,
+              GestureDetector(
+                onTap: _errorMessage.contains('Location services are disabled')
+                    ? () => _showLocationServiceDisabledDialog()
+                    : _errorMessage.contains('permanently denied')
+                        ? () => _showPermissionPermanentlyDeniedDialog()
+                        : null,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: kRed.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: kRed, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage,
+                          style: kSmallerTitleR.copyWith(
+                            fontSize: 11,
+                            color: kRed,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      if (_errorMessage.contains('Location services are disabled') ||
+                          _errorMessage.contains('permanently denied')) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          'Settings',
+                          style: kSmallerTitleM.copyWith(
+                            fontSize: 11,
+                            color: kPrimaryColor,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ],

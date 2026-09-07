@@ -44,7 +44,7 @@ class UserNotifier extends Notifier<UserModel?> {
 
     final Map<String, dynamic> payload = {
       'name': name,
-      'email': email,
+      if (email.isNotEmpty) 'email': email,
     };
 
     if (onboardingComplete != null) {
@@ -72,7 +72,7 @@ class UserNotifier extends Notifier<UserModel?> {
       }
       return true;
     }
-    return false;
+    throw Exception(response.message ?? 'Failed to update profile');
   }
 
   Future<bool> updateLocation({
@@ -110,7 +110,7 @@ class UserNotifier extends Notifier<UserModel?> {
       }
       return true;
     }
-    return false;
+    throw Exception(response.message ?? 'Failed to update location');
   }
 }
 

@@ -12,6 +12,7 @@ import '../../components/shops/shop_address.dart';
 import '../../components/shops/shop_reviews.dart';
 import '../../components/shops/shop_socials.dart';
 import '../../components/shops/shop_operating_hours.dart';
+import '../../components/shops/shop_faqs.dart';
 import '../../components/offers/deal_card.dart';
 import '../../components/shops/product_card.dart';
 import '../../../data/providers/shops_provider.dart';
@@ -209,6 +210,10 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                           currentShop?.businessInfo?.operatingHours) !=
                       null)
                     SizedBox(height: screenSize.responsivePadding(32)),
+                  if (currentShop?.businessInfo?.faqs?.isNotEmpty == true) ...[
+                    ShopFaqs(faqs: currentShop?.businessInfo?.faqs),
+                    SizedBox(height: screenSize.responsivePadding(32)),
+                  ],
                   if (offersAsync != null)
                     offersAsync.when(
                       data: (offers) {

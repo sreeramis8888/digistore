@@ -45,7 +45,7 @@ class DealCard extends ConsumerWidget {
     this.validTo,
     this.rawOffer,
     this.distance,
-    this.descriptionMaxLines = 2,
+    this.descriptionMaxLines = 1,
   });
 
   static String? _resolveBadgeText(OfferModel offer) {
@@ -148,7 +148,7 @@ class DealCard extends ConsumerWidget {
     double? width,
     EdgeInsetsGeometry? margin,
     bool hideShopName = false,
-    int descriptionMaxLines = 2,
+    int descriptionMaxLines = 1,
   }) {
     final badgeText = _resolveBadgeText(offer);
 

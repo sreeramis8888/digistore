@@ -76,11 +76,11 @@ class CategoryCard extends ConsumerWidget {
           cleanPath.toLowerCase().contains('.svg')) {
         return SvgPicture.network(
           cleanPath,
-          width: 26,
-          height: 26,
+          width: 34,
+          height: 34,
           placeholderBuilder: (context) => const SizedBox(
-            width: 15,
-            height: 15,
+            width: 18,
+            height: 18,
             child: CircularProgressIndicator(
               strokeWidth: 1.5,
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
@@ -90,12 +90,12 @@ class CategoryCard extends ConsumerWidget {
       } else {
         return CachedNetworkImage(
           imageUrl: cleanPath,
-          width: 26,
-          height: 26,
+          width: 34,
+          height: 34,
           fit: BoxFit.contain,
           placeholder: (context, url) => const SizedBox(
-            width: 15,
-            height: 15,
+            width: 18,
+            height: 18,
             child: CircularProgressIndicator(
               strokeWidth: 1.5,
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
@@ -103,7 +103,7 @@ class CategoryCard extends ConsumerWidget {
           ),
           errorWidget: (context, url, error) => const Icon(
             Icons.category_outlined,
-            size: 26,
+            size: 34,
             color: Colors.grey,
           ),
         );
@@ -112,18 +112,18 @@ class CategoryCard extends ConsumerWidget {
       if (cleanPath.endsWith('.svg')) {
         return SvgPicture.asset(
           cleanPath,
-          width: 26,
-          height: 26,
+          width: 34,
+          height: 34,
         );
       } else {
         return Image.asset(
           cleanPath,
-          width: 26,
-          height: 26,
+          width: 34,
+          height: 34,
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) => const Icon(
             Icons.category_outlined,
-            size: 26,
+            size: 34,
             color: Colors.grey,
           ),
         );

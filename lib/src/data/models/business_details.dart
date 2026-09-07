@@ -5,6 +5,7 @@ class BusinessDetails {
   final String? gstNumber;
   final String? address;
   final String? pincode;
+  final String? district;
 
   const BusinessDetails({
     this.businessName,
@@ -13,6 +14,7 @@ class BusinessDetails {
     this.gstNumber,
     this.address,
     this.pincode,
+    this.district,
   });
 
   factory BusinessDetails.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class BusinessDetails {
       gstNumber: json['gstNumber'] as String?,
       address: json['address'] as String?,
       pincode: json['pincode'] as String?,
+      district: json['district'] as String?,
     );
   }
 
@@ -36,6 +39,7 @@ class BusinessDetails {
       'gstNumber': gstNumber,
       'address': address,
       'pincode': pincode,
+      'district': district,
     };
   }
 }

@@ -18,14 +18,16 @@ class ShopSocials extends ConsumerWidget {
     final socialLinks = shop?.businessInfo?.socialLinks;
     final websiteUrl = shop?.businessInfo?.websiteUrl;
     final whatsappNumber = shop?.businessInfo?.whatsappNumber;
+    final email = shop?.businessInfo?.email;
 
     final hasWebsite = websiteUrl?.isNotEmpty == true;
     final hasInstagram = socialLinks?.instagram?.isNotEmpty == true;
     final hasFacebook = socialLinks?.facebook?.isNotEmpty == true;
     final hasYoutube = socialLinks?.youtube?.isNotEmpty == true;
     final hasWhatsapp = whatsappNumber?.isNotEmpty == true;
+    final hasEmail = email?.isNotEmpty == true;
 
-    if (!hasWebsite && !hasInstagram && !hasFacebook && !hasYoutube && !hasWhatsapp) {
+    if (!hasWebsite && !hasInstagram && !hasFacebook && !hasYoutube && !hasWhatsapp && !hasEmail) {
       return const SizedBox.shrink();
     }
 
@@ -84,6 +86,14 @@ class ShopSocials extends ConsumerWidget {
                 screenSize: screenSize,
                 color: const Color(0xFFCD201F),
               ),
+            if (hasEmail)
+              _SocialButton(
+                iconData: Icons.email_outlined,
+                label: 'Email',
+                onPressed: () => launchEmail(email!),
+                screenSize: screenSize,
+                color: const Color(0xFF4B5563),
+              ),
           ],
         ),
       ],
@@ -92,14 +102,16 @@ class ShopSocials extends ConsumerWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  final String svgAsset;
+  final String? svgAsset;
+  final IconData? iconData;
   final String label;
   final VoidCallback onPressed;
   final ScreenSizeData screenSize;
   final Color color;
 
   const _SocialButton({
-    required this.svgAsset,
+    this.svgAsset,
+    this.iconData,
     required this.label,
     required this.onPressed,
     required this.screenSize,
@@ -110,12 +122,18 @@ class _SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: SvgPicture.asset(
-        svgAsset,
-        width: 18,
-        height: 18,
-        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-      ),
+      icon: svgAsset != null
+          ? SvgPicture.asset(
+              svgAsset!,
+              width: 18,
+              height: 18,
+              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            )
+          : Icon(
+              iconData ?? Icons.link,
+              size: 18,
+              color: color,
+            ),
       label: Text(label, style: kSmallTitleM.copyWith(color: color)),
       style: OutlinedButton.styleFrom(
         backgroundColor: color.withOpacity(0.06),

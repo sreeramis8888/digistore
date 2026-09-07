@@ -13,6 +13,9 @@ class ConnectivityService with WidgetsBindingObserver {
   bool _isOffline = false;
   bool get isOffline => _isOffline;
 
+  final _connectionRestoredController = StreamController<void>.broadcast();
+  Stream<void> get onConnectionRestored => _connectionRestoredController.stream;
+
   Timer? _pollingTimer;
   DateTime? _lastToastTime;
   bool _isChecking = false;
@@ -27,10 +30,17 @@ class ConnectivityService with WidgetsBindingObserver {
     // Initial check
     checkConnectivity();
 
-    // Periodic check every 6 seconds
+    // Schedule polling
+    _scheduleNextCheck();
+  }
+
+  void _scheduleNextCheck() {
     _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 6), (_) {
-      checkConnectivity();
+    final interval = _isOffline ? const Duration(seconds: 2) : const Duration(seconds: 6);
+    _pollingTimer = Timer(interval, () {
+      checkConnectivity().then((_) {
+        if (_isInitialized) _scheduleNextCheck();
+      });
     });
   }
 
@@ -71,6 +81,7 @@ class ConnectivityService with WidgetsBindingObserver {
 
   void notifyOffline() {
     _handleStatusChange(false, forceToast: true);
+    _scheduleNextCheck();
   }
 
   void _handleStatusChange(bool isConnected, {bool forceToast = false}) {
@@ -93,12 +104,15 @@ class ConnectivityService with WidgetsBindingObserver {
       final wasOffline = _isOffline;
       _isOffline = false;
 
-      if (wasOffline && canShowToast) {
-        _lastToastTime = now;
-        _showToast(
-          'You are back online.',
-          ToastType.success,
-        );
+      if (wasOffline) {
+        _connectionRestoredController.add(null);
+        if (canShowToast) {
+          _lastToastTime = now;
+          _showToast(
+            'You are back online.',
+            ToastType.success,
+          );
+        }
       }
     }
   }
@@ -118,6 +132,7 @@ class ConnectivityService with WidgetsBindingObserver {
   void dispose() {
     _pollingTimer?.cancel();
     _pollingTimer = null;
+    _connectionRestoredController.close();
     WidgetsBinding.instance.removeObserver(this);
     _isInitialized = false;
   }

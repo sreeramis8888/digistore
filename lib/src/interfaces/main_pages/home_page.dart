@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:setgo/src/interfaces/animations/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/providers/screen_size_provider.dart';
+import '../../data/services/connectivity_service.dart';
 import '../components/home/home_app_bar.dart';
 import '../components/rewards/loyalty_reward_card.dart';
 import '../components/home/category_list.dart';
@@ -20,8 +22,6 @@ import 'partner/partner_home.dart';
 import 'offer_pages/active_deals_page.dart';
 import '../../data/providers/banners_provider.dart';
 
-import '../../data/constants/style_constants.dart';
-
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -32,20 +32,35 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  String _searchQuery = '';
+  final String _searchQuery = '';
+  StreamSubscription<void>? _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription =
+        ConnectivityService.instance.onConnectionRestored.listen((_) {
+      if (!mounted) return;
+      _autoRetryIfError();
+    });
+  }
+
+  void _autoRetryIfError() {
+    final homeDataState = ref.read(homeDataProvider);
+    if (homeDataState.hasError || homeDataState.value == null) {
+      ref.invalidate(homeDataProvider);
+      ref.invalidate(bannersProvider);
+    }
+  }
 
   @override
   void dispose() {
+    _connectivitySubscription?.cancel();
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query.toLowerCase();
-    });
-  }
 
   void _navigateToDealsGrid(
     BuildContext context,
@@ -65,6 +80,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final homeDataAsync = ref.watch(homeDataProvider);
+
+    ref.listen<AsyncValue<HomeResponseState?>>(homeDataProvider, (previous, next) {
+      if (next.hasError) {
+        ConnectivityService.instance.checkConnectivity();
+      }
+    });
 
     if (GlobalVariables.isPartner) {
       return const PartnerHomePage();
@@ -137,7 +158,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   return _buildEmptyState(context, 'Invalid state');
                 },
                 loading: () => const HomeShimmer(),
-                error: (err, stack) => _buildEmptyState(context, 'No Data Available'),
+                error: (err, stack) => _buildEmptyState(context, 'No Data Available', isError: true),
               ),
             ],
           ),
@@ -146,14 +167,18 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, String message) {
+  Widget _buildEmptyState(BuildContext context, String message, {bool isError = false}) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.5,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.withOpacity(0.5)),
+            Icon(
+              isError ? Icons.wifi_off_rounded : Icons.inbox_outlined,
+              size: 48,
+              color: Colors.grey.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             Text(
               message,
@@ -163,6 +188,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                 fontWeight: FontWeight.w500,
               ),
             ),
+            if (isError) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  ref.invalidate(homeDataProvider);
+                  ref.invalidate(bannersProvider);
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Retry'),
+              ),
+            ],
           ],
         ),
       ),
