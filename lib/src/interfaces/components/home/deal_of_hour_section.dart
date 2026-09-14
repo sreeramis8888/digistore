@@ -48,7 +48,7 @@ class DealOfHourSection extends ConsumerWidget {
         SizedBox(
           height: isPromo
               ? screenSize.responsivePadding(290)
-              : screenSize.responsivePadding(208),
+              : screenSize.responsivePadding(216),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: hPad),
