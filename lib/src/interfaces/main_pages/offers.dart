@@ -155,7 +155,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
-      appBar: AppBar(titleSpacing:0,
+      appBar: AppBar(titleSpacing: Navigator.canPop(context) ? 0 : null,
         centerTitle: false,
         title: Text(
           'Offers',

@@ -7,7 +7,7 @@ import '../../../data/models/category_model.dart';
 import '../../../data/providers/category_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
-import '../../components/home/category_card.dart';
+import '../../components/home/explore_category_card.dart';
 import '../../components/loading_indicator.dart';
 import 'category_offers_page.dart';
 
@@ -23,12 +23,18 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final Map<String, String> _categoryIcons = {
+  static const _categoryIcons = {
     'Restaurants & Cafes': 'assets/svg/food.svg',
     'Beauty & Wellness': 'assets/svg/personal_care.svg',
     'Automotive Services': 'assets/svg/construction.svg',
     'Fitness & Sports': 'assets/svg/events.svg',
     'Books & Stationery': 'assets/svg/daily_needs.svg',
+    'Daily Needs': 'assets/svg/daily_needs.svg',
+    'Personal Care': 'assets/svg/personal_care.svg',
+    'Medical': 'assets/svg/medical.svg',
+    'Events': 'assets/svg/events.svg',
+    'Fashion': 'assets/svg/fashion.svg',
+    'Home Services': 'assets/svg/home_services.svg',
     'All Offers': 'assets/svg/daily_needs.svg',
   };
 
@@ -197,34 +203,29 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
                       horizontal: screenSize.responsivePadding(16),
                       vertical: screenSize.responsivePadding(12),
                     ),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: screenSize.responsivePadding(120),
-                      childAspectRatio: 0.72,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 140 / 126,
                       crossAxisSpacing: screenSize.responsivePadding(12),
-                      mainAxisSpacing: screenSize.responsivePadding(16),
+                      mainAxisSpacing: screenSize.responsivePadding(12),
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
                       final category = item.value;
-
-                      final iconUrl = (category.iconUrl != null &&
-                              category.iconUrl != 'null' &&
-                              category.iconUrl!.trim().isNotEmpty)
-                          ? category.iconUrl!
-                          : (_categoryIcons[category.name] ??
-                              'assets/svg/daily_needs.svg');
+                      final cardIndex = item.key;
 
                       return InteractiveFeedbackButton(
                         onPressed: () => _onSelectCategory(category),
-                        scaleFactor: 0.95,
-                        child: Center(
-                          child: CategoryCard(
-                            category: {
-                              'name': category.name ?? '',
-                              'icon': iconUrl,
-                            },
-                          ),
+                        scaleFactor: 0.96,
+                        child: ExploreCategoryCard(
+                          category: category,
+                          index: cardIndex,
+                          width: double.infinity,
+                          height: double.infinity,
+                          iconSize: screenSize.responsivePadding(68),
+                          fallbackAsset: _categoryIcons[category.name] ??
+                              'assets/svg/daily_needs.svg',
                         ),
                       );
                     },
