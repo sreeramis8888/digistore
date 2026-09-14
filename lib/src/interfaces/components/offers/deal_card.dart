@@ -212,7 +212,7 @@ class DealCard extends ConsumerWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: screenSize.responsivePadding(140),
+                  height: screenSize.responsivePadding(115),
                   width: double.infinity,
                   child: AdvancedNetworkImage(
                     imageUrl: imageUrl ?? '',

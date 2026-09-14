@@ -5,6 +5,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/models/shop_model.dart';
+import '../../../data/utils/interactive_feedback_button.dart';
 
 class ShopGridCard extends ConsumerWidget {
   final String category;
@@ -35,156 +36,127 @@ class ShopGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final parsedRating = double.tryParse(rating);
+    final formattedRating = parsedRating != null && parsedRating > 0
+        ? parsedRating.toStringAsFixed(1)
+        : rating;
 
-    return GestureDetector(
-      onTap: () {
+    return InteractiveFeedbackButton(
+      onPressed: () {
         Navigator.of(
           context,
         ).pushNamed('shopDetail', arguments: shop ?? shopName);
       },
+      scaleFactor: 0.98,
       child: Container(
         decoration: BoxDecoration(
           color: kWhite,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kBorder.withValues(alpha: 0.5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
               children: [
                 SizedBox(
-                  height: screenSize.responsivePadding(120),
+                  height: screenSize.responsivePadding(115),
                   width: double.infinity,
-                  child: imageUrl != null
+                  child: (imageUrl != null && imageUrl!.isNotEmpty)
                       ? AdvancedNetworkImage(
                           imageUrl: imageUrl!,
                           fit: BoxFit.cover,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
                           disableFade: true,
                         )
                       : Container(
                           decoration: BoxDecoration(
                             color: avatarColor.withValues(alpha: 0.12),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
                           ),
                           child: Center(
                             child: Icon(
                               avatarIcon,
-                              size: 40,
+                              size: 36,
                               color: avatarColor.withValues(alpha: 0.5),
                             ),
                           ),
                         ),
                 ),
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: screenSize.responsivePadding(130),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(12),
-                      vertical: screenSize.responsivePadding(4),
-                    ),
-                    decoration: const BoxDecoration(
-                      color: kPrimaryColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(74),
-                      ),
-                    ),
-                    child: Text(
-                      category,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: kSmallerTitleSB.copyWith(
-                        color: kWhite,
-                        fontSize: 10,
+                if (category.isNotEmpty)
+                  Positioned(
+                    left: 12,
+                    top: 12,
+                    right: 12,
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4.5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF07982C),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: kSmallerTitleB.copyWith(
+                            color: kWhite,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+                padding: EdgeInsets.all(screenSize.responsivePadding(12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: screenSize.responsivePadding(24),
-                          height: screenSize.responsivePadding(24),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: avatarColor,
-                          ),
-                          child:
-                              (logoUrl ?? shop?.businessInfo?.businessLogo) !=
-                                  null
-                              ? AdvancedNetworkImage(
-                                  imageUrl:
-                                      logoUrl ??
-                                      shop!.businessInfo!.businessLogo!,
-                                  fit: BoxFit.cover,
-                                  borderRadius: BorderRadius.circular(
-                                    screenSize.responsivePadding(12),
-                                  ),
-                                  disableFade: true,
-                                )
-                              : Icon(avatarIcon, size: 14, color: kWhite),
-                        ),
-                        SizedBox(width: screenSize.responsivePadding(8)),
-                        Expanded(
-                          child: Text(
-                            shopName,
-                            style: kSmallerTitleM,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: kSecondaryTextColor,
+                        Text(
+                          shopName,
+                          style: kSmallTitleSB.copyWith(
+                            color: const Color(0xFF111827),
+                            fontSize: 15,
+                            height: 1.2,
+                            fontWeight: FontWeight.w700,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(width: screenSize.responsivePadding(4)),
-                        Expanded(
-                          child: Text(
-                            address,
-                            style: kSmallerTitleL.copyWith(
-                              color: kSecondaryTextColor,
-                              fontSize: 10,
+                        SizedBox(height: screenSize.responsivePadding(4)),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 13,
+                              color: Color(0xFF1C274C),
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                address,
+                                style: kSmallerTitleM.copyWith(
+                                  color: const Color(0xFF111827),
+                                  fontSize: 11,
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -194,23 +166,27 @@ class ShopGridCard extends ConsumerWidget {
                         Text(
                           distance,
                           style: kSmallerTitleM.copyWith(
-                            color: kSecondaryTextColor,
+                            color: const Color(0xFF4E4E4E),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              double.tryParse(rating)?.toStringAsFixed(1) ??
-                                  rating,
+                              formattedRating,
                               style: kSmallerTitleL.copyWith(
-                                color: kSecondaryTextColor,
+                                color: const Color(0xFF4E4E4E),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                             const SizedBox(width: 4),
                             const Icon(
-                              Icons.star,
-                              color: Color(0xFFFFD700),
+                              Icons.star_rounded,
                               size: 14,
+                              color: Color(0xFFFFCB2B),
                             ),
                           ],
                         ),

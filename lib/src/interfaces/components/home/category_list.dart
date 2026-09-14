@@ -36,6 +36,7 @@ class CategoryList extends ConsumerWidget {
     final gap = screenSize.responsivePadding(12);
     final cardWidth = screenSize.responsivePadding(140);
     final cardHeight = screenSize.responsivePadding(126);
+    final iconSize = screenSize.responsivePadding(68);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,6 +67,7 @@ class CategoryList extends ConsumerWidget {
                   index: index,
                   width: cardWidth,
                   height: cardHeight,
+                  iconSize: iconSize,
                   fallbackAsset: _fallbackIcons[category.name] ??
                       'assets/svg/daily_needs.svg',
                 ),

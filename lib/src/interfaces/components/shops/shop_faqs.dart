@@ -28,9 +28,10 @@ class _ShopFaqsState extends ConsumerState<ShopFaqs> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Frequently Asked Questions', style: kBodyTitleM),
-        SizedBox(height: screenSize.responsivePadding(12)),
+        SizedBox(height: screenSize.responsivePadding(10)),
         ListView.separated(
           shrinkWrap: true,
+          padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: faqs.length,
           separatorBuilder: (_, __) => SizedBox(height: screenSize.responsivePadding(8)),

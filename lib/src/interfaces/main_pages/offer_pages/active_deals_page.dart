@@ -58,7 +58,7 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
         ref.watch(activeDealsProvider(dealType: widget.dealType));
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
-    final itemHeight = screenSize.responsivePadding(230);
+    final itemHeight = screenSize.responsivePadding(200);
     final aspectRatio = itemWidth / itemHeight;
 
     Widget bodyContent;

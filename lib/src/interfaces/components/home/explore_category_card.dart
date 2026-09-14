@@ -52,6 +52,7 @@ class ExploreCategoryCard extends StatelessWidget {
   final String? fallbackAsset;
   final double width;
   final double height;
+  final double iconSize;
 
   const ExploreCategoryCard({
     super.key,
@@ -60,6 +61,7 @@ class ExploreCategoryCard extends StatelessWidget {
     this.fallbackAsset,
     this.width = 140,
     this.height = 126,
+    this.iconSize = 68,
   });
 
   @override
@@ -104,12 +106,15 @@ class ExploreCategoryCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: -10,
-            bottom: -12,
+            right: 0,
+            bottom: 0,
             child: SizedBox(
-              width: 100,
-              height: 100,
-              child: _buildVisual(icon),
+              width: iconSize,
+              height: iconSize,
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: _buildVisual(icon),
+              ),
             ),
           ),
         ],
@@ -124,37 +129,39 @@ class ExploreCategoryCard extends StatelessWidget {
         return SvgPicture.network(
           pathOrUrl,
           fit: BoxFit.contain,
+          alignment: Alignment.bottomRight,
           placeholderBuilder: (_) => const SizedBox.shrink(),
         );
       }
-      return ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: pathOrUrl,
-          fit: BoxFit.cover,
-          width: 100,
-          height: 100,
-          errorWidget: (_, _, _) => Icon(
-            Icons.category_outlined,
-            size: 48,
-            color: Colors.grey.shade400,
-          ),
+      return CachedNetworkImage(
+        imageUrl: pathOrUrl,
+        fit: BoxFit.cover,
+        width: iconSize,
+        height: iconSize,
+        alignment: Alignment.bottomRight,
+        errorWidget: (_, _, _) => Icon(
+          Icons.category_outlined,
+          size: iconSize * 0.5,
+          color: Colors.grey.shade400,
         ),
       );
     }
 
     if (pathOrUrl.endsWith('.svg')) {
-      return Padding(
-        padding: const EdgeInsets.all(12),
-        child: SvgPicture.asset(pathOrUrl, fit: BoxFit.contain),
+      return SvgPicture.asset(
+        pathOrUrl,
+        fit: BoxFit.contain,
+        alignment: Alignment.bottomRight,
       );
     }
 
     return Image.asset(
       pathOrUrl,
       fit: BoxFit.contain,
+      alignment: Alignment.bottomRight,
       errorBuilder: (_, _, _) => Icon(
         Icons.category_outlined,
-        size: 48,
+        size: iconSize * 0.5,
         color: Colors.grey.shade400,
       ),
     );

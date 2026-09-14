@@ -217,7 +217,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / crossAxisCount; // wait, spacing logic
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final calculatedItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(230);
+    final itemHeight = screenSize.responsivePadding(200);
     final aspectRatio = calculatedItemWidth / itemHeight;
 
     final nearbyState = ref.watch(shopsProvider);

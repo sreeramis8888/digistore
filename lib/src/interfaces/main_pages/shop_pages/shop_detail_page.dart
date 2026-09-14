@@ -105,7 +105,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         screenSize.responsivePadding(12 * (crossAxisCount - 1));
 
     final offerItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final offerItemHeight = screenSize.responsivePadding(200);
+    final offerItemHeight = screenSize.responsivePadding(175);
     final offerAspectRatio = offerItemWidth / offerItemHeight;
 
     final productItemWidth = (screenSize.width - totalPadding) / crossAxisCount;

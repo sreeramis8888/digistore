@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const kPrimaryColor = Color(0xFF6D0BB2);
+const kPrimaryColor = Color(0xFF6155F5);
 const kSecondaryColor = Color(0xFF33B3C5);
 const kBackgroundColor = Color(0xFFF2F2F2);
 const Color kCardBackgroundColor = Color(0xFFF6F6F6);

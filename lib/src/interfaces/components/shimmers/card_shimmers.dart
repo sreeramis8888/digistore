@@ -66,7 +66,7 @@ class CardShimmers {
         children: [
           _shimmerRect(
             double.infinity,
-            screenSize.responsivePadding(140),
+            screenSize.responsivePadding(115),
             radius: 12,
           ),
           Padding(
@@ -99,39 +99,37 @@ class CardShimmers {
     return Container(
       decoration: BoxDecoration(
         color: kWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kBorder.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _shimmerRect(
             double.infinity,
-            screenSize.responsivePadding(120),
-            radius: 12,
+            screenSize.responsivePadding(115),
+            radius: 24,
           ),
           Padding(
-            padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+            padding: EdgeInsets.all(screenSize.responsivePadding(12)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _shimmerRect(screenSize.width * 0.3, 14, radius: 4),
+                SizedBox(height: screenSize.responsivePadding(4)),
                 Row(
                   children: [
-                    _shimmerCircle(screenSize.responsivePadding(24)),
-                    SizedBox(width: screenSize.responsivePadding(8)),
-                    _shimmerRect(screenSize.width * 0.25, 14, radius: 4),
+                    _shimmerCircle(12),
+                    SizedBox(width: screenSize.responsivePadding(4)),
+                    _shimmerRect(screenSize.width * 0.25, 11, radius: 4),
                   ],
                 ),
-                SizedBox(height: screenSize.responsivePadding(8)),
-                _shimmerRect(double.infinity, 12, radius: 4),
-                SizedBox(height: screenSize.responsivePadding(4)),
-                _shimmerRect(screenSize.width * 0.4, 12, radius: 4),
-                SizedBox(height: screenSize.responsivePadding(8)),
+                SizedBox(height: screenSize.responsivePadding(10)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _shimmerRect(40, 10, radius: 4),
-                    _shimmerRect(30, 10, radius: 4),
+                    _shimmerRect(35, 11, radius: 4),
+                    _shimmerRect(30, 11, radius: 4),
                   ],
                 ),
               ],
