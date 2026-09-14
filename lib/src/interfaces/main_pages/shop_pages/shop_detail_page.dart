@@ -4,6 +4,7 @@ import 'package:setgo/src/data/models/shop_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../components/advanced_network_image.dart';
+import '../../components/full_screen_gallery.dart';
 import '../../components/shops/shop_header.dart';
 import '../../components/shops/shop_about.dart';
 import '../../components/shops/shop_gallery.dart';
@@ -32,6 +33,30 @@ class ShopDetailPage extends ConsumerStatefulWidget {
 
 class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
   BusinessBranch? _selectedBranch;
+
+  void _openGallery({
+    required List<String> images,
+    required String? initialUrl,
+  }) {
+    if (images.isEmpty) return;
+    final initialIndex = initialUrl != null
+        ? images.indexOf(initialUrl).clamp(0, images.length - 1)
+        : 0;
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return FullScreenGallery(
+            images: images,
+            initialIndex: initialIndex,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+  }
 
   @override
   void didUpdateWidget(ShopDetailPage oldWidget) {
@@ -91,6 +116,20 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         (currentShop?.businessInfo?.businessImages?.isNotEmpty == true
             ? currentShop!.businessInfo!.businessImages!.first
             : null);
+
+    final allImages = <String>[];
+    if (currentShop?.businessInfo?.coverImage != null &&
+        currentShop!.businessInfo!.coverImage!.isNotEmpty) {
+      allImages.add(currentShop.businessInfo!.coverImage!);
+    }
+    if (currentShop?.businessInfo?.businessImages != null) {
+      for (final img in currentShop!.businessInfo!.businessImages!) {
+        if (img.isNotEmpty && !allImages.contains(img)) {
+          allImages.add(img);
+        }
+      }
+    }
+
     final offersAsync = shopId.isNotEmpty
         ? ref.watch(shopOffersProvider(shopId))
         : null;
@@ -143,21 +182,29 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  heroImage != null
-                      ? AdvancedNetworkImage(
-                          imageUrl: heroImage,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          color: const Color(0xFFF3F4F6),
-                          child: const Center(
-                            child: Icon(
-                              Icons.storefront_outlined,
-                              size: 56,
-                              color: Color(0xFF9CA3AF),
+                  GestureDetector(
+                    onTap: allImages.isNotEmpty
+                        ? () => _openGallery(
+                              images: allImages,
+                              initialUrl: heroImage,
+                            )
+                        : null,
+                    child: heroImage != null
+                        ? AdvancedNetworkImage(
+                            imageUrl: heroImage,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            color: const Color(0xFFF3F4F6),
+                            child: const Center(
+                              child: Icon(
+                                Icons.storefront_outlined,
+                                size: 56,
+                                color: Color(0xFF9CA3AF),
+                              ),
                             ),
                           ),
-                        ),
+                  ),
                   Positioned(
                     top: MediaQuery.paddingOf(context).top + 10,
                     right: 16,

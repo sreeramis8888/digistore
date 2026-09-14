@@ -12,6 +12,7 @@ import '../../../data/providers/shops_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
+import '../../components/full_screen_gallery.dart';
 import '../partner/create_service.dart';
 import 'book_service_page.dart';
 
@@ -31,6 +32,30 @@ class ServiceDetailsPage extends ConsumerStatefulWidget {
 
 class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
   bool _isNavigatingToShop = false;
+
+  void _openGallery({
+    required List<String> images,
+    required String? initialUrl,
+  }) {
+    if (images.isEmpty) return;
+    final initialIndex = initialUrl != null
+        ? images.indexOf(initialUrl).clamp(0, images.length - 1)
+        : 0;
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return FullScreenGallery(
+            images: images,
+            initialIndex: initialIndex,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+  }
 
   Future<void> _navigateToShop(String shopOrPartnerId) async {
     if (_isNavigatingToShop || shopOrPartnerId.isEmpty) return;
@@ -136,6 +161,9 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     final tags = _resolveTags(service);
 
     final imageUrl = service.images.isNotEmpty ? service.images.first : '';
+    final allImages = service.images.isNotEmpty
+        ? service.images
+        : (imageUrl.isNotEmpty ? [imageUrl] : <String>[]);
 
     // Services of this shop for "You May Also Like"
     final shopServicesAsync = targetShopOrPartnerId.isNotEmpty
@@ -248,30 +276,35 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Service Hero Image
-                  Container(
-                    width: double.infinity,
-                    height: screenSize.responsivePadding(300),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Color(0xFFE3E3E3), width: 1),
+                  GestureDetector(
+                    onTap: allImages.isNotEmpty
+                        ? () => _openGallery(images: allImages, initialUrl: imageUrl)
+                        : null,
+                    child: Container(
+                      width: double.infinity,
+                      height: screenSize.responsivePadding(300),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Color(0xFFE3E3E3), width: 1),
+                        ),
                       ),
-                    ),
-                    child: (imageUrl.isNotEmpty)
-                        ? AdvancedNetworkImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.cover,
-                            disableFade: true,
-                          )
-                        : Container(
-                            color: const Color(0xFFE5E7EB),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                size: 48,
-                                color: Color(0xFF9CA3AF),
+                      child: (imageUrl.isNotEmpty)
+                          ? AdvancedNetworkImage(
+                              imageUrl: imageUrl,
+                              fit: BoxFit.cover,
+                              disableFade: true,
+                            )
+                          : Container(
+                              color: const Color(0xFFE5E7EB),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  size: 48,
+                                  color: Color(0xFF9CA3AF),
+                                ),
                               ),
                             ),
-                          ),
+                    ),
                   ),
 
                   // Separator

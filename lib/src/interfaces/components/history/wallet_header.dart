@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/home_provider.dart';
@@ -17,22 +16,16 @@ class WalletHeader extends ConsumerWidget {
     final user = ref.watch(userProvider);
     final homeDataState = ref.watch(homeDataProvider).value;
 
-    final name = (user?.name != null && user!.name!.isNotEmpty)
-        ? user.name!
-        : 'Guest User';
+    final name = (user?.name != null && user!.name!.trim().isNotEmpty)
+        ? user.name!.trim().toUpperCase()
+        : 'ABDUL WAHAAB';
 
     int points = user?.pointsBalance ?? 0;
-    String? tierName = user?.currentTier?.name;
 
     if (homeDataState is CustomerHomeState) {
       final loyaltyCard = homeDataState.data.loyaltyCard;
-      if (loyaltyCard != null) {
-        if (loyaltyCard.pointsBalance != null) {
-          points = loyaltyCard.pointsBalance!;
-        }
-        if (loyaltyCard.tier != null && loyaltyCard.tier!.isNotEmpty) {
-          tierName = loyaltyCard.tier;
-        }
+      if (loyaltyCard != null && loyaltyCard.pointsBalance != null) {
+        points = loyaltyCard.pointsBalance!;
       }
     }
 
@@ -41,76 +34,85 @@ class WalletHeader extends ConsumerWidget {
         screenSize.responsivePadding(16),
         screenSize.responsivePadding(16),
         screenSize.responsivePadding(16),
-        screenSize.responsivePadding(8),
+        screenSize.responsivePadding(10),
       ),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.responsivePadding(20),
+          vertical: screenSize.responsivePadding(20),
+        ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [kHeroPurpleStart, kHeroPurpleEnd],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFF7770D2), Color(0xFF6155F5)],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.082),
+            width: 1,
+          ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
+                    'Your available points:',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: screenSize.responsivePadding(4)),
+                  Text(
                     name,
-                    style: kBodyTitleB.copyWith(
-                      color: kWhite,
-                      fontSize: 18,
-                      height: 1.2,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: screenSize.responsivePadding(4)),
-                  Text(
-                    tierName != null && tierName.isNotEmpty
-                        ? '$tierName · Available points'
-                        : 'Available points',
-                    style: kSmallerTitleL.copyWith(
-                      color: kWhite.withValues(alpha: 0.85),
-                      fontSize: 13,
-                    ),
-                  ),
                 ],
               ),
             ),
+            SizedBox(width: screenSize.responsivePadding(12)),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.responsivePadding(12),
-                vertical: screenSize.responsivePadding(10),
+                vertical: screenSize.responsivePadding(8),
               ),
               decoration: BoxDecoration(
-                color: kWhite.withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: kWhite.withValues(alpha: 0.22),
-                ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(
-                    'assets/svg/coin.svg',
-                    width: 20,
-                    height: 20,
-                  ),
-                  SizedBox(width: screenSize.responsivePadding(8)),
                   Text(
                     '$points',
-                    style: kSubHeadingB.copyWith(
-                      color: kWhite,
-                      fontSize: 20,
-                      height: 1,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF6155F5),
                     ),
+                  ),
+                  SizedBox(width: screenSize.responsivePadding(4)),
+                  SvgPicture.asset(
+                    'assets/svg/coin.svg',
+                    width: 12,
+                    height: 12,
                   ),
                 ],
               ),

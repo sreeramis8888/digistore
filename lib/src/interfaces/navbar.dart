@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../data/constants/color_constants.dart';
 import '../data/router/nav_router.dart';
 import '../data/services/deep_link_service.dart';
@@ -13,7 +14,6 @@ import 'main_pages/home_page.dart';
 import 'main_pages/offers.dart';
 import 'main_pages/shops.dart';
 import 'main_pages/rewards.dart';
-import 'main_pages/history.dart';
 import '../data/utils/global_variables.dart';
 import 'main_pages/partner/partner_home.dart';
 import 'main_pages/products.dart';
@@ -68,9 +68,9 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
   List<String> get _currentLabels {
     if (GlobalVariables.isPartner) {
-      return ['Home', 'Offers', 'Products', 'History'];
+      return ['Home', 'Offers', 'Products & Services', 'History'];
     }
-    return ['Home', 'Offers', 'Shops', 'Rewards', 'Products'];
+    return ['Home', 'Offers', 'Shops', 'Rewards', 'Products & Services'];
   }
 
   List<String> get _currentInactiveIcons {
@@ -178,7 +178,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
         ref.read(shopsProvider.notifier).updateSearch('');
       }
       ref.read(allShopsProvider.notifier).updateSearch('');
-    } else if (currentLabel == 'Products') {
+    } else if (currentLabel.contains('Products')) {
       ref.read(partnerProductsProvider.notifier).updateSearch('');
     }
 
@@ -190,6 +190,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
     final selectedIndex = ref.watch(selectedIndexProvider);
 
     final labels = _currentLabels;
+    const Color activeColor = Color(0xFF07838C);
+    const Color inactiveColor = Color(0xFF99A1AF);
 
     return PopScope(
       canPop: selectedIndex == 0,
@@ -223,8 +225,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
             color: kWhite,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 18,
                 offset: const Offset(0, -2),
               ),
             ],
@@ -236,7 +238,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
               child: Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Row(
                       children: List.generate(labels.length, (index) {
                         final bool isSelected = selectedIndex == index;
@@ -251,7 +253,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                               children: [
                                 AnimatedScale(
                                   duration: const Duration(milliseconds: 200),
-                                  scale: isSelected ? 1.2 : 1.0,
+                                  scale: isSelected ? 1.15 : 1.0,
                                   child: Builder(
                                     builder: (context) {
                                       final iconPath = isSelected
@@ -265,8 +267,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                         return Icon(
                                           iconData,
                                           color: isSelected
-                                              ? kBlue
-                                              : const Color(0xFF99A1AF),
+                                              ? activeColor
+                                              : inactiveColor,
                                           size: 24,
                                         );
                                       }
@@ -274,8 +276,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                         iconPath,
                                         colorFilter: ColorFilter.mode(
                                           isSelected
-                                              ? kBlue
-                                              : const Color(0xFF99A1AF),
+                                              ? activeColor
+                                              : inactiveColor,
                                           BlendMode.srcIn,
                                         ),
                                         width: 24,
@@ -284,8 +286,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                             (BuildContext context) => Icon(
                                               iconData,
                                               color: isSelected
-                                                  ? kBlue
-                                                  : const Color(0xFF99A1AF),
+                                                  ? activeColor
+                                                  : inactiveColor,
                                               size: 24,
                                             ),
                                       );
@@ -293,16 +295,22 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  labels[index],
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? kBlue
-                                        : const Color(0xFF99A1AF),
-                                    fontSize: 10,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w500
-                                        : FontWeight.w400,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      labels[index],
+                                      style: GoogleFonts.urbanist(
+                                        color: isSelected
+                                            ? activeColor
+                                            : inactiveColor,
+                                        fontSize: 10,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],

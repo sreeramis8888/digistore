@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/constants/color_constants.dart';
-import '../../data/constants/style_constants.dart';
 import '../components/history/wallet_header.dart';
 import '../components/history/transaction_tile.dart';
+import '../components/history/wallet_empty_state.dart';
 import '../../data/providers/transactions_provider.dart';
 import '../../data/providers/screen_size_provider.dart';
-import '../components/empty_state.dart';
 import '../components/guest_login_prompt.dart';
 import '../../data/utils/global_variables.dart';
 import 'package:setgo/src/interfaces/animations/index.dart';
@@ -19,31 +19,35 @@ class HistoryPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
     final transactionsAsync = ref.watch(transactionsProvider());
+    final canPop = Navigator.of(context).canPop();
 
     return Scaffold(
-      backgroundColor: kRewardPageBg,
+      backgroundColor: const Color(0xFFF3F5F4),
       appBar: AppBar(
-        backgroundColor: kWhite,
+        backgroundColor: const Color(0xFFF3F5F4),
         elevation: 0,
         scrolledUnderElevation: 0,
-        surfaceTintColor: kWhite,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 20,
-            color: Color(0xFF111827),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        surfaceTintColor: Colors.transparent,
+        leading: canPop
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 18,
+                  color: Color(0xFF373737),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
         title: Text(
           'My Wallet',
-          style: kSmallTitleB.copyWith(
-            color: const Color(0xFF111827),
-            fontSize: 16,
+          style: GoogleFonts.urbanist(
+            color: const Color(0xFF373737),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
         centerTitle: false,
-        titleSpacing: 0,
+        titleSpacing: canPop ? 0 : screenSize.responsivePadding(16),
       ),
       body: GlobalVariables.isGuest
           ? const GuestLoginPrompt(
@@ -67,15 +71,10 @@ class HistoryPage extends ConsumerWidget {
                         if (paginated.transactions.isEmpty) {
                           return CustomScrollView(
                             physics: const AlwaysScrollableScrollPhysics(),
-                            slivers: [
+                            slivers: const [
                               SliverFillRemaining(
                                 hasScrollBody: false,
-                                child: const EmptyState(
-                                  imagePath: 'assets/png/empty_history.png',
-                                  title: 'No transaction history',
-                                  subtitle:
-                                      'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
-                                ),
+                                child: WalletEmptyState(),
                               ),
                             ],
                           );
@@ -83,35 +82,16 @@ class HistoryPage extends ConsumerWidget {
 
                         return ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.fromLTRB(
-                            screenSize.responsivePadding(16),
-                            0,
-                            screenSize.responsivePadding(16),
-                            screenSize.responsivePadding(24),
+                          padding: EdgeInsets.only(
+                            bottom: screenSize.responsivePadding(24),
                           ),
-                          itemCount: paginated.transactions.length + 1,
+                          itemCount: paginated.transactions.length,
                           itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: screenSize.responsivePadding(12),
-                                  top: screenSize.responsivePadding(4),
-                                ),
-                                child: Text(
-                                  'Transaction History',
-                                  style: kSmallTitleB.copyWith(
-                                    color: const Color(0xFF111827),
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              );
-                            }
-
                             final transaction =
-                                paginated.transactions[index - 1];
+                                paginated.transactions[index];
                             return TransactionTile.fromTransaction(transaction)
                                 .fadeSlideInFromLeft(
-                              delayMilliseconds: (index - 1) * 40,
+                              delayMilliseconds: index * 40,
                             );
                           },
                         );
@@ -126,15 +106,10 @@ class HistoryPage extends ConsumerWidget {
                       ),
                       error: (e, s) => CustomScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: [
+                        slivers: const [
                           SliverFillRemaining(
                             hasScrollBody: false,
-                            child: const EmptyState(
-                              imagePath: 'assets/png/empty_history.png',
-                              title: 'No transaction history',
-                              subtitle:
-                                  'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
-                            ),
+                            child: WalletEmptyState(),
                           ),
                         ],
                       ),
