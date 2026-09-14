@@ -7,6 +7,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/models/service_model.dart';
 import '../../../data/providers/partner_bookings_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/services/snackbar_service.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/loading_indicator.dart';
@@ -98,7 +99,7 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
   }
 
   Future<void> _updateStatus(BookingModel booking, String status) async {
-    final messenger = ScaffoldMessenger.of(context);
+    final snackbar = SnackbarService();
     final res = await ref
         .read(partnerBookingsProvider.notifier)
         .updateBookingStatus(booking.id, status);
@@ -113,15 +114,15 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
           _pendingCount = (_pendingCount - 1).clamp(0, 9999);
         });
       }
-      messenger.showSnackBar(
-        SnackBar(content: Text('Booking ${status.replaceAll('_', ' ')}')),
+      snackbar.showSnackBar(
+        context,
+        'Booking ${status.replaceAll('_', ' ')}',
       );
     } else {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(res.message ?? 'Failed to update booking'),
-          backgroundColor: Colors.red,
-        ),
+      snackbar.showSnackBar(
+        context,
+        res.message ?? 'Failed to update booking',
+        type: SnackbarType.error,
       );
     }
   }
@@ -211,24 +212,28 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                 return GestureDetector(
                   onTap: () => _loadFilter(key),
                   child: Container(
+                    height: 33,
                     padding: EdgeInsets.symmetric(
                       horizontal: isSelected ? 24 : 16,
-                      vertical: 8,
                     ),
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.transparent : _chipIdleBg,
                       borderRadius: BorderRadius.circular(20),
-                      border: isSelected
-                          ? Border.all(color: kPrimaryColor, width: 1)
-                          : null,
+                      border: Border.all(
+                        color: isSelected ? kPrimaryColor : Colors.transparent,
+                        width: 1,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           filter['label']!,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
+                            height: 1,
                             fontWeight:
                                 isSelected ? FontWeight.w700 : FontWeight.w600,
                             color: isSelected ? kPrimaryColor : _chipIdleText,
@@ -237,10 +242,9 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                         if (showBadge) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
+                            height: 16,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: kPrimaryColor,
                               borderRadius: BorderRadius.circular(100),
@@ -249,6 +253,7 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                               '$_pendingCount',
                               style: GoogleFonts.urbanist(
                                 fontSize: 10,
+                                height: 1,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                               ),
