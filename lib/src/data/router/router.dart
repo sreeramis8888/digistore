@@ -27,6 +27,7 @@ import '../../interfaces/main_pages/partner/create_offer_page.dart';
 import '../../interfaces/main_pages/offers.dart';
 import '../../interfaces/main_pages/products.dart';
 import '../../interfaces/main_pages/partner/partner_history.dart';
+import '../../interfaces/main_pages/partner/partner_bookings_page.dart';
 import '../../interfaces/main_pages/partner/sales_calculator_page.dart';
 import '../../interfaces/main_pages/partner/partner_reviews_page.dart';
 import '../../interfaces/components/webview_page.dart';
@@ -317,6 +318,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'partnerHistory':
       page = const PartnerHistoryPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'partnerBookings':
+      page = const PartnerBookingsPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

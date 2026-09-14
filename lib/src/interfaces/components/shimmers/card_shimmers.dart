@@ -267,39 +267,35 @@ class CardShimmers {
 
   static Widget partnerRedemptionItemShimmer(ScreenSizeData screenSize) {
     return Container(
-      padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF6F6F6),
-        borderRadius: BorderRadius.circular(4),
-      ),
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _shimmerRect(50, 50, radius: 8),
-              SizedBox(width: screenSize.responsivePadding(12)),
+              _shimmerRect(40, 40, radius: 8),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _shimmerRect(120, 16, radius: 4),
-                    SizedBox(height: screenSize.responsivePadding(4)),
-                    _shimmerRect(80, 12, radius: 4),
+                    _shimmerRect(140, 14, radius: 4),
+                    const SizedBox(height: 6),
+                    _shimmerRect(180, 12, radius: 4),
                   ],
                 ),
               ),
-              _shimmerRect(60, 12, radius: 4),
+              const SizedBox(width: 8),
+              _shimmerRect(56, 20, radius: 12),
             ],
           ),
-          SizedBox(height: screenSize.responsivePadding(10)),
-          const Divider(color: Color(0xFFDFDFDF), height: .5),
-          SizedBox(height: screenSize.responsivePadding(10)),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _shimmerRect(100, 10, radius: 2),
-              _shimmerRect(60, 10, radius: 2),
+              _shimmerRect(140, 10, radius: 2),
+              _shimmerRect(48, 10, radius: 2),
             ],
           ),
         ],
@@ -310,38 +306,35 @@ class CardShimmers {
   static Widget partnerHistoryShimmer(ScreenSizeData screenSize) {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: screenSize.responsivePadding(8)),
-            _shimmerRect(180, 16, radius: 4),
-            SizedBox(height: screenSize.responsivePadding(16)),
-            Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: screenSize.responsivePadding(8)),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16),
+            ),
+            child: Row(
               children: [
-                Expanded(child: _shimmerRect(double.infinity, 100, radius: 16)),
+                Expanded(child: _shimmerRect(double.infinity, 83, radius: 16)),
                 SizedBox(width: screenSize.responsivePadding(12)),
-                Expanded(child: _shimmerRect(double.infinity, 100, radius: 16)),
+                Expanded(child: _shimmerRect(double.infinity, 83, radius: 16)),
                 SizedBox(width: screenSize.responsivePadding(12)),
-                Expanded(child: _shimmerRect(double.infinity, 100, radius: 16)),
+                Expanded(child: _shimmerRect(double.infinity, 83, radius: 16)),
               ],
             ),
-            SizedBox(height: screenSize.responsivePadding(24)),
-            _shimmerRect(140, 14, radius: 4),
-            SizedBox(height: screenSize.responsivePadding(12)),
-            ListView.separated(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: 4,
-              separatorBuilder: (context, index) =>
-                  SizedBox(height: screenSize.responsivePadding(12)),
-              itemBuilder: (context, index) {
-                return partnerRedemptionItemShimmer(screenSize);
-              },
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+          ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: 4,
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              return partnerRedemptionItemShimmer(screenSize);
+            },
+          ),
+        ],
       ),
     );
   }

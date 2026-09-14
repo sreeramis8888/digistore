@@ -1,12 +1,13 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
-import '../../../data/utils/currency_formatter.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../components/advanced_network_image.dart';
+import '../offers/deal_card.dart';
 
 class PartnerRecentOffers extends ConsumerWidget {
   final ScreenSizeData screenSize;
@@ -71,20 +72,24 @@ class PartnerRecentOffers extends ConsumerWidget {
           ),
         ),
         SizedBox(height: screenSize.responsivePadding(16)),
-        SizedBox(
-          height: screenSize.responsivePadding(218),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16),
-            ),
-            itemCount: offers!.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final offer = offers![index];
-              return _buildOfferCard(context, offer);
-            },
+        CarouselSlider.builder(
+          itemCount: offers!.length,
+          options: CarouselOptions(
+            height: screenSize.responsivePadding(218),
+            viewportFraction: 0.62,
+            enableInfiniteScroll: false,
+            padEnds: false,
           ),
+          itemBuilder: (context, index, realIndex) {
+            final padding = screenSize.responsivePadding(16);
+            return Padding(
+              padding: EdgeInsets.only(
+                left: index == 0 ? padding : 6,
+                right: index == offers!.length - 1 ? padding : 6,
+              ),
+              child: _buildOfferCard(context, offers![index]),
+            );
+          },
         ),
       ],
     );
@@ -95,26 +100,10 @@ class PartnerRecentOffers extends ConsumerWidget {
         ? offer.images!.first
         : '';
 
-    String badgeText = '';
-    if (offer.discountValue != null && offer.discountValue! > 0) {
-      final isPercentage = offer.discountType?.toLowerCase() == 'percentage' ||
-          offer.discountType?.toLowerCase() == 'percent' ||
-          offer.discountType == '%';
-      if (isPercentage) {
-        final val = offer.discountValue! % 1 == 0
-            ? offer.discountValue!.toInt().toString()
-            : offer.discountValue!.toStringAsFixed(1);
-        badgeText = '$val% OFF';
-      } else {
-        badgeText = 'Flat ₹${formatCurrency(offer.discountValue)} OFF';
-      }
-    } else if (offer.title != null && offer.title!.toUpperCase().contains('GET 1')) {
-      badgeText = 'BUY 1 GET 1';
-    } else if (offer.category?.name != null && offer.category!.name!.isNotEmpty) {
-      badgeText = offer.category!.name!;
-    } else {
-      badgeText = 'SPECIAL OFFER';
-    }
+    final rawBadge = DealCard.resolveBadgeText(offer);
+    final badgeText = rawBadge == null || rawBadge.isEmpty
+        ? ''
+        : rawBadge.replaceAll('\n', ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
 
     return InteractiveFeedbackButton(
       onPressed: () {
@@ -126,8 +115,8 @@ class PartnerRecentOffers extends ConsumerWidget {
       },
       scaleFactor: 0.98,
       child: Container(
-        width: 220,
-        height: 218,
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -220,7 +209,7 @@ class PartnerRecentOffers extends ConsumerWidget {
                           fontWeight: FontWeight.w400,
                           color: const Color(0xFF6B7280),
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

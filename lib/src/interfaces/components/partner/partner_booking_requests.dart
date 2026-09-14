@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -81,20 +82,24 @@ class PartnerBookingRequests extends ConsumerWidget {
           ),
         ),
         SizedBox(height: screenSize.responsivePadding(16)),
-        SizedBox(
-          height: screenSize.responsivePadding(123),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16),
-            ),
-            itemCount: bookings.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final booking = bookings[index];
-              return _buildBookingCard(context, booking);
-            },
+        CarouselSlider.builder(
+          itemCount: bookings.length,
+          options: CarouselOptions(
+            height: screenSize.responsivePadding(123),
+            viewportFraction: 0.62,
+            enableInfiniteScroll: false,
+            padEnds: false,
           ),
+          itemBuilder: (context, index, realIndex) {
+            final padding = screenSize.responsivePadding(16);
+            return Padding(
+              padding: EdgeInsets.only(
+                left: index == 0 ? padding : 6,
+                right: index == bookings.length - 1 ? padding : 6,
+              ),
+              child: _buildBookingCard(context, bookings[index]),
+            );
+          },
         ),
       ],
     );
@@ -153,8 +158,8 @@ class PartnerBookingRequests extends ConsumerWidget {
       },
       scaleFactor: 0.98,
       child: Container(
-        width: 220,
-        height: 123,
+        width: double.infinity,
+        height: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,

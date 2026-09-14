@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/auth_provider.dart';
@@ -24,6 +23,9 @@ class PartnerProfilePage extends ConsumerStatefulWidget {
 
 class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
     with WidgetsBindingObserver {
+  static const _bg = Color(0xFFF3F5F4);
+  static const _accent = Color(0xFF6155F5);
+
   bool _wasInBackground = false;
   bool _isNotificationsEnabled = true;
   bool _isTokenRegistered = true;
@@ -45,7 +47,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
       _wasInBackground = true;
     } else if (state == AppLifecycleState.resumed) {
       if (_wasInBackground) {
@@ -136,25 +139,43 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
     }
   }
 
+  Widget _menuIcon(IconData icon) {
+    return Icon(icon, color: const Color(0xFF595959), size: 20);
+  }
+
+  Widget _settingsGap() => const SizedBox(height: 12);
+
   @override
   Widget build(BuildContext context) {
     ref.listen(partnerProvider, (previous, next) {
       _syncWithProvider();
     });
     final screenSize = ref.watch(screenSizeProvider);
+    final showNotifCard =
+        !(_isTokenRegistered && _isNotificationsEnabled) && !_isHiding;
+
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: _bg,
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        backgroundColor: kWhite,
+        backgroundColor: _bg,
+        surfaceTintColor: _bg,
         elevation: 0,
         centerTitle: false,
         titleSpacing: 0,
-        title: Text('Profile', style: kSubHeadingSB.copyWith(fontSize: 16)),
+        title: Text(
+          'Profile',
+          style: GoogleFonts.urbanist(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF373737),
+            letterSpacing: 0.1,
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: kTextColor,
+            color: Color(0xFF373737),
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
@@ -168,43 +189,66 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: screenSize.responsivePadding(16)),
+              const SizedBox(height: 16),
               PartnerProfileHeader(screenSize: screenSize),
-              SizedBox(height: screenSize.responsivePadding(16)),
-              Row(
-                children: [
-                  PartnerActionCard(
-                    screenSize: screenSize,
-                    title: 'Offers',
-                    iconData: Icons.discount_outlined,
-                    onTap: () => Navigator.pushNamed(context, 'offers'),
-                  ),
-                  SizedBox(width: screenSize.responsivePadding(12)),
-                  PartnerActionCard(
-                    screenSize: screenSize,
-                    title: 'Products',
-                    iconData: Icons.inventory_2_outlined,
-                    onTap: () =>
-                        Navigator.pushNamed(context, 'partnerProducts'),
-                  ),
-                  SizedBox(width: screenSize.responsivePadding(12)),
-                  PartnerActionCard(
-                    screenSize: screenSize,
-                    title: 'History',
-                    iconData: Icons.history_rounded,
-                    onTap: () => Navigator.pushNamed(context, 'partnerHistory'),
-                  ),
-                  SizedBox(width: screenSize.responsivePadding(12)),
-                  PartnerActionCard(
-                    screenSize: screenSize,
-                    title: 'Reviews',
-                    iconData: Icons.star_outline_rounded,
-                    onTap: () => Navigator.pushNamed(context, 'partnerReviews'),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenSize.responsivePadding(16)),
+              const SizedBox(height: 16),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  const gap = 16.0;
+                  final tileWidth = (constraints.maxWidth - gap * 2) / 3;
+                  final actions = <({String title, IconData icon, VoidCallback onTap})>[
+                    (
+                      title: 'Offers',
+                      icon: Icons.local_offer_outlined,
+                      onTap: () => Navigator.pushNamed(context, 'offers'),
+                    ),
+                    (
+                      title: 'Products',
+                      icon: Icons.inventory_2_outlined,
+                      onTap: () =>
+                          Navigator.pushNamed(context, 'partnerProducts'),
+                    ),
+                    (
+                      title: 'History',
+                      icon: Icons.history_rounded,
+                      onTap: () =>
+                          Navigator.pushNamed(context, 'partnerHistory'),
+                    ),
+                    (
+                      title: 'Bookings',
+                      icon: Icons.calendar_month_outlined,
+                      onTap: () =>
+                          Navigator.pushNamed(context, 'partnerBookings'),
+                    ),
+                    (
+                      title: 'Reviews',
+                      icon: Icons.star_outline_rounded,
+                      onTap: () =>
+                          Navigator.pushNamed(context, 'partnerReviews'),
+                    ),
+                  ];
 
+                  return Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    children: actions
+                        .map(
+                          (a) => SizedBox(
+                            width: tileWidth,
+                            child: PartnerActionCard(
+                              screenSize: screenSize,
+                              title: a.title,
+                              iconData: a.icon,
+                              expand: false,
+                              onTap: a.onTap,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
                 switchOutCurve: Curves.easeInOutBack,
@@ -221,67 +265,53 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                     ),
                   );
                 },
-                child:
-                    (!(_isTokenRegistered && _isNotificationsEnabled) &&
-                        !_isHiding)
+                child: showNotifCard
                     ? Container(
                         key: const ValueKey('notif_card_partner'),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFD3DFFF)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF1e3a81).withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenSize.responsivePadding(16),
-                            vertical: screenSize.responsivePadding(12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
                           child: Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF1e3a81,
-                                  ).withOpacity(0.1),
+                                  color: _accent.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.notifications_active_rounded,
-                                  color: Color(0xFF1e3a81),
-                                  size: 24,
+                                  color: _accent,
+                                  size: 22,
                                 ),
                               ),
-                              SizedBox(width: screenSize.responsivePadding(16)),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Push Notifications',
-                                      style: kBodyTitleB.copyWith(
-                                        color: kBlack,
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: const Color(0xFF111827),
                                       ),
                                     ),
-                                    SizedBox(
-                                      height: screenSize.responsivePadding(4),
-                                    ),
+                                    const SizedBox(height: 2),
                                     Text(
                                       'Stay updated on sales & redemptions',
-                                      style: kSmallTitleL.copyWith(
-                                        color: const Color(0xFF6B7280),
+                                      style: GoogleFonts.urbanist(
                                         fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: const Color(0xFF6B7280),
                                       ),
                                     ),
                                   ],
@@ -290,10 +320,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                               Switch.adaptive(
                                 value: _isNotificationsEnabled,
                                 onChanged: _toggleNotifications,
-                                activeColor: const Color(0xFF1e3a81),
-                                activeTrackColor: const Color(
-                                  0xFF1e3a81,
-                                ).withOpacity(0.3),
+                                activeColor: _accent,
+                                activeTrackColor:
+                                    _accent.withValues(alpha: 0.3),
                               ),
                             ],
                           ),
@@ -301,224 +330,102 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                       ).fadeSlideInFromBottom(delayMilliseconds: 150)
                     : const SizedBox.shrink(),
               ),
-              if (!(_isTokenRegistered && _isNotificationsEnabled) &&
-                  !_isHiding)
-                SizedBox(height: screenSize.responsivePadding(16)),
-
-              Container(
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Column(
-                  children: [
-                    PartnerMenuItem(
-                      title: 'Account',
-                      icon: const Icon(
-                        Icons.person_outline_rounded,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          'partnerAccount',
-                          arguments: {'isEditMode': false},
-                        );
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Plan Details',
-                      icon: const Icon(
-                        Icons.card_membership_outlined,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        PartnerPlanDetailsSheet.show(context);
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Shop Reviews',
-                      icon: const Icon(
-                        Icons.star_outline_rounded,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'partnerReviews');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Support Ticket',
-                      icon: const Icon(
-                        Icons.support_agent_rounded,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'support');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Help & Support',
-                      icon: const Icon(
-                        Icons.headphones_outlined,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'helpSupport');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Privacy Policy',
-                      icon: const Icon(
-                        Icons.privacy_tip_outlined,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'privacyPolicy');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'Terms & Conditions',
-                      icon: const Icon(
-                        Icons.description_outlined,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'termsConditions');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'About app',
-                      icon: const Icon(
-                        Icons.info_outline_rounded,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'aboutApp');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF3F4F6),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    PartnerMenuItem(
-                      title: 'FAQ',
-                      icon: const Icon(
-                        Icons.info_outline,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      screenSize: screenSize,
-                    ),
-                  ],
-                ),
+              if (showNotifCard) const SizedBox(height: 16),
+              PartnerMenuItem(
+                title: 'Account',
+                icon: _menuIcon(Icons.person_outline_rounded),
+                screenSize: screenSize,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    'partnerAccount',
+                    arguments: {'isEditMode': false},
+                  );
+                },
               ),
-              SizedBox(height: screenSize.responsivePadding(16)),
-              Container(
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Column(
-                  children: [
-                    PartnerMenuItem(
-                      title: 'Logout',
-                      icon: const Icon(Icons.logout_rounded, color: kRed, size: 22),
-                      screenSize: screenSize,
-                      onTap: () async {
-                        final confirmed = await showConfirmationDialog(
-                          context: context,
-                          title: 'Logout',
-                          message: 'Are you sure you want to logout from your account?',
-                          confirmText: 'Logout',
-                          cancelText: 'Cancel',
-                          isDestructive: true,
-                          icon: Icons.logout_rounded,
-                          onConfirm: () async {
-                            await ref.read(authProvider.notifier).logout();
-                          },
-                        );
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Plan Details',
+                icon: _menuIcon(Icons.card_membership_outlined),
+                screenSize: screenSize,
+                onTap: () => PartnerPlanDetailsSheet.show(context),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Shop Reviews',
+                icon: _menuIcon(Icons.star_outline_rounded),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'partnerReviews'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Support Ticket',
+                icon: _menuIcon(Icons.support_agent_rounded),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'support'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Help & Support',
+                icon: _menuIcon(Icons.help_outline_rounded),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'helpSupport'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Privacy Policy',
+                icon: _menuIcon(Icons.privacy_tip_outlined),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'privacyPolicy'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Terms & Conditions',
+                icon: _menuIcon(Icons.description_outlined),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'termsConditions'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'About app',
+                icon: _menuIcon(Icons.info_outline_rounded),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'aboutApp'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'FAQ',
+                icon: _menuIcon(Icons.chat_bubble_outline_rounded),
+                screenSize: screenSize,
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
+                title: 'Logout',
+                icon: _menuIcon(Icons.logout_rounded),
+                screenSize: screenSize,
+                onTap: () async {
+                  final confirmed = await showConfirmationDialog(
+                    context: context,
+                    title: 'Logout',
+                    message:
+                        'Are you sure you want to logout from your account?',
+                    confirmText: 'Logout',
+                    cancelText: 'Cancel',
+                    isDestructive: true,
+                    icon: Icons.logout_rounded,
+                    onConfirm: () async {
+                      await ref.read(authProvider.notifier).logout();
+                    },
+                  );
 
-                        if (confirmed == true && context.mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            'login',
-                            (route) => false,
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                  if (confirmed == true && context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      'login',
+                      (route) => false,
+                    );
+                  }
+                },
               ),
               SizedBox(height: screenSize.responsivePadding(40)),
             ],

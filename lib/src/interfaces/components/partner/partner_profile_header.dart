@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
@@ -23,105 +22,113 @@ class PartnerProfileHeader extends ConsumerWidget {
     final category = partner?.businessDetails?.businessType ?? '';
 
     return Container(
-      padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+      height: 100,
       decoration: BoxDecoration(
-        color: kWhite,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: kWhite,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: AdvancedNetworkImage(
-                imageUrl: logo ?? '',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(width: screenSize.responsivePadding(12)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  businessName,
-                  style: kBodyTitleM.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+          SizedBox(
+            width: 100,
+            height: 100,
+            child: logo != null && logo.isNotEmpty
+                ? AdvancedNetworkImage(
+                    imageUrl: logo,
+                    fit: BoxFit.cover,
+                    disableFade: true,
+                  )
+                : Container(
+                    color: const Color(0xFFF3F4F6),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.storefront_outlined,
+                      size: 32,
+                      color: Color(0xFF9CA3AF),
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (category.isNotEmpty &&
-                    category.toLowerCase() != '' &&
-                    category.toLowerCase() != 'null') ...[
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          businessName,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                            height: 1.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      InteractiveFeedbackButton(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            'partnerAccount',
+                            arguments: {'isEditMode': true},
+                          );
+                        },
+                        child: SvgPicture.asset(
+                          'assets/svg/edit.svg',
+                          width: 18,
+                          height: 18,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0XFFDFEAFF),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: Color(0xFF1C274C),
+                      ),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          location,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF111827),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (category.isNotEmpty &&
+                      category.toLowerCase() != 'null') ...[
+                    const Spacer(),
+                    Text(
                       category,
-                      style: kSmallerTitleSB.copyWith(
-                        fontSize: 10,
-                        color: kPrimaryColor,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF4E4E4E),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 14,
-                      color: Color(0xFF6B7280),
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        location,
-                        style: kSmallTitleL.copyWith(
-                          color: const Color(0xFF616161),
-                          fontSize: 12,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
                   ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          InteractiveFeedbackButton(
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                'partnerAccount',
-                arguments: {'isEditMode': true},
-              );
-            },
-            child: SvgPicture.asset('assets/svg/edit.svg'),
           ),
         ],
       ),

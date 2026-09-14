@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_history_provider.dart';
 import '../../components/partner/partner_overview_cards.dart';
@@ -16,6 +15,9 @@ class PartnerHistoryPage extends ConsumerStatefulWidget {
 }
 
 class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
+  static const _bg = Color(0xFFF3F5F4);
+  static const _accent = Color(0xFF6155F5);
+
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -44,57 +46,54 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
     final canPop = Navigator.canPop(context);
 
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: _bg,
       appBar: AppBar(
         centerTitle: false,
         automaticallyImplyLeading: false,
         leading: canPop
             ? IconButton(
                 icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: kBlack,
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Color(0xFF111827),
                   size: 20,
                 ),
                 onPressed: () => Navigator.pop(context),
               )
             : null,
-        titleSpacing: canPop ? 0 : null,
+        titleSpacing: canPop ? 0 : 16,
         title: Text(
           'History',
-          style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
+          style: GoogleFonts.urbanist(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF373737),
+          ),
         ),
-        backgroundColor: kWhite,
-        surfaceTintColor: kWhite,
+        backgroundColor: _bg,
+        surfaceTintColor: _bg,
         elevation: 0,
       ),
       body: SafeArea(
         child: historyState.isLoading
             ? CardShimmers.partnerHistoryShimmer(screenSize)
             : RefreshIndicator(
-                color: kPrimaryColor,
+                color: _accent,
                 onRefresh: () =>
                     ref.read(partnerHistoryProvider.notifier).refresh(),
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: screenSize.responsivePadding(8)),
-                        Text(
-                          "Performance Overview",
-                          style: kSmallTitleB.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: screenSize.responsivePadding(8)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.responsivePadding(16),
                         ),
-                        SizedBox(height: screenSize.responsivePadding(16)),
-                        PartnerOverviewCards(
+                        child: PartnerOverviewCards(
                           screenSize: screenSize,
+                          lightStyle: true,
                           totalCustomers: historyState.data?.totalCustomers,
                           commissionAmount: historyState.data?.commissionAmount,
                           totalSalesViaSetgo: historyState
@@ -102,31 +101,24 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
                               ?.totalSalesViaSetgo
                               .toInt(),
                         ),
-                        SizedBox(height: screenSize.responsivePadding(24)),
-                        Text(
-                          'Redemption History',
-                          style: kSmallTitleB.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                      ),
+                      const SizedBox(height: 10),
+                      PartnerRedemptionList(
+                        screenSize: screenSize,
+                        redemptions: historyState.data?.redemptions ?? [],
+                      ),
+                      if (historyState.isLoadingMore)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: screenSize.responsivePadding(16),
+                            horizontal: screenSize.responsivePadding(16),
+                          ),
+                          child: CardShimmers.partnerRedemptionItemShimmer(
+                            screenSize,
                           ),
                         ),
-                        SizedBox(height: screenSize.responsivePadding(12)),
-                        PartnerRedemptionList(
-                          screenSize: screenSize,
-                          redemptions: historyState.data?.redemptions ?? [],
-                        ),
-                        if (historyState.isLoadingMore)
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: screenSize.responsivePadding(16),
-                            ),
-                            child: CardShimmers.partnerRedemptionItemShimmer(
-                              screenSize,
-                            ),
-                          ),
-                        SizedBox(height: screenSize.responsivePadding(40)),
-                      ],
-                    ),
+                      SizedBox(height: screenSize.responsivePadding(40)),
+                    ],
                   ),
                 ),
               ),

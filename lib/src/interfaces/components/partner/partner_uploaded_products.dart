@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -71,20 +72,24 @@ class PartnerUploadedProducts extends ConsumerWidget {
           ),
         ),
         SizedBox(height: screenSize.responsivePadding(16)),
-        SizedBox(
-          height: screenSize.responsivePadding(123),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(
-              horizontal: screenSize.responsivePadding(16),
-            ),
-            itemCount: products!.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final product = products![index];
-              return _buildProductCard(context, product);
-            },
+        CarouselSlider.builder(
+          itemCount: products!.length,
+          options: CarouselOptions(
+            height: screenSize.responsivePadding(128),
+            viewportFraction: 0.45,
+            enableInfiniteScroll: false,
+            padEnds: false,
           ),
+          itemBuilder: (context, index, realIndex) {
+            final padding = screenSize.responsivePadding(16);
+            return Padding(
+              padding: EdgeInsets.only(
+                left: index == 0 ? padding : 6,
+                right: index == products!.length - 1 ? padding : 6,
+              ),
+              child: _buildProductCard(context, products![index]),
+            );
+          },
         ),
       ],
     );
@@ -113,8 +118,8 @@ class PartnerUploadedProducts extends ConsumerWidget {
       },
       scaleFactor: 0.98,
       child: Container(
-        width: 160,
-        height: 123,
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -128,56 +133,56 @@ class PartnerUploadedProducts extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                height: 90,
-                child: imageUrl.isNotEmpty
-                    ? AdvancedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        disableFade: true,
-                      )
-                    : Container(
-                        color: const Color(0xFFF3F4F6),
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.inventory_2_outlined,
-                          size: 32,
-                          color: Color(0xFF9CA3AF),
-                        ),
-                      ),
-              ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          product.title ?? 'Product',
-                          style: GoogleFonts.urbanist(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF111827),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: imageUrl.isNotEmpty
+                      ? AdvancedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          disableFade: true,
+                        )
+                      : Container(
+                          color: const Color(0xFFF3F4F6),
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.inventory_2_outlined,
+                            size: 32,
+                            color: Color(0xFF9CA3AF),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        product.title ?? 'Product',
+                        style: GoogleFonts.urbanist(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                          color: const Color(0xFF111827),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (priceStr.isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        priceStr,
+                        style: GoogleFonts.urbanist(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          height: 1.15,
+                          color: const Color(0xFF111827),
                         ),
                       ),
-                      if (priceStr.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          priceStr,
-                          style: GoogleFonts.urbanist(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF111827),
-                          ),
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
               ),
             ],
