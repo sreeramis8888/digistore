@@ -6,6 +6,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../components/advanced_network_image.dart';
+import '../../main_pages/partner/product_details_page.dart';
 
 class PartnerUploadedProducts extends ConsumerWidget {
   final ScreenSizeData screenSize;
@@ -100,10 +101,14 @@ class PartnerUploadedProducts extends ConsumerWidget {
 
     return InteractiveFeedbackButton(
       onPressed: () {
-        Navigator.pushNamed(
+        Navigator.push(
           context,
-          'productDetails',
-          arguments: product.toJson(),
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsPage(
+              product: product.toJson(),
+              hideShopInfo: true,
+            ),
+          ),
         );
       },
       scaleFactor: 0.98,
@@ -118,67 +123,65 @@ class PartnerUploadedProducts extends ConsumerWidget {
             width: 1,
           ),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cover Image
-            SizedBox(
-              width: double.infinity,
-              height: 90,
-              child: imageUrl.isNotEmpty
-                  ? AdvancedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      borderRadius: BorderRadius.zero,
-                      disableFade: true,
-                    )
-                  : Container(
-                      color: const Color(0xFFF3F4F6),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.inventory_2_outlined,
-                        size: 32,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-            ),
-
-            // Product Details Row
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        product.title ?? 'Product',
-                        style: GoogleFonts.urbanist(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (priceStr.isNotEmpty) ...[
-                      const SizedBox(width: 6),
-                      Text(
-                        priceStr,
-                        style: GoogleFonts.urbanist(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF111827),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(19),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 90,
+                child: imageUrl.isNotEmpty
+                    ? AdvancedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.cover,
+                        disableFade: true,
+                      )
+                    : Container(
+                        color: const Color(0xFFF3F4F6),
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.inventory_2_outlined,
+                          size: 32,
+                          color: Color(0xFF9CA3AF),
                         ),
                       ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product.title ?? 'Product',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (priceStr.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          priceStr,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -136,102 +136,99 @@ class PartnerRecentOffers extends ConsumerWidget {
             width: 1,
           ),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Container with Badge
-            SizedBox(
-              width: double.infinity,
-              height: 130,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (imageUrl.isNotEmpty)
-                    AdvancedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      borderRadius: BorderRadius.zero,
-                      disableFade: true,
-                    )
-                  else
-                    Container(
-                      color: const Color(0xFFF3F4F6),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.local_offer_outlined,
-                        size: 40,
-                        color: Color(0xFF9CA3AF),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(23),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 130,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (imageUrl.isNotEmpty)
+                      AdvancedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.cover,
+                        disableFade: true,
+                      )
+                    else
+                      Container(
+                        color: const Color(0xFFF3F4F6),
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.local_offer_outlined,
+                          size: 40,
+                          color: Color(0xFF9CA3AF),
+                        ),
                       ),
-                    ),
-                  if (badgeText.isNotEmpty)
-                    Positioned(
-                      top: 12,
-                      left: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+                    if (badgeText.isNotEmpty)
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        right: 12,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4.5,
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          badgeText,
-                          style: GoogleFonts.urbanist(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              badgeText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.urbanist(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ),
-
-            // Titles Container
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      offer.title ?? 'Special Offer',
-                      style: GoogleFonts.urbanist(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      offer.description ?? '',
-                      style: GoogleFonts.urbanist(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFF6B7280),
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        offer.title ?? 'Special Offer',
+                        style: GoogleFonts.urbanist(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF111827),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        offer.description ?? '',
+                        style: GoogleFonts.urbanist(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFF6B7280),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

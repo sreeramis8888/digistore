@@ -362,12 +362,21 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
           reverseTransitionDuration: Duration.zero,
         );
       }
-      return MaterialPageRoute(
+      // Unknown named routes: do not push a visible error page in production.
+      debugPrint('Unknown route: ${settings?.name}');
+      return PageRouteBuilder(
+        opaque: false,
         settings: settings,
-        builder: (context) => Scaffold(
-          backgroundColor: Colors.grey[100],
-          body: Center(child: Text('No path for ${settings?.name}')),
-        ),
+        pageBuilder: (context, _, _) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          });
+          return const SizedBox.shrink();
+        },
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
       );
   }
   return createRoute(
