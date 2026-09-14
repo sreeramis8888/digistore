@@ -26,6 +26,8 @@ class RewardCard extends ConsumerWidget {
   final String? valueType;
   final String? category;
   final String? requiredTier;
+  final int? stock;
+  final int? maxPerUser;
   final List<String>? terms;
   final List<String>? images;
   final dynamic expiresAt;
@@ -50,6 +52,8 @@ class RewardCard extends ConsumerWidget {
     this.valueType,
     this.category,
     this.requiredTier,
+    this.stock,
+    this.maxPerUser,
     this.terms,
     this.images,
     this.expiresAt,
@@ -76,6 +80,8 @@ class RewardCard extends ConsumerWidget {
       valueType: reward.valueType,
       category: reward.category,
       requiredTier: reward.requiredTier,
+      stock: reward.stock,
+      maxPerUser: reward.maxPerUser,
       terms: reward.terms,
       images: reward.images,
       expiresAt: reward.expiresAt,
@@ -106,6 +112,8 @@ class RewardCard extends ConsumerWidget {
       valueType: reward?.valueType,
       category: reward?.category,
       requiredTier: reward?.requiredTier,
+      stock: reward?.stock,
+      maxPerUser: reward?.maxPerUser,
       terms: reward?.terms,
       images: reward?.images,
       expiresAt: claimed.validUntil ?? reward?.expiresAt,
@@ -132,6 +140,8 @@ class RewardCard extends ConsumerWidget {
         'valueType': valueType,
         'category': category ?? logoText,
         'requiredTier': requiredTier,
+        'stock': stock,
+        'maxPerUser': maxPerUser,
         'terms': terms,
         'images': images,
         'gallery': images,

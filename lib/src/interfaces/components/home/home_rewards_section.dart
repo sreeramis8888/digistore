@@ -94,6 +94,8 @@ class _HomeRewardTile extends StatelessWidget {
         'valueType': reward.valueType,
         'category': reward.category,
         'requiredTier': reward.requiredTier,
+        'stock': reward.stock,
+        'maxPerUser': reward.maxPerUser,
         'terms': reward.terms,
         'images': reward.images,
         'gallery': reward.images,

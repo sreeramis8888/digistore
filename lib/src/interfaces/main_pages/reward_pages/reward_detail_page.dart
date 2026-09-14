@@ -134,6 +134,9 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
     final String? valueType =
         (args['valueType'] as String? ?? args['discountType'] as String?);
     final String? category = args['category'] as String?;
+    final String? requiredTier = args['requiredTier']?.toString();
+    final int? stock = (args['stock'] as num?)?.toInt();
+    final int? maxPerUser = (args['maxPerUser'] as num?)?.toInt();
     final rawTerms = args['terms'] ??
         args['termsAndConditions'] ??
         args['terms_and_conditions'] ??
@@ -179,6 +182,7 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
       category: category,
     );
     final formattedCategory = formatRewardCategory(category);
+    final formattedRequiredTier = formatRewardCategory(requiredTier);
 
     final rawExpiry = args['expiresAt'] ??
         args['validUntil'] ??
@@ -388,40 +392,84 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               ),
                             ),
                           ],
-                          if (benefit.isNotEmpty) ...[
+                          if (benefit.isNotEmpty ||
+                              formattedRequiredTier.isNotEmpty) ...[
                             SizedBox(height: screenSize.responsivePadding(12)),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: kRewardCtaPurple.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      kRewardCtaPurple.withValues(alpha: 0.2),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.card_giftcard,
-                                    size: 14,
-                                    color: kRewardCtaPurple,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    benefit,
-                                    style: kSmallerTitleB.copyWith(
-                                      color: kRewardCtaPurple,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                if (benefit.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: kRewardCtaPurple.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: kRewardCtaPurple.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.card_giftcard,
+                                          size: 14,
+                                          color: kRewardCtaPurple,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          benefit,
+                                          style: kSmallerTitleB.copyWith(
+                                            color: kRewardCtaPurple,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                if (formattedRequiredTier.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF4F5F7),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: const Color(0xFFE5E7EB),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.workspace_premium_outlined,
+                                          size: 14,
+                                          color: Color(0xFF4B5563),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          'Tier: $formattedRequiredTier',
+                                          style: kSmallerTitleM.copyWith(
+                                            color: const Color(0xFF374151),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                           ],
                         ],
@@ -462,6 +510,31 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                                 ),
                               ],
                             ),
+                          ),
+                        ],
+                        if (stock != null || maxPerUser != null) ...[
+                          SizedBox(height: screenSize.responsivePadding(10)),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 6,
+                            children: [
+                              if (stock != null)
+                                Text(
+                                  'Stock: $stock',
+                                  style: kSmallerTitleL.copyWith(
+                                    color: const Color(0xFF6B7280),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              if (maxPerUser != null)
+                                Text(
+                                  'Max per user: $maxPerUser',
+                                  style: kSmallerTitleL.copyWith(
+                                    color: const Color(0xFF6B7280),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                         if (terms.isNotEmpty) ...[

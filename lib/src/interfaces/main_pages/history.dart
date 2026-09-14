@@ -22,7 +22,7 @@ class HistoryPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: kWhite,
-      appBar: AppBar(
+      appBar: AppBar(titleSpacing: 0,
         centerTitle: false,
         title: Text(
           'My Wallet',

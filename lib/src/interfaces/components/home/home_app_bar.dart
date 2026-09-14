@@ -67,6 +67,7 @@ class HomeAppBar extends ConsumerWidget {
         name: name,
         initial: initial,
         locationName: locationName,
+        points: points,
       );
     }
 
@@ -89,6 +90,7 @@ class HomeAppBar extends ConsumerWidget {
     required String name,
     required String initial,
     required String locationName,
+    required int points,
   }) {
     return Row(
       children: [
@@ -159,6 +161,45 @@ class HomeAppBar extends ConsumerWidget {
             ),
           ),
         ),
+        if (!GlobalVariables.isPartner) ...[
+          InteractiveFeedbackButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryPage()),
+              );
+            },
+            scaleFactor: 1.05,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(10),
+                vertical: screenSize.responsivePadding(8),
+              ),
+              decoration: BoxDecoration(
+                color: kWhite.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    'assets/svg/coin.svg',
+                    height: 16,
+                  ),
+                  SizedBox(width: screenSize.responsivePadding(6)),
+                  Text(
+                    '$points',
+                    style: kSmallerTitleSB.copyWith(
+                      fontSize: 12,
+                      color: kWhite,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ).fadeIn(delayMilliseconds: 150),
+          SizedBox(width: screenSize.responsivePadding(10)),
+        ],
         InteractiveFeedbackButton(
           onPressed: () {
             Navigator.pushNamed(context, 'notifications');
