@@ -42,9 +42,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final notificationsState = ref.watch(notificationsProvider);
+    final isEmpty = notificationsState.notifications.isEmpty;
+    final isInitialLoading =
+        notificationsState.isLoading && isEmpty;
 
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: isEmpty || isInitialLoading ? kWhite : kBackgroundColor,
       appBar: AppBar(
         backgroundColor: kWhite,
         elevation: 0,
@@ -57,29 +60,30 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                ref.read(notificationsProvider.notifier).markAllAsRead(),
-            child: Text(
-              'Mark all as read',
-              style: kSmallTitleB.copyWith(color: kPrimaryColor),
-            ),
-          ),
-          SizedBox(width: screenSize.responsivePadding(8)),
-        ],
+        title: Text(
+          'Notifications',
+          style: kSubHeadingM.copyWith(color: kTextColor),
+        ),
+        centerTitle: false,
+        titleSpacing: 0,
+        actions: isEmpty
+            ? null
+            : [
+                TextButton(
+                  onPressed: () =>
+                      ref.read(notificationsProvider.notifier).markAllAsRead(),
+                  child: Text(
+                    'Mark all as read',
+                    style: kSmallTitleB.copyWith(color: kPrimaryColor),
+                  ),
+                ),
+                SizedBox(width: screenSize.responsivePadding(8)),
+              ],
       ),
-      body:
-          notificationsState.isLoading &&
-              notificationsState.notifications.isEmpty
-          ? Center(child: LoadingAnimation())
-          : notificationsState.notifications.isEmpty
-          ? Center(
-              child: Text(
-                'No notifications yet',
-                style: kSmallTitleL.copyWith(color: kSecondaryTextColor),
-              ),
-            )
+      body: isInitialLoading
+          ? const Center(child: LoadingAnimation())
+          : isEmpty
+          ? _buildEmptyState(context, screenSize)
           : RefreshIndicator(
               color: kPrimaryColor,
               onRefresh: () => ref
@@ -87,11 +91,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   .fetchNotifications(refresh: true),
               child: ListView.separated(
                 controller: _scrollController,
-                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                padding: EdgeInsets.symmetric(
+                  vertical: screenSize.responsivePadding(8),
+                ),
                 itemCount:
                     notificationsState.notifications.length +
                     (notificationsState.hasMore ? 1 : 0),
-                separatorBuilder: (context, index) => _buildDivider(),
+                separatorBuilder: (context, index) =>
+                    SizedBox(height: screenSize.responsivePadding(8)),
                 itemBuilder: (context, index) {
                   if (index == notificationsState.notifications.length) {
                     return const Padding(
@@ -111,7 +118,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     child: _buildNotificationItem(
                       screenSize: screenSize,
                       title: notification.title,
-                      time: _formatTime(notification.createdAt),
                       description: notification.message,
                       isUnread: !notification.read,
                     ),
@@ -122,18 +128,54 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     );
   }
 
-  Widget _buildDivider() {
-    return const Divider(color: Color(0xFFF0F0F0), height: 1, thickness: 1);
+  Widget _buildEmptyState(BuildContext context, ScreenSizeData screenSize) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/png/no_notification.png',
+            width: screenSize.responsivePadding(200),
+            height: screenSize.responsivePadding(200),
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+          Text(
+            'No Notifications',
+            style: kBodyTitleM,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: screenSize.responsivePadding(8)),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(40),
+            ),
+            child: Text(
+              "You're all caught up! New updates will appear here.",
+              style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: screenSize.responsivePadding(24)),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Back to home',
+              style: kBodyTitleM.copyWith(color: kPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildNotificationItem({
     required ScreenSizeData screenSize,
     required String title,
-    required String time,
     required String description,
     bool isUnread = false,
   }) {
     return Container(
+      width: double.infinity,
       color: isUnread ? kPrimaryLightColor : kWhite,
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -142,20 +184,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(title, style: kBodyTitleB.copyWith(fontSize: 15)),
-              ),
-              SizedBox(width: screenSize.responsivePadding(8)),
-              Text(
-                time,
-                style: kSmallTitleR.copyWith(color: const Color(0xFF9E9E9E)),
-              ),
-            ],
-          ),
+          Text(title, style: kBodyTitleB.copyWith(fontSize: 15)),
           SizedBox(height: screenSize.responsivePadding(8)),
           Text(
             description,
@@ -164,14 +193,5 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         ],
       ),
     );
-  }
-
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final difference = now.difference(time);
-    if (difference.inDays > 0) return '${difference.inDays} days ago';
-    if (difference.inHours > 0) return '${difference.inHours} hrs ago';
-    if (difference.inMinutes > 0) return '${difference.inMinutes} mins ago';
-    return 'Just now';
   }
 }
