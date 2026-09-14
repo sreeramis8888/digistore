@@ -21,75 +21,91 @@ class ShopGallery extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Gallery', style: kBodyTitleM),
+        const Text(
+          'Gallery',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF111827),
+          ),
+        ),
         SizedBox(height: screenSize.responsivePadding(12)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: List.generate(displayCount, (index) {
-            final isLast = index == 3 && images.length > 4;
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: List.generate(displayCount, (index) {
+              final isLast = index == 3 && images.length > 4;
 
-            return GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  PageRouteBuilder(
-                    opaque: false,
-                    pageBuilder: (context, animation, secondaryAnimation) {
-                      return FullScreenGallery(
-                        images: images,
-                        initialIndex: index,
-                      );
-                    },
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      opaque: false,
+                      pageBuilder: (context, animation, secondaryAnimation) {
+                        return FullScreenGallery(
+                          images: images,
+                          initialIndex: index,
+                        );
+                      },
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.only(
+                    right: index != displayCount - 1
+                        ? screenSize.responsivePadding(10)
+                        : 0,
                   ),
-                );
-              },
-              child: Padding(
-                padding: EdgeInsets.only(
-                  right: index != displayCount - 1
-                      ? screenSize.responsivePadding(8)
-                      : 0,
-                ),
-                child: Hero(
-                  tag: 'gallery_image_${images[index]}_$index',
-                  child: SizedBox(
-                    width: screenSize.responsivePadding(75),
-                    height: screenSize.responsivePadding(75),
-                    child: Stack(
-                      children: [
-                        AdvancedNetworkImage(
-                          imageUrl: images[index],
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(8),
-                          width: screenSize.responsivePadding(75),
-                          height: screenSize.responsivePadding(75),
-                        ),
-                        if (isLast)
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.black.withValues(alpha: 0.5),
-                            ),
-                            alignment: Alignment.center,
-                            child: Material(
-                              color: Colors.transparent,
-                              child: Text(
-                                '+${images.length - 3} more',
-                                style: kSmallTitleSB.copyWith(color: kWhite),
+                  child: Hero(
+                    tag: 'gallery_image_${images[index]}_$index',
+                    child: SizedBox(
+                      width: screenSize.responsivePadding(92),
+                      height: screenSize.responsivePadding(82),
+                      child: Stack(
+                        children: [
+                          AdvancedNetworkImage(
+                            imageUrl: images[index],
+                            fit: BoxFit.cover,
+                            borderRadius: BorderRadius.circular(12),
+                            width: screenSize.responsivePadding(92),
+                            height: screenSize.responsivePadding(82),
+                          ),
+                          if (isLast)
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.black.withValues(alpha: 0.55),
+                              ),
+                              alignment: Alignment.center,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Text(
+                                  '+${images.length - 3} more',
+                                  style: const TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ],
     );

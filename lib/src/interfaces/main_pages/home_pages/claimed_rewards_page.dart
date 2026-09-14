@@ -14,6 +14,10 @@ class ClaimedRewardsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16);
+    final itemWidth = (screenSize.width - totalPadding) / 2;
+    final itemHeight = screenSize.responsivePadding(209);
+    final aspectRatio = itemWidth / itemHeight;
     final claimedRewardsAsync = ref.watch(claimedRewardsProvider());
 
     return Scaffold(
@@ -53,7 +57,7 @@ class ClaimedRewardsPage extends ConsumerWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: screenSize.responsivePadding(16),
                 mainAxisSpacing: screenSize.responsivePadding(16),
-                childAspectRatio: 0.85,
+                childAspectRatio: aspectRatio,
               ),
               itemCount: paginated.rewards.length,
               itemBuilder: (context, index) {

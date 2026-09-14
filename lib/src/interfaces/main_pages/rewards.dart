@@ -53,7 +53,7 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
     final crossAxisCount = isLandscape ? 4 : 2;
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(250);
+    final itemHeight = screenSize.responsivePadding(209);
     final aspectRatio = itemWidth / itemHeight;
 
     final state = ref.watch(rewardsListProvider);

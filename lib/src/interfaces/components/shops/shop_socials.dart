@@ -34,11 +34,19 @@ class ShopSocials extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Connect With Us', style: kBodyTitleM),
+        const Text(
+          'Connect With Us',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF111827),
+          ),
+        ),
         SizedBox(height: screenSize.responsivePadding(12)),
         Wrap(
-          spacing: screenSize.responsivePadding(12),
-          runSpacing: screenSize.responsivePadding(12),
+          spacing: screenSize.responsivePadding(8),
+          runSpacing: screenSize.responsivePadding(8),
           children: [
             if (hasWebsite)
               _SocialButton(
@@ -120,30 +128,49 @@ class _SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: svgAsset != null
-          ? SvgPicture.asset(
-              svgAsset!,
-              width: 18,
-              height: 18,
-              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-            )
-          : Icon(
-              iconData ?? Icons.link,
-              size: 18,
-              color: color,
-            ),
-      label: Text(label, style: kSmallTitleM.copyWith(color: color)),
-      style: OutlinedButton.styleFrom(
-        backgroundColor: color.withOpacity(0.06),
-        padding: EdgeInsets.symmetric(
-          horizontal: screenSize.responsivePadding(12),
-          vertical: screenSize.responsivePadding(8),
-        ),
-        side: BorderSide(color: color.withOpacity(0.12)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(14),
+            vertical: screenSize.responsivePadding(8),
+          ),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (svgAsset != null)
+                SvgPicture.asset(
+                  svgAsset!,
+                  width: 16,
+                  height: 16,
+                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                )
+              else
+                Icon(
+                  iconData ?? Icons.link,
+                  size: 16,
+                  color: color,
+                ),
+              SizedBox(width: screenSize.responsivePadding(6)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

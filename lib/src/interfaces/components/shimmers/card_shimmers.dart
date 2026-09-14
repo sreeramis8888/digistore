@@ -142,32 +142,38 @@ class CardShimmers {
 
   static Widget rewardCardShimmer(ScreenSizeData screenSize) {
     return Container(
-      padding: EdgeInsets.all(screenSize.responsivePadding(5)),
       decoration: BoxDecoration(
         color: kWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBorder.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            children: [
-              SizedBox(height: screenSize.responsivePadding(10)),
-              _shimmerRect(screenSize.width * 0.2, 14, radius: 4),
-              SizedBox(height: screenSize.responsivePadding(4)),
-              _shimmerRect(screenSize.width * 0.3, 10, radius: 4),
-            ],
-          ),
-          _shimmerRect(
-            screenSize.responsivePadding(60),
-            screenSize.responsivePadding(60),
-            radius: 8,
-          ),
           _shimmerRect(
             double.infinity,
-            screenSize.responsivePadding(35),
-            radius: 8,
+            screenSize.responsivePadding(100),
+            radius: 0,
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(child: _shimmerRect(screenSize.width * 0.25, 15, radius: 4)),
+                  SizedBox(height: screenSize.responsivePadding(4)),
+                  Center(child: _shimmerRect(screenSize.width * 0.35, 12, radius: 4)),
+                  const Spacer(),
+                  _shimmerRect(
+                    double.infinity,
+                    screenSize.responsivePadding(30),
+                    radius: 12,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -231,7 +237,7 @@ class CardShimmers {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

@@ -22,36 +22,59 @@ class ShopAbout extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('About', style: kSmallTitleM),
-        SizedBox(height: screenSize.responsivePadding(12)),
+        const Text(
+          'About',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF111827),
+          ),
+        ),
+        SizedBox(height: screenSize.responsivePadding(10)),
         Text(
           description,
-          style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+          style: const TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF6B7280),
+            height: 1.5,
+          ),
         ),
         if (specialties.isNotEmpty) ...[
-          SizedBox(height: screenSize.responsivePadding(16)),
-          Text('Specialties', style: kSmallTitleM.copyWith(fontSize: 13)),
+          SizedBox(height: screenSize.responsivePadding(14)),
+          const Text(
+            'Specialties',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF374151),
+            ),
+          ),
           SizedBox(height: screenSize.responsivePadding(8)),
           Wrap(
-            spacing: screenSize.responsivePadding(6),
-            runSpacing: screenSize.responsivePadding(6),
+            spacing: screenSize.responsivePadding(8),
+            runSpacing: screenSize.responsivePadding(8),
             children: specialties.map((s) {
               return Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(10),
-                  vertical: screenSize.responsivePadding(4),
+                  horizontal: screenSize.responsivePadding(12),
+                  vertical: screenSize.responsivePadding(5),
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF4F5F7),
-                  borderRadius: BorderRadius.circular(6),
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
                 child: Text(
                   s,
-                  style: kSmallerTitleL.copyWith(
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
                     fontSize: 11,
-                    color: const Color(0xFF374151),
-                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF374151),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               );
@@ -59,8 +82,16 @@ class ShopAbout extends ConsumerWidget {
           ),
         ],
         if (achievements.isNotEmpty) ...[
-          SizedBox(height: screenSize.responsivePadding(16)),
-          Text('Highlights & Achievements', style: kSmallTitleM.copyWith(fontSize: 13)),
+          SizedBox(height: screenSize.responsivePadding(14)),
+          const Text(
+            'Highlights & Achievements',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF374151),
+            ),
+          ),
           SizedBox(height: screenSize.responsivePadding(8)),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,18 +104,21 @@ class ShopAbout extends ConsumerWidget {
                     const Padding(
                       padding: EdgeInsets.only(top: 2),
                       child: Icon(
-                        Icons.check_circle_outline,
+                        Icons.check_circle_rounded,
                         size: 14,
-                        color: kPrimaryColor,
+                        color: Color(0xFF07982C),
                       ),
                     ),
-                    SizedBox(width: screenSize.responsivePadding(6)),
+                    SizedBox(width: screenSize.responsivePadding(8)),
                     Expanded(
                       child: Text(
                         a,
-                        style: kSmallerTitleL.copyWith(
+                        style: const TextStyle(
+                          fontFamily: 'Montserrat',
                           fontSize: 12,
-                          color: const Color(0xFF374151),
+                          color: Color(0xFF4B5563),
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
                         ),
                       ),
                     ),

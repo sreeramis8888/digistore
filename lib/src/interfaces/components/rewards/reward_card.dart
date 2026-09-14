@@ -1,6 +1,5 @@
 import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import 'package:setgo/src/data/constants/color_constants.dart';
-import 'package:setgo/src/data/constants/style_constants.dart';
 import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -157,79 +156,88 @@ class RewardCard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: kWhite,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: EdgeInsets.all(screenSize.responsivePadding(12)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 5,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: AdvancedNetworkImage(
-                    imageUrl: imageUrl ?? '',
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    disableFade: true,
-                    errorWidget: Container(
-                      color: const Color(0xFFF3F4F6),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        icon ?? Icons.card_giftcard_rounded,
-                        color: iconColor ?? const Color(0xFF9CA3AF),
-                        size: 36,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: screenSize.responsivePadding(100),
+              width: double.infinity,
+              child: AdvancedNetworkImage(
+                imageUrl: imageUrl ?? '',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                disableFade: true,
+                errorWidget: Container(
+                  color: const Color(0xFFF3F4F6),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    icon ?? Icons.card_giftcard_rounded,
+                    color: iconColor ?? const Color(0xFF9CA3AF),
+                    size: 32,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                        height: 1.2,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                    if (showSubtitle) ...[
+                      SizedBox(height: screenSize.responsivePadding(2)),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF6B7280),
+                          height: 1.2,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const Spacer(),
+                    if (isClaimed)
+                      _ClaimedBadge(couponCode: couponCode, screenSize: screenSize)
+                    else
+                      _ClaimButton(
+                        points: points,
+                        screenSize: screenSize,
+                        onPressed: () => _openDetail(context),
+                      ),
+                  ],
                 ),
               ),
-              SizedBox(height: screenSize.responsivePadding(10)),
-              Text(
-                title,
-                style: kSmallTitleB.copyWith(
-                  color: const Color(0xFF111827),
-                  fontSize: 14,
-                  height: 1.2,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (showSubtitle) ...[
-                SizedBox(height: screenSize.responsivePadding(4)),
-                Text(
-                  subtitle,
-                  style: kSmallerTitleM.copyWith(
-                    color: const Color(0xFF6B7280),
-                    fontSize: 11,
-                    height: 1.25,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              SizedBox(height: screenSize.responsivePadding(10)),
-              if (isClaimed)
-                _ClaimedBadge(couponCode: couponCode, screenSize: screenSize)
-              else
-                _ClaimButton(
-                  points: points,
-                  screenSize: screenSize,
-                  onPressed: () => _openDetail(context),
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -253,11 +261,11 @@ class _ClaimButton extends StatelessWidget {
       onPressed: onPressed,
       scaleFactor: 0.96,
       child: Container(
-        height: screenSize.responsivePadding(36),
+        height: screenSize.responsivePadding(30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: kRewardCtaPurple,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +274,9 @@ class _ClaimButton extends StatelessWidget {
             Flexible(
               child: Text(
                 'Get it for $points',
-                style: kSmallerTitleEB.copyWith(
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700,
                   color: kWhite,
                   fontSize: 12,
                 ),
@@ -276,7 +286,8 @@ class _ClaimButton extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             SvgPicture.asset(
-              'assets/svg/coin.svg',
+              'assets/svg/reward_coins.svg',
+              width: 12,
               height: 12,
             ),
           ],
@@ -298,18 +309,20 @@ class _ClaimedBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: screenSize.responsivePadding(36),
+      height: screenSize.responsivePadding(30),
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         color: kRewardCtaPurple.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         couponCode != null ? 'Code: $couponCode' : 'Claimed',
-        style: kSmallTitleB.copyWith(
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w700,
           color: kRewardCtaPurple,
-          fontSize: 11,
+          fontSize: 12,
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

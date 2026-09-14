@@ -32,13 +32,20 @@ class ShopBranches extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Branches', style: kSmallTitleM),
+            const Text(
+              'Branches',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111827),
+              ),
+            ),
             SizedBox(height: screenSize.responsivePadding(12)),
             Wrap(
               spacing: screenSize.responsivePadding(8),
               runSpacing: screenSize.responsivePadding(8),
               children: [
-                // Other branches
                 ...branches.map((branch) {
                   return _buildBranchPill(
                     screenSize: screenSize,
@@ -73,25 +80,29 @@ class ShopBranches extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOutCubic,
         padding: EdgeInsets.symmetric(
-          horizontal: screenSize.responsivePadding(16),
+          horizontal: screenSize.responsivePadding(20),
           vertical: screenSize.responsivePadding(8),
         ),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0XFFDFEAFF) : const Color(0xFFF4F4F4),
-          borderRadius: BorderRadius.circular(4),
+          color: isSelected ? const Color(0xFFF0FDF4) : const Color(0xFFF7F4F4),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? kPrimaryColor : const Color(0xFFF4F4F4),
+            color: isSelected ? const Color(0xFF07982C) : Colors.transparent,
+            width: 1.5,
           ),
         ),
         child: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOutCubic,
-          style: isSelected
-              ? kSmallTitleM.copyWith(color: kPrimaryColor)
-              : kSmallTitleL.copyWith(color: kSecondaryTextColor),
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? const Color(0xFF07982C) : const Color(0xFF808080),
+          ),
           child: Text(label),
         ),
       ),

@@ -87,86 +87,140 @@ class ShopAddress extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Location', style: kBodyTitleM),
-        SizedBox(height: screenSize.responsivePadding(12)),
+        const Text(
+          'Address',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF111827),
+          ),
+        ),
+        SizedBox(height: screenSize.responsivePadding(10)),
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
+          duration: const Duration(milliseconds: 300),
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, 0.1),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            );
-          },
           child: Column(
             key: ValueKey(addressText),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                addressText,
-                style: kSmallTitleR.copyWith(color: kSecondaryTextColor, height: 1.5),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(
+                      Icons.location_on_rounded,
+                      size: 16,
+                      color: Color(0xFF07838C),
+                    ),
+                  ),
+                  SizedBox(width: screenSize.responsivePadding(6)),
+                  Expanded(
+                    child: Text(
+                      addressText,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF4B5563),
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               if (cityStateText != null && cityStateText!.isNotEmpty) ...[
                 SizedBox(height: screenSize.responsivePadding(4)),
-                Text(
-                  cityStateText!,
-                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                Padding(
+                  padding: EdgeInsets.only(left: screenSize.responsivePadding(22)),
+                  child: Text(
+                    cityStateText!,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
                 ),
               ],
               if (branchContact != null && branchContact.isNotEmpty) ...[
                 SizedBox(height: screenSize.responsivePadding(4)),
-                Text(
-                  'Contact Person: $branchContact',
-                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor, fontSize: 11),
+                Padding(
+                  padding: EdgeInsets.only(left: screenSize.responsivePadding(22)),
+                  child: Text(
+                    'Contact: $branchContact',
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
                 ),
               ],
             ],
           ),
         ),
-        SizedBox(height: screenSize.responsivePadding(12)),
-        InkWell(
-          onTap: _openDirections,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: double.infinity,
-            height: screenSize.responsivePadding(120),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kPrimaryColor.withAlpha(76)),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.directions,
-                    color: kPrimaryColor,
-                    size: 32,
-                  ),
-                  SizedBox(height: screenSize.responsivePadding(8)),
-                  Text(
-                    'Get Directions',
-                    style: kSmallTitleM.copyWith(color: kPrimaryColor),
-                  ),
-                  SizedBox(height: screenSize.responsivePadding(4)),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    child: Text(
-                      selectedBranch?.name ?? shop?.businessDetails?.businessName ?? 'Shop Location',
-                      key: ValueKey(selectedBranch?.name ?? shop?.businessDetails?.businessName),
-                      style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
-                      textAlign: TextAlign.center,
+        SizedBox(height: screenSize.responsivePadding(14)),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _openDirections,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: double.infinity,
+              height: screenSize.responsivePadding(110),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF07838C).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.directions_rounded,
+                        color: Color(0xFF07838C),
+                        size: 24,
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: screenSize.responsivePadding(6)),
+                    const Text(
+                      'Get Directions',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF07838C),
+                      ),
+                    ),
+                    SizedBox(height: screenSize.responsivePadding(2)),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Text(
+                        selectedBranch?.name ?? shop?.businessDetails?.businessName ?? 'Shop Location',
+                        key: ValueKey(selectedBranch?.name ?? shop?.businessDetails?.businessName),
+                        style: const TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF6B7280),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

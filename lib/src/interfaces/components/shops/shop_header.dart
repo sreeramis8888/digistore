@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/shop_model.dart';
 import '../../../../src/data/providers/user_provider.dart';
@@ -30,7 +29,6 @@ class ShopHeader extends ConsumerStatefulWidget {
 
 class _ShopHeaderState extends ConsumerState<ShopHeader> {
   String? _roadDistance;
-  double? _durationMinutes;
   bool _isCalculating = false;
 
   @override
@@ -54,7 +52,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     if (widget.selectedBranch == null && widget.shop?.roadDistance != null) {
       setState(() {
         _roadDistance = widget.shop!.roadDistance;
-        _durationMinutes = widget.shop!.roadDuration;
         _isCalculating = false;
       });
       return;
@@ -81,7 +78,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
 
     setState(() {
       _roadDistance = null;
-      _durationMinutes = null;
     });
 
     if (userLat != null &&
@@ -100,7 +96,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       if (mounted && result != null) {
         setState(() {
           _roadDistance = result['distance']!.toStringAsFixed(1);
-          _durationMinutes = result['duration'];
           _isCalculating = false;
         });
       } else if (mounted) {
@@ -130,9 +125,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
     final reviewsAsync = ref.watch(reviewsProvider(shopId: widget.shop?.id));
     final fetchedSales = reviewsAsync.value?.total ?? 0;
     final totalSales = fetchedSales > 0 ? fetchedSales : totalSalesRaw;
-    final category = widget.shop?.serviceCategories?.isNotEmpty == true
-        ? widget.shop!.serviceCategories!.first
-        : 'General';
     final branches = widget.shop?.businessInfo?.branches ?? [];
     BusinessBranch? primaryBranch;
     for (final b in branches) {
@@ -182,33 +174,47 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: screenSize.responsivePadding(40),
-              height: screenSize.responsivePadding(40),
-              decoration: const BoxDecoration(
+              width: screenSize.responsivePadding(52),
+              height: screenSize.responsivePadding(52),
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: kPrimaryColor,
+                color: kWhite,
+                border: Border.all(color: const Color(0xFFE5E7EB), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: widget.shop?.businessInfo?.businessLogo != null
-                  ? AdvancedNetworkImage(
-                      imageUrl: widget.shop!.businessInfo!.businessLogo!,
-                      fit: BoxFit.cover,
-                      borderRadius: BorderRadius.circular(20),
-                    )
-                  : const Icon(Icons.storefront, color: kWhite),
+              child: ClipOval(
+                child: widget.shop?.businessInfo?.businessLogo != null
+                    ? AdvancedNetworkImage(
+                        imageUrl: widget.shop!.businessInfo!.businessLogo!,
+                        fit: BoxFit.cover,
+                      )
+                    : const Icon(Icons.storefront, color: kPrimaryColor, size: 28),
+              ),
             ),
             SizedBox(width: screenSize.responsivePadding(12)),
             Expanded(
-              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.shopName,
-                    style: kBodyTitleM.copyWith(fontSize: 24),
-                    maxLines: 3,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF111827),
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (widget.shop?.businessInfo?.tagline != null &&
@@ -216,95 +222,64 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                     SizedBox(height: screenSize.responsivePadding(2)),
                     Text(
                       widget.shop!.businessInfo!.tagline!.trim(),
-                      style: kSmallerTitleL.copyWith(
-                        color: kSecondaryTextColor,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
+                        color: Color(0xFF6B7280),
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ],
               ),
             ),
-            SizedBox(width: screenSize.responsivePadding(8)),
-            Flexible(
-              flex: 1,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.shop?.isFeatured == true) ...[
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(6),
-                        vertical: screenSize.responsivePadding(4),
-                      ),
-                      margin: EdgeInsets.only(right: screenSize.responsivePadding(4)),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF9E6),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFFD54F).withValues(alpha: 0.6)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.star, size: 10, color: Color(0xFFD97706)),
-                          SizedBox(width: screenSize.responsivePadding(2)),
-                          Text(
-                            'Featured',
-                            style: kSmallerTitleSB.copyWith(
-                              color: const Color(0xFF92400E),
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
+            if (widget.shop?.isFeatured == true) ...[
+              SizedBox(width: screenSize.responsivePadding(8)),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(8),
+                  vertical: screenSize.responsivePadding(4),
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9E6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFFFD54F).withValues(alpha: 0.6)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star, size: 12, color: Color(0xFFD97706)),
+                    SizedBox(width: screenSize.responsivePadding(3)),
+                    const Text(
+                      'Featured',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Color(0xFF92400E),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
-                  Flexible(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(8),
-                        vertical: screenSize.responsivePadding(4),
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0XFFDFEAFF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        category,
-                        style: kSmallerTitleSB.copyWith(
-                          color: kPrimaryColor,
-                          fontSize: 10,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ],
         ),
-        SizedBox(height: screenSize.responsivePadding(8)),
+        SizedBox(height: screenSize.responsivePadding(10)),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 2),
-              child: Icon(
-                Icons.location_on_outlined,
-                size: 14,
-                color: kSecondaryTextColor,
-              ),
+            const Icon(
+              Icons.location_on_outlined,
+              size: 15,
+              color: Color(0xFF6B7280),
             ),
             SizedBox(width: screenSize.responsivePadding(4)),
             Expanded(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 300),
                 layoutBuilder: (currentChild, previousChildren) => Stack(
                   alignment: Alignment.centerLeft,
                   children: [
@@ -314,112 +289,141 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                 ),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.0, 0.1),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Row(
+                child: SizedBox(
+                  width: double.infinity,
                   key: ValueKey('$address$distanceLabel'),
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        address,
-                        style: kSmallTitleL.copyWith(
-                          color: const Color(0xFF4E4E4E),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                  child: Text(
+                    '$address${distanceLabel.isNotEmpty ? ' · ${distanceLabel.replaceAll(RegExp(r'[()]'), '').trim()}' : ''}',
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF6B7280),
                     ),
-                    if (distanceLabel.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: screenSize.responsivePadding(4),
-                        ),
-                        child: Text(
-                          distanceLabel.trim(),
-                          style: kSmallTitleSB.copyWith(color: kPrimaryColor),
-                        ),
-                      ),
-                  ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(height: screenSize.responsivePadding(16)),
+        SizedBox(height: screenSize.responsivePadding(12)),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+        SizedBox(height: screenSize.responsivePadding(12)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-                Text(
-                  rating.toStringAsFixed(1),
-                  style: kBodyTitleM.copyWith(color: const Color(0xFF4E4E4E)),
-                ),
-                SizedBox(width: screenSize.responsivePadding(4)),
-                const Icon(Icons.star, color: Color(0xFFFFD700), size: 18),
-                SizedBox(width: screenSize.responsivePadding(4)),
-                Text(
-                  '($totalSales reviews)',
-                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(10),
+                    vertical: screenSize.responsivePadding(5),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF9E6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 16),
+                      SizedBox(width: screenSize.responsivePadding(4)),
+                      Text(
+                        rating > 0 ? rating.toStringAsFixed(1) : 'New',
+                        style: const TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: Color(0xFF92400E),
+                        ),
+                      ),
+                      if (totalSales > 0) ...[
+                        SizedBox(width: screenSize.responsivePadding(4)),
+                        Text(
+                          '($totalSales reviews)',
+                          style: const TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 11,
+                            color: Color(0xFFB45309),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
                 if (widget.shop?.businessInfo?.yearsOfExperience != null &&
                     widget.shop!.businessInfo!.yearsOfExperience! > 0) ...[
                   SizedBox(width: screenSize.responsivePadding(8)),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(6),
-                      vertical: screenSize.responsivePadding(2),
+                      horizontal: screenSize.responsivePadding(8),
+                      vertical: screenSize.responsivePadding(4),
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       '${widget.shop!.businessInfo!.yearsOfExperience}+ yrs exp',
-                      style: kSmallerTitleL.copyWith(
-                        color: kSecondaryTextColor,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Color(0xFF6B7280),
                         fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ],
               ],
             ),
-            OutlinedButton.icon(
-              onPressed: () {
-                final phone =
-                    widget.selectedBranch?.phone ??
-                    widget.shop?.businessInfo?.contactPhone;
-                if (phone != null && phone.isNotEmpty) {
-                  launchPhone(phone);
-                }
-              },
-              icon: const Icon(Icons.call, size: 16, color: kTextColor),
-              label: Text(
-                'Call',
-                style: kSmallerTitleL.copyWith(color: kTextColor),
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.responsivePadding(8),
-                  vertical: screenSize.responsivePadding(2),
-                ),
-                side: const BorderSide(color: kBorder),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  final phone =
+                      widget.selectedBranch?.phone ??
+                      widget.shop?.businessInfo?.contactPhone;
+                  if (phone != null && phone.isNotEmpty) {
+                    launchPhone(phone);
+                  }
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(16),
+                    vertical: screenSize.responsivePadding(8),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF07982C),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF07982C).withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.call, size: 14, color: Colors.white),
+                      SizedBox(width: screenSize.responsivePadding(6)),
+                      const Text(
+                        'Call',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

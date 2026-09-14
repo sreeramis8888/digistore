@@ -50,52 +50,98 @@ class ShopReviews extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Customer Reviews ($totalFetchedReviews)', style: kBodyTitleM),
-            GestureDetector(
-              onTap: () async {
-                if (shop == null) return;
-                final result = await showModalBottomSheet<bool>(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => AddReviewSheet(shop: shop!),
-                );
+            Text(
+              totalFetchedReviews > 0
+                  ? 'Customer Reviews ($totalFetchedReviews)'
+                  : 'Customer Reviews',
+              style: const TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () async {
+                  if (shop == null) return;
+                  final result = await showModalBottomSheet<bool>(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => AddReviewSheet(shop: shop!),
+                  );
 
-                if (result == true && shopId != null) {
-                  ref.invalidate(reviewsProvider(shopId: shopId));
-                }
-              },
-              child: Text(
-                'Add Review',
-                style: kSmallTitleM.copyWith(color: kPrimaryColor),
+                  if (result == true && shopId != null) {
+                    ref.invalidate(reviewsProvider(shopId: shopId));
+                  }
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(12),
+                    vertical: screenSize.responsivePadding(6),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF07838C).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.add, size: 14, color: Color(0xFF07838C)),
+                      SizedBox(width: screenSize.responsivePadding(4)),
+                      const Text(
+                        'Add Review',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF07838C),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
         ),
-        SizedBox(height: screenSize.responsivePadding(16)),
+        SizedBox(height: screenSize.responsivePadding(14)),
         reviewsAsync.when(
           data: (paginated) {
             if (paginated.reviews.isEmpty) {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: screenSize.responsivePadding(20),
-                  ),
+              return Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(screenSize.responsivePadding(20)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFF3F4F6)),
+                ),
+                child: Center(
                   child: Text(
                     'No reviews yet. Be the first to review!',
-                    style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF6B7280),
+                    ),
                   ),
                 ),
               );
             }
             final hasImages = paginated.reviews.any((r) => r.images != null && r.images!.isNotEmpty);
-            final cardHeight = hasImages ? 170.0 : 110.0;
+            final cardHeight = hasImages ? 175.0 : 120.0;
             final displayCount = paginated.reviews.length > 10 ? 10 : paginated.reviews.length;
             final totalCards = showViewAll ? displayCount + 1 : displayCount;
 
             return SizedBox(
               height: screenSize.responsivePadding(cardHeight),
               child: ListView.separated(
+                clipBehavior: Clip.none,
                 scrollDirection: Axis.horizontal,
                 itemCount: totalCards,
                 separatorBuilder: (context, index) =>
@@ -138,12 +184,12 @@ class _ViewAllCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: screenSize.responsivePadding(150),
+        width: screenSize.responsivePadding(140),
         padding: EdgeInsets.all(screenSize.responsivePadding(12)),
         decoration: BoxDecoration(
-          color: kPrimaryColor.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kPrimaryColor.withValues(alpha: 0.18)),
+          color: const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF07838C).withValues(alpha: 0.2)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -151,26 +197,33 @@ class _ViewAllCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(screenSize.responsivePadding(10)),
               decoration: BoxDecoration(
-                color: kPrimaryColor.withValues(alpha: 0.12),
+                color: const Color(0xFF07838C).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.arrow_forward_rounded,
-                color: kPrimaryColor,
+                color: Color(0xFF07838C),
                 size: 20,
               ),
             ),
             SizedBox(height: screenSize.responsivePadding(10)),
-            Text(
-              'View All Reviews',
-              style: kSmallTitleSB.copyWith(color: kPrimaryColor, fontSize: 12),
+            const Text(
+              'View All',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF07838C),
+              ),
             ),
-            SizedBox(height: screenSize.responsivePadding(4)),
+            SizedBox(height: screenSize.responsivePadding(2)),
             Text(
-              '$totalCount total verified reviews',
-              style: kSmallTitleR.copyWith(
-                color: kSecondaryTextColor,
+              '$totalCount reviews',
+              style: const TextStyle(
+                fontFamily: 'Montserrat',
                 fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF6B7280),
               ),
               textAlign: TextAlign.center,
             ),
@@ -210,27 +263,21 @@ class _ReviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = [
-      const Color(0xFFFFB74D),
-      const Color(0xFF64B5F6),
-      const Color(0xFF81C784),
+      const Color(0xFF07838C),
+      const Color(0xFF07982C),
+      const Color(0xFF3B82F6),
+      const Color(0xFF8B5CF6),
     ];
     final color = colors[review.userName.hashCode.abs() % colors.length];
     final hasImages = review.images != null && review.images!.isNotEmpty;
 
     return Container(
-      width: screenSize.responsivePadding(240),
-      padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+      width: screenSize.responsivePadding(250),
+      padding: EdgeInsets.all(screenSize.responsivePadding(14)),
       decoration: BoxDecoration(
-        color: kWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF9F9F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,33 +289,59 @@ class _ReviewCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: screenSize.responsivePadding(14),
-                    backgroundColor: color.withValues(alpha: 0.2),
+                    backgroundColor: color.withValues(alpha: 0.15),
                     child: Text(
                       (review.userName ?? 'U')[0].toUpperCase(),
-                      style: kSmallTitleB.copyWith(color: color),
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
                     ),
                   ),
                   SizedBox(width: screenSize.responsivePadding(8)),
                   SizedBox(
-                    width: screenSize.responsivePadding(100),
+                    width: screenSize.responsivePadding(110),
                     child: Text(
                       review.userName ?? 'Anonymous',
-                      style: kSmallTitleM,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111827),
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  Text(
-                    review.rating?.toStringAsFixed(1) ?? '0.0',
-                    style: kSmallTitleM,
-                  ),
-                  SizedBox(width: screenSize.responsivePadding(4)),
-                  const Icon(Icons.star, color: Color(0xFFFFD700), size: 14),
-                ],
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(6),
+                  vertical: screenSize.responsivePadding(2),
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9E6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 13),
+                    SizedBox(width: screenSize.responsivePadding(2)),
+                    Text(
+                      review.rating?.toStringAsFixed(1) ?? '0.0',
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF92400E),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -276,13 +349,19 @@ class _ReviewCard extends StatelessWidget {
           Expanded(
             child: Text(
               review.comment ?? '',
-              style: kSmallTitleR.copyWith(color: kSecondaryTextColor),
+              style: const TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF6B7280),
+                height: 1.4,
+              ),
               maxLines: hasImages ? 2 : 4,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           if (hasImages) ...[
-            SizedBox(height: screenSize.responsivePadding(8)),
+            SizedBox(height: screenSize.responsivePadding(6)),
             SizedBox(
               height: screenSize.responsivePadding(42),
               child: ListView.separated(
