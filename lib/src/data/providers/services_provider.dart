@@ -287,7 +287,12 @@ final customerBookingsProvider = FutureProvider.family<List<BookingModel>, Strin
   final api = ref.watch(apiProvider);
   final queryParams = <String, String>{};
   if (statusFilter.isNotEmpty && statusFilter.toLowerCase() != 'all') {
-    queryParams['status'] = statusFilter.toUpperCase();
+    final s = statusFilter.toLowerCase();
+    if (s == 'past') {
+      queryParams['status'] = 'COMPLETED';
+    } else {
+      queryParams['status'] = statusFilter.toUpperCase();
+    }
   }
   final res = await api.get('/bookings/my-bookings', queryParams: queryParams);
   if (res.success && res.data != null) {
@@ -318,7 +323,9 @@ class BookingService {
     final payload = bookingData ?? {
       'partnerId': partnerId,
       'serviceIds': serviceIds,
+      'bookingDate': bookingDate,
       'date': bookingDate,
+      'startTime': startTime,
       'timeSlot': startTime,
       if (notes != null && notes.isNotEmpty) 'notes': notes,
     };

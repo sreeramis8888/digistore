@@ -34,8 +34,8 @@ class ServicePartnerModel {
       cityName = rawAddress['city']?.toString();
       if (rawAddress['coordinates'] is List) {
         coords = (rawAddress['coordinates'] as List)
-            .where((e) => e is num)
-            .map((e) => (e as num).toDouble())
+            .whereType<num>()
+            .map((e) => e.toDouble())
             .toList();
       }
     } else if (rawAddress is String) {
@@ -148,6 +148,10 @@ class ServiceModel {
   final String? partnerId;
   final String name;
   final String? category;
+  final String? categoryId;
+  final String? categoryName;
+  final String? subCategory;
+  final List<String> tags;
   final String? description;
   final double originalPrice;
   final double effectivePrice;
@@ -163,6 +167,9 @@ class ServiceModel {
   final int maxConcurrentGuests;
   final String spaceLabel;
   final List<String> availableDays;
+  final bool hasCustomHours;
+  final String? customStartTime;
+  final String? customEndTime;
   final List<String> images;
   final List<ServiceAddOnModel> addOns;
   final ServicePartnerModel? partner;
@@ -175,6 +182,10 @@ class ServiceModel {
     this.partnerId,
     required this.name,
     this.category,
+    this.categoryId,
+    this.categoryName,
+    this.subCategory,
+    this.tags = const [],
     this.description,
     this.originalPrice = 0.0,
     this.effectivePrice = 0.0,
@@ -198,6 +209,9 @@ class ServiceModel {
       'saturday',
       'sunday'
     ],
+    this.hasCustomHours = false,
+    this.customStartTime,
+    this.customEndTime,
     this.images = const [],
     this.addOns = const [],
     this.partner,
@@ -266,12 +280,26 @@ class ServiceModel {
       daysList = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     }
 
+    final catId = json['categoryId']?.toString();
+    final catNameExplicit = json['categoryName']?.toString();
+    final subCat = json['subCategory']?.toString();
+
     String? catName;
     final rawCat = json['category'] ?? json['categoryName'] ?? json['categoryId'];
     if (rawCat is Map) {
       catName = (rawCat['name'] ?? rawCat['category'] ?? rawCat['title'] ?? rawCat['_id'])?.toString();
     } else if (rawCat != null) {
       catName = rawCat.toString();
+    }
+    catName = catNameExplicit ?? catName;
+
+    List<String> tagsList = [];
+    if (json['tags'] is List) {
+      for (var t in json['tags'] as List) {
+        if (t != null && t.toString().isNotEmpty) {
+          tagsList.add(t.toString());
+        }
+      }
     }
 
     final rawAddons = json['addOns'] ?? json['addons'] ?? json['extras'] ?? json['subServices'];
@@ -292,6 +320,10 @@ class ServiceModel {
       partnerId: partnerIdStr,
       name: (json['name'] ?? json['title'] ?? json['serviceName'] ?? 'Service').toString(),
       category: catName,
+      categoryId: catId,
+      categoryName: catNameExplicit ?? catName,
+      subCategory: subCat,
+      tags: tagsList,
       description: json['description']?.toString() ?? json['desc']?.toString(),
       originalPrice: origPrice,
       effectivePrice: effPrice,
@@ -307,6 +339,9 @@ class ServiceModel {
       maxConcurrentGuests: parseInt(json['maxConcurrentGuests'] ?? json['capacity'], 1),
       spaceLabel: json['spaceLabel']?.toString() ?? 'Chairs',
       availableDays: daysList,
+      hasCustomHours: json['hasCustomHours'] == true,
+      customStartTime: json['customStartTime']?.toString(),
+      customEndTime: json['customEndTime']?.toString(),
       images: imgList,
       addOns: addOnsList,
       partner: partnerModel,
@@ -322,6 +357,10 @@ class ServiceModel {
       'partnerId': partnerId,
       'name': name,
       'category': category,
+      'categoryId': categoryId,
+      'categoryName': categoryName ?? category,
+      'subCategory': subCategory,
+      'tags': tags,
       'description': description,
       'price': originalPrice,
       'originalPrice': originalPrice,
@@ -337,6 +376,9 @@ class ServiceModel {
       'maxConcurrentGuests': maxConcurrentGuests,
       'spaceLabel': spaceLabel,
       'availableDays': availableDays,
+      'hasCustomHours': hasCustomHours,
+      'customStartTime': customStartTime,
+      'customEndTime': customEndTime,
       'images': images,
       'addOns': addOns.map((e) => e.toJson()).toList(),
       'isActive': isActive,
@@ -511,7 +553,7 @@ class BookingModel {
     List<ServiceAddOnModel> addOns = [];
     if (json['selectedAddOns'] is List) {
       addOns = (json['selectedAddOns'] as List)
-          .where((e) => e is Map)
+          .whereType<Map>()
           .map((e) => ServiceAddOnModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
@@ -608,7 +650,7 @@ class PartnerBookingDashboardModel {
     List<BookingModel> recents = [];
     if (rawRecent is List) {
       recents = rawRecent
-          .where((e) => e is Map)
+          .whereType<Map>()
           .map((e) => BookingModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
