@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../../data/models/banner_model.dart';
@@ -12,6 +13,7 @@ import '../../data/providers/services_provider.dart';
 import '../../data/providers/user_type_provider.dart';
 import '../../data/router/nav_router.dart';
 import '../../data/utils/global_variables.dart';
+import '../../data/utils/interactive_feedback_button.dart';
 import '../components/common/paginated_banner_grid.dart';
 import '../components/loading_indicator.dart';
 import '../components/products/products_filter_chips.dart';
@@ -22,7 +24,6 @@ import '../components/shimmers/card_shimmers.dart';
 import '../components/shops/product_card.dart';
 import 'partner/create_product.dart';
 import 'partner/create_service.dart';
-import 'partner/partner_bookings_page.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
   const ProductsPage({super.key});
@@ -163,55 +164,63 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
         scrolledUnderElevation: 0,
         actions: [
           if (isPartner)
-            IconButton(
-              icon: const Icon(
-                Icons.calendar_month_rounded,
-                color: Color(0xFF2563EB),
-              ),
-              tooltip: 'Bookings Management',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PartnerBookingsPage(),
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: InteractiveFeedbackButton(
+                  onPressed: () {
+                    if (selectedTab == 0) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateProductPage(),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateServicePage(),
+                        ),
+                      );
+                    }
+                  },
+                  scaleFactor: 0.96,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: kPrimaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.add_rounded,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Add New',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            height: 1,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              },
+                ),
+              ),
             ),
         ],
       ),
-      floatingActionButton: isPartner
-          ? FloatingActionButton.extended(
-              backgroundColor: const Color(0xFF2563EB),
-              elevation: 4,
-              icon: const Icon(Icons.add, color: kWhite),
-              label: Text(
-                selectedTab == 0 ? 'Create Product' : 'Create Service',
-                style: kSmallerTitleB.copyWith(
-                  color: kWhite,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              onPressed: () {
-                if (selectedTab == 0) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CreateProductPage(),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CreateServicePage(),
-                    ),
-                  );
-                }
-              },
-            )
-          : null,
       body: SafeArea(
         child: RefreshIndicator(
           color: kPrimaryColor,
