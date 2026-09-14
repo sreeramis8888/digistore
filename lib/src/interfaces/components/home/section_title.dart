@@ -9,28 +9,43 @@ class SectionTitle extends ConsumerWidget {
   final String title;
   final VoidCallback? onViewAll;
   final Color? titleColor;
+  /// When true, matches Digistore-Pay home: ExtraBold 20 title + green View All.
+  final bool revampStyle;
 
   const SectionTitle({
     super.key,
     required this.title,
     this.onViewAll,
     this.titleColor,
+    this.revampStyle = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final viewAllColor =
+        revampStyle ? kHeroAccentGreen : const Color(0xFF2563EB);
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
-        vertical: screenSize.responsivePadding(10),
+        vertical: revampStyle ? 0 : screenSize.responsivePadding(10),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: kBodyTitleM.copyWith(color: titleColor ?? kTextColor),
+          Expanded(
+            child: Text(
+              title,
+              style: revampStyle
+                  ? kHeadTitleEB.copyWith(
+                      color: titleColor ?? const Color(0xFF111827),
+                      fontSize: 20,
+                    )
+                  : kBodyTitleM.copyWith(color: titleColor ?? kTextColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           if (onViewAll != null)
             InteractiveFeedbackButton(
@@ -41,13 +56,15 @@ class SectionTitle extends ConsumerWidget {
                   Text(
                     'View All',
                     style: kSmallTitleM.copyWith(
-                      color: const Color(0xFF2563EB),
+                      color: viewAllColor,
+                      fontWeight:
+                          revampStyle ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right,
-                    color: Color(0xFF2563EB),
-                    size: 20,
+                    color: viewAllColor,
+                    size: revampStyle ? 14 : 20,
                   ),
                 ],
               ),

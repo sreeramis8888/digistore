@@ -48,7 +48,7 @@ class DealCard extends ConsumerWidget {
     this.descriptionMaxLines = 1,
   });
 
-  static String? _resolveBadgeText(OfferModel offer) {
+  static String? resolveBadgeText(OfferModel offer) {
     final code = offer.offerTypeCode?.toUpperCase();
     final isFlat = offer.discountType?.toLowerCase() == 'flat' ||
         offer.discountType?.toLowerCase() == 'amount' ||
@@ -150,7 +150,7 @@ class DealCard extends ConsumerWidget {
     bool hideShopName = false,
     int descriptionMaxLines = 1,
   }) {
-    final badgeText = _resolveBadgeText(offer);
+    final badgeText = resolveBadgeText(offer);
 
     return DealCard(
       id: offer.id,

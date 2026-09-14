@@ -37,18 +37,33 @@ class HomeData {
   });
 
   factory HomeData.fromJson(Map<String, dynamic> json) {
-    final deals = json['deals'] as Map<String, dynamic>?;
+    final deals = SafeParser.asMap(json['deals']);
     return HomeData(
       loyaltyCard: SafeParser.parseObject(json['loyaltyCard'], LoyaltyCard.fromJson),
       premiumBanners: SafeParser.parseList(
-          (json['banners'] as Map<String, dynamic>?)?['all'],
+          SafeParser.asMap(json['banners'])?['all'],
           BannerModel.fromJson),
       categories: SafeParser.parseList(json['categories'], CategoryModel.fromJson),
-      // dealsOfDay: SafeParser.parseList(json['dealsOfDay'], OfferModel.fromJson),
-      dealOfTheHour: SafeParser.parseList(deals?['deal_of_hour'], OfferModel.fromJson),
-      dealOfTheDay: SafeParser.parseList(deals?['deal_of_day'], OfferModel.fromJson),
-      dealOfTheWeek: SafeParser.parseList(deals?['deal_of_week'], OfferModel.fromJson),
-      dealOfTheMonth: SafeParser.parseList(deals?['deal_of_month'], OfferModel.fromJson),
+      dealOfTheHour: SafeParser.parseList(
+        SafeParser.pick(deals, ['deal_of_hour', 'dealOfHour']) ??
+            SafeParser.pick(json, ['deal_of_hour', 'dealOfHour']),
+        OfferModel.fromJson,
+      ),
+      dealOfTheDay: SafeParser.parseList(
+        SafeParser.pick(deals, ['deal_of_day', 'dealOfDay']) ??
+            SafeParser.pick(json, ['deal_of_day', 'dealOfDay']),
+        OfferModel.fromJson,
+      ),
+      dealOfTheWeek: SafeParser.parseList(
+        SafeParser.pick(deals, ['deal_of_week', 'dealOfWeek']) ??
+            SafeParser.pick(json, ['deal_of_week', 'dealOfWeek']),
+        OfferModel.fromJson,
+      ),
+      dealOfTheMonth: SafeParser.parseList(
+        SafeParser.pick(deals, ['deal_of_month', 'dealOfMonth']) ??
+            SafeParser.pick(json, ['deal_of_month', 'dealOfMonth']),
+        OfferModel.fromJson,
+      ),
       nearbyOffers: SafeParser.parseList(json['nearbyOffers'], OfferModel.fromJson),
       featuredShops: SafeParser.parseList(json['featuredShops'], ShopModel.fromJson),
       popularRewards: SafeParser.parseList(json['popularRewards'], RewardModel.fromJson),

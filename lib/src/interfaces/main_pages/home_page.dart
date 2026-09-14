@@ -8,6 +8,7 @@ import '../../data/providers/screen_size_provider.dart';
 import '../../data/services/connectivity_service.dart';
 import '../components/home/home_hero_section.dart';
 import '../components/home/category_list.dart';
+import '../components/home/deal_of_hour_section.dart';
 import '../components/home/deals_carousel.dart';
 import '../components/home/banner_section.dart';
 import '../components/offers/deal_card.dart';
@@ -204,11 +205,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           (c) => q.isEmpty || (c.name?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    final dealOfTheHour = data.dealOfTheHour
-        ?.where(
-          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
     final dealOfTheDay = data.dealOfTheDay
         ?.where(
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
@@ -224,6 +220,17 @@ class _HomePageState extends ConsumerState<HomePage> {
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
+    // TEMP: UAT has no hour deals — use month data to verify DoH UI.
+    // Revert to data.dealOfTheHour when hour deals are available.
+    final dealOfTheHour = (data.dealOfTheHour != null &&
+            data.dealOfTheHour!.isNotEmpty)
+        ? data.dealOfTheHour!
+            .where(
+              (o) =>
+                  q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+            )
+            .toList()
+        : dealOfTheMonth;
     final featuredShops = data.featuredShops
         ?.where(
           (s) =>
@@ -242,16 +249,26 @@ class _HomePageState extends ConsumerState<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: screenSize.responsivePadding(20)),
+        if (dealOfTheHour != null && dealOfTheHour.isNotEmpty) ...[
+          DealOfHourSection(
+            offers: dealOfTheHour,
+            variant: DealOfHourVariant.promo,
+            onViewAllTap: () => _navigateToDealsGrid(
+              context,
+              'deal_of_hour',
+              'Deal of the Hour',
+            ),
+          ),
+          SizedBox(height: screenSize.responsivePadding(28)),
+        ],
         if (categories != null && categories.isNotEmpty) ...[
           CategoryList(categories: categories),
-          SizedBox(height: screenSize.responsivePadding(16)),
+          SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (dealOfTheHour != null && dealOfTheHour.isNotEmpty) ...[
-          DealsCarousel(
-            title: 'Deal of the Hour',
-            deals: dealOfTheHour
-                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
-                .toList(),
+          DealOfHourSection(
+            offers: dealOfTheHour,
+            variant: DealOfHourVariant.cards,
             onViewAllTap: () => _navigateToDealsGrid(
               context,
               'deal_of_hour',
