@@ -21,87 +21,128 @@ class HistoryPage extends ConsumerWidget {
     final transactionsAsync = ref.watch(transactionsProvider());
 
     return Scaffold(
-      backgroundColor: kWhite,
-      appBar: AppBar(titleSpacing: 0,
-        centerTitle: false,
-        title: Text(
-          'My Wallet',
-          style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
-        ),
+      backgroundColor: kRewardPageBg,
+      appBar: AppBar(
         backgroundColor: kWhite,
         elevation: 0,
         scrolledUnderElevation: 0,
+        surfaceTintColor: kWhite,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+            color: Color(0xFF111827),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'My Wallet',
+          style: kSmallTitleB.copyWith(
+            color: const Color(0xFF111827),
+            fontSize: 16,
+          ),
+        ),
+        centerTitle: false,
+        titleSpacing: 0,
       ),
-      body: SafeArea(
-        child: GlobalVariables.isGuest
-            ? const GuestLoginPrompt(
-                title: 'Login Required',
-                subtitle: 'Please login or register to view your wallet history.',
-              )
-            : Column(
-                children: [
-                  const WalletHeader(),
-                  Expanded(
-                    child: RefreshIndicator(
-                      color: kPrimaryColor,
-                      onRefresh: () async {
-                        ref.invalidate(transactionsProvider);
-                        await ref.read(transactionsProvider().future);
-                      },
-                      child: transactionsAsync.when(
-                        data: (paginated) {
-                          if (paginated.transactions.isEmpty) {
-                            return CustomScrollView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              slivers: [
-                                SliverFillRemaining(
-                                  hasScrollBody: false,
-                                  child: const EmptyState(
-                                    imagePath: 'assets/png/empty_history.png',
-                                    title: 'No transaction history',
-                                    subtitle:
-                                        'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+      body: GlobalVariables.isGuest
+          ? const GuestLoginPrompt(
+              title: 'Login Required',
+              subtitle:
+                  'Please login or register to view your wallet history.',
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const WalletHeader(),
+                Expanded(
+                  child: RefreshIndicator(
+                    color: kPrimaryColor,
+                    onRefresh: () async {
+                      ref.invalidate(transactionsProvider);
+                      await ref.read(transactionsProvider().future);
+                    },
+                    child: transactionsAsync.when(
+                      data: (paginated) {
+                        if (paginated.transactions.isEmpty) {
+                          return CustomScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            slivers: [
+                              SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: const EmptyState(
+                                  imagePath: 'assets/png/empty_history.png',
+                                  title: 'No transaction history',
+                                  subtitle:
+                                      'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            screenSize.responsivePadding(16),
+                            0,
+                            screenSize.responsivePadding(16),
+                            screenSize.responsivePadding(24),
+                          ),
+                          itemCount: paginated.transactions.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: screenSize.responsivePadding(12),
+                                  top: screenSize.responsivePadding(4),
+                                ),
+                                child: Text(
+                                  'Transaction History',
+                                  style: kSmallTitleB.copyWith(
+                                    color: const Color(0xFF111827),
+                                    fontSize: 16,
                                   ),
                                 ),
-                              ],
+                              );
+                            }
+
+                            final transaction =
+                                paginated.transactions[index - 1];
+                            return TransactionTile.fromTransaction(transaction)
+                                .fadeSlideInFromLeft(
+                              delayMilliseconds: (index - 1) * 40,
                             );
-                          }
-                          return ListView.builder(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: paginated.transactions.length,
-                            itemBuilder: (context, index) {
-                              final transaction = paginated.transactions[index];
-                              return TransactionTile.fromTransaction(
-                                transaction,
-                              ).fadeSlideInFromLeft(delayMilliseconds: index * 40);
-                            },
-                          );
-                        },
-                        loading: () => ListView.builder(
-                          itemCount: 8,
-                          itemBuilder: (context, index) =>
-                              CardShimmers.transactionTileShimmer(screenSize),
+                          },
+                        );
+                      },
+                      loading: () => ListView.builder(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.responsivePadding(16),
                         ),
-                        error: (e, s) => CustomScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          slivers: [
-                            SliverFillRemaining(
-                              hasScrollBody: false,
-                              child: const EmptyState(
-                                imagePath: 'assets/png/empty_history.png',
-                                title: 'No transaction history',
-                                subtitle:
-                                    'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
-                              ),
+                        itemCount: 8,
+                        itemBuilder: (context, index) =>
+                            CardShimmers.transactionTileShimmer(screenSize),
+                      ),
+                      error: (e, s) => CustomScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: const EmptyState(
+                              imagePath: 'assets/png/empty_history.png',
+                              title: 'No transaction history',
+                              subtitle:
+                                  'You haven\'t earned or redeemed any points yet. Start exploring offers to earn points!',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-      ),
+                ),
+              ],
+            ),
     );
   }
 }

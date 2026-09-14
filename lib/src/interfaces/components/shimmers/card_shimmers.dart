@@ -182,36 +182,33 @@ class CardShimmers {
 
   static Widget transactionTileShimmer(ScreenSizeData screenSize) {
     return Container(
-      margin: EdgeInsets.only(
-        bottom: screenSize.responsivePadding(12),
-        left: screenSize.responsivePadding(20),
-        right: screenSize.responsivePadding(20),
-      ),
-      padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+      margin: EdgeInsets.only(bottom: screenSize.responsivePadding(10)),
+      padding: EdgeInsets.all(screenSize.responsivePadding(14)),
       decoration: BoxDecoration(
-        color: kCardBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
+        color: kWhite,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Row(
         children: [
-          _shimmerCircle(screenSize.responsivePadding(40)),
-          SizedBox(width: screenSize.responsivePadding(16)),
+          _shimmerCircle(screenSize.responsivePadding(42)),
+          SizedBox(width: screenSize.responsivePadding(12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _shimmerRect(screenSize.width * 0.3, 14, radius: 4),
-                SizedBox(height: screenSize.responsivePadding(4)),
-                _shimmerRect(screenSize.width * 0.5, 12, radius: 4),
+                _shimmerRect(screenSize.width * 0.28, 14, radius: 4),
+                SizedBox(height: screenSize.responsivePadding(6)),
+                _shimmerRect(screenSize.width * 0.45, 12, radius: 4),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _shimmerRect(40, 14, radius: 4),
-              SizedBox(height: screenSize.responsivePadding(4)),
-              _shimmerRect(50, 10, radius: 4),
+              _shimmerRect(48, 14, radius: 4),
+              SizedBox(height: screenSize.responsivePadding(6)),
+              _shimmerRect(56, 10, radius: 4),
             ],
           ),
         ],
