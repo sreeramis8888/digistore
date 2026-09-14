@@ -129,7 +129,6 @@ class SecureStorageService {
   /// Check if bearer token exists
   Future<bool> hasBearerToken() async {
     final token = await getBearerToken();
-    log("Checking bearer token existence: $token");
     return token != null && token.isNotEmpty;
     
   }

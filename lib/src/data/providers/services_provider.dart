@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import '../models/category_model.dart';
 import '../models/service_model.dart';
 import 'api_provider.dart';
 import 'auth_provider.dart';
@@ -9,7 +10,7 @@ import 'auth_provider.dart';
 final selectedProductsTabProvider = StateProvider<int>((ref) => 0); // 0: Products, 1: Services
 final selectedServicesCategoryProvider = StateProvider<int>((ref) => 0);
 
-final serviceCategoriesProvider = FutureProvider<List<String>>((ref) async {
+final serviceCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
   final api = ref.watch(publicApiProvider);
   final res = await api.get('/services/categories', requireAuth: false);
   if (res.success && res.data != null) {
@@ -18,14 +19,24 @@ final serviceCategoriesProvider = FutureProvider<List<String>>((ref) async {
       raw = raw['categories'] ?? raw['data'] ?? raw['items'];
     }
     if (raw is List) {
-      final list = raw.map((e) {
-        if (e is Map) return (e['name'] ?? e['category'] ?? e['title'] ?? '').toString();
-        return e.toString();
-      }).where((s) => s.trim().isNotEmpty).toList();
+      final list = raw
+          .whereType<Map>()
+          .map((e) => CategoryModel.fromJson(Map<String, dynamic>.from(e)))
+          .where((c) => (c.name != null && c.name!.trim().isNotEmpty) || (c.id != null))
+          .toList();
       if (list.isNotEmpty) return list;
     }
   }
-  return ['Hair', 'Facial', 'Massage', 'Spa', 'Auto', 'Daily needs', 'Fashion', 'Home services'];
+  return const [
+    CategoryModel(id: 'hair', name: 'Hair'),
+    CategoryModel(id: 'facial', name: 'Facial'),
+    CategoryModel(id: 'massage', name: 'Massage'),
+    CategoryModel(id: 'spa', name: 'Spa'),
+    CategoryModel(id: 'auto', name: 'Auto'),
+    CategoryModel(id: 'daily_needs', name: 'Daily needs'),
+    CategoryModel(id: 'fashion', name: 'Fashion'),
+    CategoryModel(id: 'home_services', name: 'Home services'),
+  ];
 });
 
 class ServicesState {
@@ -57,6 +68,7 @@ class ServicesState {
     int? page,
     int? pages,
     String? currentCategory,
+    bool clearCategory = false,
     String? searchQuery,
   }) {
     return ServicesState(
@@ -66,7 +78,7 @@ class ServicesState {
       error: error,
       page: page ?? this.page,
       pages: pages ?? this.pages,
-      currentCategory: currentCategory ?? this.currentCategory,
+      currentCategory: clearCategory ? null : (currentCategory ?? this.currentCategory),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -105,9 +117,10 @@ class ServicesNotifier extends Notifier<ServicesState> {
     int page = 1,
     String? category,
     String? search,
+    bool isCategoryChange = false,
     bool isRefresh = false,
   }) async {
-    final activeCategory = category ?? state.currentCategory;
+    final activeCategory = isCategoryChange ? category : (category ?? state.currentCategory);
     final activeSearch = search ?? state.searchQuery;
 
     if (page == 1) {
@@ -115,6 +128,7 @@ class ServicesNotifier extends Notifier<ServicesState> {
         isLoading: true,
         error: null,
         currentCategory: activeCategory,
+        clearCategory: isCategoryChange && (activeCategory == null || activeCategory == 'All'),
         searchQuery: activeSearch,
         services: isRefresh ? [] : state.services,
       );
@@ -206,7 +220,7 @@ class ServicesNotifier extends Notifier<ServicesState> {
   }
 
   void updateCategory(String? category) {
-    getServices(page: 1, category: category, isRefresh: true);
+    getServices(page: 1, category: category, isCategoryChange: true, isRefresh: true);
   }
 }
 

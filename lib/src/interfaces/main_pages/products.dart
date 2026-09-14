@@ -109,8 +109,8 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
         : (ref.watch(bannersProvider(bannerFilter)).value ?? []);
     final currentCategoryIndex = ref.watch(selectedProductsCategoryProvider);
 
-    final servicesState = ref.watch(servicesListProvider);
-    final partnerServicesState = ref.watch(partnerServicesProvider);
+    final servicesState = isPartner ? null : ref.watch(servicesListProvider);
+    final partnerServicesState = isPartner ? ref.watch(partnerServicesProvider) : null;
 
     ref.listen<int>(selectedProductsCategoryProvider, (previous, next) {
       if (previous != next) {
@@ -316,7 +316,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                   ),
                 ],
               ] else ...[
-                if (isPartner) ...[
+                if (partnerServicesState != null) ...[
                   if (partnerServicesState.isLoading)
                     SliverPadding(
                       padding: EdgeInsets.symmetric(
@@ -388,7 +388,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                         ),
                       ),
                     ),
-                ] else ...[
+                ] else if (servicesState != null) ...[
                   if (servicesState.isLoading)
                     SliverPadding(
                       padding: EdgeInsets.symmetric(

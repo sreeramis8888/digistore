@@ -4,6 +4,7 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/models/service_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/services_provider.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 import '../../main_pages/services/service_details_page.dart';
 import '../advanced_network_image.dart';
@@ -21,6 +22,7 @@ class ServiceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
+    final categoriesAsync = ref.watch(serviceCategoriesProvider);
     final imageUrl = service.images.isNotEmpty ? service.images.first : '';
     final rawPartnerName = service.partner?.name?.trim();
     final shopName = (rawPartnerName != null &&
@@ -28,7 +30,21 @@ class ServiceCard extends ConsumerWidget {
             rawPartnerName.toLowerCase() != 'setgo partner')
         ? rawPartnerName
         : null;
-    final categoryName = service.category ?? 'Service';
+
+    String categoryName = service.categoryName ?? service.category ?? '';
+    if (categoryName.isEmpty || RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)) {
+      final targetId = service.categoryId ?? (RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName) ? categoryName : null);
+      if (targetId != null && categoriesAsync.hasValue) {
+        final matched = categoriesAsync.value?.where((c) => c.id == targetId).firstOrNull;
+        if (matched?.name != null && matched!.name!.isNotEmpty) {
+          categoryName = matched.name!;
+        }
+      }
+    }
+    if (categoryName.isEmpty || RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)) {
+      categoryName = 'Service';
+    }
+
     final priceStr = service.hasOffer && service.offerPrice != null
         ? '₹ ${service.offerPrice!.toInt()}'
         : '₹ ${service.originalPrice.toInt()}';

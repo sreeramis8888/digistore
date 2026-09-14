@@ -1,6 +1,9 @@
-﻿import 'dart:async';
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import '../models/service_model.dart';
+import '../utils/remove_nulls.dart';
 import 'api_provider.dart';
 
 class PartnerServicesState {
@@ -23,16 +26,38 @@ class PartnerServicesState {
     bool? isLoading,
     String? error,
     String? currentCategory,
+    bool clearCategory = false,
     String? searchQuery,
   }) {
     return PartnerServicesState(
       services: services ?? this.services,
       isLoading: isLoading ?? this.isLoading,
       error: error,
-      currentCategory: currentCategory ?? this.currentCategory,
+      currentCategory: clearCategory ? null : (currentCategory ?? this.currentCategory),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
+}
+
+List<dynamic> _extractServicesList(dynamic root) {
+  if (root == null) return [];
+  if (root is List) return root;
+  if (root is Map) {
+    if (root['services'] is List) return root['services'] as List;
+    if (root['data'] is List) return root['data'] as List;
+    if (root['data'] is Map) {
+      final dataMap = root['data'] as Map;
+      if (dataMap['services'] is List) return dataMap['services'] as List;
+      if (dataMap['data'] is List) return dataMap['data'] as List;
+      if (dataMap['items'] is List) return dataMap['items'] as List;
+      if (dataMap['list'] is List) return dataMap['list'] as List;
+      if (dataMap['results'] is List) return dataMap['results'] as List;
+    }
+    if (root['items'] is List) return root['items'] as List;
+    if (root['list'] is List) return root['list'] as List;
+    if (root['results'] is List) return root['results'] as List;
+  }
+  return [];
 }
 
 class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
@@ -42,33 +67,45 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     return const PartnerServicesState();
   }
 
-  Future<void> getServices({String? category, String? search}) async {
+  void updateCategory(String? category) {
+    getServices(category: category, isCategoryChange: true);
+  }
+
+  Future<void> getServices({
+    String? category,
+    String? search,
+    bool isCategoryChange = false,
+  }) async {
+    final activeCategory = isCategoryChange ? category : (category ?? state.currentCategory);
+    final activeSearch = search ?? state.searchQuery;
+
     state = state.copyWith(
       isLoading: true,
       error: null,
-      currentCategory: category ?? state.currentCategory,
-      searchQuery: search ?? state.searchQuery,
+      currentCategory: activeCategory,
+      clearCategory: isCategoryChange && (activeCategory == null || activeCategory == 'All'),
+      searchQuery: activeSearch,
     );
 
     final api = ref.read(apiProvider);
     final queryParams = <String, String>{};
-    if (state.currentCategory != null && state.currentCategory != 'All') {
-      queryParams['category'] = state.currentCategory!;
+    if (activeCategory != null && activeCategory != 'All' && activeCategory.isNotEmpty) {
+      queryParams['category'] = activeCategory;
     }
-    if (state.searchQuery.isNotEmpty) {
-      queryParams['search'] = state.searchQuery;
+    if (activeSearch.isNotEmpty) {
+      queryParams['search'] = activeSearch;
     }
 
     final res = await api.get('/services', queryParams: queryParams, requireAuth: true);
 
     if (res.success && res.data != null) {
-      final dynamic rawList = res.data!['data'] ?? res.data!['services'];
+      final rawList = _extractServicesList(res.data);
       final List<ServiceModel> list = [];
-      if (rawList is List) {
-        for (var item in rawList) {
-          if (item is Map) {
+      for (var item in rawList) {
+        if (item is Map) {
+          try {
             list.add(ServiceModel.fromJson(Map<String, dynamic>.from(item)));
-          }
+          } catch (_) {}
         }
       }
       state = state.copyWith(services: list, isLoading: false);
@@ -77,28 +114,65 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     }
   }
 
-  Future<ApiResponse<ServiceModel>> createService(Map<String, dynamic> data) async {
+  Future<ApiResponse<ServiceModel>> createService(
+    Map<String, dynamic> data, {
+    List<http.MultipartFile>? files,
+  }) async {
     final api = ref.read(apiProvider);
-    final res = await api.post('/services', data, requireAuth: true);
+    final res = (files != null && files.isNotEmpty)
+        ? await api.postMultipart(
+            '/services',
+            cleanMap(data).map((k, v) => MapEntry(
+                  k,
+                  v is List || v is Map ? jsonEncode(v) : v.toString(),
+                )),
+            files: files,
+          )
+        : await api.post('/services', data, requireAuth: true);
+
     if (res.success && res.data != null) {
       final sData = res.data!['data'] ?? res.data!;
-      final created = ServiceModel.fromJson(Map<String, dynamic>.from(sData as Map));
-      state = state.copyWith(services: [created, ...state.services]);
-      return ApiResponse.success(created);
+      final rawService = (sData is Map && sData['service'] is Map)
+          ? sData['service']
+          : (sData is Map && sData['data'] is Map ? sData['data'] : sData);
+      if (rawService is Map) {
+        final created = ServiceModel.fromJson(Map<String, dynamic>.from(rawService));
+        state = state.copyWith(services: [created, ...state.services]);
+        return ApiResponse.success(created);
+      }
     }
     return ApiResponse.error(res.message ?? 'Failed to create service');
   }
 
-  Future<ApiResponse<ServiceModel>> updateService(String id, Map<String, dynamic> data) async {
+  Future<ApiResponse<ServiceModel>> updateService(
+    String id,
+    Map<String, dynamic> data, {
+    List<http.MultipartFile>? files,
+  }) async {
     final api = ref.read(apiProvider);
-    final res = await api.put('/services/$id', data, requireAuth: true);
+    final res = (files != null && files.isNotEmpty)
+        ? await api.putMultipart(
+            '/services/$id',
+            cleanMap(data).map((k, v) => MapEntry(
+                  k,
+                  v is List || v is Map ? jsonEncode(v) : v.toString(),
+                )),
+            files: files,
+          )
+        : await api.put('/services/$id', data, requireAuth: true);
+
     if (res.success && res.data != null) {
       final sData = res.data!['data'] ?? res.data!;
-      final updated = ServiceModel.fromJson(Map<String, dynamic>.from(sData as Map));
-      state = state.copyWith(
-        services: state.services.map((s) => s.id == id ? updated : s).toList(),
-      );
-      return ApiResponse.success(updated);
+      final rawService = (sData is Map && sData['service'] is Map)
+          ? sData['service']
+          : (sData is Map && sData['data'] is Map ? sData['data'] : sData);
+      if (rawService is Map) {
+        final updated = ServiceModel.fromJson(Map<String, dynamic>.from(rawService));
+        state = state.copyWith(
+          services: state.services.map((s) => s.id == id ? updated : s).toList(),
+        );
+        return ApiResponse.success(updated);
+      }
     }
     return ApiResponse.error(res.message ?? 'Failed to update service');
   }

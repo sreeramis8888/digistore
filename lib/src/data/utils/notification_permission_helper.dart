@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:setgo/src/data/constants/color_constants.dart';
 
 class NotificationPermissionHelper {
   /// Request all necessary notification permissions
@@ -153,12 +154,12 @@ class _ModernPermissionDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1e3a81).withOpacity(0.08),
+                color: kPrimaryColor.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.notifications_active_rounded,
-                color: Color(0xFF1e3a81),
+                color: kPrimaryColor,
                 size: 28,
               ),
             ),
@@ -227,7 +228,7 @@ class _ModernPermissionDialog extends StatelessWidget {
                     onPressed: onAllow,
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: const Color(0xFF1e3a81),
+                      backgroundColor: kPrimaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(

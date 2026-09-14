@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/style_constants.dart';
+import '../../../data/models/category_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/services_provider.dart';
+import '../../../data/providers/partner_services_provider.dart';
+import '../../../data/providers/user_type_provider.dart';
+import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 
 /// Underline category filters matching Digistore-Pay Products & Services.
@@ -44,7 +48,7 @@ class _ServicesFilterChipsState extends ConsumerState<ServicesFilterChips> {
 
     return categoriesAsync.when(
       data: (categories) {
-        final filters = ['All', ...categories];
+        final filters = [const CategoryModel(name: 'All'), ...categories];
 
         return SizedBox(
           height: 27,
@@ -57,17 +61,26 @@ class _ServicesFilterChipsState extends ConsumerState<ServicesFilterChips> {
             itemCount: filters.length,
             itemBuilder: (context, index) {
               final isSelected = index == selectedIndex;
-              final filterName = filters[index];
+              final cat = filters[index];
+              final filterName = cat.name ?? '';
               _keys[index] ??= GlobalKey();
 
               return InteractiveFeedbackButton(
                 onPressed: () {
                   ref.read(selectedServicesCategoryProvider.notifier).state =
                       index;
-                  final categoryToFetch = index == 0 ? null : filterName;
-                  ref
-                      .read(servicesListProvider.notifier)
-                      .updateCategory(categoryToFetch);
+                  final categoryToFetch = index == 0 ? null : (cat.id ?? cat.name);
+                  final isPartner = ref.read(userTypeProvider) == UserType.partner ||
+                      GlobalVariables.isPartner;
+                  if (isPartner) {
+                    ref
+                        .read(partnerServicesProvider.notifier)
+                        .updateCategory(categoryToFetch);
+                  } else {
+                    ref
+                        .read(servicesListProvider.notifier)
+                        .updateCategory(categoryToFetch);
+                  }
                   _scrollToSelectedIndex(index);
                 },
                 scaleFactor: 0.97,

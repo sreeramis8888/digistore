@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
+import '../../../data/utils/interactive_feedback_button.dart';
 
 class PartnerQuickActions extends ConsumerWidget {
   final ScreenSizeData screenSize;
@@ -14,52 +13,74 @@ class PartnerQuickActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _quickActionCard(
-                'Verify OTP',
-                'assets/svg/verify_otp.svg',
-                const Color(0xFF10B981),
-                onTap: () {
-                  ref.read(selectedIndexProvider.notifier).updateIndex(1);
-                },
-              ),
-              SizedBox(width: screenSize.responsivePadding(16)),
-              _quickActionCard(
-                'Create an Offer',
-                'assets/svg/create_offer.svg',
-                const Color(0xFF8B5CF6),
-                onTap: () {
-                  Navigator.pushNamed(context, 'createOffer');
-                },
-              ),
-            ],
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(16),
+          ),
+          child: Text(
+            'Quick Actions',
+            style: GoogleFonts.urbanist(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF111827),
+            ),
           ),
         ),
         SizedBox(height: screenSize.responsivePadding(16)),
-        IntrinsicHeight(
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(16),
+          ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _quickActionCard(
-                'Create a product',
-                'assets/svg/create_product.svg',
-                const Color(0xFFEC4899),
-                onTap: () {
-                  Navigator.pushNamed(context, 'createProduct');
-                },
+              Expanded(
+                child: _actionCard(
+                  context,
+                  title: 'Verify OTP',
+                  bgColor: const Color(0xFFE6F7EE),
+                  imageAsset: 'assets/png/quick_action_verify_otp.png',
+                  onTap: () {
+                    ref.read(selectedIndexProvider.notifier).updateIndex(1);
+                  },
+                ),
               ),
-              SizedBox(width: screenSize.responsivePadding(16)),
-              _quickActionCard(
-                'Sales Calculator',
-                'assets/svg/sales_calculator.svg',
-                const Color(0xFFF97316),
-                onTap: () {
-                  Navigator.pushNamed(context, 'salesCalculator');
-                },
+              SizedBox(width: screenSize.responsivePadding(8)),
+              Expanded(
+                child: _actionCard(
+                  context,
+                  title: 'Create Offer',
+                  bgColor: const Color(0xFFF3E8FF),
+                  imageAsset: 'assets/png/quick_action_create_offer.png',
+                  onTap: () {
+                    Navigator.pushNamed(context, 'createOffer');
+                  },
+                ),
+              ),
+              SizedBox(width: screenSize.responsivePadding(8)),
+              Expanded(
+                child: _actionCard(
+                  context,
+                  title: 'Create Product',
+                  bgColor: const Color(0xFFFFF4E8),
+                  imageAsset: 'assets/png/quick_action_create_product.png',
+                  onTap: () {
+                    Navigator.pushNamed(context, 'createProduct');
+                  },
+                ),
+              ),
+              SizedBox(width: screenSize.responsivePadding(8)),
+              Expanded(
+                child: _actionCard(
+                  context,
+                  title: 'Sales Calculator',
+                  bgColor: const Color(0xFFE0F2FE),
+                  imageAsset: 'assets/png/quick_action_sales_calculator.png',
+                  onTap: () {
+                    Navigator.pushNamed(context, 'salesCalculator');
+                  },
+                ),
               ),
             ],
           ),
@@ -68,69 +89,65 @@ class PartnerQuickActions extends ConsumerWidget {
     );
   }
 
-  Widget _quickActionCard(
-    String title,
-    String svgAsset,
-    Color color, {
-    VoidCallback? onTap,
+  Widget _actionCard(
+    BuildContext context, {
+    required String title,
+    required Color bgColor,
+    required String imageAsset,
+    required VoidCallback onTap,
   }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.all(screenSize.responsivePadding(12)),
-          decoration: BoxDecoration(
-            color: kWhite,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+    return InteractiveFeedbackButton(
+      onPressed: onTap,
+      scaleFactor: 0.96,
+      child: Container(
+        height: 92,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFFE5E7EB),
+            width: 1,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.asset(
-                      svgAsset,
-                      width: 16,
-                      height: 16,
-                    ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                imageAsset,
+                width: 38,
+                height: 38,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_outward,
-                      size: 16,
-                      color: Color(0xFF9CA3AF),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenSize.responsivePadding(12)),
-              Text(
-                title,
-                style: kSmallTitleB.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  child: const Icon(Icons.apps_rounded, size: 20),
                 ),
-                maxLines: 2,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: GoogleFonts.urbanist(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+                height: 1.1,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
