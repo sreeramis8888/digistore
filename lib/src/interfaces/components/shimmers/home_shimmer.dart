@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../home/section_title.dart';
 
@@ -15,10 +14,7 @@ class HomeShimmer extends ConsumerWidget {
     final baseColor = Colors.grey[200]!;
     final highlightColor = Colors.grey[50]!;
 
-    return Padding(
-      padding: EdgeInsets.zero,
-      child: _buildCustomerShimmer(screenSize, baseColor, highlightColor),
-    );
+    return _buildCustomerShimmer(screenSize, baseColor, highlightColor);
   }
 
   Widget _buildCustomerShimmer(
@@ -26,86 +22,91 @@ class HomeShimmer extends ConsumerWidget {
     Color base,
     Color highlight,
   ) {
+    final hPad = screenSize.responsivePadding(16);
+    final gap = screenSize.responsivePadding(12);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: screenSize.responsivePadding(20)),
-        SectionTitle(title: 'Categories', onViewAll: () {}),
-        SizedBox(height: screenSize.responsivePadding(6)),
+        const SectionTitle(title: 'Deal of the Hour', revampStyle: true),
+        SizedBox(height: screenSize.responsivePadding(8)),
         SizedBox(
-          height: screenSize.responsivePadding(120),
+          height: screenSize.responsivePadding(290),
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            scrollDirection: Axis.horizontal,
-            itemCount: 5,
-            separatorBuilder: (_, __) =>
-                SizedBox(width: screenSize.responsivePadding(16)),
-            itemBuilder: (_, __) => _shimmerRect(
-              screenSize.responsivePadding(80),
-              screenSize.responsivePadding(118),
-              base,
-              highlight,
-              radius: 16,
-            ),
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(24)),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenSize.responsivePadding(16),
-          ),
-          child: Text(
-            'Deal of the Hour',
-            style: kBodyTitleM.copyWith(
-              color: kTextColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(16)),
-        SizedBox(
-          height: screenSize.responsivePadding(200),
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: hPad),
             scrollDirection: Axis.horizontal,
             itemCount: 3,
-            separatorBuilder: (_, __) =>
-                SizedBox(width: screenSize.responsivePadding(16)),
-            itemBuilder: (_, __) => _shimmerRect(
-              screenSize.responsivePadding(160),
+            separatorBuilder: (_, _) => SizedBox(width: gap),
+            itemBuilder: (_, _) => _shimmerRect(
               screenSize.responsivePadding(200),
+              screenSize.responsivePadding(290),
+              base,
+              highlight,
+              radius: 20,
+            ),
+          ),
+        ),
+        SizedBox(height: screenSize.responsivePadding(28)),
+        const SectionTitle(title: 'Explore Categories', revampStyle: true),
+        SizedBox(height: screenSize.responsivePadding(8)),
+        SizedBox(
+          height: screenSize.responsivePadding(126),
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            scrollDirection: Axis.horizontal,
+            itemCount: 4,
+            separatorBuilder: (_, _) => SizedBox(width: gap),
+            itemBuilder: (_, _) => _shimmerRect(
+              screenSize.responsivePadding(140),
+              screenSize.responsivePadding(126),
               base,
               highlight,
               radius: 16,
             ),
           ),
         ),
-        SizedBox(height: screenSize.responsivePadding(24)),
-        SectionTitle(title: 'Featured Shops', onViewAll: () {}),
-        SizedBox(height: screenSize.responsivePadding(10)),
+        SizedBox(height: screenSize.responsivePadding(28)),
+        const SectionTitle(title: 'Featured Shops', revampStyle: true),
+        SizedBox(height: screenSize.responsivePadding(8)),
         SizedBox(
-          height: screenSize.responsivePadding(120),
+          height: screenSize.responsivePadding(146),
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: hPad),
             scrollDirection: Axis.horizontal,
-            itemCount: 4,
-            separatorBuilder: (_, __) =>
-                SizedBox(width: screenSize.responsivePadding(16)),
-            itemBuilder: (_, __) => Column(
-              children: [
-                _shimmerRect(
-                  screenSize.responsivePadding(80),
-                  screenSize.responsivePadding(80),
-                  base,
-                  highlight,
-                  radius: 12,
-                ),
-                SizedBox(height: screenSize.responsivePadding(8)),
-                _shimmerRect(60, 12, base, highlight),
-              ],
+            itemCount: 3,
+            separatorBuilder: (_, _) => SizedBox(width: gap),
+            itemBuilder: (_, _) => _shimmerRect(
+              screenSize.responsivePadding(160),
+              screenSize.responsivePadding(146),
+              base,
+              highlight,
+              radius: 20,
             ),
           ),
         ),
+        SizedBox(height: screenSize.responsivePadding(24)),
+        const SectionTitle(title: 'Rewards For You', revampStyle: true),
+        SizedBox(height: screenSize.responsivePadding(8)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: hPad),
+          child: Column(
+            children: List.generate(
+              3,
+              (i) => Padding(
+                padding: EdgeInsets.only(bottom: i == 2 ? 0 : 10),
+                child: _shimmerRect(
+                  double.infinity,
+                  84,
+                  base,
+                  highlight,
+                  radius: 16,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: screenSize.responsivePadding(40)),
       ],
     );
   }
@@ -116,20 +117,16 @@ class HomeShimmer extends ConsumerWidget {
     Color base,
     Color highlight, {
     double radius = 6,
-    double horizontalPadding = 0,
   }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: Shimmer.fromColors(
-        baseColor: base,
-        highlightColor: highlight,
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: kWhite,
-            borderRadius: BorderRadius.circular(radius),
-          ),
+    return Shimmer.fromColors(
+      baseColor: base,
+      highlightColor: highlight,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: kWhite,
+          borderRadius: BorderRadius.circular(radius),
         ),
       ),
     );

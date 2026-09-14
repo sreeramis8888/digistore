@@ -9,11 +9,10 @@ import '../../data/services/connectivity_service.dart';
 import '../components/home/home_hero_section.dart';
 import '../components/home/category_list.dart';
 import '../components/home/deal_of_hour_section.dart';
-import '../components/home/deals_carousel.dart';
+import '../components/home/home_deals_section.dart';
 import '../components/home/banner_section.dart';
-import '../components/offers/deal_card.dart';
 import '../components/home/featured_shops_list.dart';
-import '../components/home/rewards_carousel.dart';
+import '../components/home/home_rewards_section.dart';
 import '../components/shimmers/home_shimmer.dart';
 import '../../data/utils/global_variables.dart';
 
@@ -205,7 +204,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           (c) => q.isEmpty || (c.name?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    final dealOfTheDay = data.dealOfTheDay
+    final dealOfTheMonth = data.dealOfTheMonth
         ?.where(
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
@@ -215,13 +214,15 @@ class _HomePageState extends ConsumerState<HomePage> {
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    final dealOfTheMonth = data.dealOfTheMonth
+    // TEMP: UAT may have empty day deals — use month to verify UI.
+    final rawDay = data.dealOfTheDay
         ?.where(
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
+    final dealOfTheDay =
+        (rawDay != null && rawDay.isNotEmpty) ? rawDay : dealOfTheMonth;
     // TEMP: UAT has no hour deals — use month data to verify DoH UI.
-    // Revert to data.dealOfTheHour when hour deals are available.
     final dealOfTheHour = (data.dealOfTheHour != null &&
             data.dealOfTheHour!.isNotEmpty)
         ? data.dealOfTheHour!
@@ -275,61 +276,56 @@ class _HomePageState extends ConsumerState<HomePage> {
               'Deal of the Hour',
             ),
           ),
-          SizedBox(height: screenSize.responsivePadding(16)),
+          SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (featuredShops != null && featuredShops.isNotEmpty) ...[
           FeaturedShopsList(shops: featuredShops),
-          SizedBox(height: screenSize.responsivePadding(16)),
+          SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (dealOfTheDay != null && dealOfTheDay.isNotEmpty) ...[
-          DealsCarousel(
+          HomeDealsSection(
             title: 'Deal of the Day',
-            deals: dealOfTheDay
-                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
-                .toList(),
+            offers: dealOfTheDay,
             onViewAllTap: () =>
                 _navigateToDealsGrid(context, 'deal_of_day', 'Deal of the Day'),
           ),
-          SizedBox(height: screenSize.responsivePadding(16)),
+          SizedBox(height: screenSize.responsivePadding(28)),
+        ],
+        if (popularRewards != null && popularRewards.isNotEmpty) ...[
+          HomeRewardsSection(rewards: popularRewards),
+          SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (dealOfTheWeek != null && dealOfTheWeek.isNotEmpty) ...[
-          DealsCarousel(
+          HomeDealsSection(
             title: 'Deal of the Week',
-            deals: dealOfTheWeek
-                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
-                .toList(),
+            offers: dealOfTheWeek,
             onViewAllTap: () => _navigateToDealsGrid(
               context,
               'deal_of_week',
               'Deal of the Week',
             ),
           ),
-          SizedBox(height: screenSize.responsivePadding(16)),
-        ],
-        if (effectiveBanners != null && effectiveBanners.isNotEmpty) ...[
-          SizedBox(height: screenSize.responsivePadding(4)),
-          BannerSection(
-            key: const ValueKey('home_banner_section'),
-            banners: effectiveBanners,
-          ),
-          SizedBox(height: screenSize.responsivePadding(16)),
+          SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (dealOfTheMonth != null && dealOfTheMonth.isNotEmpty) ...[
-          DealsCarousel(
+          HomeDealsSection(
             title: 'Deal of the Month',
-            deals: dealOfTheMonth
-                .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
-                .toList(),
+            offers: dealOfTheMonth,
             onViewAllTap: () => _navigateToDealsGrid(
               context,
               'deal_of_month',
               'Deal of the Month',
             ),
           ),
+          SizedBox(height: screenSize.responsivePadding(28)),
+        ],
+        if (effectiveBanners != null && effectiveBanners.isNotEmpty) ...[
+          BannerSection(
+            key: const ValueKey('home_banner_section'),
+            banners: effectiveBanners,
+          ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        if (popularRewards != null && popularRewards.isNotEmpty)
-          RewardsCarousel(rewards: popularRewards),
         SizedBox(height: screenSize.responsivePadding(40)),
       ],
     );
