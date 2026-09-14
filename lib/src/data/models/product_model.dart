@@ -77,7 +77,11 @@ class ProductModel {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'])?.toLocal()
           : null,
-      partnerObj: json['partnerId'] is Map ? json['partnerId'] : null,
+      partnerObj: json['partner'] is Map
+          ? Map<String, dynamic>.from(json['partner'] as Map)
+          : json['partnerId'] is Map
+              ? Map<String, dynamic>.from(json['partnerId'] as Map)
+              : null,
       branchLocations: json['branchLocations'] as List<dynamic>?,
       isFavorited: json['isFavorited'] as bool?,
     );

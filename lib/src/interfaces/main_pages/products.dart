@@ -1,38 +1,39 @@
-import 'package:setgo/src/interfaces/components/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
-import '../../data/providers/screen_size_provider.dart';
+import '../../data/models/banner_model.dart';
+import '../../data/providers/banners_provider.dart';
+import '../../data/providers/category_provider.dart';
 import '../../data/providers/partner_products_provider.dart';
-import '../components/shops/product_card.dart';
-import '../components/primary_button.dart';
-import '../components/shimmers/card_shimmers.dart';
-import 'partner/create_product.dart';
+import '../../data/providers/partner_services_provider.dart';
+import '../../data/providers/screen_size_provider.dart';
+import '../../data/providers/services_provider.dart';
 import '../../data/providers/user_type_provider.dart';
 import '../../data/router/nav_router.dart';
-import '../../data/providers/category_provider.dart';
-import '../components/products/products_filter_chips.dart';
-import 'dart:async';
-import '../../data/providers/banners_provider.dart';
-import '../../data/models/banner_model.dart';
-import '../components/common/paginated_banner_grid.dart';
 import '../../data/utils/global_variables.dart';
+import '../components/common/paginated_banner_grid.dart';
+import '../components/loading_indicator.dart';
+import '../components/products/products_filter_chips.dart';
+import '../components/products/products_services_segmented_tabs.dart';
+import '../components/services/service_card.dart';
+import '../components/services/services_filter_chips.dart';
+import '../components/shimmers/card_shimmers.dart';
+import '../components/shops/product_card.dart';
+import 'partner/create_product.dart';
+import 'partner/create_service.dart';
+import 'partner/partner_bookings_page.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
   const ProductsPage({super.key});
 
   @override
-  ConsumerState<ProductsPage> createState() =>
-      _ProductsPageState();
+  ConsumerState<ProductsPage> createState() => _ProductsPageState();
 }
 
 class _ProductsPageState extends ConsumerState<ProductsPage> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
   int _lastFetchedCategoryIndex = -1;
-  Timer? _debounce;
 
   @override
   void initState() {
@@ -43,21 +44,24 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _searchController.dispose();
-    _searchFocusNode.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      ref.read(partnerProductsProvider.notifier).loadMore();
+      final selectedTab = ref.read(selectedProductsTabProvider);
+      if (selectedTab == 0) {
+        ref.read(partnerProductsProvider.notifier).loadMore();
+      } else {
+        ref.read(servicesListProvider.notifier).loadMore();
+      }
     }
   }
 
   void _fetchProducts({int? index}) {
-    final int currentIndex = index ?? ref.read(selectedProductsCategoryProvider);
+    final int currentIndex =
+        index ?? ref.read(selectedProductsCategoryProvider);
     final categoriesAsync = ref.read(categoriesProvider);
     String? categoryId;
 
@@ -70,21 +74,32 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
       }
     }
 
-    ref.read(partnerProductsProvider.notifier).getProducts(categoryId: categoryId, page: 1, isRefresh: true);
+    ref.read(partnerProductsProvider.notifier).getProducts(
+          categoryId: categoryId,
+          page: 1,
+          isRefresh: true,
+        );
   }
 
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      ref.read(partnerProductsProvider.notifier).updateSearch(query);
-    });
+  double _cardAspectRatio(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    return isLandscape ? 1.0 : 0.82;
+  }
+
+  int _crossAxisCount(BuildContext context) {
+    return MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final isPartner =
+        ref.watch(userTypeProvider) == UserType.partner ||
+            GlobalVariables.isPartner;
+    final selectedTab = ref.watch(selectedProductsTabProvider);
+
     final productsState = ref.watch(partnerProductsProvider);
-    final isPartner = ref.watch(userTypeProvider) == UserType.partner || GlobalVariables.isPartner;
     final categoryId = productsState.currentCategoryId;
     final bannerFilter = (categoryId != null && categoryId != 'All')
         ? BannerFilter(category: categoryId, page: 'products')
@@ -93,6 +108,9 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
         ? const <BannerModel>[]
         : (ref.watch(bannersProvider(bannerFilter)).value ?? []);
     final currentCategoryIndex = ref.watch(selectedProductsCategoryProvider);
+
+    final servicesState = ref.watch(servicesListProvider);
+    final partnerServicesState = ref.watch(partnerServicesProvider);
 
     ref.listen<int>(selectedProductsCategoryProvider, (previous, next) {
       if (previous != next) {
@@ -123,46 +141,91 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
       _lastFetchedCategoryIndex = currentCategoryIndex;
     }
 
+    final aspectRatio = _cardAspectRatio(context);
+    final crossAxisCount = _crossAxisCount(context);
+
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: const Color(0xFFF3F5F4),
       appBar: AppBar(
         centerTitle: false,
+        titleSpacing: 16,
         title: Text(
-          'Products',
-          style: kBodyTitleM.copyWith(color: const Color(0xFF373737)),
+          'Products & Services',
+          style: kSubHeadingM.copyWith(
+            color: const Color(0xFF373737),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        backgroundColor: kWhite,
-        surfaceTintColor: kWhite,
+        backgroundColor: const Color(0xFFF3F5F4),
+        surfaceTintColor: const Color(0xFFF3F5F4),
         elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
           if (isPartner)
-            Center(
-              child: Padding(
-                padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
-                child: PrimaryButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CreateProductPage(),
-                      ),
-                    );
-                  },
-                  width: screenSize.responsivePadding(140),
-                  height: screenSize.responsivePadding(38),
-                  text: 'Create Product',
-                  textSize: 14,
-                  backgroundColor: kPrimaryColor,
-                  textColor: kWhite,
-                ),
+            IconButton(
+              icon: const Icon(
+                Icons.calendar_month_rounded,
+                color: Color(0xFF2563EB),
               ),
+              tooltip: 'Bookings Management',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PartnerBookingsPage(),
+                  ),
+                );
+              },
             ),
         ],
       ),
+      floatingActionButton: isPartner
+          ? FloatingActionButton.extended(
+              backgroundColor: const Color(0xFF2563EB),
+              elevation: 4,
+              icon: const Icon(Icons.add, color: kWhite),
+              label: Text(
+                selectedTab == 0 ? 'Create Product' : 'Create Service',
+                style: kSmallerTitleB.copyWith(
+                  color: kWhite,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              onPressed: () {
+                if (selectedTab == 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateProductPage(),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateServicePage(),
+                    ),
+                  );
+                }
+              },
+            )
+          : null,
       body: SafeArea(
         child: RefreshIndicator(
           color: kPrimaryColor,
-          onRefresh: () => ref.read(partnerProductsProvider.notifier).refresh(),
+          onRefresh: () async {
+            if (selectedTab == 0) {
+              await ref.read(partnerProductsProvider.notifier).refresh();
+            } else {
+              if (isPartner) {
+                await ref.read(partnerServicesProvider.notifier).getServices();
+              } else {
+                await ref.read(servicesListProvider.notifier).refresh();
+              }
+            }
+          },
           child: CustomScrollView(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
@@ -171,105 +234,230 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (!isPartner) ...[
-                      const ProductsFilterChips(),
-                      SizedBox(height: screenSize.responsivePadding(16)),
-                    ],
-                    if (isPartner) SizedBox(height: screenSize.responsivePadding(16)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(16),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F6F8),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: _onSearchChanged,
-                          decoration: InputDecoration(
-                            hintText: "Search for 'products'",
-                            hintStyle: kSmallerTitleM.copyWith(
-                              color: const Color(0xFF99A1AF),
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.search,
-                              color: Color(0xFF99A1AF),
-                              size: 20,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: screenSize.responsivePadding(16),
-                              vertical: screenSize.responsivePadding(14),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenSize.responsivePadding(24)),
+                    SizedBox(height: screenSize.responsivePadding(8)),
+                    const ProductsServicesSegmentedTabs(),
+                    SizedBox(height: screenSize.responsivePadding(16)),
+                    if (selectedTab == 0) ...[
+                      if (!isPartner) const ProductsFilterChips(),
+                    ] else
+                      const ServicesFilterChips(),
+                    SizedBox(height: screenSize.responsivePadding(16)),
                   ],
                 ),
               ),
-              if (productsState.isLoading)
-                SliverPadding(
-                  padding: EdgeInsets.only(
-                    bottom: screenSize.responsivePadding(24),
-                    left: screenSize.responsivePadding(16),
-                    right: screenSize.responsivePadding(16),
-                  ),
-                  sliver: SliverGrid(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2,
-                      mainAxisSpacing: screenSize.responsivePadding(16),
-                      crossAxisSpacing: screenSize.responsivePadding(16),
-                      childAspectRatio: MediaQuery.of(context).orientation == Orientation.landscape ? 1.0 : 0.8,
+              if (selectedTab == 0) ...[
+                if (productsState.isLoading)
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.responsivePadding(16),
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return CardShimmers.productCardShimmer(screenSize);
-                      },
-                      childCount: 6,
-                    ),
-                  ),
-                )
-              else if (productsState.error != null || productsState.products.isEmpty)
-                const SliverFillRemaining(child: Center(child: Text('No products found')))
-              else ...[
-                ...buildPaginatedGridSliversWithBanners(
-                  items: productsState.products,
-                  itemBuilder: (context, index, p) => ProductCard(
-                    index: index,
-                    name: p.title,
-                    image: (p.images != null && p.images!.isNotEmpty)
-                        ? p.images![0]
-                        : '',
-                    price: (p.price == null || p.price == 0)
-                        ? null
-                        : '₹ ${p.price}',
-                    tags: p.tags,
-                    rawProduct: p,
-                  ),
-                  banners: banners,
-                  hasMore: productsState.pagination != null &&
-                      productsState.pagination!.page < productsState.pagination!.pages,
-                  screenSize: screenSize,
-                  childAspectRatio: MediaQuery.of(context).orientation == Orientation.landscape ? 1.0 : 0.8,
-                  crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2,
-                ),
-                if (productsState.isLoadingMore)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        bottom: screenSize.responsivePadding(24),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: screenSize.responsivePadding(16),
+                        crossAxisSpacing: screenSize.responsivePadding(16),
+                        childAspectRatio: aspectRatio,
                       ),
-                      child: const Center(
-                        child: LoadingAnimation(
-                          loadingColor: kPrimaryColor,
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            CardShimmers.productCardShimmer(screenSize),
+                        childCount: 6,
+                      ),
+                    ),
+                  )
+                else if (productsState.error != null ||
+                    productsState.products.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Text(
+                        'No products found',
+                        style: kSmallTitleL.copyWith(
+                          fontSize: 14,
+                          color: const Color(0xFF6B7280),
                         ),
                       ),
                     ),
+                  )
+                else ...[
+                  ...buildPaginatedGridSliversWithBanners(
+                    items: productsState.products,
+                    itemBuilder: (context, index, p) => ProductCard(
+                      index: index,
+                      name: p.title,
+                      image: (p.images != null && p.images!.isNotEmpty)
+                          ? p.images![0]
+                          : '',
+                      price: (p.price == null || p.price == 0)
+                          ? null
+                          : '₹ ${p.price! % 1 == 0 ? p.price!.toInt() : p.price}',
+                      tags: p.tags,
+                      rawProduct: p,
+                    ),
+                    banners: banners,
+                    hasMore: productsState.pagination != null &&
+                        productsState.pagination!.page <
+                            productsState.pagination!.pages,
+                    screenSize: screenSize,
+                    childAspectRatio: aspectRatio,
+                    crossAxisCount: crossAxisCount,
                   ),
+                  if (productsState.isLoadingMore)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(
+                          child: LoadingAnimation(loadingColor: kPrimaryColor),
+                        ),
+                      ),
+                    ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: screenSize.responsivePadding(24)),
+                  ),
+                ],
+              ] else ...[
+                if (isPartner) ...[
+                  if (partnerServicesState.isLoading)
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: aspectRatio,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) =>
+                              CardShimmers.serviceCardShimmer(screenSize),
+                          childCount: 4,
+                        ),
+                      ),
+                    )
+                  else if (partnerServicesState.services.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            'No services uploaded yet. Tap "+ Create Service" to add one.',
+                            style: kSmallTitleL.copyWith(
+                              fontSize: 14,
+                              color: const Color(0xFF6B7280),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(
+                        screenSize.responsivePadding(16),
+                        0,
+                        screenSize.responsivePadding(16),
+                        screenSize.responsivePadding(80),
+                      ),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: aspectRatio,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final s = partnerServicesState.services[index];
+                            return ServiceCard(
+                              service: s,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CreateServicePage(existingService: s),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          childCount: partnerServicesState.services.length,
+                        ),
+                      ),
+                    ),
+                ] else ...[
+                  if (servicesState.isLoading)
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: aspectRatio,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) =>
+                              CardShimmers.serviceCardShimmer(screenSize),
+                          childCount: 6,
+                        ),
+                      ),
+                    )
+                  else if (servicesState.services.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Text(
+                          'No services found',
+                          style: kSmallTitleL.copyWith(
+                            fontSize: 14,
+                            color: const Color(0xFF6B7280),
+                          ),
+                        ),
+                      ),
+                    )
+                  else ...[
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: screenSize.responsivePadding(16),
+                          crossAxisSpacing: screenSize.responsivePadding(16),
+                          childAspectRatio: aspectRatio,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final s = servicesState.services[index];
+                            return ServiceCard(service: s);
+                          },
+                          childCount: servicesState.services.length,
+                        ),
+                      ),
+                    ),
+                    if (servicesState.isLoadingMore)
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(
+                            child:
+                                LoadingAnimation(loadingColor: kPrimaryColor),
+                          ),
+                        ),
+                      ),
+                    SliverToBoxAdapter(
+                      child:
+                          SizedBox(height: screenSize.responsivePadding(24)),
+                    ),
+                  ],
+                ],
               ],
             ],
           ),

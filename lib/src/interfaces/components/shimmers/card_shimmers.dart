@@ -230,46 +230,39 @@ class CardShimmers {
   static Widget productCardShimmer(ScreenSizeData screenSize) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF6F6F6),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: kWhite,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
-              ),
-              child: _shimmerRect(
-                double.infinity,
-                double.infinity,
-                radius: 0,
-              ),
-            ),
+          _shimmerRect(
+            double.infinity,
+            screenSize.responsivePadding(115),
+            radius: 0,
           ),
           Padding(
             padding: EdgeInsets.all(screenSize.responsivePadding(12)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _shimmerRect(double.infinity, 14, radius: 4),
-                SizedBox(height: screenSize.responsivePadding(8)),
-                _shimmerRect(screenSize.width * 0.15, 14, radius: 4),
+                _shimmerRect(double.infinity, 15, radius: 4),
+                SizedBox(height: screenSize.responsivePadding(6)),
+                _shimmerRect(screenSize.width * 0.28, 11, radius: 4),
+                SizedBox(height: screenSize.responsivePadding(10)),
+                _shimmerRect(48, 11, radius: 4),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  static Widget serviceCardShimmer(ScreenSizeData screenSize) {
+    return productCardShimmer(screenSize);
   }
 
   static Widget partnerRedemptionItemShimmer(ScreenSizeData screenSize) {

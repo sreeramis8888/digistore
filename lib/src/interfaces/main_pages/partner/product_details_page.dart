@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
+import '../../../data/models/product_model.dart';
+import '../../../data/models/shop_model.dart';
+import '../../../data/providers/partner_products_provider.dart';
+import '../../../data/providers/screen_size_provider.dart';
+import '../../../data/providers/shops_provider.dart';
+import '../../../data/providers/user_type_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
-import '../../components/products/related_products_section.dart';
-import '../../../data/providers/partner_products_provider.dart';
-import '../../../data/providers/user_type_provider.dart';
-import '../../../data/providers/shops_provider.dart';
-import '../../../data/providers/screen_size_provider.dart';
 import 'create_product.dart';
 
 class ProductDetailsPage extends ConsumerStatefulWidget {
@@ -28,33 +30,29 @@ class ProductDetailsPage extends ConsumerStatefulWidget {
 class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
   bool isNavigatingToShop = false;
 
-  Future<void> _navigateToShop(BuildContext context, String partnerId) async {
-    if (isNavigatingToShop) return;
+  Future<void> _navigateToShop(String shopOrPartnerId) async {
+    if (isNavigatingToShop || shopOrPartnerId.isEmpty) return;
     setState(() {
       isNavigatingToShop = true;
     });
 
     try {
-      final shop = await ref.read(getShopByPartnerIdProvider(partnerId).future);
+      final shop = await ref.read(getShopByPartnerIdProvider(shopOrPartnerId).future);
+      if (!mounted) return;
       if (shop != null) {
-        if (mounted) {
-          Navigator.of(context).pushNamed('shopDetail', arguments: shop);
-        }
+        Navigator.of(context).pushNamed('shopDetail', arguments: shop);
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No such shop found for this product.'),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading shop: $e')),
+          const SnackBar(
+            content: Text('No such shop found for this product.'),
+          ),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading shop: $e')),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -62,6 +60,28 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         });
       }
     }
+  }
+
+  String _resolveShopId(Map<String, dynamic> product) {
+    final directShopId = product['shopId']?.toString();
+    if (directShopId != null && directShopId.isNotEmpty) return directShopId;
+
+    final shopObj = product['shop'];
+    if (shopObj is Map) {
+      final id = shopObj['_id'] ?? shopObj['id'];
+      if (id != null && id.toString().isNotEmpty) return id.toString();
+    } else if (shopObj is String && shopObj.isNotEmpty) {
+      return shopObj;
+    }
+
+    final partnerObj = product['partner'] ?? product['partnerId'];
+    if (partnerObj is Map) {
+      final id = partnerObj['_id'] ?? partnerObj['id'];
+      if (id != null && id.toString().isNotEmpty) return id.toString();
+    } else if (partnerObj is String && partnerObj.isNotEmpty) {
+      return partnerObj;
+    }
+    return '';
   }
 
   String _resolveShopAddress(Map<String, dynamic> product, dynamic partnerObj) {
@@ -100,16 +120,6 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         product['address']?.toString() ??
         '';
     return direct.trim();
-  }
-
-  String? _resolveCategoryId(Map<String, dynamic> product) {
-    final category = product['category'];
-    if (category is String && category.isNotEmpty) return category;
-    if (category is Map) {
-      final id = category['_id'] ?? category['id'];
-      if (id != null && id.toString().isNotEmpty) return id.toString();
-    }
-    return null;
   }
 
   List<String> _resolveTags(Map<String, dynamic> product) {
@@ -165,42 +175,77 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         ? (partnerObj['_id'] ?? partnerObj['id'] ?? '').toString()
         : (partnerObj?.toString() ?? '');
 
-    final String shopName = product['shopName'] ??
+    final String shopId = _resolveShopId(product);
+    final String targetShopOrPartnerId = shopId.isNotEmpty ? shopId : partnerId;
+
+    // Fetch full shop data if shop details are minimal
+    final ShopModel? fetchedShop = targetShopOrPartnerId.isNotEmpty
+        ? ref.watch(getShopByPartnerIdProvider(targetShopOrPartnerId)).value
+        : null;
+
+    final String rawShopName = product['shopName'] ??
         (partnerObj is Map && partnerObj['businessDetails'] != null
             ? partnerObj['businessDetails']['businessName']
             : null) ??
         '';
+    final String effectiveShopName = rawShopName.isNotEmpty
+        ? rawShopName
+        : (fetchedShop?.businessDetails?.businessName ?? '');
 
-    final String? shopLogo = product['shopLogo'] ??
+    final String? rawShopLogo = product['shopLogo'] ??
         (partnerObj is Map && partnerObj['businessInfo'] != null
             ? partnerObj['businessInfo']['businessLogo']
             : null);
+    final String? effectiveShopLogo = (rawShopLogo != null && rawShopLogo.isNotEmpty)
+        ? rawShopLogo
+        : (fetchedShop?.businessInfo?.businessLogo ?? fetchedShop?.businessInfo?.coverImage);
 
-    final shopAddress = _resolveShopAddress(product, partnerObj);
+    final String rawShopAddress = _resolveShopAddress(product, partnerObj);
+    final String effectiveShopAddress = rawShopAddress.isNotEmpty
+        ? rawShopAddress
+        : (fetchedShop?.businessDetails?.address ?? '');
+
     final tags = _resolveTags(product);
     final showShop = !isPartner &&
         !widget.hideShopInfo &&
-        !(widget.product['hideShopInfo'] ?? false);
+        !(widget.product['hideShopInfo'] ?? false) &&
+        (targetShopOrPartnerId.isNotEmpty || effectiveShopName.isNotEmpty);
+
     final currentProductId =
         (product['_id'] ?? product['id'])?.toString();
-    final categoryId = _resolveCategoryId(product);
     final hasPrice = _hasDisplayPrice(product);
     final title = product['title'] ?? product['name'] ?? '';
     final description = product['description']?.toString() ?? '';
 
+    final imageUrl = (product['images'] != null &&
+            (product['images'] as List).isNotEmpty)
+        ? product['images'][0]?.toString()
+        : (product['image']?.toString() ?? '');
+
+    // Products of this shop for "You May Also Like"
+    final shopProductsAsync = targetShopOrPartnerId.isNotEmpty
+        ? ref.watch(shopProductsProvider(targetShopOrPartnerId))
+        : null;
+
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: const Color(0xFFF3F5F4),
       appBar: AppBar(
-        backgroundColor: kWhite,
+        backgroundColor: const Color(0xFFF3F5F4),
         elevation: 0,
-        surfaceTintColor: kWhite,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: kBlack, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF373737), size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Product Details',
-          style: kSmallTitleM.copyWith(color: const Color(0xFF111827)),
+          style: GoogleFonts.urbanist(
+            color: const Color(0xFF373737),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.1,
+          ),
         ),
         centerTitle: false,
         titleSpacing: 0,
@@ -286,83 +331,119 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            // Product Hero Image
+            Container(
               width: double.infinity,
-              height: MediaQuery.of(context).orientation == Orientation.landscape
-                  ? MediaQuery.of(context).size.height * 0.5
-                  : MediaQuery.of(context).size.width * (9 / 16),
-              child: AdvancedNetworkImage(
-                imageUrl: (product['images'] != null &&
-                        (product['images'] as List).isNotEmpty)
-                    ? product['images'][0]
-                    : (product['image'] ?? ''),
-                fit: BoxFit.cover,
-                disableFade: true,
+              height: screenSize.responsivePadding(300),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFE3E3E3), width: 1),
+                ),
               ),
+              child: (imageUrl != null && imageUrl.isNotEmpty)
+                  ? AdvancedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      disableFade: true,
+                    )
+                  : Container(
+                      color: const Color(0xFFE5E7EB),
+                      child: const Center(
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 48,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ),
             ),
-            Padding(
-              padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+
+            // Separator
+            const SizedBox(
+              width: double.infinity,
+              height: 8,
+              child: ColoredBox(color: Color(0xFFF3F4F6)),
+            ),
+
+            // Core Info Card (Title, Price, Merchant)
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(20),
+                vertical: screenSize.responsivePadding(16),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: kBodyTitleB.copyWith(
+                    style: GoogleFonts.urbanist(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
                       color: const Color(0xFF111827),
-                      fontSize: 22,
-                      height: 1.25,
+                      height: 1.2,
                     ),
                   ),
                   if (hasPrice) ...[
-                    SizedBox(height: screenSize.responsivePadding(8)),
+                    SizedBox(height: screenSize.responsivePadding(6)),
                     Text(
                       _formatPrice(product),
-                      style: kBodyTitleB.copyWith(
-                        color: kProductAccentTeal,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF07838C),
                       ),
                     ),
                   ],
-                  SizedBox(height: screenSize.responsivePadding(16)),
-                  const Divider(height: 1, thickness: 1, color: kProductBorder),
                   if (showShop) ...[
+                    SizedBox(height: screenSize.responsivePadding(16)),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFE5E7EB),
+                    ),
                     SizedBox(height: screenSize.responsivePadding(16)),
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: partnerId.isNotEmpty
-                            ? () => _navigateToShop(context, partnerId)
+                        onTap: targetShopOrPartnerId.isNotEmpty
+                            ? () => _navigateToShop(targetShopOrPartnerId)
                             : null,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(16),
                         child: Container(
                           padding: EdgeInsets.all(
                             screenSize.responsivePadding(12),
                           ),
                           decoration: BoxDecoration(
-                            color: kWhite,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: kProductBorder),
+                            color: const Color(0xFFF3F5F4),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                width: 44,
-                                height: 44,
-                                decoration: const BoxDecoration(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: kPrimaryLightColor,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: const Color(0xFFE5E7EB),
+                                    width: 1.5,
+                                  ),
                                 ),
                                 clipBehavior: Clip.antiAlias,
-                                child: shopLogo != null && shopLogo.isNotEmpty
+                                child: effectiveShopLogo != null &&
+                                        effectiveShopLogo.isNotEmpty
                                     ? AdvancedNetworkImage(
-                                        imageUrl: shopLogo,
+                                        imageUrl: effectiveShopLogo,
                                         fit: BoxFit.cover,
                                         disableFade: true,
                                       )
                                     : const Icon(
                                         Icons.storefront,
-                                        color: kPrimaryColor,
+                                        color: Color(0xFF07838C),
                                         size: 20,
                                       ),
                               ),
@@ -374,35 +455,34 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      shopName.isNotEmpty
-                                          ? shopName
+                                      effectiveShopName.isNotEmpty
+                                          ? effectiveShopName
                                           : 'Partner Shop',
-                                      style: kSmallTitleB.copyWith(
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
                                         color: const Color(0xFF111827),
-                                        fontSize: 15,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    if (shopAddress.isNotEmpty) ...[
-                                      SizedBox(
-                                        height:
-                                            screenSize.responsivePadding(4),
-                                      ),
+                                    if (effectiveShopAddress.isNotEmpty) ...[
+                                      const SizedBox(height: 2),
                                       Row(
                                         children: [
                                           const Icon(
                                             Icons.location_on_outlined,
-                                            size: 14,
-                                            color: Color(0xFF6B7280),
+                                            size: 12,
+                                            color: Color(0xFF4B5563),
                                           ),
                                           const SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
-                                              shopAddress,
-                                              style: kSmallerTitleM.copyWith(
-                                                color: const Color(0xFF6B7280),
+                                              effectiveShopAddress,
+                                              style: GoogleFonts.urbanist(
                                                 fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                color: const Color(0xFF4B5563),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -414,26 +494,27 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                   ],
                                 ),
                               ),
-                              if (partnerId.isNotEmpty) ...[
+                              if (targetShopOrPartnerId.isNotEmpty) ...[
                                 SizedBox(
                                   width: screenSize.responsivePadding(8),
                                 ),
                                 if (isNavigatingToShop)
                                   const SizedBox(
-                                    width: 16,
-                                    height: 16,
+                                    width: 18,
+                                    height: 18,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        kProductAccentTeal,
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF07838C),
                                       ),
                                     ),
                                   )
                                 else
                                   const Icon(
                                     Icons.chevron_right_rounded,
-                                    size: 22,
-                                    color: Color(0xFF9CA3AF),
+                                    size: 20,
+                                    color: Color(0xFF4B5563),
                                   ),
                               ],
                             ],
@@ -442,66 +523,240 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                       ),
                     ),
                   ],
-                  if (description.isNotEmpty) ...[
-                    SizedBox(height: screenSize.responsivePadding(20)),
-                    Text(
-                      'Product Details',
-                      style: kSmallTitleB.copyWith(
-                        color: const Color(0xFF111827),
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: screenSize.responsivePadding(8)),
-                    Text(
-                      description,
-                      style: kSmallerTitleL.copyWith(
-                        color: const Color(0xFF4B5563),
-                        height: 1.45,
-                      ),
-                    ),
-                  ],
-                  if (tags.isNotEmpty) ...[
-                    SizedBox(height: screenSize.responsivePadding(14)),
-                    Wrap(
-                      spacing: screenSize.responsivePadding(8),
-                      runSpacing: screenSize.responsivePadding(8),
-                      children: tags
-                          .map(
-                            (tag) => Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenSize.responsivePadding(12),
-                                vertical: screenSize.responsivePadding(6),
-                              ),
-                              decoration: BoxDecoration(
-                                color: kProductTagBg,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: kProductBorder),
-                              ),
-                              child: Text(
-                                tag,
-                                style: kSmallerTitleM.copyWith(
-                                  color: kProductAccentTeal,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ],
                 ],
               ),
             ),
-            SizedBox(height: screenSize.responsivePadding(8)),
-            RelatedProductsSection(
-              currentProductId: currentProductId,
-              categoryId: categoryId,
-            ),
-            SizedBox(height: screenSize.responsivePadding(32)),
+
+            // Separator
+            if (description.isNotEmpty || tags.isNotEmpty) ...[
+              const SizedBox(
+                width: double.infinity,
+                height: 8,
+                child: ColoredBox(color: Color(0xFFF3F4F6)),
+              ),
+              // Product Details & Tags Card
+              Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: EdgeInsets.all(screenSize.responsivePadding(20)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Product Details',
+                      style: GoogleFonts.urbanist(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF111827),
+                      ),
+                    ),
+                    if (description.isNotEmpty) ...[
+                      SizedBox(height: screenSize.responsivePadding(12)),
+                      Text(
+                        description,
+                        style: GoogleFonts.urbanist(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFF4B5563),
+                          height: 1.54,
+                        ),
+                      ),
+                    ],
+                    if (tags.isNotEmpty) ...[
+                      SizedBox(height: screenSize.responsivePadding(14)),
+                      Wrap(
+                        spacing: screenSize.responsivePadding(8),
+                        runSpacing: screenSize.responsivePadding(8),
+                        children: tags
+                            .map(
+                              (tag) => Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal:
+                                      screenSize.responsivePadding(12),
+                                  vertical:
+                                      screenSize.responsivePadding(6),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF3F5F4),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFFE5E7EB),
+                                  ),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: GoogleFonts.urbanist(
+                                    color: const Color(0xFF07838C),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+
+            // "You May Also Like" - Cross-sell section featuring shop products
+            if (shopProductsAsync != null)
+              shopProductsAsync.when(
+                data: (shopProducts) {
+                  final relatedProducts = shopProducts
+                      .where((p) => p.id != null && p.id != currentProductId)
+                      .toList();
+
+                  if (relatedProducts.isEmpty) return const SizedBox.shrink();
+
+                  return Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      screenSize.responsivePadding(20),
+                      screenSize.responsivePadding(20),
+                      screenSize.responsivePadding(20),
+                      screenSize.responsivePadding(24),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'You May Also Like',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                        SizedBox(height: screenSize.responsivePadding(14)),
+                        SizedBox(
+                          height: screenSize.responsivePadding(210),
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            clipBehavior: Clip.none,
+                            itemCount: relatedProducts.length,
+                            separatorBuilder: (context, index) =>
+                                SizedBox(width: screenSize.responsivePadding(12)),
+                            itemBuilder: (context, index) {
+                              final recProduct = relatedProducts[index];
+                              return _buildRecommendationCard(
+                                context,
+                                recProduct,
+                                screenSize,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
+
+            SizedBox(height: screenSize.responsivePadding(24)),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildRecommendationCard(
+    BuildContext context,
+    ProductModel productModel,
+    ScreenSizeData screenSize,
+  ) {
+    final title = productModel.title ?? '';
+    final price = productModel.price;
+    final image = productModel.images?.isNotEmpty == true
+        ? productModel.images!.first
+        : null;
+
+    final formattedPrice = price != null
+        ? (price.truncateToDouble() == price
+            ? '₹${price.toStringAsFixed(0)}'
+            : '₹${price.toStringAsFixed(2)}')
+        : '';
+
+    return Container(
+      width: screenSize.responsivePadding(180),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsPage(
+                  product: productModel.toJson(),
+                  hideShopInfo: widget.hideShopInfo,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: screenSize.responsivePadding(124),
+                    child: image != null && image.isNotEmpty
+                        ? AdvancedNetworkImage(
+                            imageUrl: image,
+                            fit: BoxFit.cover,
+                            disableFade: true,
+                          )
+                        : Container(
+                            color: const Color(0xFFF3F5F4),
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_outlined,
+                                color: Color(0xFF9CA3AF),
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                SizedBox(height: screenSize.responsivePadding(8)),
+                Text(
+                  title,
+                  style: GoogleFonts.urbanist(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF111827),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: screenSize.responsivePadding(4)),
+                if (formattedPrice.isNotEmpty)
+                  Text(
+                    formattedPrice,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF07838C),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+

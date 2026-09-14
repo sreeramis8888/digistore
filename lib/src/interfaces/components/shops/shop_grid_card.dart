@@ -54,149 +54,151 @@ class ShopGridCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: screenSize.responsivePadding(115),
-                  width: double.infinity,
-                  child: (imageUrl != null && imageUrl!.isNotEmpty)
-                      ? AdvancedNetworkImage(
-                          imageUrl: imageUrl!,
-                          fit: BoxFit.cover,
-                          disableFade: true,
-                        )
-                      : Container(
-                          decoration: BoxDecoration(
-                            color: avatarColor.withValues(alpha: 0.12),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              avatarIcon,
-                              size: 36,
-                              color: avatarColor.withValues(alpha: 0.5),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(23),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    height: screenSize.responsivePadding(115),
+                    width: double.infinity,
+                    child: (imageUrl != null && imageUrl!.isNotEmpty)
+                        ? AdvancedNetworkImage(
+                            imageUrl: imageUrl!,
+                            fit: BoxFit.cover,
+                            disableFade: true,
+                          )
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: avatarColor.withValues(alpha: 0.12),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                avatarIcon,
+                                size: 36,
+                                color: avatarColor.withValues(alpha: 0.5),
+                              ),
                             ),
                           ),
-                        ),
-                ),
-                if (category.isNotEmpty)
-                  Positioned(
-                    left: 12,
-                    top: 12,
-                    right: 12,
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4.5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF07982C),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          category,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: kSmallerTitleB.copyWith(
-                            color: kWhite,
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w800,
+                  ),
+                  if (category.isNotEmpty)
+                    Positioned(
+                      left: 12,
+                      top: 12,
+                      right: 12,
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF07982C),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            category,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: kSmallerTitleB.copyWith(
+                              color: kWhite,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(screenSize.responsivePadding(12)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          shopName,
-                          style: kSmallTitleSB.copyWith(
-                            color: const Color(0xFF111827),
-                            fontSize: 15,
-                            height: 1.2,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: screenSize.responsivePadding(4)),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                              size: 13,
-                              color: Color(0xFF1C274C),
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            shopName,
+                            style: kSmallTitleSB.copyWith(
+                              color: const Color(0xFF111827),
+                              fontSize: 15,
+                              height: 1.2,
+                              fontWeight: FontWeight.w700,
                             ),
-                            const SizedBox(width: 2),
-                            Expanded(
-                              child: Text(
-                                address,
-                                style: kSmallerTitleM.copyWith(
-                                  color: const Color(0xFF111827),
-                                  fontSize: 11,
-                                  height: 1.2,
-                                  fontWeight: FontWeight.w600,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: screenSize.responsivePadding(4)),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                size: 13,
+                                color: Color(0xFF1C274C),
+                              ),
+                              const SizedBox(width: 2),
+                              Expanded(
+                                child: Text(
+                                  address,
+                                  style: kSmallerTitleM.copyWith(
+                                    color: const Color(0xFF111827),
+                                    fontSize: 11,
+                                    height: 1.2,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          distance,
-                          style: kSmallerTitleM.copyWith(
-                            color: const Color(0xFF4E4E4E),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                            ],
                           ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              formattedRating,
-                              style: kSmallerTitleL.copyWith(
-                                color: const Color(0xFF4E4E4E),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            distance,
+                            style: kSmallerTitleM.copyWith(
+                              color: const Color(0xFF4E4E4E),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                formattedRating,
+                                style: kSmallerTitleL.copyWith(
+                                  color: const Color(0xFF4E4E4E),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.star_rounded,
-                              size: 14,
-                              color: Color(0xFFFFCB2B),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.star_rounded,
+                                size: 14,
+                                color: Color(0xFFFFCB2B),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

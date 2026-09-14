@@ -206,164 +206,163 @@ class DealCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFFE8E8E8)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: screenSize.responsivePadding(115),
-                  width: double.infinity,
-                  child: AdvancedNetworkImage(
-                    imageUrl: imageUrl ?? '',
-                    fit: BoxFit.cover,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(11),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    height: screenSize.responsivePadding(115),
+                    width: double.infinity,
+                    child: AdvancedNetworkImage(
+                      imageUrl: imageUrl ?? '',
+                      fit: BoxFit.cover,
+                      disableFade: true,
                     ),
-                    disableFade: true,
                   ),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: (badgeText == null || badgeText!.isEmpty)
-                      ? const SizedBox.shrink()
-                      : Container(
-                          constraints: BoxConstraints(
-                            maxWidth: screenSize.responsivePadding(120),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenSize.responsivePadding(8),
-                            vertical: screenSize.responsivePadding(5),
-                          ),
-                          decoration: const BoxDecoration(
-                            color: kPrimaryColor,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(8),
-                              topRight: Radius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            badgeText!,
-                            style: kSmallerTitleM.copyWith(
-                              color: kWhite,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              height: 1.15,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                ),
-                if (dealOfTheHour != null)
                   Positioned(
                     top: 0,
-                    left: 0,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(12),
-                        vertical: screenSize.responsivePadding(4),
-                      ),
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0XFFDFEAFF), Color(0xFFFFE5A1)],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        dealOfTheHour ?? '',
-                        style: kSmallerTitleM.copyWith(fontSize: 10),
-                      ),
-                    ),
+                    right: 0,
+                    child: (badgeText == null || badgeText!.isEmpty)
+                        ? const SizedBox.shrink()
+                        : Container(
+                            constraints: BoxConstraints(
+                              maxWidth: screenSize.responsivePadding(120),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenSize.responsivePadding(8),
+                              vertical: screenSize.responsivePadding(5),
+                            ),
+                            decoration: const BoxDecoration(
+                              color: kPrimaryColor,
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(8),
+                                topRight: Radius.circular(11),
+                              ),
+                            ),
+                            child: Text(
+                              badgeText!,
+                              style: kSmallerTitleM.copyWith(
+                                color: kWhite,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                height: 1.15,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                   ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.all(screenSize.responsivePadding(10)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: kSmallTitleB.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                  if (dealOfTheHour != null)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.responsivePadding(12),
+                          vertical: screenSize.responsivePadding(4),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0XFFDFEAFF), Color(0xFFFFE5A1)],
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(11),
+                            bottomRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          dealOfTheHour ?? '',
+                          style: kSmallerTitleM.copyWith(fontSize: 10),
+                        ),
                       ),
-                      SizedBox(height: screenSize.responsivePadding(3)),
-                      if (subtitle.isNotEmpty &&
-                          subtitle != 'null' &&
-                          subtitle != 'nil')
-                        Text(
-                          subtitle,
-                          style: kSmallerTitleL.copyWith(
-                            color: kSecondaryTextColor,
-                            fontSize: 12,
-                            height: 1.25,
-                          ),
-                          maxLines: descriptionMaxLines,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
-                  ),
-                  if (!hideShopName && !isPartner) ...[
-                    SizedBox(height: screenSize.responsivePadding(8)),
-                    Row(
-                      children: [
-                        Container(
-                          width: screenSize.responsivePadding(20),
-                          height: screenSize.responsivePadding(20),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: avatarColor,
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: shopLogo != null
-                              ? AdvancedNetworkImage(
-                                  imageUrl: shopLogo!,
-                                  fit: BoxFit.cover,
-                                  disableFade: true,
-                                )
-                              : Icon(Icons.store, size: 12, color: kWhite),
-                        ),
-                        SizedBox(width: screenSize.responsivePadding(8)),
-                        Expanded(
-                          child: Text(
-                            shopName,
-                            style: kSmallerTitleM,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
                     ),
-                  ],
-                  if (distance != null) ...[
-                    SizedBox(height: screenSize.responsivePadding(6)),
-                    Text(
-                      '${distance!.toStringAsFixed(1)} km',
-                      style: kSmallerTitleL.copyWith(
-                        color: kSecondaryTextColor,
-                        fontSize: 10,
-                      ),
-                      maxLines: 1,
-                    ),
-                  ],
                 ],
               ),
-            ),
-          ],
+              Padding(
+                padding: EdgeInsets.all(screenSize.responsivePadding(10)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: kSmallTitleB.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: screenSize.responsivePadding(3)),
+                        if (subtitle.isNotEmpty &&
+                            subtitle != 'null' &&
+                            subtitle != 'nil')
+                          Text(
+                            subtitle,
+                            style: kSmallerTitleL.copyWith(
+                              color: kSecondaryTextColor,
+                              fontSize: 12,
+                              height: 1.25,
+                            ),
+                            maxLines: descriptionMaxLines,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                    if (!hideShopName && !isPartner) ...[
+                      SizedBox(height: screenSize.responsivePadding(8)),
+                      Row(
+                        children: [
+                          Container(
+                            width: screenSize.responsivePadding(20),
+                            height: screenSize.responsivePadding(20),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: avatarColor,
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: shopLogo != null
+                                ? AdvancedNetworkImage(
+                                    imageUrl: shopLogo!,
+                                    fit: BoxFit.cover,
+                                    disableFade: true,
+                                  )
+                                : Icon(Icons.store, size: 12, color: kWhite),
+                          ),
+                          SizedBox(width: screenSize.responsivePadding(8)),
+                          Expanded(
+                            child: Text(
+                              shopName,
+                              style: kSmallerTitleM,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (distance != null) ...[
+                      SizedBox(height: screenSize.responsivePadding(6)),
+                      Text(
+                        '${distance!.toStringAsFixed(1)} km',
+                        style: kSmallerTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                          fontSize: 10,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

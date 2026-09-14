@@ -11,6 +11,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../components/confirmation_dialog.dart';
 import '../history.dart';
+import '../services/my_bookings_page.dart';
 import '../../../data/utils/notification_permission_helper.dart';
 import '../../../data/services/notification_service/notification_service.dart';
 import '../../../data/providers/notifications_provider.dart';
@@ -412,6 +413,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       screenSize,
                       onTap: () {
                         Navigator.pushNamed(context, 'claimedRewards');
+                      },
+                    ),
+                    _buildMenuItem(
+                      'My Bookings',
+                      Icons.event_note_rounded,
+                      screenSize,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyBookingsPage(),
+                          ),
+                        );
                       },
                     ),
                     _buildMenuItem(
