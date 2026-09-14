@@ -192,61 +192,31 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
               const SizedBox(height: 16),
               PartnerProfileHeader(screenSize: screenSize),
               const SizedBox(height: 16),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  const gap = 16.0;
-                  final tileWidth = (constraints.maxWidth - gap * 2) / 3;
-                  final actions = <({String title, IconData icon, VoidCallback onTap})>[
-                    (
-                      title: 'Offers',
-                      icon: Icons.local_offer_outlined,
-                      onTap: () => Navigator.pushNamed(context, 'offers'),
-                    ),
-                    (
-                      title: 'Products',
-                      icon: Icons.inventory_2_outlined,
-                      onTap: () =>
-                          Navigator.pushNamed(context, 'partnerProducts'),
-                    ),
-                    (
-                      title: 'History',
-                      icon: Icons.history_rounded,
-                      onTap: () =>
-                          Navigator.pushNamed(context, 'partnerHistory'),
-                    ),
-                    (
-                      title: 'Bookings',
-                      icon: Icons.calendar_month_outlined,
-                      onTap: () =>
-                          Navigator.pushNamed(context, 'partnerBookings'),
-                    ),
-                    (
-                      title: 'Reviews',
-                      icon: Icons.star_outline_rounded,
-                      onTap: () =>
-                          Navigator.pushNamed(context, 'partnerReviews'),
-                    ),
-                  ];
-
-                  return Wrap(
-                    spacing: gap,
-                    runSpacing: gap,
-                    children: actions
-                        .map(
-                          (a) => SizedBox(
-                            width: tileWidth,
-                            child: PartnerActionCard(
-                              screenSize: screenSize,
-                              title: a.title,
-                              iconData: a.icon,
-                              expand: false,
-                              onTap: a.onTap,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  );
-                },
+              Row(
+                children: [
+                  PartnerActionCard(
+                    screenSize: screenSize,
+                    title: 'Offers',
+                    iconData: Icons.local_offer_outlined,
+                    onTap: () => Navigator.pushNamed(context, 'offers'),
+                  ),
+                  const SizedBox(width: 16),
+                  PartnerActionCard(
+                    screenSize: screenSize,
+                    title: 'Products',
+                    iconData: Icons.inventory_2_outlined,
+                    onTap: () =>
+                        Navigator.pushNamed(context, 'partnerProducts'),
+                  ),
+                  const SizedBox(width: 16),
+                  PartnerActionCard(
+                    screenSize: screenSize,
+                    title: 'History',
+                    iconData: Icons.history_rounded,
+                    onTap: () =>
+                        Navigator.pushNamed(context, 'partnerHistory'),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               AnimatedSwitcher(
@@ -345,6 +315,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
               ),
               _settingsGap(),
               PartnerMenuItem(
+                title: 'Bookings',
+                icon: _menuIcon(Icons.calendar_month_outlined),
+                screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'partnerBookings'),
+              ),
+              _settingsGap(),
+              PartnerMenuItem(
                 title: 'Plan Details',
                 icon: _menuIcon(Icons.card_membership_outlined),
                 screenSize: screenSize,
@@ -352,7 +329,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
               ),
               _settingsGap(),
               PartnerMenuItem(
-                title: 'Shop Reviews',
+                title: 'Reviews',
                 icon: _menuIcon(Icons.star_outline_rounded),
                 screenSize: screenSize,
                 onTap: () => Navigator.pushNamed(context, 'partnerReviews'),

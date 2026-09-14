@@ -27,23 +27,25 @@ class PartnerActionCard extends StatelessWidget {
       child: Container(
         width: expand ? null : double.infinity,
         height: 84,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(iconData, color: const Color(0xFF8E8E8E), size: 24),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: GoogleFonts.urbanist(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
+                height: 1.1,
                 color: const Color(0xFF111827),
               ),
               maxLines: 1,
