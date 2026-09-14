@@ -8,15 +8,20 @@ import '../../../data/utils/interactive_feedback_button.dart';
 import '../advanced_network_image.dart';
 import '../offers/deal_card.dart';
 
-/// White image deal card (Figma Deal of the Hour — Style B).
+/// White image deal card (Figma Style B) — home carousel & offers grid.
 class DealOfferCard extends ConsumerWidget {
   final OfferModel offer;
   final double? width;
+  /// When true, fills parent width (offers grid). When false, fixed carousel width.
+  final bool expand;
+  final bool hideShopName;
 
   const DealOfferCard({
     super.key,
     required this.offer,
     this.width,
+    this.expand = false,
+    this.hideShopName = false,
   });
 
   String? get _badgeSingleLine {
@@ -26,10 +31,11 @@ class DealOfferCard extends ConsumerWidget {
   }
 
   void _openDetail(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      'offerDetail',
-      arguments: offer.toJson(),
-    );
+    final args = Map<String, dynamic>.from(offer.toJson());
+    if (hideShopName) {
+      args['hideShopInfo'] = true;
+    }
+    Navigator.of(context).pushNamed('offerDetail', arguments: args);
   }
 
   @override
@@ -41,7 +47,9 @@ class DealOfferCard extends ConsumerWidget {
     final imageUrl =
         offer.images?.isNotEmpty == true ? offer.images!.first : null;
     final badge = _badgeSingleLine;
-    final cardWidth = width ?? screenSize.responsivePadding(220);
+    final cardWidth = expand
+        ? double.infinity
+        : (width ?? screenSize.responsivePadding(220));
 
     return InteractiveFeedbackButton(
       onPressed: () => _openDetail(context),
@@ -96,7 +104,7 @@ class DealOfferCard extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                padding: EdgeInsets.all(screenSize.responsivePadding(12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -105,50 +113,52 @@ class DealOfferCard extends ConsumerWidget {
                       title,
                       style: kSmallTitleB.copyWith(
                         color: const Color(0xFF111827),
-                        fontSize: 15,
+                        fontSize: 14,
                         height: 1.2,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: screenSize.responsivePadding(10)),
-                    Row(
-                      children: [
-                        Container(
-                          width: 18,
-                          height: 18,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9),
-                            color: kPrimaryLightColor,
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: shopLogo != null && shopLogo.isNotEmpty
-                              ? AdvancedNetworkImage(
-                                  imageUrl: shopLogo,
-                                  fit: BoxFit.cover,
-                                  disableFade: true,
-                                )
-                              : const Icon(
-                                  Icons.store,
-                                  size: 10,
-                                  color: kWhite,
-                                ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            shopName,
-                            style: kSmallerTitleM.copyWith(
-                              color: const Color(0xFF111827),
-                              fontSize: 11,
-                              height: 1.2,
+                    if (!hideShopName) ...[
+                      SizedBox(height: screenSize.responsivePadding(8)),
+                      Row(
+                        children: [
+                          Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9),
+                              color: kPrimaryLightColor,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            clipBehavior: Clip.antiAlias,
+                            child: shopLogo != null && shopLogo.isNotEmpty
+                                ? AdvancedNetworkImage(
+                                    imageUrl: shopLogo,
+                                    fit: BoxFit.cover,
+                                    disableFade: true,
+                                  )
+                                : const Icon(
+                                    Icons.store,
+                                    size: 10,
+                                    color: kWhite,
+                                  ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              shopName,
+                              style: kSmallerTitleM.copyWith(
+                                color: const Color(0xFF111827),
+                                fontSize: 11,
+                                height: 1.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

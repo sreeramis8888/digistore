@@ -32,7 +32,7 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
     final keyContext = _keys[index]?.currentContext;
     if (keyContext != null) {
       Scrollable.ensureVisible(
-        keyContext!,
+        keyContext,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         alignment: 0.5,
@@ -86,17 +86,24 @@ class _OffersFilterChipsState extends ConsumerState<OffersFilterChips> {
                     horizontal: screenSize.responsivePadding(16),
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? kPrimaryColor : const Color(0xFFFCFCFC),
-                    borderRadius: BorderRadius.circular(8),
+                    color: kWhite,
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isSelected ? kPrimaryColor : kBorder,
+                      color: isSelected
+                          ? kPrimaryColor
+                          : const Color(0xFFE5E7EB),
+                      width: isSelected ? 1.5 : 1,
                     ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     filter.name ?? '',
-                    style: kSmallerTitleL.copyWith(
-                      color: isSelected ? kWhite : kSecondaryTextColor,
+                    style: kSmallerTitleM.copyWith(
+                      color: isSelected
+                          ? kPrimaryColor
+                          : const Color(0xFF111827),
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ),

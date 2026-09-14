@@ -12,7 +12,7 @@ import '../../data/router/nav_router.dart';
 import '../animations/index.dart';
 import '../components/empty_state.dart';
 import '../components/loading_indicator.dart';
-import '../components/offers/deal_card.dart';
+import '../components/home/deal_offer_card.dart';
 import '../components/offers/offers_filter_chips.dart';
 import '../components/primary_button.dart';
 import '../components/shimmers/card_shimmers.dart';
@@ -150,7 +150,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = isPartner
         ? screenSize.responsivePadding(210)
-        : screenSize.responsivePadding(245);
+        : screenSize.responsivePadding(230);
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
@@ -313,7 +313,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
             _buildSearchAndFilters(screenSize, isPartner),
             ...buildPaginatedGridSliversWithBanners(
               items: offersState.offers,
-              itemBuilder: (_, index, o) => DealCard.fromOffer(o),
+              itemBuilder: (_, index, o) => DealOfferCard(
+                offer: o,
+                expand: true,
+                hideShopName: isPartner,
+              ),
               banners: banners,
               hasMore: offersState.hasMore,
               screenSize: screenSize,
@@ -410,7 +414,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           else
             ...buildPaginatedGridSliversWithBanners(
               items: offersState.offers,
-              itemBuilder: (_, index, o) => DealCard.fromOffer(o),
+              itemBuilder: (_, index, o) => DealOfferCard(
+                offer: o,
+                expand: true,
+                hideShopName: isPartner,
+              ),
               banners: banners,
               hasMore: offersState.hasMore,
               screenSize: screenSize,
@@ -458,7 +466,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           else
             ...buildPaginatedGridSliversWithBanners(
               items: offersState.exploreOffers,
-              itemBuilder: (_, index, o) => DealCard.fromOffer(o),
+              itemBuilder: (_, index, o) => DealOfferCard(
+                offer: o,
+                expand: true,
+                hideShopName: isPartner,
+              ),
               banners: banners,
               hasMore: offersState.exploreHasMore,
               screenSize: screenSize,
