@@ -62,7 +62,7 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
     return const PartnerBookingsState();
   }
 
-  Future<void> fetchBookings({String? status, String? date, String? search}) async {
+  Future<void> fetchBookings({String? status, String? date, String? search, int? limit}) async {
     state = state.copyWith(
       isLoading: true,
       error: null,
@@ -81,6 +81,9 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
     }
     if (state.searchQuery.isNotEmpty) {
       queryParams['search'] = state.searchQuery;
+    }
+    if (limit != null) {
+      queryParams['limit'] = '$limit';
     }
 
     final res = await api.get('/bookings', queryParams: queryParams, requireAuth: true);
@@ -105,6 +108,7 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
     final res = await api.patch('/bookings/$bookingId/status', {'status': newStatus}, requireAuth: true);
     if (res.success) {
       fetchBookings();
+      ref.invalidate(partnerHomeBookingRequestsProvider);
       return ApiResponse.success(null);
     }
     return ApiResponse.error(res.message ?? 'Failed to update status');
@@ -117,6 +121,7 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
       final bData = res.data!['data'] ?? res.data!;
       final booking = BookingModel.fromJson(Map<String, dynamic>.from(bData as Map));
       fetchBookings();
+      ref.invalidate(partnerHomeBookingRequestsProvider);
       return ApiResponse.success(booking);
     }
     return ApiResponse.error(res.message ?? 'Failed to issue walk-in token');
@@ -147,6 +152,29 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
 
 final partnerBookingsProvider = NotifierProvider<PartnerBookingsNotifier, PartnerBookingsState>(() {
   return PartnerBookingsNotifier();
+});
+
+/// Independent list for partner home "Booking Requests" (not affected by bookings-page filters).
+final partnerHomeBookingRequestsProvider = FutureProvider<List<BookingModel>>((ref) async {
+  final api = ref.watch(apiProvider);
+  final res = await api.get(
+    '/bookings',
+    queryParams: const {'limit': '3'},
+    requireAuth: true,
+  );
+  if (res.success && res.data != null) {
+    final dynamic rawList = res.data!['data'] ?? res.data!['bookings'];
+    final List<BookingModel> list = [];
+    if (rawList is List) {
+      for (var item in rawList) {
+        if (item is Map) {
+          list.add(BookingModel.fromJson(Map<String, dynamic>.from(item)));
+        }
+      }
+    }
+    return list;
+  }
+  return [];
 });
 
 final partnerBlockedSlotsProvider = FutureProvider<List<BlockedSlotModel>>((ref) async {

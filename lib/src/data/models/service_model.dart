@@ -454,11 +454,15 @@ class CustomerDetailsModel {
   final String name;
   final String phone;
   final String? notes;
+  final String? email;
+  final String? avatar;
 
   const CustomerDetailsModel({
     required this.name,
     required this.phone,
     this.notes,
+    this.email,
+    this.avatar,
   });
 
   factory CustomerDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -466,6 +470,9 @@ class CustomerDetailsModel {
       name: json['name']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
       notes: json['notes']?.toString(),
+      email: json['email']?.toString(),
+      avatar: (json['avatar'] ?? json['profilePicture'] ?? json['image'])
+          ?.toString(),
     );
   }
 
@@ -474,6 +481,8 @@ class CustomerDetailsModel {
       'name': name,
       'phone': phone,
       if (notes != null) 'notes': notes,
+      if (email != null) 'email': email,
+      if (avatar != null) 'avatar': avatar,
     };
   }
 }
@@ -482,8 +491,11 @@ class BookingModel {
   String get bookingDate => date;
   String get startTime => timeSlot;
   CustomerDetailsModel? get customerDetails => customer;
-  List<String> get services => serviceNames.isNotEmpty ? serviceNames : (service != null ? [service!.name] : []);
+  List<String> get services => serviceNames.isNotEmpty
+      ? serviceNames
+      : (service != null ? [service!.name] : []);
   final String id;
+  final String bookingNumber;
   final String tokenNumber;
   final String? partnerId;
   final String? customerId;
@@ -493,6 +505,7 @@ class BookingModel {
   final List<ServiceAddOnModel> selectedAddOns;
   final String date;
   final String timeSlot;
+  final String endTime;
   final int durationMinutes;
   final double totalAmount;
   final double basePrice;
@@ -506,6 +519,7 @@ class BookingModel {
 
   const BookingModel({
     required this.id,
+    this.bookingNumber = '',
     required this.tokenNumber,
     this.partnerId,
     this.customerId,
@@ -515,6 +529,7 @@ class BookingModel {
     this.selectedAddOns = const [],
     required this.date,
     required this.timeSlot,
+    this.endTime = '',
     this.durationMinutes = 30,
     this.totalAmount = 0.0,
     this.basePrice = 0.0,
@@ -530,22 +545,65 @@ class BookingModel {
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     ServiceModel? serviceObj;
     if (json['service'] is Map) {
-      serviceObj = ServiceModel.fromJson(Map<String, dynamic>.from(json['service']));
+      serviceObj =
+          ServiceModel.fromJson(Map<String, dynamic>.from(json['service']));
     }
 
     ServicePartnerModel? partnerObj;
     if (json['partner'] is Map) {
-      partnerObj = ServicePartnerModel.fromJson(Map<String, dynamic>.from(json['partner']));
+      partnerObj = ServicePartnerModel.fromJson(
+        Map<String, dynamic>.from(json['partner']),
+      );
+    } else if (json['partnerId'] is Map) {
+      partnerObj = ServicePartnerModel.fromJson(
+        Map<String, dynamic>.from(json['partnerId']),
+      );
+    }
+
+    Map<String, dynamic>? customerMap;
+    if (json['customerDetails'] is Map) {
+      customerMap = Map<String, dynamic>.from(json['customerDetails']);
+    } else if (json['customer'] is Map) {
+      customerMap = Map<String, dynamic>.from(json['customer']);
+    }
+
+    Map<String, dynamic>? userMap;
+    if (json['userId'] is Map) {
+      userMap = Map<String, dynamic>.from(json['userId']);
+    } else if (json['user'] is Map) {
+      userMap = Map<String, dynamic>.from(json['user']);
+    }
+
+    if (userMap != null) {
+      customerMap = {
+        'name': (customerMap?['name']?.toString().isNotEmpty == true)
+            ? customerMap!['name']
+            : userMap['name'],
+        'phone': (customerMap?['phone']?.toString().isNotEmpty == true)
+            ? customerMap!['phone']
+            : userMap['phone'],
+        'email': customerMap?['email'] ?? userMap['email'],
+        'notes': customerMap?['notes'],
+        'avatar': userMap['avatar'] ?? customerMap?['avatar'],
+      };
     }
 
     CustomerDetailsModel? customerObj;
-    if (json['customer'] is Map) {
-      customerObj = CustomerDetailsModel.fromJson(Map<String, dynamic>.from(json['customer']));
+    if (customerMap != null) {
+      customerObj = CustomerDetailsModel.fromJson(customerMap);
     }
 
     List<String> names = [];
     if (json['serviceNames'] is List) {
       names = (json['serviceNames'] as List).map((e) => e.toString()).toList();
+    } else if (json['services'] is List) {
+      for (final item in json['services'] as List) {
+        if (item is Map && item['name'] != null) {
+          names.add(item['name'].toString());
+        } else if (item is String) {
+          names.add(item);
+        }
+      }
     } else if (serviceObj != null) {
       names = [serviceObj.name];
     }
@@ -561,7 +619,8 @@ class BookingModel {
     double parseDouble(dynamic v) {
       if (v == null) return 0.0;
       if (v is num) return v.toDouble();
-      return double.tryParse(v.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+      return double.tryParse(v.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ??
+          0.0;
     }
 
     int parseInt(dynamic v, [int def = 30]) {
@@ -572,29 +631,60 @@ class BookingModel {
     }
 
     final idStr = (json['_id'] ?? json['id'] ?? '').toString();
-    final token = (json['tokenNumber'] ?? json['token'] ?? (idStr.length >= 6 ? 'TK-${idStr.substring(idStr.length - 6).toUpperCase()}' : 'TK-1001')).toString();
+    final token =
+        (json['tokenNumber'] ??
+                json['token'] ??
+                (idStr.length >= 6
+                    ? 'TK-${idStr.substring(idStr.length - 6).toUpperCase()}'
+                    : 'TK-1001'))
+            .toString();
+
+    final notes = json['notes']?.toString() ??
+        customerMap?['notes']?.toString();
 
     return BookingModel(
       id: idStr,
+      bookingNumber: (json['bookingNumber'] ?? json['booking_number'] ?? '')
+          .toString(),
       tokenNumber: token,
-      partnerId: (json['partnerId'] ?? json['partner_id'])?.toString(),
-      customerId: (json['customerId'] ?? json['customer_id'])?.toString(),
+      partnerId: (json['partnerId'] is Map
+              ? (json['partnerId']['_id'] ?? json['partnerId']['id'])
+              : (json['partnerId'] ?? json['partner_id']))
+          ?.toString(),
+      customerId: (json['userId'] is Map
+              ? (json['userId']['_id'] ?? json['userId']['id'])
+              : (json['userId'] ??
+                  json['customerId'] ??
+                  json['customer_id']))
+          ?.toString(),
       partner: partnerObj,
       service: serviceObj,
       serviceNames: names,
       selectedAddOns: addOns,
-      date: json['date']?.toString() ?? '',
-      timeSlot: (json['timeSlot'] ?? json['slot'] ?? json['startTime'] ?? '').toString(),
-      durationMinutes: parseInt(json['durationMinutes'] ?? json['duration'], 30),
-      totalAmount: parseDouble(json['totalAmount'] ?? json['amount'] ?? json['price']),
+      date: (json['bookingDate'] ?? json['date'] ?? '').toString(),
+      timeSlot:
+          (json['startTime'] ?? json['timeSlot'] ?? json['slot'] ?? '')
+              .toString(),
+      endTime: (json['endTime'] ?? '').toString(),
+      durationMinutes: parseInt(
+        json['totalDurationMinutes'] ??
+            json['durationMinutes'] ??
+            json['duration'],
+        30,
+      ),
+      totalAmount:
+          parseDouble(json['totalAmount'] ?? json['amount'] ?? json['price']),
       basePrice: parseDouble(json['basePrice']),
       discountAmount: parseDouble(json['discountAmount'] ?? json['discount']),
       taxes: parseDouble(json['taxes'] ?? json['tax']),
       status: (json['status']?.toString() ?? 'PENDING').toUpperCase(),
-      paymentStatus: (json['paymentStatus']?.toString() ?? 'PAY_AT_STORE').toUpperCase(),
+      paymentStatus:
+          (json['paymentStatus']?.toString() ?? 'PAY_AT_VENUE').toUpperCase(),
       customer: customerObj,
-      notes: json['notes']?.toString(),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'].toString()) : null,
+      notes: notes,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString())
+          : null,
     );
   }
 }

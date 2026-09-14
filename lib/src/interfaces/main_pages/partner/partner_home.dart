@@ -52,7 +52,7 @@ class _PartnerHomePageState extends ConsumerState<PartnerHomePage> {
           onRefresh: () async {
             await Future.wait([
               ref.refresh(homeDataProvider.future),
-              ref.read(partnerBookingsProvider.notifier).fetchBookings(),
+              ref.refresh(partnerHomeBookingRequestsProvider.future),
             ]);
           },
           child: SingleChildScrollView(

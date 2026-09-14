@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/models/service_model.dart';
 import '../../../data/providers/partner_bookings_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/services/snackbar_service.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
+import '../../../data/utils/launch_url.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/loading_indicator.dart';
+import 'partner_booking_calendar_page.dart';
 import 'partner_booking_detail_page.dart';
 
 class PartnerBookingsPage extends ConsumerStatefulWidget {
@@ -143,10 +144,7 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
   }
 
   Future<void> _callPhone(String phone) async {
-    final uri = Uri(scheme: 'tel', path: phone.replaceAll(' ', ''));
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
+    await launchPhone(phone);
   }
 
   void _openDetail(BookingModel booking) {
@@ -190,6 +188,24 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
         ),
         centerTitle: false,
         titleSpacing: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Slot Calendar',
+            icon: const Icon(
+              Icons.calendar_month_rounded,
+              color: kPrimaryColor,
+              size: 24,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PartnerBookingCalendarPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

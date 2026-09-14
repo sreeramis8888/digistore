@@ -23,7 +23,7 @@ class HistoryPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F4),
-      appBar: AppBar(
+      appBar: AppBar(titleSpacing:0,
         backgroundColor: const Color(0xFFF3F5F4),
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -43,11 +43,10 @@ class HistoryPage extends ConsumerWidget {
           style: GoogleFonts.urbanist(
             color: const Color(0xFF373737),
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: false,
-        titleSpacing: canPop ? 0 : screenSize.responsivePadding(16),
       ),
       body: GlobalVariables.isGuest
           ? const GuestLoginPrompt(

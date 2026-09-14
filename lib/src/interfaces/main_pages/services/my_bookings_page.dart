@@ -141,7 +141,7 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
           style: GoogleFonts.urbanist(
             color: const Color(0xFF373737),
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: false,

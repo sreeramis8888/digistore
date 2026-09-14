@@ -16,13 +16,19 @@ class PartnerBookingRequests extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bookingsState = ref.watch(partnerBookingsProvider);
-    final bookings = bookingsState.bookings;
+    final bookingsAsync = ref.watch(partnerHomeBookingRequestsProvider);
 
-    if (bookings.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    return bookingsAsync.when(
+      data: (bookings) {
+        if (bookings.isEmpty) return const SizedBox.shrink();
+        return _buildSection(context, bookings);
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
 
+  Widget _buildSection(BuildContext context, List<BookingModel> bookings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

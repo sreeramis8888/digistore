@@ -58,17 +58,23 @@ Future<void> openGoogleMaps(String location) async {
   }
 }
 
+Future<void> launchPhone(String phoneNumber) async {
+  final cleaned = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+  if (cleaned.isEmpty) return;
 
-  void launchPhone(String phoneNumber) async {
-    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
-
-      await launchUrl(uri);
- 
+  final uri = Uri.parse('tel:$cleaned');
+  try {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (e) {
+    print('Failed to launch phone dialer: $e');
   }
+}
 
-  void launchEmail(String email) async {
-    final Uri uri = Uri(scheme: 'mailto', path: email);
-    
-      await launchUrl(uri);
-
+Future<void> launchEmail(String email) async {
+  final uri = Uri(scheme: 'mailto', path: email);
+  try {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (e) {
+    print('Failed to launch email: $e');
   }
+}
