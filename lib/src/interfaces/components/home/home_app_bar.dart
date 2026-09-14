@@ -15,8 +15,15 @@ import '../../main_pages/history.dart';
 import '../../../data/providers/home_provider.dart';
 import '../../../data/models/home_data_model.dart';
 
+enum HomeAppBarVariant { standard, hero }
+
 class HomeAppBar extends ConsumerWidget {
-  const HomeAppBar({super.key});
+  final HomeAppBarVariant variant;
+
+  const HomeAppBar({
+    super.key,
+    this.variant = HomeAppBarVariant.standard,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,8 +57,168 @@ class HomeAppBar extends ConsumerWidget {
       }
     }
 
-    final isSilver = tierName.toLowerCase() == 'silver';
+    final isHero = variant == HomeAppBarVariant.hero;
 
+    if (isHero) {
+      return _buildHeroBar(
+        context,
+        ref,
+        screenSize,
+        name: name,
+        initial: initial,
+        locationName: locationName,
+      );
+    }
+
+    return _buildStandardBar(
+      context,
+      ref,
+      screenSize,
+      name: name,
+      initial: initial,
+      locationName: locationName,
+      points: points,
+      tierName: tierName,
+    );
+  }
+
+  Widget _buildHeroBar(
+    BuildContext context,
+    WidgetRef ref,
+    ScreenSizeData screenSize, {
+    required String name,
+    required String initial,
+    required String locationName,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: InteractiveFeedbackButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GlobalVariables.isPartner
+                      ? const PartnerProfilePage()
+                      : const ProfilePage(),
+                ),
+              );
+            },
+            scaleFactor: 0.98,
+            child: Row(
+              children: [
+                Container(
+                  width: screenSize.responsivePadding(44),
+                  height: screenSize.responsivePadding(44),
+                  decoration: const BoxDecoration(
+                    color: kHeroAccentGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    initial,
+                    style: kSubHeadingB.copyWith(color: kWhite, fontSize: 18),
+                  ),
+                ).fadeIn(),
+                SizedBox(width: screenSize.responsivePadding(12)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: kBodyTitleB.copyWith(color: kWhite, height: 1.1),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            color: kHeroLocationText,
+                            size: screenSize.responsivePadding(18),
+                          ),
+                          SizedBox(width: screenSize.responsivePadding(4)),
+                          Expanded(
+                            child: Text(
+                              locationName,
+                              style: kSmallerTitleL.copyWith(
+                                color: kHeroLocationText,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ).fadeSlideInFromLeft(delayMilliseconds: 100),
+                ),
+              ],
+            ),
+          ),
+        ),
+        InteractiveFeedbackButton(
+          onPressed: () {
+            Navigator.pushNamed(context, 'notifications');
+          },
+          scaleFactor: 1.1,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: screenSize.responsivePadding(40),
+                height: screenSize.responsivePadding(40),
+                decoration: BoxDecoration(
+                  color: kWhite.withValues(alpha: 0.13),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: SvgPicture.asset(
+                  'assets/svg/bell.svg',
+                  colorFilter: const ColorFilter.mode(kWhite, BlendMode.srcIn),
+                  width: 18,
+                  height: 18,
+                ),
+              ),
+              if (ref.watch(notificationsProvider).unreadCount > 0)
+                Positioned(
+                  right: -2,
+                  top: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: const BoxDecoration(
+                      color: kRed,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      ref.watch(notificationsProvider).unreadCount.toString(),
+                      style: const TextStyle(
+                        color: kWhite,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ).fadeIn(delayMilliseconds: 200),
+      ],
+    );
+  }
+
+  Widget _buildStandardBar(
+    BuildContext context,
+    WidgetRef ref,
+    ScreenSizeData screenSize, {
+    required String name,
+    required String initial,
+    required String locationName,
+    required int points,
+    required String tierName,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),

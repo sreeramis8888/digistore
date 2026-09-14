@@ -2,6 +2,7 @@ import 'package:setgo/src/interfaces/animations/index.dart';
 import 'package:setgo/src/interfaces/components/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -9,9 +10,21 @@ import '../../../data/models/loyalty_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 
+enum LoyaltyCardVariant { standard, hero }
+
 class LoyaltyRewardCard extends ConsumerWidget {
   final LoyaltyCard? loyaltyCard;
-  const LoyaltyRewardCard({super.key, this.loyaltyCard});
+  final LoyaltyCardVariant variant;
+
+  const LoyaltyRewardCard({
+    super.key,
+    this.loyaltyCard,
+    this.variant = LoyaltyCardVariant.standard,
+  });
+
+  String _formatPoints(int value) {
+    return NumberFormat('#,###').format(value);
+  }
 
   void _showBenefitsDialog(
     BuildContext context,
@@ -146,6 +159,142 @@ class LoyaltyRewardCard extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
     final isSilver = loyaltyCard?.tier?.toLowerCase() == 'silver';
 
+    if (variant == LoyaltyCardVariant.hero) {
+      return _buildHeroCard(context, screenSize, isSilver);
+    }
+
+    return _buildStandardCard(context, screenSize, isSilver);
+  }
+
+  Widget _buildHeroCard(
+    BuildContext context,
+    ScreenSizeData screenSize,
+    bool isSilver,
+  ) {
+    final points = loyaltyCard?.pointsBalance ?? 0;
+    final tier = (loyaltyCard?.tier ?? 'Member').toUpperCase();
+    final isHighestTier =
+        loyaltyCard?.nextTier == null || loyaltyCard!.nextTier!.isEmpty;
+    final remaining = loyaltyCard?.remainingPointsToNextTier ?? 0;
+    final totalEarned = loyaltyCard?.totalPointsEarned ?? 0;
+    final target = isHighestTier
+        ? (points > 0 ? points : 1)
+        : (totalEarned + remaining);
+    final progress = isHighestTier
+        ? 1.0
+        : (target > 0 ? (totalEarned / target).clamp(0.0, 1.0) : 0.0);
+    final leftLabel = isHighestTier
+        ? 'Highest tier reached'
+        : '${_formatPoints(remaining)} to ${loyaltyCard?.nextTier ?? 'next'}';
+    final rightLabel = '${_formatPoints(target)} Max';
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(screenSize.responsivePadding(20)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: kWhite.withValues(alpha: 0.08)),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [kHeroLoyaltyCardStart, kHeroLoyaltyCardEnd],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$tier MEMBER',
+                      style: kSmallerTitleEB.copyWith(
+                        color: kHeroAccentGold,
+                        fontSize: 11,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                    SizedBox(height: screenSize.responsivePadding(4)),
+                    Text(
+                      '${_formatPoints(points)} Points',
+                      style: kHeadTitleB.copyWith(color: kWhite),
+                    ),
+                  ],
+                ),
+              ),
+              InteractiveFeedbackButton(
+                onPressed: () =>
+                    _showBenefitsDialog(context, screenSize, isSilver),
+                scaleFactor: 0.95,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.responsivePadding(12),
+                    vertical: screenSize.responsivePadding(8),
+                  ),
+                  decoration: BoxDecoration(
+                    color: kHeroAccentGold,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'View Benefits',
+                    style: kSmallerTitleEB.copyWith(
+                      color: const Color(0xFF111827),
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: screenSize.responsivePadding(16)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SizedBox(
+              height: 8,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  Container(color: kWhite.withValues(alpha: 0.13)),
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(color: kHeroAccentGold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: screenSize.responsivePadding(8)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  leftLabel,
+                  style: kSmallerTitleL.copyWith(color: kHeroLocationText),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                rightLabel,
+                style: kSmallerTitleB.copyWith(color: kHeroAccentGold),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStandardCard(
+    BuildContext context,
+    ScreenSizeData screenSize,
+    bool isSilver,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.responsivePadding(16),
@@ -327,7 +476,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                               const Color(0xFFFFC43E),
                             ],
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(8),
                       bottomRight: Radius.circular(8),
                     ),
@@ -355,7 +504,7 @@ class LoyaltyRewardCard extends ConsumerWidget {
                                 const Color(0xFFFFDDBB),
                               ],
                       ),
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(7),
                         bottomRight: Radius.circular(7),
                       ),

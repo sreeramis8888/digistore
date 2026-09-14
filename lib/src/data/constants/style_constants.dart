@@ -1,5 +1,6 @@
 import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const kExtraLight = FontWeight.w300;
 const kUltraLight = FontWeight.w200;
@@ -25,9 +26,8 @@ const double kBody = 16;
 const double kSize14 = 14;
 const double kSize12 = 12;
 
-// Helper
-TextStyle kStyle(FontWeight weight, double size) => TextStyle(
-  fontFamily: 'Inter',
+// Helper — Urbanist (Figma Digistore-Pay)
+TextStyle kStyle(FontWeight weight, double size) => GoogleFonts.urbanist(
   fontWeight: weight,
   color: kTextColor,
   fontSize: size,

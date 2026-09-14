@@ -5,6 +5,17 @@ const kSecondaryColor = Color(0xFF33B3C5);
 const kBackgroundColor = Color(0xFFF2F2F2);
 const Color kCardBackgroundColor = Color(0xFFF6F6F6);
 
+// Home revamp (Figma Digistore-Pay)
+const kHomePageBg = Color(0xFFF3F5F4);
+const kHeroPurpleStart = Color(0xFF6D0BB2);
+const kHeroPurpleEnd = Color(0xFFBE6AF1);
+const kHeroAccentGreen = Color(0xFF10B981);
+const kHeroAccentGold = Color(0xFFFBBF24);
+const kHeroLocationText = Color(0xFFE6F4EA);
+const kHeroSearchHint = Color(0xFF6B7280);
+const kHeroLoyaltyCardStart = Color(0xCC2C1F37);
+const kHeroLoyaltyCardEnd = Color(0xCC211127);
+
 const Color kPrimaryLightColor = Color(0xFFEEF1FF);
 // const Color kStrokeColor = Color(0xFF0D2A4D);
 const kStrokeColor = Color(0xFFE5E5E5);

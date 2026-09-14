@@ -29,16 +29,7 @@ class HomeShimmer extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: screenSize.responsivePadding(24)),
-        _shimmerRect(
-          double.infinity,
-          screenSize.responsivePadding(180),
-          base,
-          highlight,
-          radius: 20,
-          horizontalPadding: 16,
-        ),
-        SizedBox(height: screenSize.responsivePadding(24)),
+        SizedBox(height: screenSize.responsivePadding(20)),
         SectionTitle(title: 'Categories', onViewAll: () {}),
         SizedBox(height: screenSize.responsivePadding(6)),
         SizedBox(

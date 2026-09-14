@@ -15,6 +15,7 @@ import 'firebase_options.dart';
 import 'src/data/services/notification_service/notification_controller.dart';
 import 'src/data/services/navigation_service.dart';
 import 'src/data/services/connectivity_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -106,7 +107,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Setgo',
       theme: ThemeData(
-        fontFamily: 'Inter',
+        fontFamily: GoogleFonts.urbanist().fontFamily,
+        textTheme: GoogleFonts.urbanistTextTheme(),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.white,
           surface: Colors.white,

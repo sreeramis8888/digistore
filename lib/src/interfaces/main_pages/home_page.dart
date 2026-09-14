@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:setgo/src/interfaces/animations/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/providers/screen_size_provider.dart';
 import '../../data/services/connectivity_service.dart';
-import '../components/home/home_app_bar.dart';
-import '../components/rewards/loyalty_reward_card.dart';
+import '../components/home/home_hero_section.dart';
 import '../components/home/category_list.dart';
 import '../components/home/deals_carousel.dart';
 import '../components/home/banner_section.dart';
@@ -32,7 +32,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  final String _searchQuery = '';
+  String _searchQuery = '';
   StreamSubscription<void>? _connectivitySubscription;
 
   @override
@@ -53,6 +53,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
+  void _onSearchChanged(String query) {
+    setState(() => _searchQuery = query);
+  }
+
   @override
   void dispose() {
     _connectivitySubscription?.cancel();
@@ -60,7 +64,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     _searchFocusNode.dispose();
     super.dispose();
   }
-
 
   void _navigateToDealsGrid(
     BuildContext context,
@@ -91,76 +94,50 @@ class _HomePageState extends ConsumerState<HomePage> {
       return const PartnerHomePage();
     }
 
-    return Scaffold(
-      backgroundColor: kWhite,
-      body: RefreshIndicator(
-        color: kPrimaryColor,
-        onRefresh: () => ref.refresh(homeDataProvider.future),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: screenSize.responsivePadding(45)),
-              const HomeAppBar().fadeIn(),
-              // SizedBox(height: screenSize.responsivePadding(16)),
-              // Padding(
-              //   padding: EdgeInsets.symmetric(
-              //     horizontal: screenSize.responsivePadding(16),
-              //   ),
-              //   child: Container(
-              //     height: screenSize.responsivePadding(54),
-              //     padding: EdgeInsets.symmetric(
-              //       horizontal: screenSize.responsivePadding(20),
-              //     ),
-              //     decoration: BoxDecoration(
-              //       color: kField,
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //     child: Row(
-              //       children: [
-              //         const Icon(
-              //           Icons.search,
-              //           color: Color(0xFF7D848D),
-              //           size: 24,
-              //         ),
-              //         SizedBox(width: screenSize.responsivePadding(12)),
-              //         Expanded(
-              //           child: TextField(
-              //             controller: _searchController,
-              //             focusNode: _searchFocusNode,
-              //             onTapOutside: (event) => _searchFocusNode.unfocus(),
-              //             onChanged: _onSearchChanged,
-              //             style: kSmallerTitleL.copyWith(color: kBlack),
-              //             decoration: InputDecoration(
-              //               hintText: "Search for 'services'",
-              //               hintStyle: kSmallerTitleL.copyWith(
-              //                 color: kBlack.withOpacity(.5),
-              //               ),
-              //               border: InputBorder.none,
-              //               isDense: true,
-              //               contentPadding: EdgeInsets.zero,
-              //             ),
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ).fadeSlideInFromBottom(delayMilliseconds: 100),
-              // ),
-              homeDataAsync.when(
-                data: (state) {
-                  if (state == null) {
-                    return _buildEmptyState(context, 'No data available');
-                  }
-                  if (state is CustomerHomeState) {
-                    return _buildContent(context, ref, state.data, screenSize);
-                  }
-                  return _buildEmptyState(context, 'Invalid state');
-                },
-                loading: () => const HomeShimmer(),
-                error: (err, stack) => _buildEmptyState(context, 'No Data Available', isError: true),
-              ),
-            ],
+    final loyaltyCard = homeDataAsync.whenOrNull(
+      data: (state) =>
+          state is CustomerHomeState ? state.data.loyaltyCard : null,
+    );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+      ),
+      child: Scaffold(
+        backgroundColor: kHomePageBg,
+        body: RefreshIndicator(
+          color: kPrimaryColor,
+          onRefresh: () => ref.refresh(homeDataProvider.future),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HomeHeroSection(
+                  loyaltyCard: loyaltyCard,
+                  searchController: _searchController,
+                  searchFocusNode: _searchFocusNode,
+                  onSearchChanged: _onSearchChanged,
+                ).fadeIn(),
+                homeDataAsync.when(
+                  data: (state) {
+                    if (state == null) {
+                      return _buildEmptyState(context, 'No data available');
+                    }
+                    if (state is CustomerHomeState) {
+                      return _buildContent(context, ref, state.data, screenSize);
+                    }
+                    return _buildEmptyState(context, 'Invalid state');
+                  },
+                  loading: () => const HomeShimmer(),
+                  error: (err, stack) => _buildEmptyState(
+                    context,
+                    'No Data Available',
+                    isError: true,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -242,11 +219,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    // final dealsOfDay = data.dealsOfDay
-    //     ?.where(
-    //       (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-    //     )
-    //     .toList();
     final dealOfTheMonth = data.dealOfTheMonth
         ?.where(
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
@@ -269,9 +241,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: screenSize.responsivePadding(16)),
-        LoyaltyRewardCard(loyaltyCard: data.loyaltyCard),
-        SizedBox(height: screenSize.responsivePadding(16)),
+        SizedBox(height: screenSize.responsivePadding(20)),
         if (categories != null && categories.isNotEmpty) ...[
           CategoryList(categories: categories),
           SizedBox(height: screenSize.responsivePadding(16)),
@@ -319,15 +289,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
         ],
-        // if (dealsOfDay != null && dealsOfDay.isNotEmpty) ...[
-        //   DealsCarousel(
-        //     title: 'Specials for You',
-        //     deals: dealsOfDay
-        //         .map((offer) => DealCard.fromOffer(offer, descriptionMaxLines: 1))
-        //         .toList(),
-        //   ),
-        //   SizedBox(height: screenSize.responsivePadding(16)),
-        // ],
         if (effectiveBanners != null && effectiveBanners.isNotEmpty) ...[
           SizedBox(height: screenSize.responsivePadding(4)),
           BannerSection(
