@@ -16,6 +16,11 @@ const kHeroSearchHint = Color(0xFF6B7280);
 const kHeroLoyaltyCardStart = Color(0xCC2C1F37);
 const kHeroLoyaltyCardEnd = Color(0xCC211127);
 
+// Product details (Figma Digistore-Pay)
+const kProductAccentTeal = Color(0xFF178085);
+const kProductTagBg = Color(0xFFEBF6F8);
+const kProductBorder = Color(0xFFE5E7EB);
+
 const Color kPrimaryLightColor = Color(0xFFEEF1FF);
 // const Color kStrokeColor = Color(0xFF0D2A4D);
 const kStrokeColor = Color(0xFFE5E5E5);
