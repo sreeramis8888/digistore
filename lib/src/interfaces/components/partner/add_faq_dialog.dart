@@ -1,126 +1,227 @@
 import 'package:flutter/material.dart';
-import '../../../data/constants/color_constants.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/business_info.dart';
-import '../primary_text_field.dart';
-import '../primary_button.dart';
 
-Future<BusinessFAQ?> showAddFaqDialog(BuildContext context, {BusinessFAQ? initialFaq}) {
-  final questionCtrl = TextEditingController(text: initialFaq?.question ?? '');
-  final answerCtrl = TextEditingController(text: initialFaq?.answer ?? '');
-  final isEditing = initialFaq != null;
-
-  return showDialog<BusinessFAQ>(
+Future<BusinessFAQ?> showAddFaqDialog(
+  BuildContext context, {
+  BusinessFAQ? initialFaq,
+}) {
+  return showModalBottomSheet<BusinessFAQ>(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.5),
-    builder: (context) => Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => _FaqBottomSheet(initialFaq: initialFaq),
+  );
+}
+
+class _FaqBottomSheet extends StatefulWidget {
+  final BusinessFAQ? initialFaq;
+
+  const _FaqBottomSheet({this.initialFaq});
+
+  @override
+  State<_FaqBottomSheet> createState() => _FaqBottomSheetState();
+}
+
+class _FaqBottomSheetState extends State<_FaqBottomSheet> {
+  static const _accent = Color(0xFF6155F5);
+
+  late final TextEditingController _questionCtrl;
+  late final TextEditingController _answerCtrl;
+  late final bool _isEditing;
+
+  @override
+  void initState() {
+    super.initState();
+    _isEditing = widget.initialFaq != null;
+    _questionCtrl = TextEditingController(text: widget.initialFaq?.question ?? '');
+    _answerCtrl = TextEditingController(text: widget.initialFaq?.answer ?? '');
+  }
+
+  @override
+  void dispose() {
+    _questionCtrl.dispose();
+    _answerCtrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final q = _questionCtrl.text.trim();
+    final a = _answerCtrl.text.trim();
+    if (q.isEmpty || a.isEmpty) return;
+    Navigator.pop(context, BusinessFAQ(question: q, answer: a));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
-        decoration: BoxDecoration(
-          color: kWhite,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: kPrimaryColor.withOpacity(0.08),
-              blurRadius: 40,
-              offset: const Offset(0, 16),
-            ),
-          ],
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      kPrimaryColor.withOpacity(0.06),
-                      kSecondaryColor.withOpacity(0.04),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: kPrimaryLightColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.help_outline_rounded, color: kPrimaryColor, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      isEditing ? 'Edit FAQ' : 'Add FAQ',
-                      style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                  ],
+                const SizedBox(height: 16),
+                Text(
+                  _isEditing ? 'Edit FAQ' : 'Add FAQ',
+                  style: GoogleFonts.urbanist(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-                child: PrimaryTextField(
+                const SizedBox(height: 4),
+                Text(
+                  'These appear on your shop page for customers.',
+                  style: GoogleFonts.urbanist(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _field(
                   label: 'Question',
                   hint: 'e.g. What are your working hours?',
-                  controller: questionCtrl,
+                  controller: _questionCtrl,
                   maxLines: 2,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-                child: PrimaryTextField(
+                const SizedBox(height: 14),
+                _field(
                   label: 'Answer',
                   hint: 'e.g. We are open from 9 AM to 8 PM daily.',
-                  controller: answerCtrl,
+                  controller: _answerCtrl,
                   maxLines: 4,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                child: Row(
+                const SizedBox(height: 20),
+                Row(
                   children: [
                     Expanded(
-                      child: PrimaryButton(
-                        text: 'Cancel',
-                        backgroundColor: kWhite,
-                        textColor: kSecondaryTextColor,
-                        borderRadius: BorderRadius.circular(12),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: OutlinedButton(
                         onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF6B7280),
+                          side: const BorderSide(color: Color(0xFFE5E7EB)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: PrimaryButton(
-                        text: isEditing ? 'Save' : 'Add',
-                        borderRadius: BorderRadius.circular(12),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        onPressed: () {
-                          final q = questionCtrl.text.trim();
-                          final a = answerCtrl.text.trim();
-                          if (q.isNotEmpty && a.isNotEmpty) {
-                            Navigator.pop(
-                              context,
-                              BusinessFAQ(question: q, answer: a),
-                            );
-                          }
-                        },
+                      child: ElevatedButton(
+                        onPressed: _submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _accent,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          _isEditing ? 'Save' : 'Add',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _field({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.urbanist(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF74767D),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: GoogleFonts.urbanist(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF4E4E4E),
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.urbanist(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF9CA3AF),
+            ),
+            filled: true,
+            fillColor: const Color(0xFFF8FAFC),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E9F1)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E9F1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: _accent, width: 1.5),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

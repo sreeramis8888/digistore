@@ -30,6 +30,7 @@ import '../../interfaces/main_pages/partner/partner_history.dart';
 import '../../interfaces/main_pages/partner/partner_bookings_page.dart';
 import '../../interfaces/main_pages/partner/sales_calculator_page.dart';
 import '../../interfaces/main_pages/partner/partner_reviews_page.dart';
+import '../../interfaces/main_pages/partner/partner_faq_page.dart';
 import '../../interfaces/components/webview_page.dart';
 import '../models/shop_model.dart';
 
@@ -330,6 +331,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'partnerReviews':
       page = const PartnerReviewsPage();
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'partnerFaq':
+      page = const PartnerFaqPage();
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

@@ -374,6 +374,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                 title: 'FAQ',
                 icon: _menuIcon(Icons.chat_bubble_outline_rounded),
                 screenSize: screenSize,
+                onTap: () => Navigator.pushNamed(context, 'partnerFaq'),
               ),
               _settingsGap(),
               PartnerMenuItem(
