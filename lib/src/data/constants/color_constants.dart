@@ -21,6 +21,10 @@ const kProductAccentTeal = Color(0xFF178085);
 const kProductTagBg = Color(0xFFEBF6F8);
 const kProductBorder = Color(0xFFE5E7EB);
 
+// Rewards page (Figma Digistore-Pay)
+const kRewardPageBg = Color(0xFFF3F5F4);
+const kRewardCtaPurple = Color(0xFF6155F5);
+
 const Color kPrimaryLightColor = Color(0xFFEEF1FF);
 // const Color kStrokeColor = Color(0xFF0D2A4D);
 const kStrokeColor = Color(0xFFE5E5E5);

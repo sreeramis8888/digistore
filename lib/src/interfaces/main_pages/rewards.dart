@@ -53,7 +53,7 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
     final crossAxisCount = isLandscape ? 4 : 2;
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(200);
+    final itemHeight = screenSize.responsivePadding(250);
     final aspectRatio = itemWidth / itemHeight;
 
     final state = ref.watch(rewardsListProvider);
@@ -64,13 +64,17 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
     final banners = bannersAsync.value ?? [];
 
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: kRewardPageBg,
       appBar: AppBar(
         title: Text(
           'Rewards',
-          style: kSubHeadingM.copyWith(color: const Color(0xFF373737)),
+          style: kSubHeadingM.copyWith(
+            color: const Color(0xFF111827),
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        backgroundColor: kWhite,
+        backgroundColor: kRewardPageBg,
+        surfaceTintColor: kRewardPageBg,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),

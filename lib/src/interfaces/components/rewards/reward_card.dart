@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../advanced_network_image.dart';
-import '../primary_button.dart';
 
+/// Digistore-Pay rewards grid card (image → title → subtitle → CTA).
 class RewardCard extends ConsumerWidget {
   final String? id;
   final String title;
@@ -113,179 +113,207 @@ class RewardCard extends ConsumerWidget {
     );
   }
 
+  void _openDetail(BuildContext context) {
+    Navigator.of(context).pushNamed(
+      'rewardDetail',
+      arguments: {
+        'id': id,
+        'title': title,
+        'subtitle': subtitle,
+        'description': subtitle,
+        'points': points,
+        'logoText': logoText,
+        'logoColor': logoColor,
+        'icon': icon,
+        'imageUrl': imageUrl,
+        'shopName': '',
+        'isClaimed': isClaimed,
+        'couponCode': couponCode,
+        'value': value,
+        'valueType': valueType,
+        'category': category ?? logoText,
+        'requiredTier': requiredTier,
+        'terms': terms,
+        'images': images,
+        'gallery': images,
+        'expiresAt': expiresAt,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-
-    final detailArgs = {
-      'id': id,
-      'title': title,
-      'subtitle': subtitle,
-      'description': subtitle,
-      'points': points,
-      'logoText': logoText,
-      'logoColor': logoColor,
-      'icon': icon,
-      'imageUrl': imageUrl,
-      'shopName': '',
-      'isClaimed': isClaimed,
-      'couponCode': couponCode,
-      'value': value,
-      'valueType': valueType,
-      'category': category ?? logoText,
-      'requiredTier': requiredTier,
-      'terms': terms,
-      'images': images,
-      'gallery': images,
-      'expiresAt': expiresAt,
-    };
+    final showSubtitle =
+        subtitle.isNotEmpty && subtitle != 'null' && subtitle != 'nil';
 
     return InteractiveFeedbackButton(
-      onPressed: () {
-        Navigator.of(context).pushNamed(
-          'rewardDetail',
-          arguments: detailArgs,
-        );
-      },
+      onPressed: () => _openDetail(context),
       scaleFactor: 0.98,
       child: Container(
         width: width,
         height: height ?? double.infinity,
         margin: margin,
-        padding: EdgeInsets.all(screenSize.responsivePadding(5)),
         decoration: BoxDecoration(
           color: kWhite,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: kBorder.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              height: screenSize.responsivePadding(46),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    style: kSmallerTitleL.copyWith(
-                      color: kTextColor,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (subtitle.isNotEmpty && subtitle != 'null' && subtitle != 'nil') ...[
-                    SizedBox(height: screenSize.responsivePadding(2)),
-                    Text(
-                      subtitle,
-                      style: kSmallerTitleL.copyWith(
-                        color: kSecondaryTextColor,
-                        fontSize: 10,
-                        letterSpacing: .5,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: EdgeInsets.all(screenSize.responsivePadding(12)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 5,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AdvancedNetworkImage(
+                    imageUrl: imageUrl ?? '',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    disableFade: true,
+                    errorWidget: Container(
+                      color: const Color(0xFFF3F4F6),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        icon ?? Icons.card_giftcard_rounded,
+                        color: iconColor ?? const Color(0xFF9CA3AF),
+                        size: 36,
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            SizedBox(
-              height: screenSize.responsivePadding(60),
-              width: screenSize.responsivePadding(60),
-              child: AdvancedNetworkImage(
-                imageUrl: imageUrl ?? "",
-                fit: BoxFit.cover,
-                borderRadius: BorderRadius.circular(8),
-                errorWidget: logoText != null && logoColor != null
-                    ? Container(
-                        width: screenSize.responsivePadding(60),
-                        height: screenSize.responsivePadding(60),
-                        decoration: BoxDecoration(
-                          color: logoColor!.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: logoColor!.withValues(alpha: 0.1),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.image_not_supported_outlined,
-                              color: logoColor!.withValues(alpha: 0.4),
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                      )
-                    : icon != null
-                    ? Icon(
-                        icon,
-                        color: iconColor ?? Colors.purpleAccent,
-                        size: 40,
-                      )
-                    : const Icon(
-                        Icons.error_outline_rounded,
-                        color: kGrey,
-                        size: 40,
-                      ),
-              ),
-            ),
-            if (isClaimed) ...[
-              if (couponCode != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: kPrimaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'Code: $couponCode',
-                    style: kSmallTitleB.copyWith(
-                      color: kPrimaryColor,
-                      fontSize: 10,
                     ),
                   ),
-                )
-              else
+                ),
+              ),
+              SizedBox(height: screenSize.responsivePadding(10)),
+              Text(
+                title,
+                style: kSmallTitleB.copyWith(
+                  color: const Color(0xFF111827),
+                  fontSize: 14,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (showSubtitle) ...[
+                SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
-                  'Claimed',
-                  style: kSmallTitleB.copyWith(color: kPrimaryColor),
+                  subtitle,
+                  style: kSmallerTitleM.copyWith(
+                    color: const Color(0xFF6B7280),
+                    fontSize: 11,
+                    height: 1.25,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-            ] else
-              PrimaryButton(
-                height: screenSize.responsivePadding(35),
-                borderRadius: BorderRadius.circular(8),
-                backgroundColor: kBlue,
-                onPressed: () {
-                  Navigator.of(context).pushNamed(
-                    'rewardDetail',
-                    arguments: detailArgs,
-                  );
-                },
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                text: 'Get it for $points',
-                trailingIcon: SvgPicture.asset(
-                  'assets/svg/coin.svg',
-                  height: 12,
+              ],
+              SizedBox(height: screenSize.responsivePadding(10)),
+              if (isClaimed)
+                _ClaimedBadge(couponCode: couponCode, screenSize: screenSize)
+              else
+                _ClaimButton(
+                  points: points,
+                  screenSize: screenSize,
+                  onPressed: () => _openDetail(context),
                 ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ClaimButton extends StatelessWidget {
+  final String points;
+  final ScreenSizeData screenSize;
+  final VoidCallback onPressed;
+
+  const _ClaimButton({
+    required this.points,
+    required this.screenSize,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InteractiveFeedbackButton(
+      onPressed: onPressed,
+      scaleFactor: 0.96,
+      child: Container(
+        height: screenSize.responsivePadding(36),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: kRewardCtaPurple,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                'Get it for $points',
+                style: kSmallerTitleEB.copyWith(
+                  color: kWhite,
+                  fontSize: 12,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
+            const SizedBox(width: 4),
+            SvgPicture.asset(
+              'assets/svg/coin.svg',
+              height: 12,
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ClaimedBadge extends StatelessWidget {
+  final String? couponCode;
+  final ScreenSizeData screenSize;
+
+  const _ClaimedBadge({
+    required this.couponCode,
+    required this.screenSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: screenSize.responsivePadding(36),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: kRewardCtaPurple.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        couponCode != null ? 'Code: $couponCode' : 'Claimed',
+        style: kSmallTitleB.copyWith(
+          color: kRewardCtaPurple,
+          fontSize: 11,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
       ),
     );
   }
