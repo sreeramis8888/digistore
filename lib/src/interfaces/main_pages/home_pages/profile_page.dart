@@ -7,11 +7,8 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
-import '../../../data/providers/partner_provider.dart';
-import '../../../data/providers/user_type_provider.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/utils/global_variables.dart';
-import '../../components/primary_button.dart';
 import '../../components/confirmation_dialog.dart';
 import '../history.dart';
 import '../../../data/utils/notification_permission_helper.dart';
@@ -33,6 +30,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   bool _isHiding = false;
   String? _currentFcmToken;
 
+  static const _pageBg = Color(0xFFF1F3F2);
+  static const _iconCircleBg = Color(0xFFF2F0FD);
+  static const _menuIconColor = Color(0xFF6155F5);
+  static const _dividerColor = Color(0xFFE5E7EB);
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +50,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
       _wasInBackground = true;
     } else if (state == AppLifecycleState.resumed) {
       if (_wasInBackground) {
@@ -139,45 +142,96 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     }
   }
 
+  Widget _menuIcon(IconData icon, {Color? color}) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        color: _iconCircleBg,
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        icon,
+        size: 20,
+        color: color ?? _menuIconColor,
+      ),
+    );
+  }
+
   Widget _buildMenuItem(
     String title,
-    Widget icon,
+    IconData iconData,
     ScreenSizeData screenSize, {
     VoidCallback? onTap,
     Color? textColor,
+    Color? iconColor,
+    bool showDivider = true,
   }) {
-    return InteractiveFeedbackButton(
-      onPressed: onTap ?? () {},
-      scaleFactor: 0.98,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: screenSize.responsivePadding(16),
-          vertical: screenSize.responsivePadding(16),
+    final isDestructive = textColor == kRed;
+    return Column(
+      children: [
+        InteractiveFeedbackButton(
+          onPressed: onTap ?? () {},
+          scaleFactor: 0.98,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16),
+              vertical: screenSize.responsivePadding(14),
+            ),
+            child: Row(
+              children: [
+                _menuIcon(
+                  iconData,
+                  color: isDestructive ? kRed : (iconColor ?? _menuIconColor),
+                ),
+                SizedBox(width: screenSize.responsivePadding(14)),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: kSmallTitleL.copyWith(
+                      color: textColor ?? const Color(0xFF111827),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: screenSize.responsivePadding(22),
+                  color: const Color(0xFFD1D5DB),
+                ),
+              ],
+            ),
+          ),
         ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: screenSize.responsivePadding(24),
-              height: screenSize.responsivePadding(24),
-              child: Center(child: icon),
-            ),
-            SizedBox(width: screenSize.responsivePadding(16)),
-            Expanded(
-              child: Text(
-                title,
-                style: textColor != null 
-                    ? kSmallTitleL.copyWith(color: textColor) 
-                    : kSmallTitleL,
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: screenSize.responsivePadding(14),
-              color: kStrokeColor,
-            ),
-          ],
-        ),
+        if (showDivider)
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: _dividerColor,
+            indent: 70,
+            endIndent: 16,
+          ),
+      ],
+    );
+  }
+
+  Widget _menuCard({required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: kWhite,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: children),
     );
   }
 
@@ -205,18 +259,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         : 'Not Set';
 
     return Scaffold(
-      backgroundColor: kWhite,
-      appBar: AppBar(scrolledUnderElevation: 0,
-        backgroundColor: kWhite,
+      backgroundColor: _pageBg,
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        backgroundColor: _pageBg,
+        surfaceTintColor: _pageBg,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: kTextColor,
+            color: Color(0xFF111827),
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
+        title: Text(
+          'Profile',
+          style: kSmallTitleB.copyWith(
+            color: const Color(0xFF111827),
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: false,
+        titleSpacing: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -226,61 +291,73 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: screenSize.responsivePadding(12)),
-              // Header Row
+              SizedBox(height: screenSize.responsivePadding(8)),
               Row(
                 children: [
                   Container(
-                    width: screenSize.responsivePadding(50),
-                    height: screenSize.responsivePadding(50),
-                    decoration: BoxDecoration(
-                      color: kSecondaryColor,
-                      borderRadius: BorderRadius.circular(12),
+                    width: screenSize.responsivePadding(56),
+                    height: screenSize.responsivePadding(56),
+                    decoration: const BoxDecoration(
+                      color: kRewardCtaPurple,
+                      shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       initial,
-                      style: kLargeTitleM.copyWith(color: kWhite),
+                      style: kLargeTitleM.copyWith(
+                        color: kWhite,
+                        fontSize: 24,
+                      ),
                     ),
                   ),
-                  SizedBox(width: screenSize.responsivePadding(12)),
+                  SizedBox(width: screenSize.responsivePadding(14)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                name,
-                                style: kBodyTitleM,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (phone.isNotEmpty)
-                              Text(
-                                ' • $phone',
-                                style: kSmallTitleL.copyWith(
-                                  color: kSecondaryTextColor,
-                                ),
-                              ),
-                          ],
+                        Text(
+                          name,
+                          style: kBodyTitleB.copyWith(
+                            color: const Color(0xFF111827),
+                            fontSize: 18,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: screenSize.responsivePadding(4)),
                         Row(
                           children: [
+                            if (phone.isNotEmpty) ...[
+                              Flexible(
+                                child: Text(
+                                  phone,
+                                  style: kSmallerTitleM.copyWith(
+                                    color: const Color(0xFF6B7280),
+                                    fontSize: 13,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                '  •  ',
+                                style: kSmallerTitleM.copyWith(
+                                  color: const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
                             const Icon(
                               Icons.location_on_outlined,
-                              color: kSecondaryTextColor,
-                              size: 16,
+                              color: Color(0xFF6B7280),
+                              size: 14,
                             ),
-                            SizedBox(width: screenSize.responsivePadding(4)),
-                            Expanded(
+                            SizedBox(width: screenSize.responsivePadding(2)),
+                            Flexible(
                               child: Text(
                                 locationName,
-                                style: kSmallTitleL.copyWith(
-                                  color: kSecondaryTextColor,
+                                style: kSmallerTitleM.copyWith(
+                                  color: const Color(0xFF6B7280),
+                                  fontSize: 13,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -292,39 +369,34 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     ),
                   ),
                   if (!GlobalVariables.isGuest)
-                  InteractiveFeedbackButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        'myAccount',
-                        arguments: {'isEditMode': true},
-                      );
-                    },
-                    scaleFactor: 1.2,
-                    child: SvgPicture.asset('assets/svg/edit.svg'),
-                  ),
+                    InteractiveFeedbackButton(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          'myAccount',
+                          arguments: {'isEditMode': true},
+                        );
+                      },
+                      scaleFactor: 1.1,
+                      child: SvgPicture.asset(
+                        'assets/svg/edit.svg',
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF111827),
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
                 ],
               ).fadeIn(),
 
-              SizedBox(height: screenSize.responsivePadding(32)),
+              SizedBox(height: screenSize.responsivePadding(24)),
 
-              // First Card
               if (!GlobalVariables.isGuest)
-              Container(
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: kStrokeColor),
-                ),
-                child: Column(
+                _menuCard(
                   children: [
                     _buildMenuItem(
                       'My Account',
-                      const Icon(
-                        Icons.person_outline_rounded,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
+                      Icons.person_outline_rounded,
                       screenSize,
                       onTap: () {
                         Navigator.pushNamed(
@@ -334,39 +406,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         );
                       },
                     ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kStrokeColor,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
                     _buildMenuItem(
                       'My Claimed Vouchers',
-                      const Icon(
-                        Icons.sell_outlined,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
+                      Icons.card_giftcard_rounded,
                       screenSize,
                       onTap: () {
                         Navigator.pushNamed(context, 'claimedRewards');
                       },
                     ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kStrokeColor,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
                     _buildMenuItem(
                       'My History',
-                      const Icon(
-                        Icons.history_rounded,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
+                      Icons.history_rounded,
                       screenSize,
                       onTap: () {
                         Navigator.push(
@@ -376,319 +426,243 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                         );
                       },
+                      showDivider: false,
                     ),
                   ],
-                ),
-              ).fadeSlideInFromBottom(delayMilliseconds: 100),
+                ).fadeSlideInFromBottom(delayMilliseconds: 100),
 
-              SizedBox(height: screenSize.responsivePadding(20)),
-
-              // Notifications settings card
               if (!GlobalVariables.isGuest)
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                switchOutCurve: Curves.easeInOutBack,
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(
-                      scale: animation,
-                      child: SizeTransition(
-                        sizeFactor: animation,
-                        axisAlignment: -1,
-                        child: child,
-                      ),
-                    ),
-                  );
-                },
-                child:
-                    (!(_isTokenRegistered && _isNotificationsEnabled) &&
-                        !_isHiding)
-                    ? Container(
-                        key: const ValueKey('notif_card'),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFF0F4FF), Color(0xFFFAFBFF)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFD3DFFF)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF1e3a81).withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                SizedBox(height: screenSize.responsivePadding(16)),
+
+              if (!GlobalVariables.isGuest)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 600),
+                  switchOutCurve: Curves.easeInOutBack,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: ScaleTransition(
+                        scale: animation,
+                        child: SizeTransition(
+                          sizeFactor: animation,
+                          axisAlignment: -1,
+                          child: child,
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenSize.responsivePadding(16),
-                            vertical: screenSize.responsivePadding(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF1e3a81,
-                                  ).withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.notifications_active_rounded,
-                                  color: Color(0xFF1e3a81),
-                                  size: 24,
-                                ),
-                              ),
-                              SizedBox(width: screenSize.responsivePadding(16)),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Push Notifications',
-                                      style: kBodyTitleB.copyWith(
-                                        color: kBlack,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: screenSize.responsivePadding(4),
-                                    ),
-                                    Text(
-                                      'Stay updated on offers & rewards',
-                                      style: kSmallTitleL.copyWith(
-                                        color: const Color(0xFF6B7280),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Switch.adaptive(
-                                value: _isNotificationsEnabled,
-                                onChanged: _toggleNotifications,
-                                activeColor: const Color(0xFF1e3a81),
-                                activeTrackColor: const Color(
-                                  0xFF1e3a81,
-                                ).withOpacity(0.3),
+                      ),
+                    );
+                  },
+                  child: (!(_isTokenRegistered && _isNotificationsEnabled) &&
+                          !_isHiding)
+                      ? Container(
+                          key: const ValueKey('notif_card'),
+                          decoration: BoxDecoration(
+                            color: kWhite,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),
-                        ),
-                      ).fadeSlideInFromBottom(delayMilliseconds: 150)
-                    : const SizedBox.shrink(),
-              ),
-              if (!GlobalVariables.isGuest && !(_isTokenRegistered && _isNotificationsEnabled) &&
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenSize.responsivePadding(16),
+                              vertical: screenSize.responsivePadding(12),
+                            ),
+                            child: Row(
+                              children: [
+                                _menuIcon(Icons.notifications_active_rounded),
+                                SizedBox(
+                                  width: screenSize.responsivePadding(14),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Push Notifications',
+                                        style: kSmallTitleL.copyWith(
+                                          color: const Color(0xFF111827),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height:
+                                            screenSize.responsivePadding(4),
+                                      ),
+                                      Text(
+                                        'Stay updated on offers & rewards',
+                                        style: kSmallerTitleM.copyWith(
+                                          color: const Color(0xFF6B7280),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Switch.adaptive(
+                                  value: _isNotificationsEnabled,
+                                  onChanged: _toggleNotifications,
+                                  activeColor: kRewardCtaPurple,
+                                  activeTrackColor: kRewardCtaPurple
+                                      .withValues(alpha: 0.3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ).fadeSlideInFromBottom(delayMilliseconds: 150)
+                      : const SizedBox.shrink(),
+                ),
+              if (!GlobalVariables.isGuest &&
+                  !(_isTokenRegistered && _isNotificationsEnabled) &&
                   !_isHiding)
-                SizedBox(height: screenSize.responsivePadding(20)),
+                SizedBox(height: screenSize.responsivePadding(16)),
 
-              // Second Card
-              Container(
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: kBorder),
-                ),
-                child: Column(
-                  children: [
-                    _buildMenuItem(
-                      'Support Ticket',
-                      const Icon(
-                        Icons.support_agent_rounded,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
-                      screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'support');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kBorder,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    _buildMenuItem(
-                      'Help & Support',
-                      const Icon(
-                        Icons.headphones_outlined,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
-                      screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'helpSupport');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kBorder,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    _buildMenuItem(
-                      'Privacy Policy',
-                      const Icon(
-                        Icons.privacy_tip_outlined,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
-                      screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'privacyPolicy');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kBorder,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    _buildMenuItem(
-                      'Terms & Conditions',
-                      const Icon(
-                        Icons.description_outlined,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
-                      screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'termsConditions');
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: kBorder,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    _buildMenuItem(
-                      'About app',
-                      const Icon(
-                        Icons.info_outline_rounded,
-                        color: kSecondaryTextColor,
-                        size: 22,
-                      ),
-                      screenSize,
-                      onTap: () {
-                        Navigator.pushNamed(context, 'aboutApp');
-                      },
-                    ),
-                  ],
-                ),
+              _menuCard(
+                children: [
+                  _buildMenuItem(
+                    'Support Ticket',
+                    Icons.support_agent_rounded,
+                    screenSize,
+                    onTap: () {
+                      Navigator.pushNamed(context, 'support');
+                    },
+                  ),
+                  _buildMenuItem(
+                    'Help & Support',
+                    Icons.help_outline_rounded,
+                    screenSize,
+                    onTap: () {
+                      Navigator.pushNamed(context, 'helpSupport');
+                    },
+                  ),
+                  _buildMenuItem(
+                    'Privacy Policy',
+                    Icons.privacy_tip_outlined,
+                    screenSize,
+                    onTap: () {
+                      Navigator.pushNamed(context, 'privacyPolicy');
+                    },
+                  ),
+                  _buildMenuItem(
+                    'Terms & Conditions',
+                    Icons.description_outlined,
+                    screenSize,
+                    onTap: () {
+                      Navigator.pushNamed(context, 'termsConditions');
+                    },
+                  ),
+                  _buildMenuItem(
+                    'About app',
+                    Icons.info_outline_rounded,
+                    screenSize,
+                    onTap: () {
+                      Navigator.pushNamed(context, 'aboutApp');
+                    },
+                    showDivider: false,
+                  ),
+                ],
               ).fadeSlideInFromBottom(delayMilliseconds: 200),
 
-              SizedBox(height: screenSize.responsivePadding(24)),
+              SizedBox(height: screenSize.responsivePadding(16)),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: kWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: kBorder),
-                ),
-                child: Column(
-                  children: [
+              _menuCard(
+                children: [
+                  _buildMenuItem(
+                    GlobalVariables.isGuest ? 'Login / Register' : 'Logout',
+                    GlobalVariables.isGuest
+                        ? Icons.login_rounded
+                        : Icons.logout_rounded,
+                    screenSize,
+                    textColor:
+                        GlobalVariables.isGuest ? kRewardCtaPurple : kRed,
+                    iconColor:
+                        GlobalVariables.isGuest ? kRewardCtaPurple : kRed,
+                    showDivider: !GlobalVariables.isGuest,
+                    onTap: () async {
+                      if (GlobalVariables.isGuest) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          'login',
+                          (route) => false,
+                        );
+                        return;
+                      }
+
+                      final confirmed = await showConfirmationDialog(
+                        context: context,
+                        title: 'Logout',
+                        message:
+                            'Are you sure you want to logout from your account?',
+                        confirmText: 'Logout',
+                        cancelText: 'Cancel',
+                        isDestructive: true,
+                        icon: Icons.logout_rounded,
+                        onConfirm: () async {
+                          await ref.read(authProvider.notifier).logout();
+                        },
+                      );
+
+                      if (confirmed == true && context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          'login',
+                          (route) => false,
+                        );
+                      }
+                    },
+                  ),
+                  if (!GlobalVariables.isGuest)
                     _buildMenuItem(
-                      GlobalVariables.isGuest ? 'Login / Register' : 'Logout',
-                      Icon(
-                        GlobalVariables.isGuest ? Icons.login_rounded : Icons.logout_rounded,
-                        color: GlobalVariables.isGuest ? kPrimaryColor : kRed,
-                        size: 22,
-                      ),
+                      'Delete Account',
+                      Icons.person_remove_rounded,
                       screenSize,
-                      textColor: GlobalVariables.isGuest ? kPrimaryColor : kRed,
+                      textColor: kRed,
+                      iconColor: kRed,
+                      showDivider: false,
                       onTap: () async {
-                        if (GlobalVariables.isGuest) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            'login',
-                            (route) => false,
-                          );
-                          return;
-                        }
-
                         final confirmed = await showConfirmationDialog(
                           context: context,
-                          title: 'Logout',
+                          title: 'Delete Account',
                           message:
-                              'Are you sure you want to logout from your account?',
-                          confirmText: 'Logout',
+                              'Are you sure you want to delete your account? This action cannot be undone.',
+                          confirmText: 'Delete',
                           cancelText: 'Cancel',
                           isDestructive: true,
-                          icon: Icons.logout_rounded,
+                          icon: Icons.person_remove_rounded,
                           onConfirm: () async {
-                            await ref.read(authProvider.notifier).logout();
+                            final success = await ref
+                                .read(authProvider.notifier)
+                                .deleteAccount();
+                            if (!success && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Failed to delete account. Please try again.',
+                                  ),
+                                  backgroundColor: kRed,
+                                ),
+                              );
+                            }
                           },
                         );
 
                         if (confirmed == true && context.mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            'login',
-                            (route) => false,
-                          );
+                          final state = ref.read(authProvider);
+                          if (!state.hasError) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              'login',
+                              (route) => false,
+                            );
+                          }
                         }
                       },
                     ),
-                    if (!GlobalVariables.isGuest) ...[
-                      const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: kBorder,
-                        indent: 16,
-                        endIndent: 16,
-                      ),
-                      _buildMenuItem(
-                        'Delete Account',
-                        const Icon(Icons.person_remove_rounded, color: kRed, size: 22),
-                        screenSize,
-                        textColor: kRed,
-                        onTap: () async {
-                          final confirmed = await showConfirmationDialog(
-                            context: context,
-                            title: 'Delete Account',
-                            message:
-                                'Are you sure you want to delete your account? This action cannot be undone.',
-                            confirmText: 'Delete',
-                            cancelText: 'Cancel',
-                            isDestructive: true,
-                            icon: Icons.person_remove_rounded,
-                            onConfirm: () async {
-                              final success = await ref.read(authProvider.notifier).deleteAccount();
-                              if (!success && context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Failed to delete account. Please try again.'),
-                                    backgroundColor: kRed,
-                                  ),
-                                );
-                              }
-                            },
-                          );
-
-                          if (confirmed == true && context.mounted) {
-                            final state = ref.read(authProvider);
-                            if (!state.hasError) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                'login',
-                                (route) => false,
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    ],
-                  ],
-                ),
+                ],
               ).fadeSlideInFromBottom(delayMilliseconds: 300),
 
               SizedBox(height: screenSize.responsivePadding(40)),
