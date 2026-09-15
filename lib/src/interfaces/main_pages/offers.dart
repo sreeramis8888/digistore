@@ -145,12 +145,14 @@ class _OffersPageState extends ConsumerState<OffersPage> {
 
 
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final crossAxisCount = isLandscape ? 4 : 2;
-    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final crossAxisCount = 1;
+    final totalPadding = screenSize.responsivePadding(32) +
+        screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+    // Full-width list cards need more height than the old 2-column grid cells.
     final itemHeight = isPartner
-        ? screenSize.responsivePadding(180)
-        : screenSize.responsivePadding(200);
+        ? screenSize.responsivePadding(isLandscape ? 220 : 240)
+        : screenSize.responsivePadding(isLandscape ? 240 : 260);
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
