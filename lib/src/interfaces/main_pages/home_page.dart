@@ -214,24 +214,16 @@ class _HomePageState extends ConsumerState<HomePage> {
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    // TEMP: UAT may have empty day deals — use month to verify UI.
-    final rawDay = data.dealOfTheDay
+    final dealOfTheDay = data.dealOfTheDay
         ?.where(
           (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
         )
         .toList();
-    final dealOfTheDay =
-        (rawDay != null && rawDay.isNotEmpty) ? rawDay : dealOfTheMonth;
-    // TEMP: UAT has no hour deals — use month data to verify DoH UI.
-    final dealOfTheHour = (data.dealOfTheHour != null &&
-            data.dealOfTheHour!.isNotEmpty)
-        ? data.dealOfTheHour!
-            .where(
-              (o) =>
-                  q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-            )
-            .toList()
-        : dealOfTheMonth;
+    final dealOfTheHour = data.dealOfTheHour
+        ?.where(
+          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
+        )
+        .toList();
     final featuredShops = data.featuredShops
         ?.where(
           (s) =>
@@ -266,22 +258,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           CategoryList(categories: categories),
           SizedBox(height: screenSize.responsivePadding(28)),
         ],
-        if (dealOfTheHour != null && dealOfTheHour.isNotEmpty) ...[
-          DealOfHourSection(
-            offers: dealOfTheHour,
-            variant: DealOfHourVariant.cards,
-            onViewAllTap: () => _navigateToDealsGrid(
-              context,
-              'deal_of_hour',
-              'Deal of the Hour',
-            ),
-          ),
-          SizedBox(height: screenSize.responsivePadding(28)),
-        ],
-        if (featuredShops != null && featuredShops.isNotEmpty) ...[
-          FeaturedShopsList(shops: featuredShops),
-          SizedBox(height: screenSize.responsivePadding(28)),
-        ],
         if (dealOfTheDay != null && dealOfTheDay.isNotEmpty) ...[
           HomeDealsSection(
             title: 'Deal of the Day',
@@ -289,6 +265,10 @@ class _HomePageState extends ConsumerState<HomePage> {
             onViewAllTap: () =>
                 _navigateToDealsGrid(context, 'deal_of_day', 'Deal of the Day'),
           ),
+          SizedBox(height: screenSize.responsivePadding(28)),
+        ],
+        if (featuredShops != null && featuredShops.isNotEmpty) ...[
+          FeaturedShopsList(shops: featuredShops),
           SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (popularRewards != null && popularRewards.isNotEmpty) ...[

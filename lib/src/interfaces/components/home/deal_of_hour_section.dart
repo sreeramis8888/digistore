@@ -13,8 +13,7 @@ enum DealOfHourVariant {
   cards,
 }
 
-/// Deal of the Hour carousel. Use [promo] then [cards] with the same offers
-/// (categories sit between them in the home layout).
+/// Deal of the Hour carousel (promo cards).
 class DealOfHourSection extends ConsumerWidget {
   final List<OfferModel> offers;
   final DealOfHourVariant variant;
