@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
@@ -111,7 +112,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
       final prevLng = previous?.location?.coordinates?.lng;
       final nextLat = next?.location?.coordinates?.lat;
       final nextLng = next?.location?.coordinates?.lng;
-      
+
       if (prevLat != nextLat || prevLng != nextLng) {
         _calculateRoadDistance();
       }
@@ -159,12 +160,14 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
         userLng != null &&
         shopCoords != null &&
         shopCoords.length >= 2) {
-      final initialDistance = widget.shop?.distance ?? LocationUtils.calculateDistance(
-        userLat,
-        userLng,
-        shopCoords[1],
-        shopCoords[0],
-      );
+      final initialDistance =
+          widget.shop?.distance ??
+          LocationUtils.calculateDistance(
+            userLat,
+            userLng,
+            shopCoords[1],
+            shopCoords[0],
+          );
       distanceLabel = ' (${initialDistance.toStringAsFixed(1)} km)';
     } else if (widget.shop?.distance != null) {
       distanceLabel = ' (${widget.shop!.distance!.toStringAsFixed(1)} km)';
@@ -197,7 +200,11 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                         imageUrl: widget.shop!.businessInfo!.businessLogo!,
                         fit: BoxFit.cover,
                       )
-                    : const Icon(Icons.storefront, color: kPrimaryColor, size: 28),
+                    : const Icon(
+                        Icons.storefront,
+                        color: kPrimaryColor,
+                        size: 28,
+                      ),
               ),
             ),
             SizedBox(width: screenSize.responsivePadding(12)),
@@ -218,7 +225,9 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (widget.shop?.businessInfo?.tagline != null &&
-                      widget.shop!.businessInfo!.tagline!.trim().isNotEmpty) ...[
+                      widget.shop!.businessInfo!.tagline!
+                          .trim()
+                          .isNotEmpty) ...[
                     SizedBox(height: screenSize.responsivePadding(2)),
                     Text(
                       widget.shop!.businessInfo!.tagline!.trim(),
@@ -245,7 +254,9 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF9E6),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFFFD54F).withValues(alpha: 0.6)),
+                  border: Border.all(
+                    color: const Color(0xFFFFD54F).withValues(alpha: 0.6),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -282,10 +293,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                 duration: const Duration(milliseconds: 300),
                 layoutBuilder: (currentChild, previousChildren) => Stack(
                   alignment: Alignment.centerLeft,
-                  children: [
-                    ...previousChildren,
-                    ?currentChild,
-                  ],
+                  children: [...previousChildren, ?currentChild],
                 ),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
@@ -315,117 +323,206 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(10),
-                    vertical: screenSize.responsivePadding(5),
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF9E6),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 16),
-                      SizedBox(width: screenSize.responsivePadding(4)),
-                      Text(
-                        rating > 0 ? rating.toStringAsFixed(1) : 'New',
-                        style: const TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          color: Color(0xFF92400E),
-                        ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(10),
+                        vertical: screenSize.responsivePadding(5),
                       ),
-                      if (totalSales > 0) ...[
-                        SizedBox(width: screenSize.responsivePadding(4)),
-                        Text(
-                          '($totalSales reviews)',
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF9E6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFBBF24),
+                            size: 16,
+                          ),
+                          SizedBox(width: screenSize.responsivePadding(4)),
+                          Text(
+                            rating > 0 ? rating.toStringAsFixed(1) : 'New',
+                            style: const TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              color: Color(0xFF92400E),
+                            ),
+                          ),
+                          if (totalSales > 0) ...[
+                            SizedBox(width: screenSize.responsivePadding(4)),
+                            Text(
+                              '($totalSales reviews)',
+                              style: const TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                                color: Color(0xFFB45309),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (widget.shop?.businessInfo?.yearsOfExperience != null &&
+                        widget.shop!.businessInfo!.yearsOfExperience! > 0) ...[
+                      SizedBox(width: screenSize.responsivePadding(8)),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.responsivePadding(8),
+                          vertical: screenSize.responsivePadding(4),
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${widget.shop!.businessInfo!.yearsOfExperience}+ yrs exp',
                           style: const TextStyle(
                             fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF6B7280),
                             fontSize: 11,
-                            color: Color(0xFFB45309),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (widget.shop?.businessInfo?.yearsOfExperience != null &&
-                    widget.shop!.businessInfo!.yearsOfExperience! > 0) ...[
-                  SizedBox(width: screenSize.responsivePadding(8)),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(8),
-                      vertical: screenSize.responsivePadding(4),
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${widget.shop!.businessInfo!.yearsOfExperience}+ yrs exp',
-                      style: const TextStyle(
-                        fontFamily: 'Montserrat',
-                        color: Color(0xFF6B7280),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  final phone =
-                      widget.selectedBranch?.phone ??
-                      widget.shop?.businessInfo?.contactPhone;
-                  if (phone != null && phone.isNotEmpty) {
-                    launchPhone(phone);
-                  }
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.responsivePadding(16),
-                    vertical: screenSize.responsivePadding(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF07982C),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF07982C).withValues(alpha: 0.25),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
                       ),
                     ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.call, size: 14, color: Colors.white),
-                      SizedBox(width: screenSize.responsivePadding(6)),
-                      const Text(
-                        'Call',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
+            ),
+            SizedBox(width: screenSize.responsivePadding(8)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      final phone =
+                          widget.selectedBranch?.phone ??
+                          widget.shop?.businessInfo?.contactPhone ??
+                          widget.shop?.businessInfo?.whatsappNumber;
+                      if (phone != null && phone.isNotEmpty) {
+                        final cleanPhone = phone.replaceAll(
+                          RegExp(r'[^\d]'),
+                          '',
+                        );
+                        if (cleanPhone.isNotEmpty) {
+                          final actualPhone = cleanPhone.length == 10
+                              ? '91$cleanPhone'
+                              : cleanPhone;
+                          final message =
+                              "Hello, I would like to enquire about ${widget.shopName}.";
+                          final url =
+                              "https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}";
+                          launchURL(url);
+                        }
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(12),
+                        vertical: screenSize.responsivePadding(8),
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF25D366),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF25D366,
+                            ).withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/svg/whatsapp.svg',
+                            width: 14,
+                            height: 14,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.white,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          SizedBox(width: screenSize.responsivePadding(4)),
+                          const Text(
+                            'WhatsApp',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: screenSize.responsivePadding(6)),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      final phone =
+                          widget.selectedBranch?.phone ??
+                          widget.shop?.businessInfo?.contactPhone;
+                      if (phone != null && phone.isNotEmpty) {
+                        launchPhone(phone);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(14),
+                        vertical: screenSize.responsivePadding(8),
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF07982C),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF07982C,
+                            ).withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.call, size: 14, color: Colors.white),
+                          SizedBox(width: screenSize.responsivePadding(4)),
+                          const Text(
+                            'Call',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
