@@ -12,6 +12,7 @@ import '../offers/deal_card.dart';
 class DealOfferCard extends ConsumerWidget {
   final OfferModel offer;
   final double? width;
+
   /// When true, fills parent width (offers grid). When false, fixed carousel width.
   final bool expand;
   final bool hideShopName;
@@ -44,8 +45,9 @@ class DealOfferCard extends ConsumerWidget {
     final title = offer.title ?? '';
     final shopName = offer.partnerId?.businessDetails?.businessName ?? '';
     final shopLogo = offer.partnerId?.businessInfo?.businessLogo;
-    final imageUrl =
-        offer.images?.isNotEmpty == true ? offer.images!.first : null;
+    final imageUrl = offer.images?.isNotEmpty == true
+        ? offer.images!.first
+        : null;
     final badge = _badgeSingleLine;
     final cardWidth = expand
         ? double.infinity
@@ -68,43 +70,22 @@ class DealOfferCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    AdvancedNetworkImage(
-                      imageUrl: imageUrl ?? '',
-                      fit: BoxFit.cover,
-                      disableFade: true,
-                    ),
-                    if (badge != null && badge.isNotEmpty)
-                      Positioned(
-                        left: 12,
-                        top: 12,
-                        right: 12,
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF07982C),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              badge,
-                              style: kSmallerTitleEB.copyWith(
-                                color: kWhite,
-                                fontSize: 11,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
+                child: AdvancedNetworkImage(
+                  imageUrl: imageUrl ?? '',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  disableFade: true,
+                  errorWidget: Container(
+                    color: const Color(0xFFF3F4F6),
+                    child: const Center(
+                      child: Icon(
+                        Icons.local_offer_outlined,
+                        color: Color(0xFF9CA3AF),
+                        size: 32,
                       ),
-                  ],
+                    ),
+                  ),
                 ),
               ),
               Padding(
@@ -123,43 +104,83 @@ class DealOfferCard extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (!hideShopName) ...[
+                    if (!hideShopName ||
+                        (badge != null && badge.isNotEmpty)) ...[
                       SizedBox(height: screenSize.responsivePadding(8)),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 18,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9),
-                              color: kPrimaryLightColor,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: shopLogo != null && shopLogo.isNotEmpty
-                                ? AdvancedNetworkImage(
-                                    imageUrl: shopLogo,
-                                    fit: BoxFit.cover,
-                                    disableFade: true,
-                                  )
-                                : const Icon(
-                                    Icons.store,
-                                    size: 10,
-                                    color: kWhite,
-                                  ),
-                          ),
-                          const SizedBox(width: 6),
                           Expanded(
-                            child: Text(
-                              shopName,
-                              style: kSmallerTitleM.copyWith(
-                                color: const Color(0xFF111827),
-                                fontSize: 11,
-                                height: 1.2,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            child: !hideShopName
+                                ? Row(
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            9,
+                                          ),
+                                          color: kPrimaryLightColor,
+                                        ),
+                                        clipBehavior: Clip.antiAlias,
+                                        child:
+                                            shopLogo != null &&
+                                                shopLogo.isNotEmpty
+                                            ? AdvancedNetworkImage(
+                                                imageUrl: shopLogo,
+                                                fit: BoxFit.cover,
+                                                disableFade: true,
+                                              )
+                                            : const Icon(
+                                                Icons.store,
+                                                size: 10,
+                                                color: kWhite,
+                                              ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          shopName,
+                                          style: kSmallerTitleM.copyWith(
+                                            color: const Color(0xFF111827),
+                                            fontSize: 11,
+                                            height: 1.2,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
                           ),
+                          if (badge != null && badge.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF07982C),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  badge,
+                                  style: kSmallerTitleB.copyWith(
+                                    color: kWhite,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
