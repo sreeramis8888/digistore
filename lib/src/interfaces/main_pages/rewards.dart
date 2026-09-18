@@ -49,11 +49,14 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final crossAxisCount = 1;
-    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = isLandscape ? 4 : 2;
+    final totalPadding =
+        screenSize.responsivePadding(32) +
+        screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
+    final itemHeight = screenSize.responsivePadding(209);
     final aspectRatio = itemWidth / itemHeight;
 
     final state = ref.watch(rewardsListProvider);
@@ -136,12 +139,15 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  SliverToBoxAdapter(child: SizedBox(height: screenSize.responsivePadding(16.0))),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: screenSize.responsivePadding(16.0)),
+                  ),
                   ...buildPaginatedGridSliversWithBanners(
                     items: state.rewards,
-                    itemBuilder: (context, index, reward) => RewardCard.fromReward(
-                      reward,
-                    ).fadeScaleUp(delayMilliseconds: (index % 10) * 50),
+                    itemBuilder: (context, index, reward) =>
+                        RewardCard.fromReward(
+                          reward,
+                        ).fadeScaleUp(delayMilliseconds: (index % 10) * 50),
                     banners: banners,
                     hasMore: state.page < state.pages,
                     screenSize: screenSize,
