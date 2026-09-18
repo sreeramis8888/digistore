@@ -13,11 +13,7 @@ class ServiceCard extends ConsumerWidget {
   final ServiceModel service;
   final VoidCallback? onTap;
 
-  const ServiceCard({
-    super.key,
-    required this.service,
-    this.onTap,
-  });
+  const ServiceCard({super.key, required this.service, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,23 +21,32 @@ class ServiceCard extends ConsumerWidget {
     final categoriesAsync = ref.watch(serviceCategoriesProvider);
     final imageUrl = service.images.isNotEmpty ? service.images.first : '';
     final rawPartnerName = service.partner?.name?.trim();
-    final shopName = (rawPartnerName != null &&
+    final shopName =
+        (rawPartnerName != null &&
             rawPartnerName.isNotEmpty &&
             rawPartnerName.toLowerCase() != 'setgo partner')
         ? rawPartnerName
         : null;
 
     String categoryName = service.categoryName ?? service.category ?? '';
-    if (categoryName.isEmpty || RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)) {
-      final targetId = service.categoryId ?? (RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName) ? categoryName : null);
+    if (categoryName.isEmpty ||
+        RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)) {
+      final targetId =
+          service.categoryId ??
+          (RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)
+              ? categoryName
+              : null);
       if (targetId != null && categoriesAsync.hasValue) {
-        final matched = categoriesAsync.value?.where((c) => c.id == targetId).firstOrNull;
+        final matched = categoriesAsync.value
+            ?.where((c) => c.id == targetId)
+            .firstOrNull;
         if (matched?.name != null && matched!.name!.isNotEmpty) {
           categoryName = matched.name!;
         }
       }
     }
-    if (categoryName.isEmpty || RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)) {
+    if (categoryName.isEmpty ||
+        RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(categoryName)) {
       categoryName = 'Service';
     }
 
@@ -53,7 +58,8 @@ class ServiceCard extends ConsumerWidget {
         : null;
 
     return InteractiveFeedbackButton(
-      onPressed: onTap ??
+      onPressed:
+          onTap ??
           () {
             Navigator.push(
               context,
@@ -74,59 +80,26 @@ class ServiceCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Stack(
-                children: [
-                  SizedBox(
-                    height: screenSize.responsivePadding(115),
-                    width: double.infinity,
-                    child: AdvancedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      disableFade: true,
-                      errorWidget: Container(
-                        color: const Color(0xFFF3F4F6),
-                        child: const Center(
-                          child: Icon(
-                            Icons.spa_rounded,
-                            color: Color(0xFF9CA3AF),
-                            size: 32,
-                          ),
-                        ),
+              SizedBox(
+                height: screenSize.responsivePadding(115),
+                width: double.infinity,
+                child: AdvancedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  disableFade: true,
+                  errorWidget: Container(
+                    color: const Color(0xFFF3F4F6),
+                    child: const Center(
+                      child: Icon(
+                        Icons.spa_rounded,
+                        color: Color(0xFF9CA3AF),
+                        size: 32,
                       ),
                     ),
                   ),
-                  if (categoryName.isNotEmpty)
-                    Positioned(
-                      left: 12,
-                      top: 12,
-                      right: 12,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4.5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF34C759),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            categoryName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: kSmallerTitleB.copyWith(
-                              color: kWhite,
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+                ),
               ),
               Expanded(
                 child: Padding(
@@ -179,35 +152,70 @@ class ServiceCard extends ConsumerWidget {
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            priceStr,
-                            style: kSmallerTitleM.copyWith(
-                              color: const Color(0xFF4E4E4E),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          if (rating != null)
-                            Row(
+                          Expanded(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  rating,
-                                  style: kSmallerTitleL.copyWith(
+                                  priceStr,
+                                  style: kSmallerTitleM.copyWith(
                                     color: const Color(0xFF4E4E4E),
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.star_rounded,
-                                  size: 14,
-                                  color: Color(0xFFFFCB2B),
-                                ),
+                                if (rating != null) ...[
+                                  const SizedBox(width: 6),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        rating,
+                                        style: kSmallerTitleL.copyWith(
+                                          color: const Color(0xFF4E4E4E),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 2),
+                                      const Icon(
+                                        Icons.star_rounded,
+                                        size: 14,
+                                        color: Color(0xFFFFCB2B),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
+                          ),
+                          if (categoryName.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF34C759),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  categoryName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: kSmallerTitleB.copyWith(
+                                    color: kWhite,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
