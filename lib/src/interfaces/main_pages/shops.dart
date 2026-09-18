@@ -213,12 +213,11 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final crossAxisCount = isLandscape ? 4 : 2;
-    final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / crossAxisCount; // wait, spacing logic
+    final crossAxisCount = 1;
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
-    final calculatedItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(200);
-    final aspectRatio = calculatedItemWidth / itemHeight;
+    final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+    final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
+    final aspectRatio = itemWidth / itemHeight;
 
     final nearbyState = ref.watch(shopsProvider);
     final exploreState = ref.watch(allShopsProvider);

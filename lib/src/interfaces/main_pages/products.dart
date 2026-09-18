@@ -75,21 +75,9 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
       }
     }
 
-    ref.read(partnerProductsProvider.notifier).getProducts(
-          categoryId: categoryId,
-          page: 1,
-          isRefresh: true,
-        );
-  }
-
-  double _cardAspectRatio(BuildContext context) {
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-    return isLandscape ? 1.0 : 0.82;
-  }
-
-  int _crossAxisCount(BuildContext context) {
-    return MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2;
+    ref
+        .read(partnerProductsProvider.notifier)
+        .getProducts(categoryId: categoryId, page: 1, isRefresh: true);
   }
 
   @override
@@ -97,7 +85,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
     final screenSize = ref.watch(screenSizeProvider);
     final isPartner =
         ref.watch(userTypeProvider) == UserType.partner ||
-            GlobalVariables.isPartner;
+        GlobalVariables.isPartner;
     final selectedTab = ref.watch(selectedProductsTabProvider);
 
     final productsState = ref.watch(partnerProductsProvider);
@@ -111,7 +99,9 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
     final currentCategoryIndex = ref.watch(selectedProductsCategoryProvider);
 
     final servicesState = isPartner ? null : ref.watch(servicesListProvider);
-    final partnerServicesState = isPartner ? ref.watch(partnerServicesProvider) : null;
+    final partnerServicesState = isPartner
+        ? ref.watch(partnerServicesProvider)
+        : null;
 
     ref.listen<int>(selectedProductsCategoryProvider, (previous, next) {
       if (previous != next) {
@@ -142,8 +132,15 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
       _lastFetchedCategoryIndex = currentCategoryIndex;
     }
 
-    final aspectRatio = _cardAspectRatio(context);
-    final crossAxisCount = _crossAxisCount(context);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = 1;
+    final totalPadding =
+        screenSize.responsivePadding(32) +
+        screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+    final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
+    final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F4),
@@ -304,7 +301,8 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                       rawProduct: p,
                     ),
                     banners: banners,
-                    hasMore: productsState.pagination != null &&
+                    hasMore:
+                        productsState.pagination != null &&
                         productsState.pagination!.page <
                             productsState.pagination!.pages,
                     screenSize: screenSize,
@@ -377,24 +375,21 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                           crossAxisSpacing: screenSize.responsivePadding(16),
                           childAspectRatio: aspectRatio,
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final s = partnerServicesState.services[index];
-                            return ServiceCard(
-                              service: s,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        CreateServicePage(existingService: s),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          childCount: partnerServicesState.services.length,
-                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final s = partnerServicesState.services[index];
+                          return ServiceCard(
+                            service: s,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CreateServicePage(existingService: s),
+                                ),
+                              );
+                            },
+                          );
+                        }, childCount: partnerServicesState.services.length),
                       ),
                     ),
                 ] else if (servicesState != null) ...[
@@ -442,13 +437,10 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                           crossAxisSpacing: screenSize.responsivePadding(16),
                           childAspectRatio: aspectRatio,
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final s = servicesState.services[index];
-                            return ServiceCard(service: s);
-                          },
-                          childCount: servicesState.services.length,
-                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final s = servicesState.services[index];
+                          return ServiceCard(service: s);
+                        }, childCount: servicesState.services.length),
                       ),
                     ),
                     if (servicesState.isLoadingMore)
@@ -456,14 +448,14 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                         child: Padding(
                           padding: EdgeInsets.all(16),
                           child: Center(
-                            child:
-                                LoadingAnimation(loadingColor: kPrimaryColor),
+                            child: LoadingAnimation(
+                              loadingColor: kPrimaryColor,
+                            ),
                           ),
                         ),
                       ),
                     SliverToBoxAdapter(
-                      child:
-                          SizedBox(height: screenSize.responsivePadding(24)),
+                      child: SizedBox(height: screenSize.responsivePadding(24)),
                     ),
                   ],
                 ],

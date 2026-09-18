@@ -50,10 +50,10 @@ class _RewardsPageState extends ConsumerState<RewardsPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final crossAxisCount = isLandscape ? 4 : 2;
+    final crossAxisCount = 1;
     final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(209);
+    final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
     final aspectRatio = itemWidth / itemHeight;
 
     final state = ref.watch(rewardsListProvider);
