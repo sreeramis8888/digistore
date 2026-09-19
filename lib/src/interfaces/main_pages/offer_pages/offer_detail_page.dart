@@ -468,31 +468,28 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hero Image Banner (200px height with border and floating tag)
+                  // Hero Image Banner
                   GestureDetector(
                     onTap: images.isNotEmpty
                         ? () => _openGallery(
                               images: images,
                               initialUrl: images.isNotEmpty
-                                  ? images[_currentImageIndex.clamp(0, images.length - 1)]
+                                  ? images[_currentImageIndex.clamp(
+                                      0, images.length - 1)]
                                   : null,
                             )
                         : null,
                     child: Container(
                       width: double.infinity,
-                      height: screenSize.responsivePadding(200),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: Color(0xFFE3E3E3), width: 1),
-                        ),
-                      ),
+                      height: screenSize.responsivePadding(220),
+                      color: const Color(0xFFE5E7EB),
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
                           if (images.isNotEmpty)
                             CarouselSlider(
                               options: CarouselOptions(
-                                height: screenSize.responsivePadding(200),
+                                height: screenSize.responsivePadding(220),
                                 viewportFraction: 1.0,
                                 enableInfiniteScroll: images.length > 1,
                                 autoPlay: images.length > 1,
@@ -544,21 +541,23 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                             ),
 
                           // Floating Tag Pill (Top-Left)
-                          if (floatingTagText != null && floatingTagText.isNotEmpty)
+                          if (floatingTagText != null &&
+                              floatingTagText.isNotEmpty)
                             Positioned(
-                              top: 10,
+                              top: 12,
                               left: 16,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
+                                  horizontal: 12,
+                                  vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.85),
+                                  color: Colors.white.withValues(alpha: 0.92),
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black
+                                          .withValues(alpha: 0.08),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -578,23 +577,28 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           // Carousel Dots Indicator (Bottom-Center)
                           if (images.length > 1)
                             Positioned(
-                              bottom: 10,
+                              bottom: 20,
                               left: 0,
                               right: 0,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: images.asMap().entries.map((entry) {
-                                  final isActive = _currentImageIndex == entry.key;
+                                  final isActive =
+                                      _currentImageIndex == entry.key;
                                   return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 250),
+                                    duration:
+                                        const Duration(milliseconds: 250),
                                     width: isActive ? 18.0 : 6.0,
                                     height: 6.0,
-                                    margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 3.0,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(3.0),
                                       color: isActive
                                           ? Colors.white
-                                          : Colors.white.withValues(alpha: 0.5),
+                                          : Colors.white
+                                              .withValues(alpha: 0.5),
                                     ),
                                   );
                                 }).toList(),
@@ -605,263 +609,305 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     ),
                   ),
 
-                  // Shop Info Card (Top rounded 24px, Merchant Header, Divider, Offer Titles)
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
+                  // Shop + Offer header sheet (overlaps hero slightly)
+                  Transform.translate(
+                    offset: const Offset(0, -16),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
+                        ),
                       ),
-                    ),
-                    padding: EdgeInsets.fromLTRB(
-                      screenSize.responsivePadding(20),
-                      screenSize.responsivePadding(16),
-                      screenSize.responsivePadding(20),
-                      screenSize.responsivePadding(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Merchant / Shop Header Row
-                        if (!(widget.args['hideShopInfo'] ?? false) && !isPartner) ...[
-                          InkWell(
-                            onTap: partnerId.isNotEmpty
-                                ? () => _navigateToShop(partnerId)
-                                : null,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Row(
-                              children: [
-                                // Logo (52x52 Circle with 2px border)
-                                Container(
-                                  width: 52,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: const Color(0xFFE5E7EB),
-                                      width: 2,
-                                    ),
-                                    color: const Color(0xFFF3F4F6),
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: effectiveShopLogo != null && effectiveShopLogo.isNotEmpty
-                                      ? AdvancedNetworkImage(
-                                          imageUrl: effectiveShopLogo,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : const Center(
-                                          child: Icon(
-                                            Icons.storefront,
-                                            color: Color(0xFF6B7280),
-                                            size: 24,
-                                          ),
+                      padding: EdgeInsets.fromLTRB(
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Merchant / Shop Header Row
+                          if (!(widget.args['hideShopInfo'] ?? false) &&
+                              !isPartner) ...[
+                            InkWell(
+                              onTap: partnerId.isNotEmpty
+                                  ? () => _navigateToShop(partnerId)
+                                  : null,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFFE5E7EB),
+                                          width: 1.5,
                                         ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        effectiveShopName,
-                                        style: GoogleFonts.urbanist(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w800,
-                                          color: const Color(0xFF111827),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                        color: const Color(0xFFF3F4F6),
                                       ),
-                                      if (effectiveShopAddress.isNotEmpty) ...[
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.location_on_outlined,
-                                              size: 14,
-                                              color: Color(0xFF6B7280),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                effectiveShopAddress,
-                                                style: GoogleFonts.urbanist(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: const Color(0xFF6B7280),
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                                      clipBehavior: Clip.antiAlias,
+                                      child: effectiveShopLogo != null &&
+                                              effectiveShopLogo.isNotEmpty
+                                          ? AdvancedNetworkImage(
+                                              imageUrl: effectiveShopLogo,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : const Center(
+                                              child: Icon(
+                                                Icons.storefront,
+                                                color: Color(0xFF6B7280),
+                                                size: 22,
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                if (partnerId.isNotEmpty) ...[
-                                  const SizedBox(width: 8),
-                                  if (isNavigatingToShop)
-                                    const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Color(0xFF6155F5),
-                                        ),
-                                      ),
-                                    )
-                                  else
-                                    const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 14,
-                                      color: Color(0xFF9CA3AF),
                                     ),
-                                ],
-                              ],
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            effectiveShopName,
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              height: 1.25,
+                                              color: const Color(0xFF111827),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (effectiveShopAddress
+                                              .isNotEmpty) ...[
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.location_on_outlined,
+                                                  size: 14,
+                                                  color: Color(0xFF6B7280),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    effectiveShopAddress,
+                                                    style:
+                                                        GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      height: 1.3,
+                                                      color: const Color(
+                                                        0xFF6B7280,
+                                                      ),
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                    if (partnerId.isNotEmpty) ...[
+                                      const SizedBox(width: 8),
+                                      if (isNavigatingToShop)
+                                        const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              Color(0xFF6155F5),
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        const Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 14,
+                                          color: Color(0xFF9CA3AF),
+                                        ),
+                                    ],
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            const Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Color(0xFFF3F4F6),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
 
-                          // Divider
-                          const SizedBox(height: 16),
-                          const Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Color(0xFFF3F4F6),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-
-                        // Offer Title & Subtitle
-                        Text(
-                          title,
-                          style: GoogleFonts.urbanist(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF111827),
-                          ),
-                        ),
-                        if (subtitle.isNotEmpty &&
-                            subtitle != 'null' &&
-                            subtitle != 'nil') ...[
-                          const SizedBox(height: 4),
+                          // Offer Title & Subtitle
                           Text(
-                            subtitle,
+                            title,
                             style: GoogleFonts.urbanist(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
                               color: const Color(0xFF111827),
                             ),
                           ),
-                        ],
-
-                        // Category & Subcategories chips
-                        if (subcategories.isNotEmpty || (categoryName != null && categoryName.isNotEmpty)) ...[
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              if (categoryName != null && categoryName.isNotEmpty)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEEF2FF),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    categoryName,
-                                    style: GoogleFonts.urbanist(
-                                      color: const Color(0xFF6155F5),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ...subcategories.map(
-                                (sub) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF3F4F6),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: const Color(0xFFE5E7EB),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    sub,
-                                    style: GoogleFonts.urbanist(
-                                      color: const Color(0xFF374151),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
+                          if (subtitle.isNotEmpty &&
+                              subtitle != 'null' &&
+                              subtitle != 'nil') ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              subtitle,
+                              style: GoogleFonts.urbanist(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400,
+                                height: 1.45,
+                                color: const Color(0xFF4B5563),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
 
-                        // Scratch Card Revealed Banner
-                        if (isScratchCard && isScratched && awardedDiscount != null) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDEF7EC),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF31C48D)),
-                            ),
-                            child: Row(
+                          // Category & Subcategories chips
+                          if (subcategories.isNotEmpty ||
+                              (categoryName != null &&
+                                  categoryName.isNotEmpty)) ...[
+                            const SizedBox(height: 14),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
                               children: [
-                                const Icon(
-                                  Icons.celebration,
-                                  color: Color(0xFF03543F),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Scratch card revealed! You got $awardedDiscount% OFF.',
-                                    style: GoogleFonts.urbanist(
-                                      color: const Color(0xFF03543F),
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
+                                if (categoryName != null &&
+                                    categoryName.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEEF2FF),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      categoryName,
+                                      style: GoogleFonts.urbanist(
+                                        color: const Color(0xFF6155F5),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ...subcategories.map(
+                                  (sub) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF3F4F6),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: const Color(0xFFE5E7EB),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      sub,
+                                      style: GoogleFonts.urbanist(
+                                        color: const Color(0xFF374151),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
+                          ],
+
+                          // Scratch Card Revealed Banner
+                          if (isScratchCard &&
+                              isScratched &&
+                              awardedDiscount != null) ...[
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDEF7EC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF31C48D),
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.celebration,
+                                    color: Color(0xFF03543F),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Scratch card revealed! You got $awardedDiscount% OFF.',
+                                      style: GoogleFonts.urbanist(
+                                        color: const Color(0xFF03543F),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                        height: 1.35,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
 
-                  // Separator Band (8px grey)
+                  // Pull following sections up to cancel Transform.translate gap
+                  Transform.translate(
+                    offset: const Offset(0, -16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                  // Separator Band
                   const SizedBox(
                     width: double.infinity,
                     height: 8,
-                    child: ColoredBox(color: Color(0xFFF3F4F6)),
+                    child: ColoredBox(color: Color(0xFFF3F5F4)),
                   ),
 
-                  // Details & Terms Card (Figma Node 2158:2280)
+                  // Details & Terms
                   Container(
                     width: double.infinity,
                     color: Colors.white,
-                    padding: EdgeInsets.all(screenSize.responsivePadding(20)),
+                    padding: EdgeInsets.fromLTRB(
+                      screenSize.responsivePadding(20),
+                      screenSize.responsivePadding(20),
+                      screenSize.responsivePadding(20),
+                      screenSize.responsivePadding(20),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -870,16 +916,18 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
+                            height: 1.25,
                             color: const Color(0xFF1C1C1C),
                           ),
                         ),
                         if (validToDate != null) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           Text(
                             'Expires on: ${formatOfferDate(validToDate)}',
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
+                              height: 1.3,
                               color: const Color(0xFF1C1C1C),
                             ),
                           ),
@@ -888,7 +936,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         if (termsList.isNotEmpty)
                           ...termsList.map(
                             (term) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
+                              padding: const EdgeInsets.only(bottom: 10),
                               child: _buildBulletPoint(term),
                             ),
                           )
@@ -899,7 +947,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF4E4E4E),
-                              height: 1.6,
+                              height: 1.55,
                             ),
                           )
                         else
@@ -909,47 +957,58 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF4E4E4E),
+                              height: 1.4,
                             ),
                           ),
                       ],
                     ),
                   ),
 
-                  // Available At / Branch Locations (Preserved & Modernized)
+                  // Available At / Branch Locations
                   if (isAllBranches || specificBranches.isNotEmpty) ...[
                     const SizedBox(
                       width: double.infinity,
                       height: 8,
-                      child: ColoredBox(color: Color(0xFFF3F4F6)),
+                      child: ColoredBox(color: Color(0xFFF3F5F4)),
                     ),
                     Container(
                       width: double.infinity,
                       color: Colors.white,
-                      padding: EdgeInsets.all(screenSize.responsivePadding(20)),
+                      padding: EdgeInsets.fromLTRB(
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(6),
+                                width: 36,
+                                height: 36,
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6155F5).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: const Color(0xFF6155F5)
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(
                                   Icons.storefront_rounded,
                                   color: Color(0xFF6155F5),
-                                  size: 16,
+                                  size: 18,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               Text(
                                 'Available At',
                                 style: GoogleFonts.urbanist(
                                   color: const Color(0xFF6155F5),
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
+                                  height: 1.2,
                                 ),
                               ),
                             ],
@@ -957,18 +1016,31 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           const SizedBox(height: 16),
                           if (isAllBranches)
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Icon(
-                                  Icons.check_circle_outline,
-                                  size: 18,
-                                  color: Colors.green,
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_circle_outline,
+                                    size: 18,
+                                    color: Colors.green,
+                                  ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Available on all branches',
-                                  style: GoogleFonts.urbanist(
-                                    color: const Color(0xFF374151),
-                                    fontSize: 13,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Available on all branches',
+                                    style: GoogleFonts.urbanist(
+                                      color: const Color(0xFF374151),
+                                      fontSize: 13,
+                                      height: 1.35,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -977,7 +1049,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                             ...specificBranches.asMap().entries.map((entry) {
                               final index = entry.key;
                               final branch = entry.value;
-                              final isLast = index == specificBranches.length - 1;
+                              final isLast =
+                                  index == specificBranches.length - 1;
                               final branchName =
                                   branch['branchName']?.toString() ?? 'Branch';
                               final address =
@@ -987,20 +1060,30 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   .where((e) => e.trim().isNotEmpty)
                                   .join(', ');
                               return Padding(
-                                padding:
-                                    EdgeInsets.only(bottom: isLast ? 0 : 12.0),
+                                padding: EdgeInsets.only(
+                                  bottom: isLast ? 0 : 14,
+                                ),
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
                                   children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 2.0),
-                                      child: Icon(
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF6155F5)
+                                            .withValues(alpha: 0.1),
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(
                                         Icons.location_on_outlined,
                                         size: 18,
                                         color: Color(0xFF6155F5),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -1012,15 +1095,18 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                               color: const Color(0xFF111827),
                                               fontWeight: FontWeight.w600,
                                               fontSize: 13,
+                                              height: 1.3,
                                             ),
                                           ),
                                           if (locationDetails.isNotEmpty) ...[
-                                            const SizedBox(height: 2),
+                                            const SizedBox(height: 3),
                                             Text(
                                               locationDetails,
                                               style: GoogleFonts.urbanist(
-                                                color: const Color(0xFF6B7280),
+                                                color:
+                                                    const Color(0xFF6B7280),
                                                 fontSize: 12,
+                                                height: 1.35,
                                               ),
                                             ),
                                           ],
@@ -1036,41 +1122,51 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     ),
                   ],
 
-                  // Offer Highlights / Price & Discount Ranges (Preserved & Modernized)
+                  // Offer Highlights
                   if (hasPriceRange || hasDiscountRange) ...[
                     const SizedBox(
                       width: double.infinity,
                       height: 8,
-                      child: ColoredBox(color: Color(0xFFF3F4F6)),
+                      child: ColoredBox(color: Color(0xFFF3F5F4)),
                     ),
                     Container(
                       width: double.infinity,
                       color: Colors.white,
-                      padding: EdgeInsets.all(screenSize.responsivePadding(20)),
+                      padding: EdgeInsets.fromLTRB(
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                        screenSize.responsivePadding(20),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(6),
+                                width: 36,
+                                height: 36,
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6155F5).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: const Color(0xFF6155F5)
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(
                                   Icons.star_rounded,
                                   color: Color(0xFF6155F5),
-                                  size: 16,
+                                  size: 18,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               Text(
                                 'Offer Highlights',
                                 style: GoogleFonts.urbanist(
                                   color: const Color(0xFF6155F5),
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
+                                  height: 1.2,
                                 ),
                               ),
                             ],
@@ -1098,7 +1194,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                   ],
 
                   if (isPartner) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1112,16 +1208,18 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         _buildStatusChip(offerStatus),
                       ],
                     ),
-                    const SizedBox(height: 16),
                   ],
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
 
-          // Bottom Bar CTA (Figma Node 2158:2286)
+          // Bottom Bar CTA
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -1132,14 +1230,14 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
             ),
             padding: EdgeInsets.fromLTRB(
               screenSize.responsivePadding(16),
-              screenSize.responsivePadding(10),
+              12,
               screenSize.responsivePadding(16),
               MediaQuery.of(context).padding.bottom > 0
-                  ? MediaQuery.of(context).padding.bottom + 10
-                  : screenSize.responsivePadding(20),
+                  ? MediaQuery.of(context).padding.bottom + 8
+                  : 16,
             ),
             child: SizedBox(
-              height: 56,
+              height: 52,
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: (isPartner && !isOfferActive) || isRedeeming
@@ -1170,8 +1268,10 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         } else {
                           if (isScratchCard && !isScratched) {
                             Navigator.of(context)
-                                .pushNamed('scratchCard',
-                                    arguments: offerDetails)
+                                .pushNamed(
+                                  'scratchCard',
+                                  arguments: offerDetails,
+                                )
                                 .then((_) {
                               if (mounted) setState(() {});
                             });
@@ -1185,10 +1285,11 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6155F5),
-                  disabledBackgroundColor: const Color(0xFF6155F5).withValues(alpha: 0.5),
+                  disabledBackgroundColor:
+                      const Color(0xFF6155F5).withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: isRedeeming
@@ -1222,10 +1323,10 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 7, right: 8, left: 4),
+          padding: const EdgeInsets.only(top: 7, right: 10),
           child: Container(
-            width: 4,
-            height: 4,
+            width: 5,
+            height: 5,
             decoration: const BoxDecoration(
               color: Color(0xFF6B7280),
               shape: BoxShape.circle,
@@ -1239,7 +1340,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: const Color(0xFF4E4E4E),
-              height: 1.5,
+              height: 1.55,
             ),
           ),
         ),
@@ -1303,12 +1404,14 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          width: 36,
+          height: 36,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 16, color: color),
+          child: Icon(icon, size: 18, color: color),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -1319,6 +1422,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                 label,
                 style: GoogleFonts.urbanist(
                   fontSize: 12,
+                  height: 1.3,
                   color: const Color(0xFF6B7280),
                 ),
               ),
@@ -1328,6 +1432,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  height: 1.3,
                   color: const Color(0xFF111827),
                 ),
               ),

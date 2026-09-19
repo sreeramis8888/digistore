@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/shop_model.dart';
 import '../models/product_model.dart';
@@ -57,17 +58,119 @@ bool isShopInCategory(ShopModel shop, String category) {
       .toList();
   final tags = (shop.tags ?? []).map((t) => t.toLowerCase().trim()).toList();
 
-  if (catLower.contains('restaurant') || catLower.contains('cafe')) {
+  // Food / Restaurants / Cafes share the same home "Restaurants" filter group.
+  if (_isFoodOrRestaurantCategory(catLower)) {
     return type.contains('restaurant') ||
         type.contains('cafe') ||
         type.contains('food') ||
-        categories.any((c) => c.contains('restaurant') || c.contains('cafe') || c.contains('food')) ||
-        tags.any((t) => t.contains('restaurant') || t.contains('cafe') || t.contains('food'));
+        categories.any(
+          (c) =>
+              c.contains('restaurant') ||
+              c.contains('cafe') ||
+              c.contains('food'),
+        ) ||
+        tags.any(
+          (t) =>
+              t.contains('restaurant') ||
+              t.contains('cafe') ||
+              t.contains('food'),
+        );
   }
 
   return type.contains(catLower) ||
       categories.any((c) => c.contains(catLower)) ||
       tags.any((t) => t.contains(catLower));
+}
+
+bool _isFoodOrRestaurantCategory(String categoryLower) {
+  return categoryLower.contains('restaurant') ||
+      categoryLower.contains('cafe') ||
+      categoryLower.contains('food');
+}
+
+/// API category names to request for a selected shops filter.
+/// Food + Restaurants are grouped so Explore Shops shows both business types.
+List<String> apiCategoriesFor(String category) {
+  if (_isFoodOrRestaurantCategory(category.toLowerCase().trim())) {
+    return const ['Restaurants', 'Food'];
+  }
+  return [category];
+}
+
+Future<({List<ShopModel> shops, PaginationModel? pagination})>
+    _fetchShopsForCategories({
+  required ApiProvider api,
+  required Map<String, String> baseQueryParams,
+  required String? currentCategory,
+}) async {
+  final hasCategory = currentCategory != null &&
+      currentCategory != 'All' &&
+      currentCategory.isNotEmpty;
+
+  if (!hasCategory) {
+    final response = await api.get('/shops', queryParams: baseQueryParams);
+    if (!response.success || response.data == null) {
+      return (shops: <ShopModel>[], pagination: null);
+    }
+    final List<dynamic> data = response.data!['data'] as List<dynamic>;
+    final pagination = PaginationModel.fromJson(
+      response.data!['pagination'] as Map<String, dynamic>,
+    );
+    return (
+      shops: data
+          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      pagination: pagination,
+    );
+  }
+
+  final categories = apiCategoriesFor(currentCategory);
+  final Map<String, ShopModel> byId = {};
+  PaginationModel? pagination;
+
+  for (final apiCategory in categories) {
+    final params = Map<String, String>.from(baseQueryParams)
+      ..['category'] = apiCategory;
+    final response = await api.get('/shops', queryParams: params);
+    if (!response.success || response.data == null) continue;
+
+    final List<dynamic> data = response.data!['data'] as List<dynamic>;
+    pagination ??= PaginationModel.fromJson(
+      response.data!['pagination'] as Map<String, dynamic>,
+    );
+    for (final e in data) {
+      final shop = ShopModel.fromJson(e as Map<String, dynamic>);
+      final id = shop.id;
+      if (id != null) {
+        byId.putIfAbsent(id, () => shop);
+      } else {
+        byId['anon_${byId.length}'] = shop;
+      }
+    }
+  }
+
+  var shops = byId.values.toList();
+
+  // Fallback: uncategorized fetch + client filter (covers name mismatches).
+  if (shops.isEmpty) {
+    final fallbackParams = Map<String, String>.from(baseQueryParams)
+      ..remove('category');
+    final fallbackResp =
+        await api.get('/shops', queryParams: fallbackParams);
+    if (fallbackResp.success && fallbackResp.data != null) {
+      final List<dynamic> fallbackData =
+          fallbackResp.data!['data'] as List<dynamic>;
+      pagination = PaginationModel.fromJson(
+        fallbackResp.data!['pagination'] as Map<String, dynamic>,
+      );
+      shops = fallbackData
+          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+          .where((s) => isShopInCategory(s, currentCategory))
+          .toList();
+    }
+  }
+
+  return (shops: shops, pagination: pagination);
 }
 
 @Riverpod(keepAlive: true)
@@ -119,55 +222,38 @@ class Shops extends _$Shops {
       'limit': '20',
     };
 
-    if (currentCategory != null &&
-        currentCategory != 'All' &&
-        currentCategory.isNotEmpty) {
-      queryParams['category'] = currentCategory;
-    }
-
     if (currentSearch.isNotEmpty) {
       queryParams['search'] = currentSearch;
     }
 
-    final response = await api.get('/shops', queryParams: queryParams);
+    final result = await _fetchShopsForCategories(
+      api: api,
+      baseQueryParams: queryParams,
+      currentCategory: currentCategory,
+    );
 
-    if (response.success && response.data != null) {
-      final List<dynamic> data = response.data!['data'] as List<dynamic>;
-      final pagination = PaginationModel.fromJson(
-        response.data!['pagination'] as Map<String, dynamic>,
-      );
-      var newShops = data
-          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      if (newShops.isEmpty && currentCategory != null && page == 1) {
-        final fallbackParams = Map<String, String>.from(queryParams)..remove('category');
-        final fallbackResp = await api.get('/shops', queryParams: fallbackParams);
-        if (fallbackResp.success && fallbackResp.data != null) {
-          final List<dynamic> fallbackData = fallbackResp.data!['data'] as List<dynamic>;
-          final allFetched = fallbackData
-              .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-          newShops = allFetched.where((s) => isShopInCategory(s, currentCategory)).toList();
-        }
-      }
-
+    if (result.pagination != null || result.shops.isNotEmpty) {
       if (page == 1) {
         state = state.copyWith(
-          shops: newShops,
-          pagination: pagination,
+          shops: result.shops,
+          pagination: result.pagination,
           isLoading: false,
         );
       } else {
+        final existingIds = state.shops.map((s) => s.id).whereType<String>().toSet();
+        final merged = [
+          ...state.shops,
+          ...result.shops.where((s) => s.id == null || !existingIds.contains(s.id)),
+        ];
         state = state.copyWith(
-          shops: [...state.shops, ...newShops],
-          pagination: pagination,
+          shops: merged,
+          pagination: result.pagination,
           isLoadingMore: false,
         );
       }
     } else {
       state = state.copyWith(
-        error: response.message ?? 'Failed to fetch shops',
+        error: 'Failed to fetch shops',
         isLoading: false,
         isLoadingMore: false,
       );
@@ -243,55 +329,40 @@ class AllShops extends _$AllShops {
       queryParams['lng'] = lng.toString();
     }
 
-    if (currentCategory != null &&
-        currentCategory != 'All' &&
-        currentCategory.isNotEmpty) {
-      queryParams['category'] = currentCategory;
-    }
-
     if (currentSearch.isNotEmpty) {
       queryParams['search'] = currentSearch;
     }
 
-    final response = await api.get('/shops', queryParams: queryParams);
+    final result = await _fetchShopsForCategories(
+      api: api,
+      baseQueryParams: queryParams,
+      currentCategory: currentCategory,
+    );
 
-    if (response.success && response.data != null) {
-      final List<dynamic> data = response.data!['data'] as List<dynamic>;
-      final pagination = PaginationModel.fromJson(
-        response.data!['pagination'] as Map<String, dynamic>,
-      );
-      var newShops = data
-          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      if (newShops.isEmpty && currentCategory != null && page == 1) {
-        final fallbackParams = Map<String, String>.from(queryParams)..remove('category');
-        final fallbackResp = await api.get('/shops', queryParams: fallbackParams);
-        if (fallbackResp.success && fallbackResp.data != null) {
-          final List<dynamic> fallbackData = fallbackResp.data!['data'] as List<dynamic>;
-          final allFetched = fallbackData
-              .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-          newShops = allFetched.where((s) => isShopInCategory(s, currentCategory)).toList();
-        }
-      }
-
+    if (result.pagination != null || result.shops.isNotEmpty) {
       if (page == 1) {
         state = state.copyWith(
-          shops: newShops,
-          pagination: pagination,
+          shops: result.shops,
+          pagination: result.pagination,
           isLoading: false,
         );
       } else {
+        final existingIds =
+            state.shops.map((s) => s.id).whereType<String>().toSet();
+        final merged = [
+          ...state.shops,
+          ...result.shops
+              .where((s) => s.id == null || !existingIds.contains(s.id)),
+        ];
         state = state.copyWith(
-          shops: [...state.shops, ...newShops],
-          pagination: pagination,
+          shops: merged,
+          pagination: result.pagination,
           isLoadingMore: false,
         );
       }
     } else {
       state = state.copyWith(
-        error: response.message ?? 'Failed to fetch shops',
+        error: 'Failed to fetch shops',
         isLoading: false,
         isLoadingMore: false,
       );
@@ -459,3 +530,50 @@ Future<ShopModel?> getShopByPartnerId(Ref ref, String partnerId) async {
   }
   return null;
 }
+
+/// Total Food + Restaurants shops for the home restaurant banner.
+/// Uses API pagination totals so the count is correct on first home load.
+final restaurantShopsCountProvider = FutureProvider<int>((ref) async {
+  ref.watch(sessionProvider);
+  final user = ref.watch(userProvider);
+  final api = ref.read(apiProvider);
+
+  final queryParams = <String, String>{
+    'page': '1',
+    'limit': '1',
+  };
+  final lat = user?.location?.coordinates?.lat;
+  final lng = user?.location?.coordinates?.lng;
+  if (lat != null && lng != null) {
+    queryParams['lat'] = lat.toString();
+    queryParams['lng'] = lng.toString();
+  }
+
+  var total = 0;
+  for (final category in apiCategoriesFor('Restaurants')) {
+    final params = Map<String, String>.from(queryParams)
+      ..['category'] = category;
+    final response = await api.get('/shops', queryParams: params);
+    if (!response.success || response.data == null) continue;
+    final pagination = PaginationModel.fromJson(
+      response.data!['pagination'] as Map<String, dynamic>? ?? const {},
+    );
+    total += pagination.total;
+  }
+
+  // Fallback if category endpoints return 0 (name mismatch on API).
+  if (total == 0) {
+    final result = await _fetchShopsForCategories(
+      api: api,
+      baseQueryParams: {
+        ...queryParams,
+        'limit': '100',
+      },
+      currentCategory: 'Restaurants',
+    );
+    total = result.shops.length;
+  }
+
+  return total;
+});
+

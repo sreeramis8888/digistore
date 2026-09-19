@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
-import '../../../data/providers/home_provider.dart';
+import '../../../data/constants/style_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/shops_provider.dart';
 import '../../../data/router/nav_router.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
-import '../../../data/models/home_data_model.dart';
 
 class RestaurantBannerCard extends ConsumerWidget {
   const RestaurantBannerCard({super.key});
@@ -16,44 +15,13 @@ class RestaurantBannerCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final allShopsState = ref.watch(allShopsProvider);
-    final nearbyShopsState = ref.watch(shopsProvider);
-    final homeDataAsync = ref.watch(homeDataProvider);
+    final countAsync = ref.watch(restaurantShopsCountProvider);
 
-    // Calculate restaurant shops count dynamically
-    final restaurantShopsCount = () {
-      final Set<String> uniqueIds = {};
-
-      void addShops(List<dynamic>? list) {
-        if (list == null) return;
-        for (final shop in list) {
-          final type = shop.businessDetails?.businessType;
-          final categories = shop.serviceCategories as List<String>?;
-          if (type == 'Restaurants & Cafes' ||
-              type == 'Restaurants' ||
-              type == 'Restaurant' ||
-              (categories != null &&
-                  categories.any(
-                    (c) => c.toLowerCase().contains('restaurant'),
-                  ))) {
-            if (shop.id != null) {
-              uniqueIds.add(shop.id!);
-            }
-          }
-        }
-      }
-
-      addShops(allShopsState.shops);
-      addShops(nearbyShopsState.shops);
-      homeDataAsync.whenData((state) {
-        if (state is CustomerHomeState) {
-          addShops(state.data.featuredShops);
-        }
-      });
-
-      final count = uniqueIds.length;
-      return count == 1 ? '1 shop' : '$count shops';
-    }();
+    final restaurantShopsCount = countAsync.when(
+      data: (count) => count == 1 ? '1 shop' : '$count shops',
+      loading: () => '',
+      error: (_, _) => '',
+    );
 
     void onExplorePressed() {
       const targetCategory = 'Restaurants';
@@ -107,22 +75,22 @@ class RestaurantBannerCard extends ConsumerWidget {
                     children: [
                       Text(
                         'Restaurants',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
+                        style: kHeadTitleEB.copyWith(
                           color: const Color(0xFF2C1810),
-                          height: 1.1,
+                          fontSize: 20,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        restaurantShopsCount,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF6B7280),
+                      if (restaurantShopsCount.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          restaurantShopsCount,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF6B7280),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                   InteractiveFeedbackButton(

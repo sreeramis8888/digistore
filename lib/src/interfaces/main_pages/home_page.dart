@@ -17,6 +17,7 @@ import '../components/shimmers/home_shimmer.dart';
 import '../../data/utils/global_variables.dart';
 
 import '../../data/providers/home_provider.dart';
+import '../../data/providers/shops_provider.dart';
 import '../../data/models/home_data_model.dart';
 import 'partner/partner_home.dart';
 import 'offer_pages/active_deals_page.dart';
@@ -109,7 +110,12 @@ class _HomePageState extends ConsumerState<HomePage> {
         backgroundColor: kHomePageBg,
         body: RefreshIndicator(
           color: kPrimaryColor,
-          onRefresh: () => ref.refresh(homeDataProvider.future),
+          onRefresh: () async {
+            await Future.wait([
+              ref.refresh(homeDataProvider.future),
+              ref.refresh(restaurantShopsCountProvider.future),
+            ]);
+          },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
@@ -173,6 +179,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 onPressed: () {
                   ref.invalidate(homeDataProvider);
                   ref.invalidate(bannersProvider);
+                  ref.invalidate(restaurantShopsCountProvider);
                 },
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: const Text('Retry'),
