@@ -33,18 +33,15 @@ class CategoryList extends ConsumerWidget {
 
     final screenSize = ref.watch(screenSizeProvider);
     final hPad = screenSize.responsivePadding(16);
-    final gap = screenSize.responsivePadding(12);
-    final cardWidth = screenSize.responsivePadding(140);
-    final cardHeight = screenSize.responsivePadding(126);
-    final iconSize = screenSize.responsivePadding(68);
+    final gap = screenSize.responsivePadding(10);
+    final cardWidth = screenSize.responsivePadding(108);
+    final cardHeight = screenSize.responsivePadding(80);
+    final iconSize = screenSize.responsivePadding(24);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(
-          title: 'Explore Categories',
-          revampStyle: true,
-        ),
+        const SectionTitle(title: 'Explore Categories', revampStyle: true),
         SizedBox(height: screenSize.responsivePadding(8)),
         SizedBox(
           height: cardHeight,
@@ -68,7 +65,8 @@ class CategoryList extends ConsumerWidget {
                   width: cardWidth,
                   height: cardHeight,
                   iconSize: iconSize,
-                  fallbackAsset: _fallbackIcons[category.name] ??
+                  fallbackAsset:
+                      _fallbackIcons[category.name] ??
                       'assets/svg/daily_needs.svg',
                 ),
               );

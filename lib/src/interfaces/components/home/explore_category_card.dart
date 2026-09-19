@@ -1,47 +1,94 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../data/constants/style_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/category_model.dart';
 
 class _ExploreCategoryTheme {
-  final Color gradientStart;
-  final Color gradientEnd;
+  final Color backgroundColor;
   final Color border;
   final Color titleColor;
 
   const _ExploreCategoryTheme({
-    required this.gradientStart,
-    required this.gradientEnd,
+    required this.backgroundColor,
     required this.border,
     required this.titleColor,
   });
 }
 
-const _exploreThemes = [
+const Map<String, _ExploreCategoryTheme> _namedThemes = {
+  'Restaurants & Cafes': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFFFF4E5),
+    border: Color(0xFFFFE7CC),
+    titleColor: Color(0xFF7E3B0C),
+  ),
+  'Restaurants': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFFFF4E5),
+    border: Color(0xFFFFE7CC),
+    titleColor: Color(0xFF7E3B0C),
+  ),
+  'Beauty & Wellness': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFFDEBF5),
+    border: Color(0xFFFBD7EC),
+    titleColor: Color(0xFF7E1C59),
+  ),
+  'Automotive Services': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFEBF3FC),
+    border: Color(0xFFD6E6F9),
+    titleColor: Color(0xFF1C427E),
+  ),
+  'Fitness & Sports': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFEAF6ED),
+    border: Color(0xFFD3EED8),
+    titleColor: Color(0xFF1B5E20),
+  ),
+  'Daily Needs': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFEAF6ED),
+    border: Color(0xFFD3EED8),
+    titleColor: Color(0xFF1B5E20),
+  ),
+  'Personal Care': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFFFF4E5),
+    border: Color(0xFFFFE7CC),
+    titleColor: Color(0xFF7E3B0C),
+  ),
+  'Medical': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFEBF3FC),
+    border: Color(0xFFD6E6F9),
+    titleColor: Color(0xFF1C427E),
+  ),
+  'Fashion': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFFDEBF5),
+    border: Color(0xFFFBD7EC),
+    titleColor: Color(0xFF7E1C59),
+  ),
+  'Home Services': _ExploreCategoryTheme(
+    backgroundColor: Color(0xFFEBF3FC),
+    border: Color(0xFFD6E6F9),
+    titleColor: Color(0xFF1C427E),
+  ),
+};
+
+const _defaultThemes = [
   _ExploreCategoryTheme(
-    gradientStart: Color(0xFFF3F3F3),
-    gradientEnd: Color(0xFFD6F5E3),
-    border: Color(0xFFD7F5E4),
-    titleColor: Color(0xFF1A5C3A),
+    backgroundColor: Color(0xFFFFF4E5),
+    border: Color(0xFFFFE7CC),
+    titleColor: Color(0xFF7E3B0C),
   ),
   _ExploreCategoryTheme(
-    gradientStart: Color(0xFFF3F3F3),
-    gradientEnd: Color(0xFFFFF8F0),
-    border: Color(0xFFFFF9F0),
-    titleColor: Color(0xFF631F03),
+    backgroundColor: Color(0xFFFDEBF5),
+    border: Color(0xFFFBD7EC),
+    titleColor: Color(0xFF7E1C59),
   ),
   _ExploreCategoryTheme(
-    gradientStart: Color(0xFFF3F3F3),
-    gradientEnd: Color(0xFFDDEEFF),
-    border: Color(0xFFDDEEFF),
-    titleColor: Color(0xFF1A3A5C),
+    backgroundColor: Color(0xFFEBF3FC),
+    border: Color(0xFFD6E6F9),
+    titleColor: Color(0xFF1C427E),
   ),
   _ExploreCategoryTheme(
-    gradientStart: Color(0xFFEAE0FF),
-    gradientEnd: Color(0xFFF3F3F3),
-    border: Color(0xFFF3F3F3),
-    titleColor: Color(0xFF3D1A7B),
+    backgroundColor: Color(0xFFEAF6ED),
+    border: Color(0xFFD3EED8),
+    titleColor: Color(0xFF1B5E20),
   ),
 ];
 
@@ -59,45 +106,47 @@ class ExploreCategoryCard extends StatelessWidget {
     required this.category,
     required this.index,
     this.fallbackAsset,
-    this.width = 140,
-    this.height = 126,
-    this.iconSize = 68,
+    this.width = 108,
+    this.height = 80,
+    this.iconSize = 24,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = _exploreThemes[index % _exploreThemes.length];
     final name = category.name ?? '';
-    final icon = (category.iconUrl != null &&
-            category.iconUrl != 'null' &&
-            category.iconUrl!.trim().isNotEmpty)
-        ? category.iconUrl!.trim()
-        : (fallbackAsset ?? 'assets/svg/daily_needs.svg');
+    final theme =
+        _namedThemes[name] ?? _defaultThemes[index % _defaultThemes.length];
+
+    // Always prioritize local SVG icons from fallbackAsset if available
+    final icon = (fallbackAsset != null && fallbackAsset!.isNotEmpty)
+        ? fallbackAsset!
+        : ((category.iconUrl != null &&
+                  category.iconUrl != 'null' &&
+                  category.iconUrl!.trim().isNotEmpty)
+              ? category.iconUrl!.trim()
+              : 'assets/svg/daily_needs.svg');
 
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.border),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [theme.gradientStart, theme.gradientEnd],
-        ),
+        color: theme.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.border, width: 1.0),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
                 name,
-                style: kSmallTitleEB.copyWith(
+                style: GoogleFonts.montserrat(
                   color: theme.titleColor,
-                  fontSize: 14,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
                   height: 1.15,
                 ),
                 maxLines: 2,
@@ -106,15 +155,12 @@ class ExploreCategoryCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 0,
-            bottom: 0,
+            left: 8,
+            bottom: 6,
             child: SizedBox(
               width: iconSize,
               height: iconSize,
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: _buildVisual(icon),
-              ),
+              child: _buildVisual(icon),
             ),
           ),
         ],
@@ -123,47 +169,39 @@ class ExploreCategoryCard extends StatelessWidget {
   }
 
   Widget _buildVisual(String pathOrUrl) {
+    if (pathOrUrl.endsWith('.svg')) {
+      return SvgPicture.asset(
+        pathOrUrl,
+        fit: BoxFit.contain,
+        alignment: Alignment.bottomLeft,
+      );
+    }
+
     if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
       final isSvg = pathOrUrl.toLowerCase().contains('.svg');
       if (isSvg) {
         return SvgPicture.network(
           pathOrUrl,
           fit: BoxFit.contain,
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.bottomLeft,
           placeholderBuilder: (_) => const SizedBox.shrink(),
         );
       }
       return CachedNetworkImage(
         imageUrl: pathOrUrl,
-        fit: BoxFit.cover,
-        width: iconSize,
-        height: iconSize,
-        alignment: Alignment.bottomRight,
-        errorWidget: (_, _, _) => Icon(
-          Icons.category_outlined,
-          size: iconSize * 0.5,
-          color: Colors.grey.shade400,
-        ),
-      );
-    }
-
-    if (pathOrUrl.endsWith('.svg')) {
-      return SvgPicture.asset(
-        pathOrUrl,
         fit: BoxFit.contain,
-        alignment: Alignment.bottomRight,
+        alignment: Alignment.bottomLeft,
+        errorWidget: (_, _, _) =>
+            const Icon(Icons.category_outlined, size: 24, color: Colors.grey),
       );
     }
 
     return Image.asset(
       pathOrUrl,
       fit: BoxFit.contain,
-      alignment: Alignment.bottomRight,
-      errorBuilder: (_, _, _) => Icon(
-        Icons.category_outlined,
-        size: iconSize * 0.5,
-        color: Colors.grey.shade400,
-      ),
+      alignment: Alignment.bottomLeft,
+      errorBuilder: (_, _, _) =>
+          const Icon(Icons.category_outlined, size: 24, color: Colors.grey),
     );
   }
 }
