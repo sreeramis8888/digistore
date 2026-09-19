@@ -7,9 +7,7 @@ import '../data/constants/color_constants.dart';
 import '../data/router/nav_router.dart';
 import '../data/services/deep_link_service.dart';
 import '../data/providers/notifications_provider.dart';
-import '../data/providers/partner_products_provider.dart';
 import '../data/providers/shops_provider.dart';
-import '../data/providers/offers_provider.dart';
 import 'main_pages/home_page.dart';
 import 'main_pages/offers.dart';
 import 'main_pages/shops.dart';
@@ -133,14 +131,17 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
     if (!hasPrompted) {
       await secureStorage.saveHasPromptedForNotifications(true);
-      
+
       if (mounted) {
-        final permissions = await NotificationPermissionHelper.requestAllPermissions(context);
+        final permissions =
+            await NotificationPermissionHelper.requestAllPermissions(context);
         if (permissions) {
           final notifService = ref.read(notificationServiceProvider);
           final token = await notifService.getToken();
           if (token != null) {
-            await ref.read(notificationsProvider.notifier).registerDeviceToken(token);
+            await ref
+                .read(notificationsProvider.notifier)
+                .registerDeviceToken(token);
           }
         }
       }
@@ -155,7 +156,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
       _wasInBackground = true;
     } else if (state == AppLifecycleState.resumed) {
       if (_wasInBackground) {
@@ -167,20 +169,19 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
   void _switchTab(int newIndex) {
     final selectedIndex = ref.read(selectedIndexProvider);
-    if (selectedIndex == newIndex) return;
+    final targetLabel = _currentLabels[newIndex];
 
-    final currentLabel = _currentLabels[selectedIndex];
-    if (currentLabel == 'Offers') {
-      ref.read(selectedOffersCategoryProvider.notifier).state = 0;
-      ref.read(offersProvider.notifier).updateSearch('');
-    } else if (currentLabel == 'Shops') {
+    if (targetLabel == 'Shops') {
+      ref.read(selectedShopsCategoryProvider.notifier).state = null;
       if (!GlobalVariables.isGuest) {
+        ref.read(shopsProvider.notifier).updateCategory(null);
         ref.read(shopsProvider.notifier).updateSearch('');
       }
+      ref.read(allShopsProvider.notifier).updateCategory(null);
       ref.read(allShopsProvider.notifier).updateSearch('');
-    } else if (currentLabel.contains('Products')) {
-      ref.read(partnerProductsProvider.notifier).updateSearch('');
     }
+
+    if (selectedIndex == newIndex) return;
 
     ref.read(selectedIndexProvider.notifier).updateIndex(newIndex);
   }
@@ -296,7 +297,9 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                 ),
                                 const SizedBox(height: 4),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                  ),
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(

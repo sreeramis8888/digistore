@@ -22,6 +22,8 @@ import 'partner/partner_home.dart';
 import 'offer_pages/active_deals_page.dart';
 import '../../data/providers/banners_provider.dart';
 
+import '../components/home/restaurant_banner_card.dart';
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -255,6 +257,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           SizedBox(height: screenSize.responsivePadding(28)),
         ],
         if (categories != null && categories.isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenSize.responsivePadding(16),
+            ),
+            child: const RestaurantBannerCard(),
+          ),
+          SizedBox(height: screenSize.responsivePadding(20)),
           CategoryList(categories: categories),
           SizedBox(height: screenSize.responsivePadding(28)),
         ],

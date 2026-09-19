@@ -34,6 +34,7 @@ class ShopsState {
     String? error,
     PaginationModel? pagination,
     String? category,
+    bool clearCategory = false,
     String? searchQuery,
   }) {
     return ShopsState(
@@ -42,7 +43,7 @@ class ShopsState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: error ?? this.error,
       pagination: pagination ?? this.pagination,
-      category: category ?? this.category,
+      category: clearCategory ? null : (category ?? this.category),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -61,9 +62,10 @@ class Shops extends _$Shops {
   Future<void> getShops({
     int page = 1,
     String? category,
+    bool clearCategory = false,
     String? search,
   }) async {
-    final currentCategory = category ?? state.category;
+    final currentCategory = clearCategory ? null : (category ?? state.category);
     final currentSearch = search ?? state.searchQuery;
 
     if (page == 1) {
@@ -71,8 +73,9 @@ class Shops extends _$Shops {
         isLoading: true,
         error: null,
         category: category,
+        clearCategory: clearCategory,
         searchQuery: currentSearch,
-        shops: (category != null || search != null) ? [] : state.shops,
+        shops: (category != null || clearCategory || search != null) ? [] : state.shops,
       );
     } else {
       state = state.copyWith(isLoadingMore: true, error: null);
@@ -149,8 +152,13 @@ class Shops extends _$Shops {
   }
 
   void updateCategory(String? category) {
-    if (state.category == category) return;
-    getShops(page: 1, category: category);
+    if (category == null) {
+      if (state.category == null) return;
+      getShops(page: 1, clearCategory: true);
+    } else {
+      if (state.category == category) return;
+      getShops(page: 1, category: category);
+    }
   }
 
   void updateSearch(String query) {
@@ -171,9 +179,10 @@ class AllShops extends _$AllShops {
   Future<void> getShops({
     int page = 1,
     String? category,
+    bool clearCategory = false,
     String? search,
   }) async {
-    final currentCategory = category ?? state.category;
+    final currentCategory = clearCategory ? null : (category ?? state.category);
     final currentSearch = search ?? state.searchQuery;
 
     if (page == 1) {
@@ -181,8 +190,9 @@ class AllShops extends _$AllShops {
         isLoading: true,
         error: null,
         category: category,
+        clearCategory: clearCategory,
         searchQuery: currentSearch,
-        shops: (category != null || search != null) ? [] : state.shops,
+        shops: (category != null || clearCategory || search != null) ? [] : state.shops,
       );
     } else {
       state = state.copyWith(isLoadingMore: true, error: null);
@@ -254,8 +264,13 @@ class AllShops extends _$AllShops {
   }
 
   void updateCategory(String? category) {
-    if (state.category == category) return;
-    getShops(page: 1, category: category);
+    if (category == null) {
+      if (state.category == null) return;
+      getShops(page: 1, clearCategory: true);
+    } else {
+      if (state.category == category) return;
+      getShops(page: 1, category: category);
+    }
   }
 
   void updateSearch(String query) {

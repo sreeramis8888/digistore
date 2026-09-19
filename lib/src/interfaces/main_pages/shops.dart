@@ -15,6 +15,8 @@ import '../components/shops/shop_grid_card.dart';
 import '../components/loading_indicator.dart';
 import '../../data/providers/banners_provider.dart';
 import '../components/common/paginated_banner_grid.dart';
+import '../../data/router/nav_router.dart';
+
 
 class ShopsPage extends ConsumerStatefulWidget {
   const ShopsPage({super.key});
@@ -219,6 +221,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
     final aspectRatio = itemWidth / itemHeight;
 
+    final selectedCategory = ref.watch(selectedShopsCategoryProvider);
     final nearbyState = ref.watch(shopsProvider);
     final exploreState = ref.watch(allShopsProvider);
     final bannersAsync = ref.watch(bannersProvider(const BannerFilter(page: 'shops')));
@@ -230,8 +233,20 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     return Scaffold(
       backgroundColor: kWhite,
       appBar: AppBar(
+        leading: selectedCategory != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF373737)),
+                onPressed: () {
+                  ref.read(selectedShopsCategoryProvider.notifier).state = null;
+                  if (!GlobalVariables.isGuest) {
+                    ref.read(shopsProvider.notifier).updateCategory(null);
+                  }
+                  ref.read(allShopsProvider.notifier).updateCategory(null);
+                },
+              )
+            : null,
         title: Text(
-          'Shops',
+          selectedCategory != null ? '$selectedCategory Shops' : 'Shops',
           style: kSubHeadingM.copyWith(color: const Color(0xFF373737)),
         ),
         backgroundColor: kWhite,
