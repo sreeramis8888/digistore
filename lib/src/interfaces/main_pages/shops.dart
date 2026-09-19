@@ -17,7 +17,6 @@ import '../../data/providers/banners_provider.dart';
 import '../components/common/paginated_banner_grid.dart';
 import '../../data/router/nav_router.dart';
 
-
 class ShopsPage extends ConsumerStatefulWidget {
   const ShopsPage({super.key});
 
@@ -37,7 +36,6 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     super.initState();
     _scrollController.addListener(_onScroll);
   }
-
 
   @override
   void dispose() {
@@ -163,12 +161,14 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
         userLng != null &&
         shopCoords != null &&
         shopCoords.length >= 2) {
-      final initialDistance = shop.distance ?? LocationUtils.calculateDistance(
-        userLat,
-        userLng,
-        shopCoords[1],
-        shopCoords[0],
-      );
+      final initialDistance =
+          shop.distance ??
+          LocationUtils.calculateDistance(
+            userLat,
+            userLng,
+            shopCoords[1],
+            shopCoords[0],
+          );
       distance = '${initialDistance.toStringAsFixed(1)} km';
 
       LocationUtils.calculateRoadDistanceAndDuration(
@@ -198,7 +198,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     );
 
     return ShopGridCard(
-      category: shop.serviceCategories?.isNotEmpty == true ? shop.serviceCategories!.first : 'Other',
+      category: shop.serviceCategories?.isNotEmpty == true
+          ? shop.serviceCategories!.first
+          : 'Other',
       shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
       address: address,
       distance: distance,
@@ -214,9 +216,12 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final crossAxisCount = 1;
-    final totalPadding = screenSize.responsivePadding(32) + screenSize.responsivePadding(16) * (crossAxisCount - 1);
+    final totalPadding =
+        screenSize.responsivePadding(32) +
+        screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
     final aspectRatio = itemWidth / itemHeight;
@@ -224,8 +229,22 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     final selectedCategory = ref.watch(selectedShopsCategoryProvider);
     final nearbyState = ref.watch(shopsProvider);
     final exploreState = ref.watch(allShopsProvider);
-    final bannersAsync = ref.watch(bannersProvider(const BannerFilter(page: 'shops')));
+    final bannersAsync = ref.watch(
+      bannersProvider(const BannerFilter(page: 'shops')),
+    );
     final banners = bannersAsync.value ?? [];
+    final nearbyShopsList = selectedCategory != null
+        ? nearbyState.shops
+              .where((s) => isShopInCategory(s, selectedCategory))
+              .toList()
+        : nearbyState.shops;
+
+    final exploreShopsList = selectedCategory != null
+        ? exploreState.shops
+              .where((s) => isShopInCategory(s, selectedCategory))
+              .toList()
+        : exploreState.shops;
+
     final user = ref.watch(userProvider);
     final userLat = user?.location?.coordinates?.lat;
     final userLng = user?.location?.coordinates?.lng;
@@ -351,7 +370,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                       ),
                     ),
                   )
-                else if (nearbyState.shops.isEmpty)
+                else if (nearbyShopsList.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -368,7 +387,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   )
                 else
                   ...buildPaginatedGridSliversWithBanners(
-                    items: nearbyState.shops,
+                    items: nearbyShopsList,
                     itemBuilder: (_, index, shop) => _buildShopCard(
                       shop,
                       index,
@@ -377,8 +396,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                       screenSize,
                     ),
                     banners: banners,
-                    hasMore: nearbyState.pagination != null &&
-                        nearbyState.pagination!.page < nearbyState.pagination!.pages,
+                    hasMore:
+                        nearbyState.pagination != null &&
+                        nearbyState.pagination!.page <
+                            nearbyState.pagination!.pages,
                     screenSize: screenSize,
                     childAspectRatio: aspectRatio,
                     crossAxisCount: crossAxisCount,
@@ -424,8 +445,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                 )
               else ...[
                 () {
-                  final nearbyIds = nearbyState.shops.map((s) => s.id).toSet();
-                  final exploreShops = exploreState.shops
+                  final nearbyIds = nearbyShopsList.map((s) => s.id).toSet();
+                  final exploreShops = exploreShopsList
                       .where((s) => !nearbyIds.contains(s.id))
                       .toList();
 
@@ -458,11 +479,13 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                         screenSize,
                       ),
                       banners: banners,
-                      hasMore: exploreState.pagination != null &&
-                          exploreState.pagination!.page < exploreState.pagination!.pages,
+                      hasMore:
+                          exploreState.pagination != null &&
+                          exploreState.pagination!.page <
+                              exploreState.pagination!.pages,
                       screenSize: screenSize,
                       childAspectRatio: aspectRatio,
-                      bannerIndexOffset: nearbyState.shops.length ~/ 10,
+                      bannerIndexOffset: nearbyShopsList.length ~/ 10,
                       crossAxisCount: crossAxisCount,
                     ),
                   );

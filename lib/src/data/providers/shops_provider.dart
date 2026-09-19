@@ -49,6 +49,27 @@ class ShopsState {
   }
 }
 
+bool isShopInCategory(ShopModel shop, String category) {
+  final catLower = category.toLowerCase().trim();
+  final type = shop.businessDetails?.businessType?.toLowerCase().trim() ?? '';
+  final categories = (shop.serviceCategories ?? [])
+      .map((c) => c.toLowerCase().trim())
+      .toList();
+  final tags = (shop.tags ?? []).map((t) => t.toLowerCase().trim()).toList();
+
+  if (catLower.contains('restaurant') || catLower.contains('cafe')) {
+    return type.contains('restaurant') ||
+        type.contains('cafe') ||
+        type.contains('food') ||
+        categories.any((c) => c.contains('restaurant') || c.contains('cafe') || c.contains('food')) ||
+        tags.any((t) => t.contains('restaurant') || t.contains('cafe') || t.contains('food'));
+  }
+
+  return type.contains(catLower) ||
+      categories.any((c) => c.contains(catLower)) ||
+      tags.any((t) => t.contains(catLower));
+}
+
 @Riverpod(keepAlive: true)
 class Shops extends _$Shops {
   @override
@@ -115,9 +136,21 @@ class Shops extends _$Shops {
       final pagination = PaginationModel.fromJson(
         response.data!['pagination'] as Map<String, dynamic>,
       );
-      final newShops = data
+      var newShops = data
           .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
           .toList();
+
+      if (newShops.isEmpty && currentCategory != null && page == 1) {
+        final fallbackParams = Map<String, String>.from(queryParams)..remove('category');
+        final fallbackResp = await api.get('/shops', queryParams: fallbackParams);
+        if (fallbackResp.success && fallbackResp.data != null) {
+          final List<dynamic> fallbackData = fallbackResp.data!['data'] as List<dynamic>;
+          final allFetched = fallbackData
+              .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          newShops = allFetched.where((s) => isShopInCategory(s, currentCategory)).toList();
+        }
+      }
 
       if (page == 1) {
         state = state.copyWith(
@@ -227,9 +260,21 @@ class AllShops extends _$AllShops {
       final pagination = PaginationModel.fromJson(
         response.data!['pagination'] as Map<String, dynamic>,
       );
-      final newShops = data
+      var newShops = data
           .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
           .toList();
+
+      if (newShops.isEmpty && currentCategory != null && page == 1) {
+        final fallbackParams = Map<String, String>.from(queryParams)..remove('category');
+        final fallbackResp = await api.get('/shops', queryParams: fallbackParams);
+        if (fallbackResp.success && fallbackResp.data != null) {
+          final List<dynamic> fallbackData = fallbackResp.data!['data'] as List<dynamic>;
+          final allFetched = fallbackData
+              .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          newShops = allFetched.where((s) => isShopInCategory(s, currentCategory)).toList();
+        }
+      }
 
       if (page == 1) {
         state = state.copyWith(

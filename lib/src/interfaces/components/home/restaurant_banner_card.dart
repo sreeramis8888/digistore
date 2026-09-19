@@ -56,7 +56,7 @@ class RestaurantBannerCard extends ConsumerWidget {
     }();
 
     void onExplorePressed() {
-      const targetCategory = 'Restaurants & Cafes';
+      const targetCategory = 'Restaurants';
       ref.read(selectedShopsCategoryProvider.notifier).state = targetCategory;
 
       if (!GlobalVariables.isGuest) {
