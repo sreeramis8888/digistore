@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/product_model.dart';
 import 'api_provider.dart';
@@ -162,5 +163,21 @@ class PartnerProducts extends _$PartnerProducts {
     }
   }
 }
+
+/// Fetches full product detail from `GET /products/:id`
+/// (consumer: `/api/mobile/products/:id`, partner: `/api/mobile/partner/products/:id`).
+final productDetailProvider =
+    FutureProvider.family<Map<String, dynamic>?, String>((ref, productId) async {
+  if (productId.isEmpty) return null;
+  final api = ref.read(apiProvider);
+  final response = await api.get('/products/$productId');
+  if (response.success && response.data != null) {
+    final data = response.data!['data'];
+    if (data is Map) {
+      return Map<String, dynamic>.from(data);
+    }
+  }
+  return null;
+});
 
 
