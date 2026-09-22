@@ -247,19 +247,18 @@ final storeServicesProvider = FutureProvider.family<List<ServiceModel>, String>(
   return [];
 });
 
-// Booking slots family provider
-final bookingSlotsFamily = FutureProvider.family<SlotsResponseModel?, Map<String, dynamic>>((ref, params) async {
-  final api = ref.watch(publicApiProvider);
-  final partnerId = params['partnerId']?.toString() ?? '';
-  final serviceId = (params['serviceIds'] is List && (params['serviceIds'] as List).isNotEmpty)
-      ? params['serviceIds'][0].toString()
-      : (params['serviceId']?.toString() ?? '');
-  final date = params['date']?.toString() ?? '';
-
+/// Shared slots fetch — API expects `serviceIds` (comma-separated), not `serviceId`.
+Future<SlotsResponseModel?> _fetchBookingSlots({
+  required dynamic api,
+  required String partnerId,
+  required String date,
+  required List<String> serviceIds,
+}) async {
+  final ids = serviceIds.where((id) => id.trim().isNotEmpty).toList();
   final res = await api.get(
     '/bookings/slots',
     queryParams: {
-      if (serviceId.isNotEmpty) 'serviceId': serviceId,
+      if (ids.isNotEmpty) 'serviceIds': ids.join(','),
       if (partnerId.isNotEmpty) 'partnerId': partnerId,
       if (date.isNotEmpty) 'date': date,
     },
@@ -272,29 +271,55 @@ final bookingSlotsFamily = FutureProvider.family<SlotsResponseModel?, Map<String
     }
   }
   return null;
-});
+}
 
-final bookingSlotsProvider = FutureProvider.family<SlotsResponseModel?, ({String serviceId, String partnerId, String date})>(
-  (ref, params) async {
-    final api = ref.watch(publicApiProvider);
-    final res = await api.get(
-      '/bookings/slots',
-      queryParams: {
-        'serviceId': params.serviceId,
-        'partnerId': params.partnerId,
-        'date': params.date,
-      },
-      requireAuth: false,
-    );
-    if (res.success && res.data != null) {
-      final data = res.data!['data'] ?? res.data!;
-      if (data is Map) {
-        return SlotsResponseModel.fromJson(Map<String, dynamic>.from(data));
-      }
-    }
-    return null;
-  },
-);
+List<String> _parseServiceIdsParam(dynamic raw) {
+  if (raw is List) {
+    return raw.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
+  }
+  if (raw is String && raw.trim().isNotEmpty) {
+    return raw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+  }
+  return const [];
+}
+
+// Booking slots family provider (map-based, used by legacy callers)
+final bookingSlotsFamily =
+    FutureProvider.family<SlotsResponseModel?, Map<String, dynamic>>((
+      ref,
+      params,
+    ) async {
+      final api = ref.watch(publicApiProvider);
+      final partnerId = params['partnerId']?.toString() ?? '';
+      final date = params['date']?.toString() ?? '';
+      final serviceIds = params['serviceIds'] != null
+          ? _parseServiceIdsParam(params['serviceIds'])
+          : _parseServiceIdsParam(params['serviceId']);
+
+      return _fetchBookingSlots(
+        api: api,
+        partnerId: partnerId,
+        date: date,
+        serviceIds: serviceIds,
+      );
+    });
+
+/// Customer booking slots.
+/// [serviceIds] is a stable comma-separated key (sorted) so Riverpod family
+/// equality works across rebuilds.
+final bookingSlotsProvider =
+    FutureProvider.family<
+      SlotsResponseModel?,
+      ({String serviceIds, String partnerId, String date})
+    >((ref, params) async {
+      final api = ref.watch(publicApiProvider);
+      return _fetchBookingSlots(
+        api: api,
+        partnerId: params.partnerId,
+        date: params.date,
+        serviceIds: _parseServiceIdsParam(params.serviceIds),
+      );
+    });
 
 // Customer bookings provider with status filter family
 final customerBookingsProvider = FutureProvider.family<List<BookingModel>, String>((ref, statusFilter) async {

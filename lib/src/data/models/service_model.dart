@@ -390,6 +390,8 @@ class TimeSlotModel {
   final String startTime;
   final String endTime;
   final bool available;
+  final bool isPast;
+  final bool isBlocked;
   final int remainingCapacity;
   final int totalCapacity;
   final String? reason;
@@ -398,16 +400,27 @@ class TimeSlotModel {
     required this.startTime,
     required this.endTime,
     this.available = true,
+    this.isPast = false,
+    this.isBlocked = false,
     this.remainingCapacity = 1,
     this.totalCapacity = 1,
     this.reason,
   });
 
+  /// Whether a customer can still book this slot.
+  bool get isBookable => available && !isPast && !isBlocked;
+
   factory TimeSlotModel.fromJson(Map<String, dynamic> json) {
+    final isPast = json['isPast'] as bool? ?? false;
+    final isBlocked = json['isBlocked'] as bool? ?? false;
+    final available = json['available'] as bool? ?? true;
     return TimeSlotModel(
       startTime: json['startTime']?.toString() ?? '',
       endTime: json['endTime']?.toString() ?? '',
-      available: json['available'] as bool? ?? true,
+      // Treat past/blocked as unavailable even if a stale payload flips `available`.
+      available: available && !isPast && !isBlocked,
+      isPast: isPast,
+      isBlocked: isBlocked,
       remainingCapacity: (json['remainingCapacity'] as num?)?.toInt() ?? 1,
       totalCapacity: (json['totalCapacity'] as num?)?.toInt() ?? 1,
       reason: json['reason']?.toString(),

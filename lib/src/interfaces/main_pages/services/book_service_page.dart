@@ -112,13 +112,18 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
         ? ref.watch(storeServicesProvider(partnerId))
         : const AsyncValue.data(<ServiceModel>[]);
 
-    final primaryServiceId = _selectedServiceIds.isNotEmpty
-        ? _selectedServiceIds.first
-        : (widget.service.id ?? '');
+    final selectedServiceIds = _selectedServiceIds.isNotEmpty
+        ? _selectedServiceIds.toList()
+        : [
+            if (widget.service.id != null && widget.service.id!.isNotEmpty)
+              widget.service.id!,
+          ];
+    // Stable, sorted key so Riverpod family does not refetch every rebuild.
+    final serviceIdsKey = (List<String>.from(selectedServiceIds)..sort()).join(',');
 
     final slotsAsync = partnerId.isNotEmpty
         ? ref.watch(bookingSlotsProvider((
-            serviceId: primaryServiceId,
+            serviceIds: serviceIdsKey,
             partnerId: partnerId,
             date: formattedDate,
           )))
@@ -568,6 +573,31 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
     );
   }
 
+  /// Bookable slots only — respects backend `available`/`isPast` and drops
+  /// any times already passed on the device (guards server TZ drift).
+  List<TimeSlotModel> _visibleSlots(List<TimeSlotModel> slots) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedDay = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    );
+    final isToday = selectedDay == today;
+    final nowMins = now.hour * 60 + now.minute;
+
+    return slots.where((slot) {
+      if (!slot.isBookable) return false;
+      if (!isToday) return true;
+
+      final parts = slot.startTime.split(':');
+      if (parts.length < 2) return true;
+      final slotMins =
+          (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+      return slotMins > nowMins;
+    }).toList();
+  }
+
   // 3. Available Slots Section
   Widget _buildAvailableSlotsSection({
     required ScreenSizeData screenSize,
@@ -612,7 +642,17 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 );
               }
 
-              final slots = slotsData.slots;
+              final slots = _visibleSlots(slotsData.slots);
+
+              // Drop a stale selection if it disappeared after refresh/filter.
+              if (_selectedSlot != null &&
+                  !slots.any((s) => s.startTime == _selectedSlot!.startTime)) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  setState(() => _selectedSlot = null);
+                });
+              }
+
               if (slots.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -643,30 +683,23 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                   final slot = slots[index];
                   final isSelected =
                       _selectedSlot?.startTime == slot.startTime;
-                  final isAvailable = slot.available;
 
                   return InteractiveFeedbackButton(
-                    onPressed: isAvailable
-                        ? () {
-                            setState(() {
-                              _selectedSlot = slot;
-                            });
-                          }
-                        : () {},
+                    onPressed: () {
+                      setState(() {
+                        _selectedSlot = slot;
+                      });
+                    },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: !isAvailable
-                            ? const Color(0xFFF3F4F6)
-                            : (isSelected
-                                ? const Color(0xFF07982C)
-                                : Colors.white),
+                        color: isSelected
+                            ? const Color(0xFF07982C)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: !isAvailable
-                              ? const Color(0xFFE5E7EB)
-                              : (isSelected
-                                  ? const Color(0xFF07982C)
-                                  : const Color(0xFFEDEDED)),
+                          color: isSelected
+                              ? const Color(0xFF07982C)
+                              : const Color(0xFFEDEDED),
                           width: 1.5,
                         ),
                       ),
@@ -677,13 +710,9 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                           fontSize: 13,
                           fontWeight:
                               isSelected ? FontWeight.w700 : FontWeight.w600,
-                          color: !isAvailable
-                              ? const Color(0xFF9CA3AF)
-                              : (isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF1C1C1C)),
-                          decoration:
-                              !isAvailable ? TextDecoration.lineThrough : null,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF1C1C1C),
                         ),
                       ),
                     ),
