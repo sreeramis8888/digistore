@@ -13,6 +13,7 @@ class HomeHeroSection extends ConsumerWidget {
   final TextEditingController searchController;
   final FocusNode searchFocusNode;
   final ValueChanged<String>? onSearchChanged;
+  final VoidCallback? onSearchTap;
 
   const HomeHeroSection({
     super.key,
@@ -20,6 +21,7 @@ class HomeHeroSection extends ConsumerWidget {
     required this.searchFocusNode,
     this.loyaltyCard,
     this.onSearchChanged,
+    this.onSearchTap,
   });
 
   @override
@@ -54,6 +56,7 @@ class HomeHeroSection extends ConsumerWidget {
                 controller: searchController,
                 focusNode: searchFocusNode,
                 onChanged: onSearchChanged,
+                onTap: onSearchTap,
               ),
               SizedBox(height: gap),
               LoyaltyRewardCard(
@@ -72,42 +75,53 @@ class _HeroSearchField extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
 
   const _HeroSearchField({
     required this.controller,
     required this.focusNode,
     this.onChanged,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      decoration: BoxDecoration(
-        color: kWhite,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: kHeroSearchHint, size: 24),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              onTapOutside: (_) => focusNode.unfocus(),
-              onChanged: onChanged,
-              style: kSmallTitleL.copyWith(color: kBlack),
-              decoration: InputDecoration(
-                hintText: 'Search for stores',
-                hintStyle: kSmallTitleL.copyWith(color: kHeroSearchHint),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        decoration: BoxDecoration(
+          color: kWhite,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: kHeroSearchHint, size: 24),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                readOnly: onTap != null,
+                enableInteractiveSelection: onTap == null,
+                onTap: onTap,
+                onTapOutside: (_) => focusNode.unfocus(),
+                onChanged: onChanged,
+                onSubmitted: onTap == null
+                    ? null
+                    : (_) => onTap?.call(),
+                style: kSmallTitleL.copyWith(color: kBlack),
+                decoration: InputDecoration(
+                  hintText: 'Search anything',
+                  hintStyle: kSmallTitleL.copyWith(color: kHeroSearchHint),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -573,24 +573,29 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                   color: const Color(0xFF111827),
                                 ),
                               ),
-                              SizedBox(height: screenSize.responsivePadding(14)),
                               SizedBox(
-                                height: screenSize.responsivePadding(210),
-                                child: ListView.separated(
-                                  scrollDirection: Axis.horizontal,
-                                  clipBehavior: Clip.none,
-                                  itemCount: relatedServices.length,
-                                  separatorBuilder: (context, index) =>
-                                      SizedBox(width: screenSize.responsivePadding(12)),
-                                  itemBuilder: (context, index) {
-                                    final recService = relatedServices[index];
-                                    return _buildRecommendationCard(
-                                      context,
-                                      recService,
-                                      screenSize,
-                                    );
-                                  },
+                                height: screenSize.responsivePadding(14),
+                              ),
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: relatedServices.length,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing:
+                                      screenSize.responsivePadding(12),
+                                  mainAxisSpacing:
+                                      screenSize.responsivePadding(12),
+                                  childAspectRatio: 0.72,
                                 ),
+                                itemBuilder: (context, index) {
+                                  return _buildRecommendationCard(
+                                    context,
+                                    relatedServices[index],
+                                    screenSize,
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -673,14 +678,14 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     final price = serviceModel.hasOffer && serviceModel.offerPrice != null
         ? serviceModel.offerPrice!
         : serviceModel.originalPrice;
-    final image = serviceModel.images.isNotEmpty ? serviceModel.images.first : null;
+    final image =
+        serviceModel.images.isNotEmpty ? serviceModel.images.first : null;
 
     final formattedPrice = price.truncateToDouble() == price
         ? '₹${price.toStringAsFixed(0)}'
         : '₹${price.toStringAsFixed(2)}';
 
     return Container(
-      width: screenSize.responsivePadding(180),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -706,27 +711,28 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: screenSize.responsivePadding(124),
-                    child: image != null && image.isNotEmpty
-                        ? AdvancedNetworkImage(
-                            imageUrl: image,
-                            fit: BoxFit.cover,
-                            disableFade: true,
-                          )
-                        : Container(
-                            color: const Color(0xFFF3F5F4),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: Color(0xFF9CA3AF),
-                                size: 28,
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: image != null && image.isNotEmpty
+                          ? AdvancedNetworkImage(
+                              imageUrl: image,
+                              fit: BoxFit.cover,
+                              disableFade: true,
+                            )
+                          : Container(
+                              color: const Color(0xFFF3F5F4),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  color: Color(0xFF9CA3AF),
+                                  size: 28,
+                                ),
                               ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
                 SizedBox(height: screenSize.responsivePadding(8)),

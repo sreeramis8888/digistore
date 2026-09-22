@@ -21,6 +21,7 @@ import '../../data/providers/shops_provider.dart';
 import '../../data/models/home_data_model.dart';
 import 'partner/partner_home.dart';
 import 'offer_pages/active_deals_page.dart';
+import 'search/global_search_page.dart';
 import '../../data/providers/banners_provider.dart';
 
 import '../components/home/restaurant_banner_card.dart';
@@ -35,7 +36,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  String _searchQuery = '';
   StreamSubscription<void>? _connectivitySubscription;
 
   @override
@@ -56,8 +56,14 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
-  void _onSearchChanged(String query) {
-    setState(() => _searchQuery = query);
+  void _openGlobalSearch() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => GlobalSearchPage(
+          initialQuery: _searchController.text.trim(),
+        ),
+      ),
+    );
   }
 
   @override
@@ -125,7 +131,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   loyaltyCard: loyaltyCard,
                   searchController: _searchController,
                   searchFocusNode: _searchFocusNode,
-                  onSearchChanged: _onSearchChanged,
+                  onSearchTap: _openGlobalSearch,
                 ).fadeIn(),
                 homeDataAsync.when(
                   data: (state) {
@@ -206,46 +212,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         ? homeBannersAsync.value
         : data.premiumBanners;
 
-    final q = _searchQuery.trim();
-
-    final categories = data.categories
-        ?.where(
-          (c) => q.isEmpty || (c.name?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
-    final dealOfTheMonth = data.dealOfTheMonth
-        ?.where(
-          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
-    final dealOfTheWeek = data.dealOfTheWeek
-        ?.where(
-          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
-    final dealOfTheDay = data.dealOfTheDay
-        ?.where(
-          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
-    final dealOfTheHour = data.dealOfTheHour
-        ?.where(
-          (o) => q.isEmpty || (o.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
-    final featuredShops = data.featuredShops
-        ?.where(
-          (s) =>
-              q.isEmpty ||
-              (s.businessDetails?.businessName?.toLowerCase().contains(q) ??
-                  false),
-        )
-        .toList();
-    final popularRewards = data.popularRewards
-        ?.where(
-          (r) => q.isEmpty || (r.title?.toLowerCase().contains(q) ?? false),
-        )
-        .toList();
+    final categories = data.categories;
+    final dealOfTheMonth = data.dealOfTheMonth;
+    final dealOfTheWeek = data.dealOfTheWeek;
+    final dealOfTheDay = data.dealOfTheDay;
+    final dealOfTheHour = data.dealOfTheHour;
+    final featuredShops = data.featuredShops;
+    final popularRewards = data.popularRewards;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
