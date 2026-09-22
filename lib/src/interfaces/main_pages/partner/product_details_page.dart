@@ -1223,35 +1223,39 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                 screenSize.responsivePadding(20),
                                 screenSize.responsivePadding(20),
                                 screenSize.responsivePadding(20),
-                                screenSize.responsivePadding(8),
+                                screenSize.responsivePadding(12),
                               ),
                               child: Text(
                                 'You May Also Like',
                                 style: _sectionTitleStyle(),
                               ),
                             ),
-                            SizedBox(
-                              height: screenSize.responsivePadding(210),
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenSize.responsivePadding(20),
-                                ),
-                                itemCount: related.length,
-                                separatorBuilder: (_, _) => SizedBox(
-                                  width: screenSize.responsivePadding(12),
-                                ),
-                                itemBuilder: (context, index) {
-                                  return _buildRecommendationCard(
-                                    context,
-                                    related[index],
-                                    screenSize,
-                                  );
-                                },
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.fromLTRB(
+                                screenSize.responsivePadding(20),
+                                0,
+                                screenSize.responsivePadding(20),
+                                screenSize.responsivePadding(16),
                               ),
-                            ),
-                            SizedBox(
-                              height: screenSize.responsivePadding(16),
+                              itemCount: related.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing:
+                                    screenSize.responsivePadding(12),
+                                mainAxisSpacing:
+                                    screenSize.responsivePadding(12),
+                                childAspectRatio: 0.72,
+                              ),
+                              itemBuilder: (context, index) {
+                                return _buildRecommendationCard(
+                                  context,
+                                  related[index],
+                                  screenSize,
+                                );
+                              },
                             ),
                           ],
                         );
@@ -1409,7 +1413,6 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     final formattedPrice = price != null && price > 0 ? _formatMoney(price) : '';
 
     return Container(
-      width: screenSize.responsivePadding(180),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1454,27 +1457,28 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: screenSize.responsivePadding(124),
-                    child: image != null && image.isNotEmpty
-                        ? AdvancedNetworkImage(
-                            imageUrl: image,
-                            fit: BoxFit.cover,
-                            disableFade: true,
-                          )
-                        : Container(
-                            color: const Color(0xFFF3F5F4),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: Color(0xFF9CA3AF),
-                                size: 28,
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: image != null && image.isNotEmpty
+                          ? AdvancedNetworkImage(
+                              imageUrl: image,
+                              fit: BoxFit.cover,
+                              disableFade: true,
+                            )
+                          : Container(
+                              color: const Color(0xFFF3F5F4),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  color: Color(0xFF9CA3AF),
+                                  size: 28,
+                                ),
                               ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
                 SizedBox(height: screenSize.responsivePadding(8)),
