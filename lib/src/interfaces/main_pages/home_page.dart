@@ -25,6 +25,7 @@ import 'search/global_search_page.dart';
 import '../../data/providers/banners_provider.dart';
 
 import '../components/home/restaurant_banner_card.dart';
+import '../components/home/services_banner_card.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -256,6 +257,14 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           SizedBox(height: screenSize.responsivePadding(28)),
         ],
+        // Services promo — between deals and featured shops (home design).
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.responsivePadding(16),
+          ),
+          child: const ServicesBannerCard(),
+        ),
+        SizedBox(height: screenSize.responsivePadding(28)),
         if (featuredShops != null && featuredShops.isNotEmpty) ...[
           FeaturedShopsList(shops: featuredShops),
           SizedBox(height: screenSize.responsivePadding(28)),
