@@ -228,17 +228,29 @@ final servicesListProvider = NotifierProvider<ServicesNotifier, ServicesState>((
   return ServicesNotifier();
 });
 
-// Partner store specific services
+// Partner store specific services — mobile GET /services/partner/:partnerId
+// (backend: getPartnerServices / getPartnerServicesPublic).
 final storeServicesProvider = FutureProvider.family<List<ServiceModel>, String>((ref, partnerId) async {
+  if (partnerId.isEmpty) return [];
   final api = ref.watch(publicApiProvider);
   final res = await api.get('/services/partner/$partnerId', requireAuth: false);
   if (res.success && res.data != null) {
+    final root = res.data!;
+    final dataNode = root['data'] ?? root;
+    final partnerJson = dataNode is Map ? dataNode['partner'] : null;
+
     final rawList = _extractServicesList(res.data);
     final List<ServiceModel> list = [];
     for (var item in rawList) {
       if (item is Map) {
         try {
-          list.add(ServiceModel.fromJson(Map<String, dynamic>.from(item)));
+          final map = Map<String, dynamic>.from(item);
+          // Wrapper partner is not embedded per-service — attach for booking/detail.
+          if (partnerJson is Map && map['partner'] == null) {
+            map['partner'] = Map<String, dynamic>.from(partnerJson);
+          }
+          map['partnerId'] ??= partnerId;
+          list.add(ServiceModel.fromJson(map));
         } catch (_) {}
       }
     }

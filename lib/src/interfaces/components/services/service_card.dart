@@ -12,8 +12,14 @@ import '../advanced_network_image.dart';
 class ServiceCard extends ConsumerWidget {
   final ServiceModel service;
   final VoidCallback? onTap;
+  final bool hideShopInfo;
 
-  const ServiceCard({super.key, required this.service, this.onTap});
+  const ServiceCard({
+    super.key,
+    required this.service,
+    this.onTap,
+    this.hideShopInfo = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,12 +27,13 @@ class ServiceCard extends ConsumerWidget {
     final categoriesAsync = ref.watch(serviceCategoriesProvider);
     final imageUrl = service.images.isNotEmpty ? service.images.first : '';
     final rawPartnerName = service.partner?.name?.trim();
-    final shopName =
-        (rawPartnerName != null &&
-            rawPartnerName.isNotEmpty &&
-            rawPartnerName.toLowerCase() != 'setgo partner')
-        ? rawPartnerName
-        : null;
+    final shopName = hideShopInfo
+        ? null
+        : ((rawPartnerName != null &&
+                rawPartnerName.isNotEmpty &&
+                rawPartnerName.toLowerCase() != 'setgo partner')
+            ? rawPartnerName
+            : null);
 
     String categoryName = service.categoryName ?? service.category ?? '';
     if (categoryName.isEmpty ||

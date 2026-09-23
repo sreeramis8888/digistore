@@ -15,7 +15,11 @@ import '../../components/shops/shop_operating_hours.dart';
 import '../../components/shops/shop_faqs.dart';
 import '../../components/offers/deal_card.dart';
 import '../../components/shops/product_card.dart';
+import '../../components/services/service_card.dart';
 import '../../../data/providers/shops_provider.dart';
+import '../../../data/providers/services_provider.dart';
+import '../../../data/models/service_model.dart';
+import '../services/service_details_page.dart';
 
 import '../../components/shops/shop_branches.dart';
 import '../../../../src/data/models/business_info.dart';
@@ -135,6 +139,10 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         : null;
     final productsAsync = shopId.isNotEmpty
         ? ref.watch(shopProductsProvider(shopId))
+        : null;
+    // Shop id === partner id in mobile shops API; same source as getPartnerServicesPublic.
+    final servicesAsync = shopId.isNotEmpty
+        ? ref.watch(storeServicesProvider(shopId))
         : null;
 
     final category = currentShop?.serviceCategories?.isNotEmpty == true
@@ -456,6 +464,96 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                       ),
                       error: (e, s) => const SizedBox.shrink(),
                     ),
+                  if (servicesAsync != null)
+                    servicesAsync.when(
+                      data: (services) {
+                        if (services.isEmpty) return const SizedBox.shrink();
+                        final displayServices = services.take(5).toList();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Explore Services',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                                if (services.length > 2)
+                                  GestureDetector(
+                                    onTap: () {
+                                      _showAllServicesModal(
+                                        context,
+                                        services,
+                                        screenSize,
+                                      );
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          'View All',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF07982C),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: screenSize.responsivePadding(2),
+                                        ),
+                                        const Icon(
+                                          Icons.chevron_right_rounded,
+                                          size: 16,
+                                          color: Color(0xFF07982C),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(height: screenSize.responsivePadding(12)),
+                            SizedBox(
+                              height: screenSize.responsivePadding(225),
+                              child: ListView.separated(
+                                clipBehavior: Clip.none,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: displayServices.length,
+                                separatorBuilder: (context, index) => SizedBox(
+                                  width: screenSize.responsivePadding(12),
+                                ),
+                                itemBuilder: (context, index) {
+                                  final service = displayServices[index];
+                                  return SizedBox(
+                                    width: screenSize.responsivePadding(180),
+                                    child: ServiceCard(
+                                      service: service,
+                                      hideShopInfo: true,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(height: screenSize.responsivePadding(32)),
+                          ],
+                        );
+                      },
+                      loading: () => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: screenSize.responsivePadding(24),
+                        ),
+                        child: const Center(
+                          child: CircularProgressIndicator(color: kPrimaryColor),
+                        ),
+                      ),
+                      error: (e, s) => const SizedBox.shrink(),
+                    ),
                 ],
               ),
             ),
@@ -638,6 +736,109 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                           tags: product.tags,
                           rawProduct: product,
                           hideShopInfo: true,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showAllServicesModal(
+    BuildContext context,
+    List<ServiceModel> services,
+    ScreenSizeData screenSize,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final crossAxisCount = screenSize.isTablet ? 3 : 2;
+        final totalPadding =
+            screenSize.responsivePadding(32) +
+            screenSize.responsivePadding(12 * (crossAxisCount - 1));
+        final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+        final itemHeight = screenSize.responsivePadding(220);
+        final aspectRatio = itemWidth / itemHeight;
+
+        return DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          maxChildSize: 0.95,
+          minChildSize: 0.5,
+          builder: (_, controller) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: kWhite,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(16),
+                vertical: screenSize.responsivePadding(12),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'All Services (${services.length})',
+                        style: const TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const Divider(color: Color(0xFFF3F4F6)),
+                  Expanded(
+                    child: GridView.builder(
+                      controller: controller,
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenSize.responsivePadding(12),
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        childAspectRatio: aspectRatio,
+                        crossAxisSpacing: screenSize.responsivePadding(12),
+                        mainAxisSpacing: screenSize.responsivePadding(12),
+                      ),
+                      itemCount: services.length,
+                      itemBuilder: (context, index) {
+                        return ServiceCard(
+                          service: services[index],
+                          hideShopInfo: true,
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ServiceDetailsPage(
+                                  service: services[index],
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
