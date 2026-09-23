@@ -149,6 +149,14 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         ? currentShop!.serviceCategories!.first
         : (currentShop?.businessDetails?.businessType ?? 'General');
 
+    // Food / Restaurants / Cafes — same group as the home restaurant banner.
+    final isFoodOrRestaurantShop = currentShop != null &&
+        isShopInCategory(currentShop, 'Restaurants');
+    final servicesSectionTitle =
+        isFoodOrRestaurantShop ? 'Menu' : 'Explore Services';
+    final servicesModalTitle =
+        isFoodOrRestaurantShop ? 'Menu' : 'Explore Services';
+
     return Scaffold(
       backgroundColor: kWhite,
       body: fullShopAsync?.isLoading == true && widget.shop == null
@@ -475,9 +483,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Explore Services',
-                                  style: TextStyle(
+                                Text(
+                                  servicesSectionTitle,
+                                  style: const TextStyle(
                                     fontFamily: 'Montserrat',
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
@@ -491,6 +499,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                                         context,
                                         services,
                                         screenSize,
+                                        title: servicesModalTitle,
                                       );
                                     },
                                     child: Row(
@@ -752,8 +761,9 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
   void _showAllServicesModal(
     BuildContext context,
     List<ServiceModel> services,
-    ScreenSizeData screenSize,
-  ) {
+    ScreenSizeData screenSize, {
+    String title = 'All Services',
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -796,7 +806,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'All Services (${services.length})',
+                        '$title (${services.length})',
                         style: const TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 18,
