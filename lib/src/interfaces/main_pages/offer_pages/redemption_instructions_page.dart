@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -8,6 +12,8 @@ import '../../components/primary_button.dart';
 import '../../components/primary_text_field.dart';
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/services/toast_service.dart';
+
+enum _RedemptionView { instructions, otp, qr }
 
 class RedemptionInstructionsPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? args;
@@ -23,20 +29,76 @@ class _RedemptionInstructionsPageState
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final PinInputController _otpController = PinInputController();
   final TextEditingController _saleAmountController = TextEditingController();
+
   String _otp = '';
   String? _redemptionId;
-  bool _isInitiating = false;
+  bool _isInitiatingOtp = false;
+  bool _isGeneratingQr = false;
   bool _isVerifying = false;
+
+  _RedemptionView _view = _RedemptionView.instructions;
+  Uint8List? _qrImageBytes;
+  DateTime? _qrExpiresAt;
+  Timer? _qrTicker;
+  Duration _qrRemaining = Duration.zero;
 
   @override
   void dispose() {
+    _qrTicker?.cancel();
     _otpController.dispose();
     _saleAmountController.dispose();
     super.dispose();
   }
 
+  String? get _offerId {
+    final id = widget.args?['id'] ?? widget.args?['_id'];
+    return id?.toString();
+  }
+
+  void _resetToInstructions() {
+    _qrTicker?.cancel();
+    setState(() {
+      _view = _RedemptionView.instructions;
+      _redemptionId = null;
+      _qrImageBytes = null;
+      _qrExpiresAt = null;
+      _qrRemaining = Duration.zero;
+      _otp = '';
+      _otpController.clear();
+    });
+  }
+
+  void _startQrCountdown(DateTime expiresAt) {
+    _qrTicker?.cancel();
+    void tick() {
+      final left = expiresAt.difference(DateTime.now());
+      if (!mounted) return;
+      setState(() {
+        _qrRemaining = left.isNegative ? Duration.zero : left;
+      });
+      if (left.isNegative || left == Duration.zero) {
+        _qrTicker?.cancel();
+      }
+    }
+
+    tick();
+    _qrTicker = Timer.periodic(const Duration(seconds: 1), (_) => tick());
+  }
+
+  Uint8List? _decodeQrDataUrl(String? dataUrl) {
+    if (dataUrl == null || dataUrl.isEmpty) return null;
+    final marker = 'base64,';
+    final idx = dataUrl.indexOf(marker);
+    final raw = idx >= 0 ? dataUrl.substring(idx + marker.length) : dataUrl;
+    try {
+      return base64Decode(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _initiateRedemption() async {
-    final offerId = (widget.args?['id'] ?? widget.args?['_id']) as String?;
+    final offerId = _offerId;
     if (offerId == null || offerId.isEmpty) {
       ToastService().showToast(
         context,
@@ -46,13 +108,13 @@ class _RedemptionInstructionsPageState
       return;
     }
 
-    setState(() => _isInitiating = true);
+    setState(() => _isInitiatingOtp = true);
 
     final response = await ref
         .read(offersProvider.notifier)
         .customerInitiateRedemption(offerId);
 
-    setState(() => _isInitiating = false);
+    setState(() => _isInitiatingOtp = false);
 
     if (response.success && mounted) {
       final dataMap = response.data?['data'] is Map
@@ -62,6 +124,7 @@ class _RedemptionInstructionsPageState
       if (redId != null) {
         setState(() {
           _redemptionId = redId.toString();
+          _view = _RedemptionView.otp;
         });
         ToastService().showToast(
           context,
@@ -79,6 +142,74 @@ class _RedemptionInstructionsPageState
       ToastService().showToast(
         context,
         response.message ?? 'Failed to initiate redemption',
+        type: ToastType.error,
+      );
+    }
+  }
+
+  Future<void> _generateQr() async {
+    final offerId = _offerId;
+    if (offerId == null || offerId.isEmpty) {
+      ToastService().showToast(
+        context,
+        'Invalid offer details',
+        type: ToastType.error,
+      );
+      return;
+    }
+
+    setState(() => _isGeneratingQr = true);
+
+    final response = await ref
+        .read(offersProvider.notifier)
+        .customerInitiateQrRedemption(offerId);
+
+    setState(() => _isGeneratingQr = false);
+
+    if (!mounted) return;
+
+    if (response.success) {
+      final dataMap = response.data?['data'] is Map
+          ? Map<String, dynamic>.from(response.data!['data'] as Map)
+          : (response.data is Map
+              ? Map<String, dynamic>.from(response.data as Map)
+              : <String, dynamic>{});
+
+      final qrBytes = _decodeQrDataUrl(dataMap['qrCode']?.toString());
+      if (qrBytes == null) {
+        ToastService().showToast(
+          context,
+          'QR code could not be generated. Please try again.',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      DateTime? expiresAt;
+      final rawExpiry = dataMap['expiresAt'];
+      if (rawExpiry != null) {
+        expiresAt = DateTime.tryParse(rawExpiry.toString())?.toLocal();
+      }
+      expiresAt ??= DateTime.now().add(const Duration(minutes: 5));
+
+      setState(() {
+        _redemptionId = (dataMap['redemptionId'] ?? dataMap['id'])?.toString();
+        _qrImageBytes = qrBytes;
+        _qrExpiresAt = expiresAt;
+        _view = _RedemptionView.qr;
+      });
+      _startQrCountdown(expiresAt);
+
+      ToastService().showToast(
+        context,
+        dataMap['message']?.toString() ??
+            'Show this QR code to the partner for scanning',
+        type: ToastType.success,
+      );
+    } else {
+      ToastService().showToast(
+        context,
+        response.message ?? 'Failed to generate QR code',
         type: ToastType.error,
       );
     }
@@ -131,9 +262,20 @@ class _RedemptionInstructionsPageState
     }
   }
 
+  String _formatRemaining(Duration d) {
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final title = switch (_view) {
+      _RedemptionView.instructions => 'Redemption Steps',
+      _RedemptionView.otp => 'Enter Merchant OTP',
+      _RedemptionView.qr => 'Show QR to Merchant',
+    };
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -166,7 +308,7 @@ class _RedemptionInstructionsPageState
                   border: Border.all(color: const Color(0xFFF0F0F0)),
                   boxShadow: [
                     BoxShadow(
-                      color: kGrey.withOpacity(0.05),
+                      color: kGrey.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -174,20 +316,20 @@ class _RedemptionInstructionsPageState
                 ),
                 child: Column(
                   children: [
-                    const Icon(
-                      Icons.storefront_rounded,
+                    Icon(
+                      _view == _RedemptionView.qr
+                          ? Icons.qr_code_2_rounded
+                          : Icons.storefront_rounded,
                       size: 64,
                       color: kPrimaryColor,
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      _redemptionId == null
-                          ? 'Redemption Steps'
-                          : 'Enter Merchant OTP',
+                      title,
                       style: kSubHeadingM.copyWith(fontSize: 22),
                     ),
                     const SizedBox(height: 32),
-                    if (_redemptionId == null) ...[
+                    if (_view == _RedemptionView.instructions) ...[
                       _buildInstructionStep(
                         'Step 1',
                         'Visit the store that is providing this offer.',
@@ -196,10 +338,10 @@ class _RedemptionInstructionsPageState
                       const SizedBox(height: 24),
                       _buildInstructionStep(
                         'Step 2',
-                        'Ask the merchant and click below to send an OTP to their phone.',
+                        'Ask the merchant and click below to send an OTP to their phone, or generate a QR for them to scan.',
                         Icons.sms_outlined,
                       ),
-                    ] else ...[
+                    ] else if (_view == _RedemptionView.otp) ...[
                       Text(
                         'We sent a 6-digit code to the merchant\'s phone. Ask the merchant for the code and enter it below to complete redemption.',
                         style: kSmallerTitleM.copyWith(
@@ -250,16 +392,125 @@ class _RedemptionInstructionsPageState
                           ],
                         ),
                       ),
+                    ] else ...[
+                      Text(
+                        'Show this QR code to the cashier. They will scan it in the partner app to complete your redemption.',
+                        style: kSmallerTitleM.copyWith(
+                          color: kSecondaryTextColor,
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      if (_qrImageBytes != null)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: kWhite,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: Image.memory(
+                            _qrImageBytes!,
+                            width: screenSize.responsivePadding(220),
+                            height: screenSize.responsivePadding(220),
+                            fit: BoxFit.contain,
+                            gaplessPlayback: true,
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (_qrRemaining.inSeconds <= 60
+                                  ? Colors.orange
+                                  : kPrimaryColor)
+                              .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.timer_outlined,
+                              size: 18,
+                              color: _qrRemaining.inSeconds <= 60
+                                  ? Colors.orange.shade800
+                                  : kPrimaryColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _qrRemaining.inSeconds > 0
+                                  ? 'Expires in ${_formatRemaining(_qrRemaining)}'
+                                  : 'QR expired — generate a new one',
+                              style: kSmallerTitleB.copyWith(
+                                color: _qrRemaining.inSeconds <= 60
+                                    ? Colors.orange.shade800
+                                    : kPrimaryColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_qrExpiresAt != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Valid until ${_qrExpiresAt!.hour.toString().padLeft(2, '0')}:${_qrExpiresAt!.minute.toString().padLeft(2, '0')}',
+                          style: kSmallerTitleM.copyWith(
+                            color: kSecondaryTextColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ],
                 ),
               ),
               const SizedBox(height: 40),
-              if (_redemptionId == null) ...[
+              if (_view == _RedemptionView.instructions) ...[
                 PrimaryButton(
                   text: 'Initiate Redemption (Send OTP)',
-                  isLoading: _isInitiating,
+                  isLoading: _isInitiatingOtp,
+                  isEnabled: !_isGeneratingQr,
                   onPressed: _initiateRedemption,
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: (_isGeneratingQr || _isInitiatingOtp)
+                        ? null
+                        : _generateQr,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: kPrimaryColor,
+                      side: const BorderSide(color: kPrimaryColor, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    icon: _isGeneratingQr
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: kPrimaryColor,
+                            ),
+                          )
+                        : const Icon(Icons.qr_code_2_rounded, size: 20),
+                    label: Text(
+                      'Generate QR',
+                      style: kSmallTitleR.copyWith(
+                        color: kPrimaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
@@ -269,7 +520,7 @@ class _RedemptionInstructionsPageState
                     style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
                   ),
                 ),
-              ] else ...[
+              ] else if (_view == _RedemptionView.otp) ...[
                 PrimaryButton(
                   text: 'Verify & Complete Redemption',
                   isLoading: _isVerifying,
@@ -277,9 +528,34 @@ class _RedemptionInstructionsPageState
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () => setState(() => _redemptionId = null),
+                  onPressed: _resetToInstructions,
                   child: Text(
                     'Cancel / Go Back',
+                    style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
+                  ),
+                ),
+              ] else ...[
+                if (_qrRemaining.inSeconds <= 0)
+                  PrimaryButton(
+                    text: 'Generate New QR',
+                    isLoading: _isGeneratingQr,
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: kWhite,
+                      size: 20,
+                    ),
+                    onPressed: _generateQr,
+                  )
+                else
+                  PrimaryButton(
+                    text: 'Done',
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: _resetToInstructions,
+                  child: Text(
+                    'Back to options',
                     style: kSmallerTitleM.copyWith(color: kSecondaryTextColor),
                   ),
                 ),
@@ -298,7 +574,7 @@ class _RedemptionInstructionsPageState
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: kPrimaryColor.withOpacity(0.1),
+            color: kPrimaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, size: 24, color: kPrimaryColor),

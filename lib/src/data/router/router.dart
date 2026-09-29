@@ -20,6 +20,7 @@ import '../../interfaces/main_pages/support_pages/support_ticket_detail_page.dar
 import '../../interfaces/main_pages/home_pages/terms_privacy_page.dart';
 import '../../interfaces/main_pages/home_pages/about_app_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_page.dart';
+import '../../interfaces/main_pages/partner/partner_qr_scanner_page.dart';
 import '../../interfaces/main_pages/partner/partner_redemption_success_page.dart';
 import '../../interfaces/main_pages/partner/partner_account_page.dart';
 import '../../interfaces/main_pages/partner/create_product.dart';
@@ -187,6 +188,13 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
     case 'partnerRedemption':
       final args = settings?.arguments as Map<String, dynamic>? ?? {};
       page = PartnerRedemptionPage(args: args);
+      transitionToUse = TransitionType.slideFromRight;
+      transitionDuration = const Duration(milliseconds: 300);
+      break;
+
+    case 'partnerQrScanner':
+      final args = settings?.arguments as Map<String, dynamic>? ?? {};
+      page = PartnerQrScannerPage(args: args);
       transitionToUse = TransitionType.slideFromRight;
       transitionDuration = const Duration(milliseconds: 300);
       break;

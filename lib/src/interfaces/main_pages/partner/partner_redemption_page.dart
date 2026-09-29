@@ -154,7 +154,7 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
                 ),
                 SizedBox(height: screenSize.responsivePadding(8)),
                 Text(
-                  'Enter customer\'s phone number to send OTP',
+                  'Scan the customer\'s QR or send an OTP to their phone',
                   textAlign: TextAlign.center,
                   style: kBodyTitleM.copyWith(color: kSecondaryTextColor),
                 ),
@@ -215,7 +215,42 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: screenSize.responsivePadding(32)),
+                SizedBox(height: screenSize.responsivePadding(28)),
+                PrimaryButton(
+                  text: 'Scan Customer QR',
+                  icon: const Icon(Icons.qr_code_scanner, color: kWhite, size: 20),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      'partnerQrScanner',
+                      arguments: widget.args,
+                    );
+                  },
+                ),
+                SizedBox(height: screenSize.responsivePadding(24)),
+                Row(
+                  children: [
+                    const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(12),
+                      ),
+                      child: Text(
+                        'OR',
+                        style: kSmallTitleM.copyWith(color: kSecondaryTextColor),
+                      ),
+                    ),
+                    const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                  ],
+                ),
+                SizedBox(height: screenSize.responsivePadding(24)),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Verify with phone number',
+                    style: kSmallTitleB.copyWith(color: kTextColor),
+                  ),
+                ),
+                SizedBox(height: screenSize.responsivePadding(12)),
                 IntlPhoneField(
                   focusNode: _phoneFocusNode,
                   disableLengthCheck: true,

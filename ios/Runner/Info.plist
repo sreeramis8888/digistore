@@ -32,7 +32,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Setgo needs camera access to capture images for your business profile and products.</string>
+	<string>Setgo needs camera access to capture images and scan customer redemption QR codes.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Setgo uses your location to show nearby stores and services.</string>
 	<key>NSLocationAlwaysUsageDescription</key>

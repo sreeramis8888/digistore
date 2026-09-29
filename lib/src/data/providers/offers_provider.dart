@@ -409,6 +409,43 @@ class Offers extends _$Offers {
     }
   }
 
+  /// POST /offers/:id/redeem-qr — pending redemption + signed QR (valid ~5 min).
+  Future<ApiResponse<Map<String, dynamic>>> customerInitiateQrRedemption(
+    String offerId,
+  ) async {
+    try {
+      final api = ref.read(publicApiProvider);
+      final response = await api.post('/offers/$offerId/redeem-qr', {});
+      return response;
+    } catch (e, stack) {
+      log('Error initiating QR redemption: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to generate redemption QR: $e');
+    }
+  }
+
+  /// POST /offers/redemptions/:id/scan-qr — partner completes customer QR redemption.
+  Future<ApiResponse<Map<String, dynamic>>> partnerScanQrRedemption({
+    required String redemptionId,
+    required String qrToken,
+    double? saleAmount,
+  }) async {
+    try {
+      final api = ref.read(publicApiProvider);
+      final payload = <String, dynamic>{'qrToken': qrToken};
+      if (saleAmount != null) {
+        payload['saleAmount'] = saleAmount;
+      }
+      final response = await api.post(
+        '/offers/redemptions/$redemptionId/scan-qr',
+        payload,
+      );
+      return response;
+    } catch (e, stack) {
+      log('Error scanning QR redemption: $e', stackTrace: stack);
+      return ApiResponse.error('Failed to validate QR code: $e');
+    }
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> customerVerifyRedemptionOtp({
     required String redemptionId,
     required String otp,
