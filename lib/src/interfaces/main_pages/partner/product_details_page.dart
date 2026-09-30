@@ -1271,105 +1271,105 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
           ),
 
           // ── Bottom CTA (customers) ─────────────────────────────────
-          // if (!isPartner)
-          //   Container(
-          //     width: double.infinity,
-          //     decoration: const BoxDecoration(
-          //       color: Colors.white,
-          //       border: Border(
-          //         top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
-          //       ),
-          //     ),
-          //     padding: EdgeInsets.fromLTRB(
-          //       screenSize.responsivePadding(16),
-          //       12,
-          //       screenSize.responsivePadding(16),
-          //       MediaQuery.of(context).padding.bottom > 0
-          //           ? MediaQuery.of(context).padding.bottom + 8
-          //           : 16,
-          //     ),
-          //     child: Row(
-          //       children: [
-          //         Expanded(
-          //           child: Column(
-          //             crossAxisAlignment: CrossAxisAlignment.start,
-          //             mainAxisSize: MainAxisSize.min,
-          //             children: [
-          //               Text(
-          //                 'Price',
-          //                 style: GoogleFonts.urbanist(
-          //                   fontSize: 12,
-          //                   color: const Color(0xFF6B7280),
-          //                 ),
-          //               ),
-          //               const SizedBox(height: 2),
-          //               Row(
-          //                 children: [
-          //                   Text(
-          //                     currentPrice != null && currentPrice > 0
-          //                         ? _formatMoney(currentPrice)
-          //                         : '—',
-          //                     style: GoogleFonts.urbanist(
-          //                       fontSize: 18,
-          //                       fontWeight: FontWeight.w800,
-          //                       color: const Color(0xFF07838C),
-          //                     ),
-          //                   ),
-          //                   if (showStrike) ...[
-          //                     const SizedBox(width: 8),
-          //                     Text(
-          //                       _formatMoney(basePrice),
-          //                       style: GoogleFonts.urbanist(
-          //                         fontSize: 13,
-          //                         color: const Color(0xFF9CA3AF),
-          //                         decoration: TextDecoration.lineThrough,
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ],
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //         const SizedBox(width: 12),
-          //         SizedBox(
-          //           height: 52,
-          //           child: ElevatedButton(
-          //             onPressed: !inStock || isBuying
-          //                 ? null
-          //                 : () => _onBuyNow(model),
-          //             style: ElevatedButton.styleFrom(
-          //               backgroundColor: const Color(0xFF07838C),
-          //               disabledBackgroundColor:
-          //                   const Color(0xFF07838C).withValues(alpha: 0.4),
-          //               elevation: 0,
-          //               padding: const EdgeInsets.symmetric(horizontal: 20),
-          //               shape: RoundedRectangleBorder(
-          //                 borderRadius: BorderRadius.circular(12),
-          //               ),
-          //             ),
-          //             child: isBuying
-          //                 ? const SizedBox(
-          //                     width: 22,
-          //                     height: 22,
-          //                     child: CircularProgressIndicator(
-          //                       strokeWidth: 2.5,
-          //                       color: Colors.white,
-          //                     ),
-          //                   )
-          //                 : Text(
-          //                     inStock ? 'I Want to Buy This' : 'Out of Stock',
-          //                     style: GoogleFonts.urbanist(
-          //                       fontSize: 15,
-          //                       fontWeight: FontWeight.w700,
-          //                       color: Colors.white,
-          //                     ),
-          //                   ),
-          //           ),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
+          if (!isPartner)
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                screenSize.responsivePadding(16),
+                12,
+                screenSize.responsivePadding(16),
+                MediaQuery.of(context).padding.bottom > 0
+                    ? MediaQuery.of(context).padding.bottom + 8
+                    : 16,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Price',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 12,
+                            color: const Color(0xFF6B7280),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              currentPrice != null && currentPrice > 0
+                                  ? _formatMoney(currentPrice)
+                                  : '—',
+                              style: GoogleFonts.urbanist(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF07838C),
+                              ),
+                            ),
+                            if (showStrike) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                _formatMoney(basePrice),
+                                style: GoogleFonts.urbanist(
+                                  fontSize: 13,
+                                  color: const Color(0xFF9CA3AF),
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: !inStock || isBuying
+                          ? null
+                          : () => _onBuyNow(model),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF07838C),
+                        disabledBackgroundColor:
+                            const Color(0xFF07838C).withValues(alpha: 0.4),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: isBuying
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              inStock ? 'I Want to Buy This' : 'Out of Stock',
+                              style: GoogleFonts.urbanist(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
