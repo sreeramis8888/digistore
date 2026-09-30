@@ -265,10 +265,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: const ServicesBannerCard(),
         ),
         SizedBox(height: screenSize.responsivePadding(28)),
-        if (featuredShops != null && featuredShops.isNotEmpty) ...[
-          FeaturedShopsList(shops: featuredShops),
-          SizedBox(height: screenSize.responsivePadding(28)),
-        ],
+        // List uses /shops/featured when /home returns too few shops.
+        FeaturedShopsList(shops: featuredShops),
         if (popularRewards != null && popularRewards.isNotEmpty) ...[
           HomeRewardsSection(rewards: popularRewards),
           SizedBox(height: screenSize.responsivePadding(28)),
