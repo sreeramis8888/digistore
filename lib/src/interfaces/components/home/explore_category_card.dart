@@ -139,21 +139,15 @@ class ExploreCategoryCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                name,
-                style: GoogleFonts.montserrat(
-                  color: theme.titleColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  height: 1.15,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+          Positioned(
+            left: 8,
+            top: 8,
+            right: 8,
+            // Leave room for the icon at the bottom.
+            bottom: iconSize + 10,
+            child: _CategoryTitle(
+              text: name,
+              color: theme.titleColor,
             ),
           ),
           Positioned(
@@ -220,6 +214,122 @@ class ExploreCategoryCard extends StatelessWidget {
       alignment: Alignment.bottomLeft,
       errorBuilder: (_, _, _) =>
           const Icon(Icons.category_outlined, size: 24, color: Colors.grey),
+    );
+  }
+}
+
+/// Wraps category titles only at spaces. A single long word (e.g. Accommodation)
+/// is scaled down to stay on one line — never split mid-word.
+class _CategoryTitle extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _CategoryTitle({required this.text, required this.color});
+
+  TextStyle get _style => GoogleFonts.montserrat(
+        color: color,
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        height: 1.15,
+      );
+
+  double _measure(String value, TextStyle style) {
+    final painter = TextPainter(
+      text: TextSpan(text: value, style: style),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    return painter.width;
+  }
+
+  /// Build up to 2 lines, breaking only where there is a space.
+  List<String> _linesForWidth(String raw, double maxWidth, TextStyle style) {
+    final words = raw.trim().split(RegExp(r'\s+'));
+    if (words.isEmpty) return const [];
+    if (words.length == 1) return [words.first];
+
+    final lines = <String>[];
+    var current = words.first;
+
+    for (var i = 1; i < words.length; i++) {
+      final candidate = '$current ${words[i]}';
+      if (_measure(candidate, style) <= maxWidth) {
+        current = candidate;
+        continue;
+      }
+      lines.add(current);
+      current = words[i];
+      if (lines.isNotEmpty) {
+        // Remaining words go on the last line (ellipsis if needed).
+        current = [current, ...words.skip(i + 1)].join(' ');
+        break;
+      }
+    }
+    lines.add(current);
+    return lines.take(2).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _style;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        final words = trimmed.split(RegExp(r'\s+'));
+
+        // One word only — never wrap; shrink to fit so the full word shows.
+        if (words.length == 1) {
+          return Align(
+            alignment: Alignment.topLeft,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                trimmed,
+                maxLines: 1,
+                softWrap: false,
+                style: style,
+              ),
+            ),
+          );
+        }
+
+        final lines = _linesForWidth(trimmed, maxWidth, style);
+
+        // If the first line is a single word wider than the card, scale it.
+        final firstNeedsScale =
+            lines.isNotEmpty && _measure(lines.first, style) > maxWidth;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < lines.length; i++)
+              if (i == 0 && firstNeedsScale)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    lines[i],
+                    maxLines: 1,
+                    softWrap: false,
+                    style: style,
+                  ),
+                )
+              else
+                Text(
+                  lines[i],
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  style: style,
+                ),
+          ],
+        );
+      },
     );
   }
 }
