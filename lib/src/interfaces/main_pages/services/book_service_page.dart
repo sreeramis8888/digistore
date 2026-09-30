@@ -177,6 +177,13 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                     ),
                     SizedBox(height: screenSize.responsivePadding(16)),
 
+                    // Services & Add-ons
+                    _buildServicesAndAddOnsSection(
+                      screenSize: screenSize,
+                      storeServicesAsync: storeServicesAsync,
+                    ),
+                    SizedBox(height: screenSize.responsivePadding(16)),
+
                     // Select Date Section with Monthly Calendar Grid (Figma 2158:3284)
                     _buildDateSelectionCard(screenSize: screenSize),
                     SizedBox(height: screenSize.responsivePadding(16)),
@@ -185,13 +192,6 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                     _buildAvailableSlotsSection(
                       screenSize: screenSize,
                       slotsAsync: slotsAsync,
-                    ),
-                    SizedBox(height: screenSize.responsivePadding(16)),
-
-                    // Services & Add-ons (Existing app feature)
-                    _buildServicesAndAddOnsSection(
-                      screenSize: screenSize,
-                      storeServicesAsync: storeServicesAsync,
                     ),
                     SizedBox(height: screenSize.responsivePadding(16)),
 
