@@ -9,7 +9,7 @@ import '../../../data/utils/global_variables.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
 
 /// Home restaurant promo banner — matches the product design mock
-/// (cream→sage gradient, left copy + CTA, cropped plate on the right).
+/// (cream→sage gradient, left copy + CTA, plate image on the right).
 class RestaurantBannerCard extends ConsumerWidget {
   const RestaurantBannerCard({super.key});
 
@@ -19,14 +19,8 @@ class RestaurantBannerCard extends ConsumerWidget {
   static const _gradientStart = Color(0xFFF5F2E5);
   static const _gradientEnd = Color(0xFFE7ECCB);
 
-  /// Intrinsic aspect ratio of [assets/png/resturant.png].
+  /// Intrinsic aspect ratio of [assets/png/resturant.png] (181×110).
   static const _imageAspect = 181 / 110;
-
-  /// In the asset, plate content starts ~12% from the left.
-  static const _plateLeftInAsset = 0.12;
-
-  /// In the design mock, the plate's left edge sits at ~57% of banner width.
-  static const _plateLeftInBanner = 0.572;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,37 +66,33 @@ class RestaurantBannerCard extends ConsumerWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final bannerW = constraints.maxWidth;
-            final bannerH = constraints.maxHeight;
 
-            // Plate fills banner height with a slight vertical overflow (design).
-            final imageH = bannerH * 1.12;
+            // Small plate — close to native 181×110 so it stays sharp.
+            final imageH = screenSize.responsivePadding(88);
             final imageW = imageH * _imageAspect;
-
-            // Place so the plate's left edge lands at the design ratio.
-            final imageLeft =
-                bannerW * _plateLeftInBanner - imageW * _plateLeftInAsset;
-            final imageTop = (bannerH - imageH) / 2;
 
             return Stack(
               children: [
                 Positioned(
-                  left: imageLeft,
-                  top: imageTop,
+                  right: screenSize.responsivePadding(12),
+                  bottom: 0,
                   width: imageW,
                   height: imageH,
                   child: Image.asset(
                     'assets/png/resturant.png',
-                    fit: BoxFit.fill,
+                    fit: BoxFit.contain,
                     filterQuality: FilterQuality.high,
+                    isAntiAlias: true,
+                    gaplessPlayback: true,
                   ),
                 ),
-                // Left copy + CTA — keep clear of the plate (~57% mark).
+                // Left copy + CTA
                 Positioned.fill(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       hPad,
                       vPad,
-                      bannerW * 0.42,
+                      bannerW * 0.38,
                       vPad,
                     ),
                     child: Column(
