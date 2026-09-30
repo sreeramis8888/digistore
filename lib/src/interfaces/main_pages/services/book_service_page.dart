@@ -792,7 +792,6 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                         _selectedServices.removeWhere((item) => item.id == s.id);
                       }
                     }
-                    _selectedSlot = null;
                   });
                 }
 
