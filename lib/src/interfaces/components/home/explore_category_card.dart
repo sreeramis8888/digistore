@@ -117,13 +117,15 @@ class ExploreCategoryCard extends StatelessWidget {
     final theme =
         _namedThemes[name] ?? _defaultThemes[index % _defaultThemes.length];
 
-    // Always prioritize local SVG icons from fallbackAsset if available
-    final icon = (fallbackAsset != null && fallbackAsset!.isNotEmpty)
-        ? fallbackAsset!
-        : ((category.iconUrl != null &&
-                  category.iconUrl != 'null' &&
-                  category.iconUrl!.trim().isNotEmpty)
-              ? category.iconUrl!.trim()
+    final apiIcon = category.iconUrl?.trim();
+    final hasApiIcon =
+        apiIcon != null && apiIcon.isNotEmpty && apiIcon != 'null';
+
+    // Prefer backend iconUrl; local SVG only if API has none.
+    final icon = hasApiIcon
+        ? apiIcon
+        : ((fallbackAsset != null && fallbackAsset!.isNotEmpty)
+              ? fallbackAsset!
               : 'assets/svg/daily_needs.svg');
 
     return Container(
@@ -169,15 +171,10 @@ class ExploreCategoryCard extends StatelessWidget {
   }
 
   Widget _buildVisual(String pathOrUrl) {
-    if (pathOrUrl.endsWith('.svg')) {
-      return SvgPicture.asset(
-        pathOrUrl,
-        fit: BoxFit.contain,
-        alignment: Alignment.bottomLeft,
-      );
-    }
+    final isNetwork = pathOrUrl.startsWith('http://') ||
+        pathOrUrl.startsWith('https://');
 
-    if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+    if (isNetwork) {
       final isSvg = pathOrUrl.toLowerCase().contains('.svg');
       if (isSvg) {
         return SvgPicture.network(
@@ -191,8 +188,29 @@ class ExploreCategoryCard extends StatelessWidget {
         imageUrl: pathOrUrl,
         fit: BoxFit.contain,
         alignment: Alignment.bottomLeft,
-        errorWidget: (_, _, _) =>
-            const Icon(Icons.category_outlined, size: 24, color: Colors.grey),
+        errorWidget: (_, _, _) {
+          final fallback = fallbackAsset;
+          if (fallback != null && fallback.isNotEmpty) {
+            return SvgPicture.asset(
+              fallback,
+              fit: BoxFit.contain,
+              alignment: Alignment.bottomLeft,
+            );
+          }
+          return const Icon(
+            Icons.category_outlined,
+            size: 24,
+            color: Colors.grey,
+          );
+        },
+      );
+    }
+
+    if (pathOrUrl.endsWith('.svg') || pathOrUrl.startsWith('assets/')) {
+      return SvgPicture.asset(
+        pathOrUrl,
+        fit: BoxFit.contain,
+        alignment: Alignment.bottomLeft,
       );
     }
 
