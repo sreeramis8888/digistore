@@ -223,7 +223,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
         screenSize.responsivePadding(32) +
         screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
+    final itemHeight = screenSize.responsivePadding(isLandscape ? 208 : 224);
     final aspectRatio = itemWidth / itemHeight;
 
     final selectedCategory = ref.watch(selectedShopsCategoryProvider);
