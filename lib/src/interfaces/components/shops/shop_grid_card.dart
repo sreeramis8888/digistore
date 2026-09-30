@@ -59,27 +59,29 @@ class ShopGridCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: screenSize.responsivePadding(115),
-                width: double.infinity,
-                child: (imageUrl != null && imageUrl!.isNotEmpty)
-                    ? AdvancedNetworkImage(
-                        imageUrl: imageUrl!,
-                        fit: BoxFit.cover,
-                        disableFade: true,
-                      )
-                    : Container(
-                        decoration: BoxDecoration(
-                          color: avatarColor.withValues(alpha: 0.12),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            avatarIcon,
-                            size: 36,
-                            color: avatarColor.withValues(alpha: 0.5),
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: (imageUrl != null && imageUrl!.isNotEmpty)
+                      ? AdvancedNetworkImage(
+                          imageUrl: imageUrl!,
+                          fit: BoxFit.cover,
+                          disableFade: true,
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            color: avatarColor.withValues(alpha: 0.12),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              avatarIcon,
+                              size: 36,
+                              color: avatarColor.withValues(alpha: 0.5),
+                            ),
                           ),
                         ),
-                      ),
+                ),
               ),
               Padding(
                 padding: EdgeInsets.all(screenSize.responsivePadding(12)),

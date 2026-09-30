@@ -139,7 +139,9 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
         screenSize.responsivePadding(32) +
         screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(isLandscape ? 220 : 240);
+    final imageHeight = itemWidth * 9 / 16;
+    final detailsHeight = screenSize.responsivePadding(isLandscape ? 88 : 92);
+    final itemHeight = imageHeight + detailsHeight;
     final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(

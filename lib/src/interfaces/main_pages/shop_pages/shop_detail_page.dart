@@ -435,7 +435,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                             ),
                             SizedBox(height: screenSize.responsivePadding(12)),
                             SizedBox(
-                              height: screenSize.responsivePadding(225),
+                              height: screenSize.responsivePadding(180) * 9 / 16 +
+                                  screenSize.responsivePadding(92),
                               child: ListView.separated(
                                 clipBehavior: Clip.none,
                                 scrollDirection: Axis.horizontal,
@@ -529,7 +530,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                             ),
                             SizedBox(height: screenSize.responsivePadding(12)),
                             SizedBox(
-                              height: screenSize.responsivePadding(225),
+                              height: screenSize.responsivePadding(180) * 9 / 16 +
+                                  screenSize.responsivePadding(92),
                               child: ListView.separated(
                                 clipBehavior: Clip.none,
                                 scrollDirection: Axis.horizontal,
@@ -672,7 +674,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
             screenSize.responsivePadding(32) +
             screenSize.responsivePadding(12 * (crossAxisCount - 1));
         final productItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-        final productItemHeight = screenSize.responsivePadding(220);
+        final productItemHeight =
+            productItemWidth * 9 / 16 + screenSize.responsivePadding(92);
         final productAspectRatio = productItemWidth / productItemHeight;
 
         return DraggableScrollableSheet(
@@ -774,7 +777,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
             screenSize.responsivePadding(32) +
             screenSize.responsivePadding(12 * (crossAxisCount - 1));
         final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-        final itemHeight = screenSize.responsivePadding(220);
+        final itemHeight =
+            itemWidth * 9 / 16 + screenSize.responsivePadding(92);
         final aspectRatio = itemWidth / itemHeight;
 
         return DraggableScrollableSheet(

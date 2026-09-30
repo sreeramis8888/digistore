@@ -97,6 +97,20 @@ List<String> apiCategoriesFor(String category) {
   return [category];
 }
 
+/// Nearest first; shops without distance sink to the end.
+List<ShopModel> sortShopsByNearest(List<ShopModel> shops) {
+  final sorted = List<ShopModel>.from(shops);
+  sorted.sort((a, b) {
+    final da = a.distance;
+    final db = b.distance;
+    if (da == null && db == null) return 0;
+    if (da == null) return 1;
+    if (db == null) return -1;
+    return da.compareTo(db);
+  });
+  return sorted;
+}
+
 Future<({List<ShopModel> shops, PaginationModel? pagination})>
     _fetchShopsForCategories({
   required ApiProvider api,
@@ -117,9 +131,11 @@ Future<({List<ShopModel> shops, PaginationModel? pagination})>
       response.data!['pagination'] as Map<String, dynamic>,
     );
     return (
-      shops: data
-          .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      shops: sortShopsByNearest(
+        data
+            .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      ),
       pagination: pagination,
     );
   }
@@ -170,7 +186,7 @@ Future<({List<ShopModel> shops, PaginationModel? pagination})>
     }
   }
 
-  return (shops: shops, pagination: pagination);
+  return (shops: sortShopsByNearest(shops), pagination: pagination);
 }
 
 @Riverpod(keepAlive: true)
@@ -220,6 +236,7 @@ class Shops extends _$Shops {
       'lng': lng.toString(),
       'page': page.toString(),
       'limit': '20',
+      'sortBy': 'distance',
     };
 
     if (currentSearch.isNotEmpty) {
@@ -241,10 +258,10 @@ class Shops extends _$Shops {
         );
       } else {
         final existingIds = state.shops.map((s) => s.id).whereType<String>().toSet();
-        final merged = [
+        final merged = sortShopsByNearest([
           ...state.shops,
           ...result.shops.where((s) => s.id == null || !existingIds.contains(s.id)),
-        ];
+        ]);
         state = state.copyWith(
           shops: merged,
           pagination: result.pagination,
@@ -327,6 +344,7 @@ class AllShops extends _$AllShops {
     if (lat != null && lng != null) {
       queryParams['lat'] = lat.toString();
       queryParams['lng'] = lng.toString();
+      queryParams['sortBy'] = 'distance';
     }
 
     if (currentSearch.isNotEmpty) {
@@ -349,11 +367,11 @@ class AllShops extends _$AllShops {
       } else {
         final existingIds =
             state.shops.map((s) => s.id).whereType<String>().toSet();
-        final merged = [
+        final merged = sortShopsByNearest([
           ...state.shops,
           ...result.shops
               .where((s) => s.id == null || !existingIds.contains(s.id)),
-        ];
+        ]);
         state = state.copyWith(
           shops: merged,
           pagination: result.pagination,

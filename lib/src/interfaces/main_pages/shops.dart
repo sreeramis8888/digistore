@@ -223,7 +223,10 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
         screenSize.responsivePadding(32) +
         screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
-    final itemHeight = screenSize.responsivePadding(isLandscape ? 208 : 224);
+    // Image is 16:9; rest is name + location + rating + distance/chip row.
+    final imageHeight = itemWidth * 9 / 16;
+    final detailsHeight = screenSize.responsivePadding(isLandscape ? 100 : 108);
+    final itemHeight = imageHeight + detailsHeight;
     final aspectRatio = itemWidth / itemHeight;
 
     final selectedCategory = ref.watch(selectedShopsCategoryProvider);
@@ -233,17 +236,21 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       bannersProvider(const BannerFilter(page: 'shops')),
     );
     final banners = bannersAsync.value ?? [];
-    final nearbyShopsList = selectedCategory != null
-        ? nearbyState.shops
-              .where((s) => isShopInCategory(s, selectedCategory))
-              .toList()
-        : nearbyState.shops;
+    final nearbyShopsList = sortShopsByNearest(
+      selectedCategory != null
+          ? nearbyState.shops
+                .where((s) => isShopInCategory(s, selectedCategory))
+                .toList()
+          : nearbyState.shops,
+    );
 
-    final exploreShopsList = selectedCategory != null
-        ? exploreState.shops
-              .where((s) => isShopInCategory(s, selectedCategory))
-              .toList()
-        : exploreState.shops;
+    final exploreShopsList = sortShopsByNearest(
+      selectedCategory != null
+          ? exploreState.shops
+                .where((s) => isShopInCategory(s, selectedCategory))
+                .toList()
+          : exploreState.shops,
+    );
 
     final user = ref.watch(userProvider);
     final userLat = user?.location?.coordinates?.lat;
