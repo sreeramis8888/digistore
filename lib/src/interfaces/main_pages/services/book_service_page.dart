@@ -27,8 +27,12 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
   late DateTime _viewMonth;
   final Set<String> _selectedServiceIds = {};
   final List<ServiceModel> _selectedServices = [];
+  /// Per-service quantity (keyed by service id). Backend `items[].quantity`.
+  final Map<String, int> _quantities = {};
   TimeSlotModel? _selectedSlot;
   final TextEditingController _notesController = TextEditingController();
+
+  static const int _maxQuantity = 99;
 
   @override
   void initState() {
@@ -39,6 +43,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
 
     if (widget.service.id != null && widget.service.id!.isNotEmpty) {
       _selectedServiceIds.add(widget.service.id!);
+      _quantities[widget.service.id!] = 1;
     }
     _selectedServices.add(widget.service);
   }
@@ -49,12 +54,26 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
     super.dispose();
   }
 
+  int _qtyFor(ServiceModel s) {
+    final id = s.id ?? '';
+    if (id.isEmpty) return 1;
+    return (_quantities[id] ?? 1).clamp(1, _maxQuantity);
+  }
+
+  // Duration is not multiplied by qty — matches backend (session length uses
+  // distinct service durations / max for table_booking, not qty * duration).
   int get _totalDuration =>
       _selectedServices.fold(0, (sum, s) => sum + s.totalTimeMinutes);
-  double get _totalPrice =>
-      _selectedServices.fold(0.0, (sum, s) => sum + s.effectivePrice);
-  double get _originalPrice =>
-      _selectedServices.fold(0.0, (sum, s) => sum + s.originalPrice);
+
+  double get _totalPrice => _selectedServices.fold(
+        0.0,
+        (sum, s) => sum + (s.effectivePrice * _qtyFor(s)),
+      );
+
+  double get _originalPrice => _selectedServices.fold(
+        0.0,
+        (sum, s) => sum + (s.originalPrice * _qtyFor(s)),
+      );
 
   void _onPrevMonth() {
     final now = DateTime.now();
@@ -777,21 +796,58 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final s = servicesToDisplay[index];
-                final isChecked = _selectedServiceIds.contains(s.id ?? '');
+                final id = s.id ?? '';
+                final isChecked = _selectedServiceIds.contains(id);
+                final qty = _qtyFor(s);
+                final linePrice = s.effectivePrice * qty;
+
+                void selectService() {
+                  if (id.isEmpty) return;
+                  setState(() {
+                    _selectedServiceIds.add(id);
+                    if (!_selectedServices.any((item) => item.id == id)) {
+                      _selectedServices.add(s);
+                    }
+                    _quantities.putIfAbsent(id, () => 1);
+                  });
+                }
+
+                void deselectService() {
+                  if (id.isEmpty) return;
+                  if (_selectedServiceIds.length <= 1) return;
+                  setState(() {
+                    _selectedServiceIds.remove(id);
+                    _selectedServices.removeWhere((item) => item.id == id);
+                    _quantities.remove(id);
+                  });
+                }
 
                 void toggleService() {
+                  if (isChecked) {
+                    deselectService();
+                  } else {
+                    selectService();
+                  }
+                }
+
+                void incrementQty() {
+                  if (!isChecked) {
+                    selectService();
+                    return;
+                  }
                   setState(() {
-                    if (!isChecked) {
-                      _selectedServiceIds.add(s.id ?? '');
-                      if (!_selectedServices.any((item) => item.id == s.id)) {
-                        _selectedServices.add(s);
-                      }
-                    } else {
-                      if (_selectedServiceIds.length > 1) {
-                        _selectedServiceIds.remove(s.id ?? '');
-                        _selectedServices.removeWhere((item) => item.id == s.id);
-                      }
-                    }
+                    _quantities[id] = (qty + 1).clamp(1, _maxQuantity);
+                  });
+                }
+
+                void decrementQty() {
+                  if (!isChecked) return;
+                  if (qty <= 1) {
+                    deselectService();
+                    return;
+                  }
+                  setState(() {
+                    _quantities[id] = qty - 1;
                   });
                 }
 
@@ -820,7 +876,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            onChanged: (val) => toggleService(),
+                            onChanged: (_) => toggleService(),
                           ),
                           Expanded(
                             child: Column(
@@ -843,11 +899,30 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                                     color: const Color(0xFF6B7280),
                                   ),
                                 ),
+                                if (isChecked && qty > 1) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '₹${s.effectivePrice.toInt()} each',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF9CA3AF),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
+                          if (isChecked) ...[
+                            _QuantityStepper(
+                              quantity: qty,
+                              onDecrement: decrementQty,
+                              onIncrement: incrementQty,
+                            ),
+                            const SizedBox(width: 10),
+                          ],
                           Text(
-                            '₹${s.effectivePrice.toInt()}',
+                            '₹${(isChecked ? linePrice : s.effectivePrice).toInt()}',
                             style: GoogleFonts.urbanist(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
@@ -990,6 +1065,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                                   const ServicePartnerModel(name: 'Store'),
                               partnerId: partnerId,
                               services: _selectedServices,
+                              quantities: Map<String, int>.from(_quantities),
                               bookingDate: formattedDate,
                               selectedSlot: _selectedSlot!,
                               notes: _notesController.text.trim(),
@@ -1022,6 +1098,71 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Compact + / − control for booking line-item quantity.
+class _QuantityStepper extends StatelessWidget {
+  final int quantity;
+  final VoidCallback onDecrement;
+  final VoidCallback onIncrement;
+
+  const _QuantityStepper({
+    required this.quantity,
+    required this.onDecrement,
+    required this.onIncrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFFF3F5F4),
+      borderRadius: BorderRadius.circular(10),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _StepperButton(
+            icon: Icons.remove,
+            onTap: onDecrement,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              '$quantity',
+              style: GoogleFonts.urbanist(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ),
+          _StepperButton(
+            icon: Icons.add,
+            onTap: onIncrement,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _StepperButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 32,
+        height: 32,
+        child: Icon(icon, size: 18, color: const Color(0xFF07838C)),
       ),
     );
   }

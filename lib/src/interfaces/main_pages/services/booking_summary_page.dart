@@ -18,6 +18,8 @@ class BookingSummaryPage extends ConsumerStatefulWidget {
   final ServicePartnerModel partner;
   final String partnerId;
   final List<ServiceModel> services;
+  /// serviceId → quantity (defaults to 1 when missing).
+  final Map<String, int> quantities;
   final String bookingDate;
   final TimeSlotModel selectedSlot;
   final String notes;
@@ -29,6 +31,7 @@ class BookingSummaryPage extends ConsumerStatefulWidget {
     required this.partner,
     required this.partnerId,
     required this.services,
+    this.quantities = const {},
     required this.bookingDate,
     required this.selectedSlot,
     required this.notes,
@@ -43,19 +46,30 @@ class BookingSummaryPage extends ConsumerStatefulWidget {
 class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
   bool _isSubmitting = false;
 
+  int _qtyFor(ServiceModel s) {
+    final id = s.id ?? '';
+    if (id.isEmpty) return 1;
+    return (widget.quantities[id] ?? 1).clamp(1, 99);
+  }
+
   Future<void> _handleConfirmBooking() async {
     if (_isSubmitting) return;
     setState(() => _isSubmitting = true);
 
-    final serviceIds = widget.services
-        .map((s) => s.id ?? '')
-        .where((id) => id.isNotEmpty)
+    final items = widget.services
+        .where((s) => s.id != null && s.id!.isNotEmpty)
+        .map(
+          (s) => <String, dynamic>{
+            'serviceId': s.id,
+            'quantity': _qtyFor(s),
+          },
+        )
         .toList();
 
     final res = await BookingService.createBooking(
       api: ref.read(apiProvider),
       partnerId: widget.partnerId,
-      serviceIds: serviceIds,
+      items: items,
       bookingDate: widget.bookingDate,
       startTime: widget.selectedSlot.startTime,
       notes: widget.notes.isNotEmpty ? widget.notes : null,
@@ -127,7 +141,10 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
     final displayDate = DateFormat('EEEE, d MMM yyyy').format(parsedDate);
 
     final String servicesSummary = widget.services.isNotEmpty
-        ? widget.services.map((s) => s.name).join(', ')
+        ? widget.services.map((s) {
+            final qty = _qtyFor(s);
+            return qty > 1 ? '${s.name} ×$qty' : s.name;
+          }).join(', ')
         : 'Service';
     final int totalDuration =
         widget.services.fold(0, (sum, s) => sum + s.totalTimeMinutes);

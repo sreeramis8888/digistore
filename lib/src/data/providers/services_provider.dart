@@ -366,6 +366,8 @@ class BookingService {
     required ApiProvider api,
     String? partnerId,
     List<String>? serviceIds,
+    /// Preferred payload: `[{ serviceId, quantity, variantId?, variantName? }]`.
+    List<Map<String, dynamic>>? items,
     String? bookingDate,
     String? startTime,
     String? notes,
@@ -373,7 +375,10 @@ class BookingService {
   }) async {
     final payload = bookingData ?? {
       'partnerId': partnerId,
-      'serviceIds': serviceIds,
+      if (items != null && items.isNotEmpty)
+        'items': items
+      else
+        'serviceIds': serviceIds,
       'bookingDate': bookingDate,
       'date': bookingDate,
       'startTime': startTime,
