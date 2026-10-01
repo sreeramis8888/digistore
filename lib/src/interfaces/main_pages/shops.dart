@@ -272,7 +272,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
               )
             : null,
         title: Text(
-          selectedCategory != null ? '$selectedCategory Shops' : 'Shops',
+          selectedCategory != null ? '$selectedCategory ' : 'Shops',
           style: kSubHeadingM.copyWith(color: const Color(0xFF373737)),
         ),
         backgroundColor: kWhite,
