@@ -5,6 +5,7 @@ import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/category_provider.dart';
 import '../../../data/router/nav_router.dart';
 import '../../../data/models/category_model.dart';
+import '../../main_pages/offer_pages/categories_grid_page.dart';
 import 'explore_category_card.dart';
 import 'section_title.dart';
 
@@ -53,7 +54,18 @@ class CategoryList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(title: 'Explore Categories', revampStyle: true),
+        SectionTitle(
+          title: 'Explore Categories',
+          revampStyle: true,
+          onViewAll: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CategoriesGridPage(),
+              ),
+            );
+          },
+        ),
         SizedBox(height: screenSize.responsivePadding(8)),
         SizedBox(
           height: cardHeight,
