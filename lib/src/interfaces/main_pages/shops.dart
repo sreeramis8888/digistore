@@ -204,7 +204,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
       address: address,
       distance: distance,
-      rating: shop.businessInfo?.rating?.toString() ?? '0.0',
+      rating: shop.businessInfo?.rating?.toString() ?? '',
       avatarColor: _getCategoryColor(type),
       avatarIcon: _getCategoryIcon(type),
       logoUrl: coverImage,
@@ -272,7 +272,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
               )
             : null,
         title: Text(
-          selectedCategory != null ? '$selectedCategory ' : 'Shops',
+          selectedCategory ?? 'Shops',
           style: kSubHeadingM.copyWith(color: const Color(0xFF373737)),
         ),
         backgroundColor: kWhite,

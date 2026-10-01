@@ -6,6 +6,7 @@ import '../../../data/models/service_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/services_provider.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
+import '../../../data/utils/rating_label.dart';
 import '../../main_pages/services/service_details_page.dart';
 import '../advanced_network_image.dart';
 
@@ -60,9 +61,14 @@ class ServiceCard extends ConsumerWidget {
     final priceStr = service.hasOffer && service.offerPrice != null
         ? '₹ ${service.offerPrice!.toInt()}'
         : '₹ ${service.originalPrice.toInt()}';
-    final rating = service.rating > 0
-        ? service.rating.toStringAsFixed(1)
-        : null;
+    final hasRating = RatingLabel.hasRating(
+      service.rating,
+      reviewCount: service.reviewsCount,
+    );
+    final ratingLabel = RatingLabel.compact(
+      service.rating,
+      reviewCount: service.reviewsCount,
+    );
 
     return InteractiveFeedbackButton(
       onPressed:
@@ -171,36 +177,38 @@ class ServiceCard extends ConsumerWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  priceStr,
-                                  style: kSmallerTitleM.copyWith(
-                                    color: const Color(0xFF4E4E4E),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              Text(
+                                priceStr,
+                                style: kSmallerTitleM.copyWith(
+                                  color: const Color(0xFF4E4E4E),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                if (rating != null) ...[
-                                  const SizedBox(width: 6),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        rating,
-                                        style: kSmallerTitleL.copyWith(
-                                          color: const Color(0xFF4E4E4E),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 2),
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        size: 14,
-                                        color: Color(0xFFFFCB2B),
-                                      ),
-                                    ],
+                              ),
+                              const SizedBox(width: 6),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    ratingLabel,
+                                    style: kSmallerTitleL.copyWith(
+                                      color: const Color(0xFF4E4E4E),
+                                      fontSize: 11,
+                                      fontWeight: hasRating
+                                          ? FontWeight.w400
+                                          : FontWeight.w600,
+                                    ),
                                   ),
+                                  if (hasRating) ...[
+                                    const SizedBox(width: 2),
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      size: 14,
+                                      color: Color(0xFFFFCB2B),
+                                    ),
+                                  ],
                                 ],
+                              ),
                               ],
                             ),
                           ),

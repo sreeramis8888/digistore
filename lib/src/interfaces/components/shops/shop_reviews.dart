@@ -332,7 +332,9 @@ class _ReviewCard extends StatelessWidget {
                     const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 13),
                     SizedBox(width: screenSize.responsivePadding(2)),
                     Text(
-                      review.rating?.toStringAsFixed(1) ?? '0.0',
+                      (review.rating != null && review.rating! > 0)
+                          ? review.rating!.toStringAsFixed(1)
+                          : '—',
                       style: const TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 11,

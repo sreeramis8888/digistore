@@ -8,6 +8,7 @@ import '../../../../src/data/providers/user_provider.dart';
 import '../../../../src/data/utils/location_utils.dart';
 import '../../../../src/data/utils/launch_url.dart';
 import '../../../../src/data/providers/reviews_provider.dart';
+import '../../../../src/data/utils/rating_label.dart';
 import '../advanced_network_image.dart';
 
 import '../../../../src/data/models/business_info.dart';
@@ -340,14 +341,22 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            color: Color(0xFFFBBF24),
-                            size: 16,
-                          ),
-                          SizedBox(width: screenSize.responsivePadding(4)),
+                          if (RatingLabel.hasRating(
+                            rating,
+                            reviewCount: totalSales,
+                          )) ...[
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Color(0xFFFBBF24),
+                              size: 16,
+                            ),
+                            SizedBox(width: screenSize.responsivePadding(4)),
+                          ],
                           Text(
-                            rating > 0 ? rating.toStringAsFixed(1) : 'New',
+                            RatingLabel.compact(
+                              rating,
+                              reviewCount: totalSales,
+                            ),
                             style: const TextStyle(
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w700,

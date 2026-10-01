@@ -32,6 +32,7 @@ import '../../components/confirmation_dialog.dart';
 import '../../components/full_screen_gallery.dart';
 import '../../components/operating_hours_editor.dart';
 import '../../components/partner/branch_card.dart';
+import '../../../data/utils/rating_label.dart';
 
 class PartnerAccountPage extends ConsumerStatefulWidget {
   final bool isEditMode;
@@ -1049,26 +1050,35 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          (partner?.businessInfo?.rating ?? 0.0)
-                                              .toStringAsFixed(1),
+                                          RatingLabel.compact(
+                                            partner?.businessInfo?.rating,
+                                            reviewCount: partner
+                                                ?.businessInfo?.totalReviews,
+                                          ),
                                           style: kBodyTitleM.copyWith(
                                             color: Color(0xFF4E4E4E),
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.star,
-                                          size: 20,
-                                          color: Color(0xFFFFCB2B),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'out of 5',
-                                          style: kSmallerTitleL.copyWith(
-                                            color: Color(0xFF4E4E4E),
+                                        if (RatingLabel.hasRating(
+                                          partner?.businessInfo?.rating,
+                                          reviewCount: partner
+                                              ?.businessInfo?.totalReviews,
+                                        )) ...[
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            Icons.star,
+                                            size: 20,
+                                            color: Color(0xFFFFCB2B),
                                           ),
-                                        ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'out of 5',
+                                            style: kSmallerTitleL.copyWith(
+                                              color: Color(0xFF4E4E4E),
+                                            ),
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),

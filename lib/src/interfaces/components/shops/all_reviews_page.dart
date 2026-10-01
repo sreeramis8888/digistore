@@ -9,6 +9,7 @@ import '../../../../src/data/models/review_model.dart';
 import '../../../../src/data/providers/reviews_provider.dart';
 import '../../../../src/data/providers/api_provider.dart';
 import '../../../../src/data/providers/partner_provider.dart';
+import '../../../../src/data/utils/rating_label.dart';
 import '../advanced_network_image.dart';
 import '../full_screen_gallery.dart';
 import '../loading_indicator.dart';
@@ -376,9 +377,14 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
           Column(
             children: [
               Text(
-                rating > 0 ? rating.toStringAsFixed(1) : '5.0',
+                RatingLabel.detailed(rating, reviewCount: totalReviews),
                 style: kLargeTitleB.copyWith(
-                  fontSize: 40,
+                  fontSize: RatingLabel.hasRating(
+                        rating,
+                        reviewCount: totalReviews,
+                      )
+                      ? 40
+                      : 22,
                   fontWeight: FontWeight.w800,
                   color: kTextColor,
                   height: 1.0,
@@ -387,8 +393,12 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
               SizedBox(height: screenSize.responsivePadding(6)),
               Row(
                 children: List.generate(5, (index) {
+                  final hasRating = RatingLabel.hasRating(
+                    rating,
+                    reviewCount: totalReviews,
+                  );
                   return Icon(
-                    index < rating.round()
+                    hasRating && index < rating.round()
                         ? Icons.star_rounded
                         : Icons.star_outline_rounded,
                     color: const Color(0xFFFFC107),
@@ -398,7 +408,9 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
               ),
               SizedBox(height: screenSize.responsivePadding(4)),
               Text(
-                '$totalReviews Verified Reviews',
+                totalReviews > 0
+                    ? '$totalReviews Verified Reviews'
+                    : 'No Ratings yet',
                 style: kSmallTitleR.copyWith(
                   color: kSecondaryTextColor,
                   fontSize: 11,

@@ -20,7 +20,7 @@ class ServicePartnerModel {
     this.city,
     this.coordinates,
     this.businessMode,
-    this.rating = 4.8,
+    this.rating = 0,
   });
 
   factory ServicePartnerModel.fromJson(Map<String, dynamic> json) {
@@ -56,11 +56,11 @@ class ServicePartnerModel {
       partnerName = json['businessDetails']['businessName']?.toString();
     }
 
-    double rat = 4.8;
+    double rat = 0;
     if (json['rating'] is num) {
       rat = (json['rating'] as num).toDouble();
     } else if (json['rating'] != null) {
-      rat = double.tryParse(json['rating'].toString()) ?? 4.8;
+      rat = double.tryParse(json['rating'].toString()) ?? 0;
     }
 
     return ServicePartnerModel(
@@ -216,7 +216,7 @@ class ServiceModel {
     this.addOns = const [],
     this.partner,
     this.isActive = true,
-    this.rating = 4.8,
+    this.rating = 0,
     this.reviewsCount = 0,
   });
 
@@ -346,7 +346,7 @@ class ServiceModel {
       addOns: addOnsList,
       partner: partnerModel,
       isActive: json['isActive'] != false,
-      rating: parseDouble(json['rating'] ?? json['avgRating'] ?? 4.8, 4.8),
+      rating: parseDouble(json['rating'] ?? json['avgRating'] ?? 0, 0),
       reviewsCount: parseInt(json['reviewsCount'] ?? json['totalReviews'], 0),
     );
   }
