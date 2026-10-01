@@ -414,9 +414,8 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
+                      // Same source as "Connect With Us" WhatsApp.
                       final phone =
-                          widget.selectedBranch?.phone ??
-                          widget.shop?.businessInfo?.contactPhone ??
                           widget.shop?.businessInfo?.whatsappNumber;
                       if (phone != null && phone.isNotEmpty) {
                         final cleanPhone = phone.replaceAll(
