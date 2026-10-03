@@ -128,6 +128,10 @@
     java.lang.Object readResolve();
 }
 
+# Razorpay
+-dontwarn com.razorpay.**
+-keep class com.razorpay.** { *; }
+
 # R8 full mode compatibility
 -keepclassmembers,allowobfuscation class * {
     @com.google.gson.annotations.SerializedName <fields>;

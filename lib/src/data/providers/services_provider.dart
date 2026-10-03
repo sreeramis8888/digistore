@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../models/category_model.dart';
+import '../models/booking_razorpay_order.dart';
 import '../models/service_model.dart';
 import 'api_provider.dart';
 import 'auth_provider.dart';
@@ -362,7 +363,7 @@ final customerBookingsProvider = FutureProvider.family<List<BookingModel>, Strin
 });
 
 class BookingService {
-  static Future<ApiResponse<BookingModel>> createBooking({
+  static Future<ApiResponse<CreateBookingResult>> createBooking({
     required ApiProvider api,
     String? partnerId,
     List<String>? serviceIds,
@@ -383,17 +384,87 @@ class BookingService {
       'date': bookingDate,
       'startTime': startTime,
       'timeSlot': startTime,
+      // Backend requires online payment for paid slots.
+      'paymentMethod': 'online',
       if (notes != null && notes.isNotEmpty) 'notes': notes,
     };
     final res = await api.post('/bookings', payload);
     if (res.success && res.data != null) {
       final data = res.data!['data'] ?? res.data!;
       if (data is Map) {
-        final booking = BookingModel.fromJson(Map<String, dynamic>.from(data));
-        return ApiResponse.success(booking);
+        final map = Map<String, dynamic>.from(data);
+        final booking = BookingModel.fromJson(map);
+        BookingRazorpayOrder? order;
+        final rawOrder = map['razorpayOrder'] ?? map['razorpay_order'];
+        if (rawOrder is Map) {
+          order = BookingRazorpayOrder.fromJson(
+            Map<String, dynamic>.from(rawOrder),
+          );
+        }
+        return ApiResponse.success(
+          CreateBookingResult(booking: booking, razorpayOrder: order),
+        );
       }
     }
     return ApiResponse.error(res.message ?? 'Failed to complete booking');
+  }
+
+  /// POST /bookings/:id/payment/create-order — recreate Razorpay order for retry.
+  static Future<ApiResponse<BookingRazorpayOrder>> createPaymentOrder({
+    required ApiProvider api,
+    required String bookingId,
+  }) async {
+    final res = await api.post('/bookings/$bookingId/payment/create-order', {});
+    if (res.success && res.data != null) {
+      final data = res.data!['data'] ?? res.data!;
+      if (data is Map) {
+        final order = BookingRazorpayOrder.fromJson(
+          Map<String, dynamic>.from(data),
+        );
+        if (order.isValid) return ApiResponse.success(order);
+      }
+    }
+    return ApiResponse.error(res.message ?? 'Failed to create payment order');
+  }
+
+  /// POST /bookings/:id/payment/verify — server-side signature check.
+  static Future<ApiResponse<BookingModel>> verifyPayment({
+    required ApiProvider api,
+    required String bookingId,
+    required String razorpayOrderId,
+    required String razorpayPaymentId,
+    required String razorpaySignature,
+  }) async {
+    final res = await api.post('/bookings/$bookingId/payment/verify', {
+      'razorpay_order_id': razorpayOrderId,
+      'razorpay_payment_id': razorpayPaymentId,
+      'razorpay_signature': razorpaySignature,
+    });
+    if (res.success && res.data != null) {
+      final data = res.data!['data'] ?? res.data!;
+      if (data is Map) {
+        return ApiResponse.success(
+          BookingModel.fromJson(Map<String, dynamic>.from(data)),
+        );
+      }
+    }
+    return ApiResponse.error(res.message ?? 'Payment verification failed');
+  }
+
+  /// POST /bookings/:id/payment/fail — record cancel / gateway failure.
+  static Future<ApiResponse<bool>> failPayment({
+    required ApiProvider api,
+    required String bookingId,
+    String? errorReason,
+    int? errorCode,
+  }) async {
+    final res = await api.post('/bookings/$bookingId/payment/fail', {
+      if (errorReason != null && errorReason.isNotEmpty)
+        'errorReason': errorReason,
+      if (errorCode != null) 'errorCode': errorCode,
+    });
+    if (res.success) return ApiResponse.success(true);
+    return ApiResponse.error(res.message ?? 'Failed to record payment failure');
   }
 
   static Future<ApiResponse<bool>> cancelBooking({
@@ -410,3 +481,20 @@ class BookingService {
     return ApiResponse.error(res.message ?? 'Failed to cancel booking');
   }
 }
+
+class CreateBookingResult {
+  final BookingModel booking;
+  final BookingRazorpayOrder? razorpayOrder;
+
+  const CreateBookingResult({
+    required this.booking,
+    this.razorpayOrder,
+  });
+
+  /// Free bookings are confirmed immediately (no Razorpay).
+  bool get requiresPayment =>
+      booking.totalAmount > 0 &&
+      (razorpayOrder?.isValid == true ||
+          booking.paymentStatus.toUpperCase() == 'PENDING');
+}
+

@@ -13,6 +13,7 @@ import '../../../data/providers/user_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/loading_indicator.dart';
 import 'booking_confirmed_page.dart';
+import 'booking_payment_page.dart';
 
 class BookingSummaryPage extends ConsumerStatefulWidget {
   final ServicePartnerModel partner;
@@ -75,25 +76,49 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
       notes: widget.notes.isNotEmpty ? widget.notes : null,
     );
 
+    if (!mounted) return;
     setState(() => _isSubmitting = false);
 
-    if (mounted) {
-      if (res.success && res.data != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookingConfirmedPage(booking: res.data!),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(res.message ?? 'Booking failed. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    if (!res.success || res.data == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(res.message ?? 'Booking failed. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
     }
+
+    final result = res.data!;
+    final booking = result.booking;
+
+    // Free booking → confirmed immediately (backend skips Razorpay).
+    if (booking.totalAmount <= 0 || !result.requiresPayment) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BookingConfirmedPage(booking: booking),
+        ),
+      );
+      return;
+    }
+
+    // Paid booking → payment page, then confirmed after verify.
+    final shopName = widget.partner.name?.trim();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookingPaymentPage(
+          booking: booking,
+          initialOrder: result.razorpayOrder,
+          shopName: (shopName != null &&
+                  shopName.isNotEmpty &&
+                  shopName != 'SetGo Partner')
+              ? shopName
+              : 'SetGo',
+        ),
+      ),
+    );
   }
 
   @override
@@ -456,7 +481,7 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
           const SizedBox(height: 10),
           _buildDetailRow(
             label: 'Payment Mode',
-            value: 'Pay at Venue',
+            value: widget.totalPrice > 0 ? 'Pay Online' : 'Free',
           ),
 
           Padding(
@@ -574,7 +599,7 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
             child: _isSubmitting
                 ? const LoadingAnimation(size: 24, loadingColor: Colors.white)
                 : Text(
-                    'Confirm Booking',
+                    widget.totalPrice > 0 ? 'Confirm & Pay' : 'Confirm Booking',
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

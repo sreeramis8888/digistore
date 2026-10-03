@@ -57,11 +57,11 @@ class UserModel {
     if (json == null) return const UserModel();
 
     return UserModel(
-      id: (json['id'] ?? json['_id']) as String?,
-      phone: json['phone'] as String?,
-      name: json['name'] as String?,
-      email: json['email'] as String?,
-      avatar: json['avatar'] as String?,
+      id: (json['id'] ?? json['_id'])?.toString(),
+      phone: json['phone']?.toString(),
+      name: json['name']?.toString(),
+      email: json['email']?.toString(),
+      avatar: json['avatar']?.toString(),
       location: SafeParser.parseObject(
         json['location'],
         LocationModel.fromJson,
