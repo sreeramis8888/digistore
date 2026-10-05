@@ -57,15 +57,33 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
   }
 
   void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    // Prefetch early so long shop cards don't miss the bottom threshold.
+    if (position.pixels < position.maxScrollExtent - 600) return;
+
+    _loadMoreIfNeeded();
+  }
+
+  void _loadMoreIfNeeded() {
+    final nearbyState = ref.read(shopsProvider);
     final exploreState = ref.read(allShopsProvider);
 
-    // Don't trigger if already loading or no more pages
-    if (exploreState.isLoadingMore) return;
-    if (exploreState.pagination == null) return;
-    if (exploreState.pagination!.page >= exploreState.pagination!.pages) return;
+    final nearbyHasMore = nearbyState.pagination != null &&
+        nearbyState.pagination!.page < nearbyState.pagination!.pages &&
+        !nearbyState.isLoading &&
+        !nearbyState.isLoadingMore;
 
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+    final exploreHasMore = exploreState.pagination != null &&
+        exploreState.pagination!.page < exploreState.pagination!.pages &&
+        !exploreState.isLoading &&
+        !exploreState.isLoadingMore;
+
+    if (!GlobalVariables.isGuest && nearbyHasMore) {
+      ref.read(shopsProvider.notifier).loadMore();
+    }
+    if (exploreHasMore) {
       ref.read(allShopsProvider.notifier).loadMore();
     }
   }
@@ -456,8 +474,36 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   final exploreShops = exploreShopsList
                       .where((s) => !nearbyIds.contains(s.id))
                       .toList();
+                  final exploreHasMore = exploreState.pagination != null &&
+                      exploreState.pagination!.page <
+                          exploreState.pagination!.pages;
+
+                  // Nearby already showed page-1 shops; keep fetching explore
+                  // pages until unique shops appear or pagination ends.
+                  if (exploreShops.isEmpty &&
+                      exploreHasMore &&
+                      !exploreState.isLoadingMore) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      ref.read(allShopsProvider.notifier).loadMore();
+                    });
+                  }
 
                   if (exploreShops.isEmpty) {
+                    if (exploreHasMore || exploreState.isLoadingMore) {
+                      return SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.all(
+                            screenSize.responsivePadding(16),
+                          ),
+                          child: const Center(
+                            child: LoadingAnimation(
+                              loadingColor: kPrimaryColor,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                     return SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.all(
@@ -486,10 +532,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                         screenSize,
                       ),
                       banners: banners,
-                      hasMore:
-                          exploreState.pagination != null &&
-                          exploreState.pagination!.page <
-                              exploreState.pagination!.pages,
+                      hasMore: exploreHasMore,
                       screenSize: screenSize,
                       childAspectRatio: aspectRatio,
                       bannerIndexOffset: nearbyShopsList.length ~/ 10,
@@ -498,6 +541,15 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   );
                 }(),
                 if (exploreState.isLoadingMore)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                      child: const Center(
+                        child: LoadingAnimation(loadingColor: kPrimaryColor),
+                      ),
+                    ),
+                  ),
+                if (!GlobalVariables.isGuest && nearbyState.isLoadingMore)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.all(screenSize.responsivePadding(16)),

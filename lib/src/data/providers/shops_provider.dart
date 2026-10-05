@@ -269,8 +269,9 @@ class Shops extends _$Shops {
         );
       }
     } else {
+      // Keep already-loaded shops on pagination failure.
       state = state.copyWith(
-        error: 'Failed to fetch shops',
+        error: page == 1 ? 'Failed to fetch shops' : state.error,
         isLoading: false,
         isLoadingMore: false,
       );
@@ -278,7 +279,9 @@ class Shops extends _$Shops {
   }
 
   Future<void> loadMore() async {
-    if (state.isLoadingMore || state.pagination == null) return;
+    if (state.isLoading || state.isLoadingMore || state.pagination == null) {
+      return;
+    }
     if (state.pagination!.page >= state.pagination!.pages) return;
     await getShops(page: state.pagination!.page + 1);
   }
@@ -379,8 +382,9 @@ class AllShops extends _$AllShops {
         );
       }
     } else {
+      // Keep already-loaded shops on pagination failure.
       state = state.copyWith(
-        error: 'Failed to fetch shops',
+        error: page == 1 ? 'Failed to fetch shops' : state.error,
         isLoading: false,
         isLoadingMore: false,
       );
@@ -388,7 +392,9 @@ class AllShops extends _$AllShops {
   }
 
   Future<void> loadMore() async {
-    if (state.isLoadingMore || state.pagination == null) return;
+    if (state.isLoading || state.isLoadingMore || state.pagination == null) {
+      return;
+    }
     if (state.pagination!.page >= state.pagination!.pages) return;
     await getShops(page: state.pagination!.page + 1);
   }

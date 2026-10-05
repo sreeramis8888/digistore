@@ -337,11 +337,27 @@ class PaginationModel {
   });
 
   factory PaginationModel.fromJson(Map<String, dynamic> json) {
+    int parseInt(dynamic v, [int fallback = 0]) {
+      if (v == null) return fallback;
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse(v.toString()) ?? fallback;
+    }
+
+    final page = parseInt(json['page'], 1);
+    final limit = parseInt(json['limit'], 20);
+    final total = parseInt(json['total'] ?? json['count'], 0);
+    final pages = parseInt(
+      json['pages'] ?? json['totalPages'] ?? json['total_pages'],
+      // Infer at least one more page when total clearly exceeds this page.
+      total > 0 && limit > 0 ? (total / limit).ceil() : 1,
+    );
+
     return PaginationModel(
-      page: json['page'] as int? ?? 1,
-      limit: json['limit'] as int? ?? 20,
-      total: json['total'] as int? ?? 0,
-      pages: json['pages'] as int? ?? 1,
+      page: page < 1 ? 1 : page,
+      limit: limit < 1 ? 20 : limit,
+      total: total,
+      pages: pages < 1 ? 1 : pages,
     );
   }
 
