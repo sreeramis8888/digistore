@@ -199,26 +199,25 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
                       vertical: screenSize.responsivePadding(12),
                     ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 140 / 126,
+                      crossAxisCount: 3,
+                      childAspectRatio: 0.78,
                       crossAxisSpacing: screenSize.responsivePadding(12),
-                      mainAxisSpacing: screenSize.responsivePadding(12),
+                      mainAxisSpacing: screenSize.responsivePadding(16),
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
                       final category = item.value;
-                      final cardIndex = item.key;
+                      final iconSize = screenSize.responsivePadding(72);
 
                       return InteractiveFeedbackButton(
                         onPressed: () => _onSelectCategory(category),
                         scaleFactor: 0.96,
                         child: ExploreCategoryCard(
                           category: category,
-                          index: cardIndex,
                           width: double.infinity,
                           height: double.infinity,
-                          iconSize: screenSize.responsivePadding(68),
+                          iconSize: iconSize,
                           fallbackAsset:
                               _categoryIcons[category.name] ??
                               'assets/svg/daily_needs.svg',

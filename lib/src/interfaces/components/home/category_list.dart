@@ -48,10 +48,11 @@ class CategoryList extends ConsumerWidget {
     // Warm offers-tab categories so home taps can resolve the correct filter.
     ref.watch(categoriesProvider);
     final hPad = screenSize.responsivePadding(16);
-    final gap = screenSize.responsivePadding(10);
-    final cardWidth = screenSize.responsivePadding(108);
-    final cardHeight = screenSize.responsivePadding(80);
-    final iconSize = screenSize.responsivePadding(24);
+    final gap = screenSize.responsivePadding(14);
+    final iconSize = screenSize.responsivePadding(68);
+    final cardWidth = iconSize;
+    // Icon tile + spacing + up to 2 lines of label.
+    final cardHeight = iconSize + screenSize.responsivePadding(40);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +102,6 @@ class CategoryList extends ConsumerWidget {
                 scaleFactor: 0.96,
                 child: ExploreCategoryCard(
                   category: category,
-                  index: index,
                   width: cardWidth,
                   height: cardHeight,
                   iconSize: iconSize,
