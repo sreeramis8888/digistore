@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/utils/currency_formatter.dart';
 
@@ -32,20 +31,14 @@ class PartnerOverviewCards extends StatelessWidget {
   Widget _buildLightOverview() {
     return Row(
       children: [
-        _lightStatCard(
-          'Total Customers',
-          '${totalCustomers ?? 0}',
-        ),
+        _lightStatCard('Total Customers', '${totalCustomers ?? 0}'),
         SizedBox(width: screenSize.responsivePadding(12)),
         _lightStatCard(
           'Your Commission',
           formatCurrency(commissionAmount ?? 0),
         ),
         SizedBox(width: screenSize.responsivePadding(12)),
-        _lightStatCard(
-          'Total Sales',
-          formatCurrency(totalSalesViaSetgo ?? 0),
-        ),
+        _lightStatCard('Total Sales', formatCurrency(totalSalesViaSetgo ?? 0)),
       ],
     );
   }
@@ -71,7 +64,8 @@ class PartnerOverviewCards extends StatelessWidget {
           children: [
             Text(
               title,
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF6B7280),
@@ -85,7 +79,8 @@ class PartnerOverviewCards extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 value,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF6155F5),
@@ -105,10 +100,7 @@ class PartnerOverviewCards extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xCC2C1F37),
-            Color(0xCC211127),
-          ],
+          colors: [Color(0xCC2C1F37), Color(0xCC211127)],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
@@ -122,7 +114,8 @@ class PartnerOverviewCards extends StatelessWidget {
         children: [
           Text(
             "TODAY'S OVERVIEW",
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 11,
               fontWeight: FontWeight.w800,
               color: const Color(0xFFFBBF24),
@@ -190,7 +183,8 @@ class PartnerOverviewCards extends StatelessWidget {
           children: [
             Text(
               title,
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
                 color: const Color(0xFFE6F4EA),
@@ -204,7 +198,8 @@ class PartnerOverviewCards extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 value,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFFBBF24),

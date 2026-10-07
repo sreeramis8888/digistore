@@ -62,7 +62,10 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
   bool _isFetchingUnreadCount = false;
   DateTime? _lastUnreadFetchTime;
 
-  Future<void> fetchNotifications({bool refresh = false, bool syncUnreadCount = false}) async {
+  Future<void> fetchNotifications({
+    bool refresh = false,
+    bool syncUnreadCount = false,
+  }) async {
     if (state.isLoading) return;
     if (refresh) {
       state = state.copyWith(page: 1, hasMore: true, notifications: []);
@@ -73,11 +76,15 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
 
     try {
       final api = ref.read(apiProvider);
-      final response = await api.get('/notifications?page=${state.page}&limit=20');
+      final response = await api.get(
+        '/notifications?page=${state.page}&limit=20',
+      );
 
       if (response.success && response.data != null) {
         final List<dynamic> items = response.data!['data'] ?? [];
-        final newNotifications = items.map((e) => AppNotificationModel.fromJson(e)).toList();
+        final newNotifications = items
+            .map((e) => AppNotificationModel.fromJson(e))
+            .toList();
 
         state = state.copyWith(
           notifications: [...state.notifications, ...newNotifications],
@@ -89,7 +96,10 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
           fetchUnreadCount(force: true);
         }
       } else {
-        state = state.copyWith(isLoading: false, error: response.message ?? 'Failed to load notifications');
+        state = state.copyWith(
+          isLoading: false,
+          error: response.message ?? 'Failed to load notifications',
+        );
       }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -98,7 +108,10 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
 
   Future<void> fetchUnreadCount({bool force = false}) async {
     if (_isFetchingUnreadCount) return;
-    if (!force && _lastUnreadFetchTime != null && DateTime.now().difference(_lastUnreadFetchTime!) < const Duration(seconds: 15)) {
+    if (!force &&
+        _lastUnreadFetchTime != null &&
+        DateTime.now().difference(_lastUnreadFetchTime!) <
+            const Duration(seconds: 15)) {
       return;
     }
 
@@ -124,11 +137,20 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
 
     try {
       if (message != null) {
-        final data = (message.data is Map) ? message.data as Map<dynamic, dynamic> : {};
+        final data = (message.data is Map)
+            ? message.data as Map<dynamic, dynamic>
+            : {};
         final notification = message.notification;
         final title = notification?.title ?? data['title']?.toString() ?? '';
-        final body = notification?.body ?? data['message']?.toString() ?? data['body']?.toString() ?? '';
-        final id = data['id']?.toString() ?? data['_id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
+        final body =
+            notification?.body ??
+            data['message']?.toString() ??
+            data['body']?.toString() ??
+            '';
+        final id =
+            data['id']?.toString() ??
+            data['_id']?.toString() ??
+            DateTime.now().millisecondsSinceEpoch.toString();
 
         if (title.isNotEmpty || body.isNotEmpty) {
           final newNotification = AppNotificationModel(
@@ -177,7 +199,10 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
         final newCount = wasUnread
             ? (state.unreadCount > 0 ? state.unreadCount - 1 : 0)
             : state.unreadCount;
-        state = state.copyWith(notifications: updatedList, unreadCount: newCount);
+        state = state.copyWith(
+          notifications: updatedList,
+          unreadCount: newCount,
+        );
       }
     } catch (e) {
       // Ignore
@@ -220,7 +245,10 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
         final newCount = wasUnread
             ? (state.unreadCount > 0 ? state.unreadCount - 1 : 0)
             : state.unreadCount;
-        state = state.copyWith(notifications: updatedList, unreadCount: newCount);
+        state = state.copyWith(
+          notifications: updatedList,
+          unreadCount: newCount,
+        );
       }
     } catch (e) {
       // Ignore
@@ -252,6 +280,7 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
   }
 }
 
-final notificationsProvider = StateNotifierProvider<NotificationsNotifier, NotificationsState>((ref) {
-  return NotificationsNotifier(ref);
-});
+final notificationsProvider =
+    StateNotifierProvider<NotificationsNotifier, NotificationsState>((ref) {
+      return NotificationsNotifier(ref);
+    });

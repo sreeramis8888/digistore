@@ -95,7 +95,7 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
       );
     } else {
       final cleanedData = MapUtils.cleanMap(updatedPartner.toJson());
-      
+
       if (deleteLogo == true) {
         cleanedData['deleteLogo'] = true;
       }
@@ -110,7 +110,9 @@ class PartnerNotifier extends Notifier<PartnerModel?> {
     if (response.success && response.data != null) {
       final partnerData = response.data!['data'];
       if (partnerData != null) {
-        final partner = PartnerModel.fromJson(partnerData as Map<String, dynamic>);
+        final partner = PartnerModel.fromJson(
+          partnerData as Map<String, dynamic>,
+        );
         await savePartner(partner);
         return true;
       }

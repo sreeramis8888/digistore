@@ -45,28 +45,36 @@ class _OffersPageState extends ConsumerState<OffersPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       final offersState = ref.read(offersProvider);
       final isPartner = ref.read(userTypeProvider) == UserType.partner;
 
       if (isPartner) {
         if (!offersState.isLoading && offersState.hasMore) {
-          ref.read(offersProvider.notifier).fetchOffers(
-            categoryId: offersState.currentCategoryId,
-            isRefresh: false,
-          );
+          ref
+              .read(offersProvider.notifier)
+              .fetchOffers(
+                categoryId: offersState.currentCategoryId,
+                isRefresh: false,
+              );
         }
       } else {
         if (!offersState.isLoading && offersState.hasMore) {
-          ref.read(offersProvider.notifier).fetchOffers(
-            categoryId: offersState.currentCategoryId,
-            isRefresh: false,
-          );
-        } else if (!offersState.isExploreLoading && offersState.exploreHasMore) {
-          ref.read(offersProvider.notifier).fetchExploreOffers(
-            categoryId: offersState.currentCategoryId,
-            isRefresh: false,
-          );
+          ref
+              .read(offersProvider.notifier)
+              .fetchOffers(
+                categoryId: offersState.currentCategoryId,
+                isRefresh: false,
+              );
+        } else if (!offersState.isExploreLoading &&
+            offersState.exploreHasMore) {
+          ref
+              .read(offersProvider.notifier)
+              .fetchExploreOffers(
+                categoryId: offersState.currentCategoryId,
+                isRefresh: false,
+              );
         }
       }
     }
@@ -143,10 +151,11 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       _lastFetchedCategoryIndex = currentCategoryIndex;
     }
 
-
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final crossAxisCount = 1;
-    final totalPadding = screenSize.responsivePadding(32) +
+    final totalPadding =
+        screenSize.responsivePadding(32) +
         screenSize.responsivePadding(16) * (crossAxisCount - 1);
     final itemWidth = (screenSize.width - totalPadding) / crossAxisCount;
     // Full-width list cards need more height than the old 2-column grid cells.
@@ -157,7 +166,8 @@ class _OffersPageState extends ConsumerState<OffersPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
-      appBar: AppBar(titleSpacing: Navigator.canPop(context) ? 0 : null,
+      appBar: AppBar(
+        titleSpacing: Navigator.canPop(context) ? 0 : null,
         centerTitle: false,
         title: Text(
           'Offers',
@@ -170,7 +180,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           if (isPartner)
             Center(
               child: Padding(
-                padding: EdgeInsets.only(right: screenSize.responsivePadding(16)),
+                padding: EdgeInsets.only(
+                  right: screenSize.responsivePadding(16),
+                ),
                 child: PrimaryButton(
                   onPressed: () {
                     Navigator.push(
@@ -292,8 +304,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 hasScrollBody: false,
                 child: EmptyState(
                   imagePath: 'assets/png/empty_offers.png',
-                  title: isPartner ? 'No offer created yet' : 'No offers available',
-                  subtitle: isPartner 
+                  title: isPartner
+                      ? 'No offer created yet'
+                      : 'No offers available',
+                  subtitle: isPartner
                       ? 'You haven\'t created any offers yet. Start by creating your first deal!'
                       : 'We couldn\'t find any offers at the moment.',
                 ).fadeIn(),
@@ -304,7 +318,9 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       }
       return RefreshIndicator(
         color: kPrimaryColor,
-        key: ValueKey('${isPartner ? 'partner' : 'guest'}_grid_${offersState.currentCategoryId ?? 'all'}'),
+        key: ValueKey(
+          '${isPartner ? 'partner' : 'guest'}_grid_${offersState.currentCategoryId ?? 'all'}',
+        ),
         onRefresh: () async {
           await ref.read(offersProvider.notifier).fetchOffers();
         },
@@ -329,9 +345,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
             if (offersState.isFetchingMore)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenSize.responsivePadding(24.0)),
+                  padding: EdgeInsets.symmetric(
+                    vertical: screenSize.responsivePadding(24.0),
+                  ),
                   child: Center(
-                    child: LoadingAnimation(size: screenSize.responsivePadding(30)),
+                    child: LoadingAnimation(
+                      size: screenSize.responsivePadding(30),
+                    ),
                   ),
                 ),
               ),
@@ -372,7 +392,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                  (_, i) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
+                  (_, i) => CardShimmers.dealCardShimmer(
+                    screenSize,
+                    hideShopName: isPartner,
+                  ),
                   childCount: crossAxisCount * 2,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -392,9 +415,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 ),
                 child: Text(
                   'No nearby offers',
-                  style: kSmallerTitleL.copyWith(
-                    color: kSecondaryTextColor,
-                  ),
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
               ),
             )
@@ -407,9 +428,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
                 ),
                 child: Text(
                   'No offers found near your location.',
-                  style: kSmallerTitleL.copyWith(
-                    color: kSecondaryTextColor,
-                  ),
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
               ),
             )
@@ -442,7 +461,10 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                  (_, i) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
+                  (_, i) => CardShimmers.dealCardShimmer(
+                    screenSize,
+                    hideShopName: isPartner,
+                  ),
                   childCount: crossAxisCount * 2,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -487,9 +509,13 @@ class _OffersPageState extends ConsumerState<OffersPage> {
           if (offersState.isFetchingMore || offersState.isExploreFetchingMore)
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.only(bottom: screenSize.responsivePadding(24.0)),
+                padding: EdgeInsets.only(
+                  bottom: screenSize.responsivePadding(24.0),
+                ),
                 child: Center(
-                  child: LoadingAnimation(size: screenSize.responsivePadding(30)),
+                  child: LoadingAnimation(
+                    size: screenSize.responsivePadding(30),
+                  ),
                 ),
               ),
             ),
@@ -533,7 +559,8 @@ class _OffersPageState extends ConsumerState<OffersPage> {
         childAspectRatio: aspectRatio,
       ),
       itemCount: crossAxisCount * 3,
-      itemBuilder: (context, index) => CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
+      itemBuilder: (context, index) =>
+          CardShimmers.dealCardShimmer(screenSize, hideShopName: isPartner),
     );
   }
 
@@ -558,11 +585,7 @@ class _OffersPageState extends ConsumerState<OffersPage> {
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.search,
-                    color: Color(0xFF7D848D),
-                    size: 24,
-                  ),
+                  const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
                   SizedBox(width: screenSize.responsivePadding(12)),
                   Expanded(
                     child: TextField(
@@ -591,7 +614,4 @@ class _OffersPageState extends ConsumerState<OffersPage> {
       ),
     );
   }
-
-
-
 }

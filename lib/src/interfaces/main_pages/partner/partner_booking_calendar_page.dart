@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/models/service_model.dart';
@@ -45,8 +44,9 @@ class _PartnerBookingCalendarPageState
   Future<void> _showBlockSlotSheet() async {
     TimeOfDay start = const TimeOfDay(hour: 14, minute: 0);
     TimeOfDay end = const TimeOfDay(hour: 15, minute: 0);
-    final reasonController =
-        TextEditingController(text: 'Maintenance / Staff break');
+    final reasonController = TextEditingController(
+      text: 'Maintenance / Staff break',
+    );
     final snackbar = SnackbarService();
 
     final confirmed = await showModalBottomSheet<bool>(
@@ -205,7 +205,9 @@ class _PartnerBookingCalendarPageState
     reasonController.dispose();
     if (confirmed != true || !mounted) return;
 
-    final res = await ref.read(partnerBookingsProvider.notifier).emergencyDelay(
+    final res = await ref
+        .read(partnerBookingsProvider.notifier)
+        .emergencyDelay(
           date: _formattedDate,
           delayMinutes: minutes,
           reason: reason,
@@ -235,9 +237,9 @@ class _PartnerBookingCalendarPageState
     );
     if (confirmed != true || !mounted) return;
 
-    final res = await ref
-        .read(partnerBookingsProvider.notifier)
-        .unblockSlot({'slotId': slot.id});
+    final res = await ref.read(partnerBookingsProvider.notifier).unblockSlot({
+      'slotId': slot.id,
+    });
     if (!mounted) return;
     if (res.success) {
       ref.invalidate(partnerBlockedSlotsProvider);
@@ -272,7 +274,8 @@ class _PartnerBookingCalendarPageState
         ),
         title: Text(
           'Slot Calendar',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -313,7 +316,8 @@ class _PartnerBookingCalendarPageState
             children: [
               Text(
                 'Select Date',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: _valueColor,
@@ -330,7 +334,8 @@ class _PartnerBookingCalendarPageState
                     final date = _dates[index];
                     final isSelected =
                         DateFormat('yyyy-MM-dd').format(date) == _formattedDate;
-                    final isToday = DateFormat('yyyy-MM-dd').format(date) ==
+                    final isToday =
+                        DateFormat('yyyy-MM-dd').format(date) ==
                         DateFormat('yyyy-MM-dd').format(DateTime.now());
 
                     return InteractiveFeedbackButton(
@@ -347,13 +352,15 @@ class _PartnerBookingCalendarPageState
                             color: isSelected
                                 ? kPrimaryColor
                                 : (isToday
-                                    ? kPrimaryColor.withValues(alpha: 0.35)
-                                    : _cardBorder),
+                                      ? kPrimaryColor.withValues(alpha: 0.35)
+                                      : _cardBorder),
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: kPrimaryColor.withValues(alpha: 0.25),
+                                    color: kPrimaryColor.withValues(
+                                      alpha: 0.25,
+                                    ),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),
@@ -371,7 +378,8 @@ class _PartnerBookingCalendarPageState
                           children: [
                             Text(
                               DateFormat('E').format(date).toUpperCase(),
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: isSelected
@@ -382,7 +390,8 @@ class _PartnerBookingCalendarPageState
                             const SizedBox(height: 4),
                             Text(
                               DateFormat('d').format(date),
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 color: isSelected ? Colors.white : _valueColor,
@@ -402,7 +411,8 @@ class _PartnerBookingCalendarPageState
                   Expanded(
                     child: Text(
                       'Blocked Slots',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: _valueColor,
@@ -423,11 +433,16 @@ class _PartnerBookingCalendarPageState
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.add_rounded, size: 14, color: Colors.white),
+                          const Icon(
+                            Icons.add_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Block Slot',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -442,7 +457,8 @@ class _PartnerBookingCalendarPageState
               const SizedBox(height: 4),
               Text(
                 DateFormat('EEEE, d MMMM').format(_selectedDate),
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   color: _labelColor,
@@ -452,8 +468,9 @@ class _PartnerBookingCalendarPageState
 
               blockedSlotsAsync.when(
                 data: (blocked) {
-                  final forDate =
-                      blocked.where((b) => b.date == _formattedDate).toList();
+                  final forDate = blocked
+                      .where((b) => b.date == _formattedDate)
+                      .toList();
                   if (forDate.isEmpty) {
                     return Container(
                       width: double.infinity,
@@ -491,7 +508,8 @@ class _PartnerBookingCalendarPageState
                           const SizedBox(height: 12),
                           Text(
                             'No blocked slots',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: _valueColor,
@@ -501,7 +519,8 @@ class _PartnerBookingCalendarPageState
                           Text(
                             'All times are open for bookings on this day.',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
                               color: _labelColor,
@@ -573,7 +592,8 @@ class _PartnerBookingCalendarPageState
                             children: [
                               Text(
                                 'Broadcast Delay',
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: _valueColor,
@@ -582,7 +602,8 @@ class _PartnerBookingCalendarPageState
                               const SizedBox(height: 2),
                               Text(
                                 'Running late? Notify today’s guests.',
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   color: _labelColor,
@@ -596,7 +617,8 @@ class _PartnerBookingCalendarPageState
                     const SizedBox(height: 12),
                     Text(
                       'Send a push notification to all upcoming booked customers for the selected date.',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         color: _labelColor,
@@ -617,7 +639,8 @@ class _PartnerBookingCalendarPageState
                         ),
                         child: Text(
                           'Broadcast Delay',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -640,10 +663,7 @@ class _BlockedSlotCard extends StatelessWidget {
   final BlockedSlotModel slot;
   final VoidCallback onUnblock;
 
-  const _BlockedSlotCard({
-    required this.slot,
-    required this.onUnblock,
-  });
+  const _BlockedSlotCard({required this.slot, required this.onUnblock});
 
   @override
   Widget build(BuildContext context) {
@@ -683,7 +703,8 @@ class _BlockedSlotCard extends StatelessWidget {
               children: [
                 Text(
                   '${slot.startTime} – ${slot.endTime}',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF4E4E4E),
@@ -693,7 +714,8 @@ class _BlockedSlotCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     slot.reason!,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       color: const Color(0xFF74767D),
@@ -797,7 +819,8 @@ class _SheetScaffold extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF4E4E4E),
@@ -827,7 +850,8 @@ class _SheetScaffold extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   subtitle,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                     color: const Color(0xFF74767D),
@@ -852,7 +876,8 @@ class _SheetScaffold extends StatelessWidget {
                           ),
                           child: Text(
                             'Cancel',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF74767D),
@@ -875,7 +900,8 @@ class _SheetScaffold extends StatelessWidget {
                           ),
                           child: Text(
                             primaryLabel,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -913,7 +939,8 @@ class _TimeField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF74767D),
@@ -936,7 +963,8 @@ class _TimeField extends StatelessWidget {
                 Expanded(
                   child: Text(
                     value,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF4E4E4E),
@@ -981,7 +1009,8 @@ class _LabeledField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF74767D),
@@ -993,14 +1022,16 @@ class _LabeledField extends StatelessWidget {
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           maxLines: maxLines,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF4E4E4E),
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.urbanist(
+            hintStyle: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: const Color(0xFF9CA3AF),

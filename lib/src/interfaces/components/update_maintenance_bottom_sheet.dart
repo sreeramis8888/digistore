@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:setgo/src/data/constants/style_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 class UpdateMaintenanceOverlay extends StatelessWidget {
   final bool isMaintenance;
   final bool isHardUpdate;
@@ -73,11 +74,14 @@ class UpdateMaintenanceOverlay extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: (isMaintenance ? Colors.orange : kPrimaryColor).withOpacity(0.1),
+                        color: (isMaintenance ? Colors.orange : kPrimaryColor)
+                            .withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isMaintenance ? Icons.build_circle_rounded : Icons.system_update_rounded,
+                        isMaintenance
+                            ? Icons.build_circle_rounded
+                            : Icons.system_update_rounded,
                         size: 28,
                         color: isMaintenance ? Colors.orange : kPrimaryColor,
                       ),
@@ -87,14 +91,14 @@ class UpdateMaintenanceOverlay extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            title,
-                            style: kSubHeadingB,
-                          ),
+                          Text(title, style: kSubHeadingB),
                           const SizedBox(height: 4),
                           Text(
                             message,
-                            style: kSmallTitleR.copyWith(color: kSecondaryTextColor, height: 1.3),
+                            style: kSmallTitleR.copyWith(
+                              color: kSecondaryTextColor,
+                              height: 1.3,
+                            ),
                           ),
                         ],
                       ),
@@ -110,15 +114,15 @@ class UpdateMaintenanceOverlay extends StatelessWidget {
                         onPressed: onDismiss,
                         style: TextButton.styleFrom(
                           foregroundColor: kSecondaryTextColor,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text(
-                          'Later',
-                          style: kBodyTitleM,
-                        ),
+                        child: Text('Later', style: kBodyTitleM),
                       ),
                     if (isSoftUpdate && !isHardUpdate) const SizedBox(width: 8),
                     if (!isMaintenance && (isHardUpdate || isSoftUpdate))
@@ -127,7 +131,10 @@ class UpdateMaintenanceOverlay extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: kPrimaryColor,
                           foregroundColor: kWhite,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),

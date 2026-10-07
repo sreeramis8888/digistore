@@ -17,10 +17,7 @@ import '../../components/common/paginated_banner_grid.dart';
 class CategoryOffersPage extends ConsumerStatefulWidget {
   final CategoryModel category;
 
-  const CategoryOffersPage({
-    super.key,
-    required this.category,
-  });
+  const CategoryOffersPage({super.key, required this.category});
 
   @override
   ConsumerState<CategoryOffersPage> createState() => _CategoryOffersPageState();
@@ -77,7 +74,9 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
     final state = ref.watch(categoryOffersProvider(widget.category.id));
-    final bannersAsync = ref.watch(bannersProvider(BannerFilter(category: widget.category.id)));
+    final bannersAsync = ref.watch(
+      bannersProvider(BannerFilter(category: widget.category.id)),
+    );
     final banners = bannersAsync.value ?? [];
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
@@ -86,7 +85,9 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
 
     Widget bodyContent;
 
-    if (state.isLoading && state.offers.isEmpty && state.exploreOffers.isEmpty) {
+    if (state.isLoading &&
+        state.offers.isEmpty &&
+        state.exploreOffers.isEmpty) {
       bodyContent = GridView.builder(
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.responsivePadding(16.0),
@@ -149,8 +150,9 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
                         ),
                       ),
                       onPressed: () => ref
-                          .read(categoryOffersProvider(widget.category.id)
-                              .notifier)
+                          .read(
+                            categoryOffersProvider(widget.category.id).notifier,
+                          )
                           .fetchOffers(isRefresh: true),
                       child: const Text('Try Again'),
                     ),
@@ -170,7 +172,8 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
             child: EmptyState(
               imagePath: 'assets/png/empty_offers.png',
               title: 'No offers in ${widget.category.name ?? 'this category'}',
-              subtitle: 'We couldn\'t find any active deals under this category right now.',
+              subtitle:
+                  'We couldn\'t find any active deals under this category right now.',
             ).fadeIn(),
           ),
         ],
@@ -210,9 +213,7 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
                 ),
                 child: Text(
                   'No nearby offers',
-                  style: kSmallerTitleL.copyWith(
-                    color: kSecondaryTextColor,
-                  ),
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
               ),
             )
@@ -225,9 +226,7 @@ class _CategoryOffersPageState extends ConsumerState<CategoryOffersPage> {
                 ),
                 child: Text(
                   'No offers found near your location.',
-                  style: kSmallerTitleL.copyWith(
-                    color: kSecondaryTextColor,
-                  ),
+                  style: kSmallerTitleL.copyWith(color: kSecondaryTextColor),
                 ),
               ),
             )

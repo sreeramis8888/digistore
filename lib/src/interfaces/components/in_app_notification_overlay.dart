@@ -191,7 +191,8 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -220,10 +221,12 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
                                               gradient: LinearGradient(
                                                 colors: [
                                                   widget.accentColor,
-                                                  widget.accentColor.withOpacity(0.7),
+                                                  widget.accentColor
+                                                      .withOpacity(0.7),
                                                 ],
                                               ),
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: const Text(
                                               'NEW',
@@ -244,7 +247,9 @@ class _InAppNotificationWidgetState extends State<_InAppNotificationWidget>
                                           style: const TextStyle(
                                             fontSize: 13,
                                             height: 1.3,
-                                            color: Color(0xFFA1A1AA), // Soft silver
+                                            color: Color(
+                                              0xFFA1A1AA,
+                                            ), // Soft silver
                                             fontWeight: FontWeight.w500,
                                           ),
                                           maxLines: 2,

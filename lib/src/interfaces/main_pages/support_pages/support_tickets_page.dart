@@ -12,8 +12,7 @@ class SupportTicketsPage extends ConsumerStatefulWidget {
   const SupportTicketsPage({super.key});
 
   @override
-  ConsumerState<SupportTicketsPage> createState() =>
-      _SupportTicketsPageState();
+  ConsumerState<SupportTicketsPage> createState() => _SupportTicketsPageState();
 }
 
 class _SupportTicketsPageState extends ConsumerState<SupportTicketsPage> {
@@ -75,12 +74,18 @@ class _SupportTicketsPageState extends ConsumerState<SupportTicketsPage> {
               onPressed: _openCreateTicketSheet,
               style: TextButton.styleFrom(
                 foregroundColor: kPrimaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
               ),
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(
                 'Raise Ticket',
-                style: kSmallTitleB.copyWith(color: kPrimaryColor, fontSize: 13),
+                style: kSmallTitleB.copyWith(
+                  color: kPrimaryColor,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),
@@ -155,47 +160,47 @@ class _SupportTicketsPageState extends ConsumerState<SupportTicketsPage> {
                         child: CircularProgressIndicator(color: kPrimaryColor),
                       )
                     : ticketsState.error != null && tickets.isEmpty
-                        ? _buildErrorState(ticketsState.error!)
-                        : tickets.isEmpty
-                            ? _buildEmptyState()
-                            : ListView.builder(
-                                padding: const EdgeInsets.all(16),
-                                physics: const AlwaysScrollableScrollPhysics(
-                                  parent: BouncingScrollPhysics(),
+                    ? _buildErrorState(ticketsState.error!)
+                    : tickets.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        itemCount:
+                            tickets.length +
+                            (ticketsState.isLoadingMore ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == tickets.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: kPrimaryColor,
+                                  strokeWidth: 2,
                                 ),
-                                itemCount: tickets.length +
-                                    (ticketsState.isLoadingMore ? 1 : 0),
-                                itemBuilder: (context, index) {
-                                  if (index == tickets.length) {
-                                    return const Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 16),
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          color: kPrimaryColor,
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  final ticket = tickets[index];
-                                  return SupportTicketCard(
-                                    ticket: ticket,
-                                    screenSize: screenSize,
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              SupportTicketDetailPage(
-                                            initialTicket: ticket,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
                               ),
+                            );
+                          }
+
+                          final ticket = tickets[index];
+                          return SupportTicketCard(
+                            ticket: ticket,
+                            screenSize: screenSize,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SupportTicketDetailPage(
+                                    initialTicket: ticket,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
               ),
             ),
           ],

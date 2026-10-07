@@ -36,7 +36,9 @@ class ConnectivityService with WidgetsBindingObserver {
 
   void _scheduleNextCheck() {
     _pollingTimer?.cancel();
-    final interval = _isOffline ? const Duration(seconds: 2) : const Duration(seconds: 6);
+    final interval = _isOffline
+        ? const Duration(seconds: 2)
+        : const Duration(seconds: 6);
     _pollingTimer = Timer(interval, () {
       checkConnectivity().then((_) {
         if (_isInitialized) _scheduleNextCheck();
@@ -57,15 +59,19 @@ class ConnectivityService with WidgetsBindingObserver {
 
     bool isConnected = false;
     try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 3));
+      final result = await InternetAddress.lookup(
+        'google.com',
+      ).timeout(const Duration(seconds: 3));
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         isConnected = true;
       }
     } catch (_) {
       try {
-        final socket = await Socket.connect('8.8.8.8', 53,
-            timeout: const Duration(seconds: 2));
+        final socket = await Socket.connect(
+          '8.8.8.8',
+          53,
+          timeout: const Duration(seconds: 2),
+        );
         socket.destroy();
         isConnected = true;
       } catch (_) {
@@ -86,7 +92,8 @@ class ConnectivityService with WidgetsBindingObserver {
 
   void _handleStatusChange(bool isConnected, {bool forceToast = false}) {
     final now = DateTime.now();
-    final bool canShowToast = _lastToastTime == null ||
+    final bool canShowToast =
+        _lastToastTime == null ||
         now.difference(_lastToastTime!).inSeconds >= 5;
 
     if (!isConnected) {
@@ -108,10 +115,7 @@ class ConnectivityService with WidgetsBindingObserver {
         _connectionRestoredController.add(null);
         if (canShowToast) {
           _lastToastTime = now;
-          _showToast(
-            'You are back online.',
-            ToastType.success,
-          );
+          _showToast('You are back online.', ToastType.success);
         }
       }
     }

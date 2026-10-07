@@ -15,7 +15,7 @@ import 'firebase_options.dart';
 import 'src/data/services/notification_service/notification_controller.dart';
 import 'src/data/services/navigation_service.dart';
 import 'src/data/services/connectivity_service.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'src/data/constants/style_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,48 +42,44 @@ void main() async {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
-  
+
   // Disable OS device notifications when app is in foreground
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: false,
     badge: false,
     sound: false,
   );
-  
-  await AwesomeNotifications().initialize(
-    null, 
-    [
-      NotificationChannel(
-        channelKey: 'channel_setgo',
-        channelName: 'Setgo Notifications',
-        channelDescription: 'Notification channel for Setgo app',
-        defaultColor: const Color(0xFF1e3a81),
-        ledColor: Colors.white,
-        importance: NotificationImportance.Max,
-        channelShowBadge: true,
-        playSound: true,
-        enableVibration: true,
-        enableLights: true,
-        criticalAlerts: true,
-        defaultRingtoneType: DefaultRingtoneType.Notification,
-      ),
-      NotificationChannel(
-        channelKey: 'channel_setgo_silent_v2',
-        channelName: 'Setgo Silent Tray',
-        channelDescription: 'Silent notifications for the tray',
-        defaultColor: const Color(0xFF1e3a81),
-        ledColor: Colors.white,
-        importance: NotificationImportance.Default,
-        channelShowBadge: true,
-        playSound: false,
-        enableVibration: false,
-        enableLights: false,
-        criticalAlerts: false,
-      ),
-    ],
-    debug: true,
-  );
-  
+
+  await AwesomeNotifications().initialize(null, [
+    NotificationChannel(
+      channelKey: 'channel_setgo',
+      channelName: 'Setgo Notifications',
+      channelDescription: 'Notification channel for Setgo app',
+      defaultColor: const Color(0xFF1e3a81),
+      ledColor: Colors.white,
+      importance: NotificationImportance.Max,
+      channelShowBadge: true,
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
+      criticalAlerts: true,
+      defaultRingtoneType: DefaultRingtoneType.Notification,
+    ),
+    NotificationChannel(
+      channelKey: 'channel_setgo_silent_v2',
+      channelName: 'Setgo Silent Tray',
+      channelDescription: 'Silent notifications for the tray',
+      defaultColor: const Color(0xFF1e3a81),
+      ledColor: Colors.white,
+      importance: NotificationImportance.Default,
+      channelShowBadge: true,
+      playSound: false,
+      enableVibration: false,
+      enableLights: false,
+      criticalAlerts: false,
+    ),
+  ], debug: true);
+
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: NotificationController.onActionReceivedMethod,
@@ -107,8 +103,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Setgo',
       theme: ThemeData(
-        fontFamily: GoogleFonts.urbanist().fontFamily,
-        textTheme: GoogleFonts.urbanistTextTheme(),
+        fontFamily: kFontFamily,
+        textTheme: ThemeData.light().textTheme.apply(fontFamily: kFontFamily),
+        primaryTextTheme: ThemeData.light().primaryTextTheme.apply(
+          fontFamily: kFontFamily,
+        ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.white,
           surface: Colors.white,
@@ -116,6 +115,14 @@ class MyApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          titleTextStyle: TextStyle(
+            fontFamily: kFontFamily,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF373737),
+          ),
+        ),
       ),
       initialRoute: 'splash',
       onGenerateRoute: generateRoute,

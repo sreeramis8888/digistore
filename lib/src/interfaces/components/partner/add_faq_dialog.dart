@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/business_info.dart';
 
 Future<BusinessFAQ?> showAddFaqDialog(
@@ -34,7 +33,9 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
   void initState() {
     super.initState();
     _isEditing = widget.initialFaq != null;
-    _questionCtrl = TextEditingController(text: widget.initialFaq?.question ?? '');
+    _questionCtrl = TextEditingController(
+      text: widget.initialFaq?.question ?? '',
+    );
     _answerCtrl = TextEditingController(text: widget.initialFaq?.answer ?? '');
   }
 
@@ -84,7 +85,8 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
                 const SizedBox(height: 16),
                 Text(
                   _isEditing ? 'Edit FAQ' : 'Add FAQ',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF111827),
@@ -93,7 +95,8 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
                 const SizedBox(height: 4),
                 Text(
                   'These appear on your shop page for customers.',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                     color: const Color(0xFF6B7280),
@@ -129,7 +132,8 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
                         ),
                         child: Text(
                           'Cancel',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -151,7 +155,8 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
                         ),
                         child: Text(
                           _isEditing ? 'Save' : 'Add',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -179,7 +184,8 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
       children: [
         Text(
           label,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF74767D),
@@ -189,14 +195,16 @@ class _FaqBottomSheetState extends State<_FaqBottomSheet> {
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF4E4E4E),
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.urbanist(
+            hintStyle: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: const Color(0xFF9CA3AF),

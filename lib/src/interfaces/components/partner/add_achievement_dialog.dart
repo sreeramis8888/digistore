@@ -38,7 +38,9 @@ Future<String?> showAddAchievementDialog(BuildContext context) {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               child: Row(
                 children: [
@@ -49,10 +51,17 @@ Future<String?> showAddAchievementDialog(BuildContext context) {
                       color: kPrimaryLightColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.emoji_events_outlined, color: kPrimaryColor, size: 22),
+                    child: const Icon(
+                      Icons.emoji_events_outlined,
+                      color: kPrimaryColor,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Add Achievement', style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700)),
+                  Text(
+                    'Add Achievement',
+                    style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
             ),
@@ -62,7 +71,11 @@ Future<String?> showAddAchievementDialog(BuildContext context) {
                 label: 'Achievement',
                 hint: 'e.g. Best Service Award 2024',
                 controller: controller,
-                prefixIcon: const Icon(Icons.star_outline_rounded, color: kSecondaryColor, size: 18),
+                prefixIcon: const Icon(
+                  Icons.star_outline_rounded,
+                  color: kSecondaryColor,
+                  size: 18,
+                ),
               ),
             ),
             Padding(

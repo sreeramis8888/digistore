@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/user_provider.dart';
 import '../../../data/providers/home_provider.dart';
 import '../../../data/models/home_data_model.dart';
+import '../../../data/utils/name_case.dart';
 
 class WalletHeader extends ConsumerWidget {
   const WalletHeader({super.key});
@@ -17,8 +17,8 @@ class WalletHeader extends ConsumerWidget {
     final homeDataState = ref.watch(homeDataProvider).value;
 
     final name = (user?.name != null && user!.name!.trim().isNotEmpty)
-        ? user.name!.trim().toUpperCase()
-        : 'ABDUL WAHAAB';
+        ? NameCase.toTitleCase(user.name!)
+        : 'Abdul Wahaab';
 
     int points = user?.pointsBalance ?? 0;
 
@@ -65,7 +65,8 @@ class WalletHeader extends ConsumerWidget {
                 children: [
                   Text(
                     'Your available points:',
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -75,7 +76,8 @@ class WalletHeader extends ConsumerWidget {
                   SizedBox(height: screenSize.responsivePadding(4)),
                   Text(
                     name,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -102,7 +104,8 @@ class WalletHeader extends ConsumerWidget {
                 children: [
                   Text(
                     '$points',
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF6155F5),

@@ -45,11 +45,12 @@ class NotificationService {
       debugPrint('🔔 Initializing Notification Service...');
 
       // Configure FCM foreground presentation options to prevent OS duplicate system notifications in foreground
-      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: true,
-        sound: false,
-      );
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: false,
+            badge: true,
+            sound: false,
+          );
 
       // Channel is already initialized in main.dart
       // Just verify it exists
@@ -84,14 +85,20 @@ class NotificationService {
     _ref.read(notificationsProvider.notifier).addNotificationFromPush(message);
 
     try {
-      final title = message.notification?.title ?? message.data['title'] ?? message.data['heading'];
-      final body = message.notification?.body ?? message.data['body'] ?? message.data['message'];
+      final title =
+          message.notification?.title ??
+          message.data['title'] ??
+          message.data['heading'];
+      final body =
+          message.notification?.body ??
+          message.data['body'] ??
+          message.data['message'];
 
       if (title != null || body != null) {
         String? deepLink;
         String? screen = message.data['screen'] ?? message.data['actionScreen'];
         String? id = message.data['id'] ?? message.data['actionTargetId'];
-        
+
         if (screen != null) {
           deepLink = _deepLinkService.generateDeepLink(screen, id: id);
         }
@@ -105,7 +112,9 @@ class NotificationService {
             overlayState: NavigationService.navigatorKey.currentState?.overlay,
             title: title?.toString() ?? 'Notification',
             message: body?.toString() ?? '',
-            imageUrl: message.notification?.android?.imageUrl ?? message.data['imageUrl']?.toString(),
+            imageUrl:
+                message.notification?.android?.imageUrl ??
+                message.data['imageUrl']?.toString(),
             accentColor: const Color(0xFF1e3a81),
             onTap: () {
               if (deepLink != null) {
@@ -113,12 +122,16 @@ class NotificationService {
               }
             },
             onTimeout: () {
-              debugPrint('Overlay timed out, adding silent notification to tray');
+              debugPrint(
+                'Overlay timed out, adding silent notification to tray',
+              );
               _showSystemNotification(message, deepLink);
             },
           );
         } else {
-          debugPrint('Context not available, adding silent notification to tray');
+          debugPrint(
+            'Context not available, adding silent notification to tray',
+          );
           _showSystemNotification(message, deepLink);
         }
       }
@@ -129,18 +142,31 @@ class NotificationService {
 
   void _showSystemNotification(RemoteMessage message, String? deepLink) {
     debugPrint('Creating silent tray notification');
-    final title = message.notification?.title ?? message.data['title'] ?? message.data['heading'];
-    final body = message.notification?.body ?? message.data['body'] ?? message.data['message'];
+    final title =
+        message.notification?.title ??
+        message.data['title'] ??
+        message.data['heading'];
+    final body =
+        message.notification?.body ??
+        message.data['body'] ??
+        message.data['message'];
 
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: message.hashCode,
-        channelKey: 'channel_setgo_silent_v2', // Silent channel with status bar icon
+        channelKey:
+            'channel_setgo_silent_v2', // Silent channel with status bar icon
         title: title?.toString(),
         body: body?.toString(),
-        bigPicture: message.notification?.android?.imageUrl ?? message.data['imageUrl']?.toString(),
-        largeIcon: message.notification?.android?.imageUrl ?? message.data['imageUrl']?.toString(),
-        notificationLayout: (message.notification?.android?.imageUrl != null || message.data['imageUrl'] != null)
+        bigPicture:
+            message.notification?.android?.imageUrl ??
+            message.data['imageUrl']?.toString(),
+        largeIcon:
+            message.notification?.android?.imageUrl ??
+            message.data['imageUrl']?.toString(),
+        notificationLayout:
+            (message.notification?.android?.imageUrl != null ||
+                message.data['imageUrl'] != null)
             ? NotificationLayout.BigPicture
             : NotificationLayout.Default,
         payload: deepLink != null ? {'deepLink': deepLink} : null,
@@ -170,7 +196,7 @@ class NotificationService {
       String? deepLink;
       String? screen = message.data['screen'] ?? message.data['actionScreen'];
       String? id = message.data['id'] ?? message.data['actionTargetId'];
-      
+
       if (screen != null) {
         deepLink = _deepLinkService.generateDeepLink(screen, id: id);
       }

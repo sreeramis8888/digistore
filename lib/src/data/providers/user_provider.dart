@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/secure_storage_service.dart';
+import '../utils/name_case.dart';
 import 'api_provider.dart';
 
 class UserNotifier extends Notifier<UserModel?> {
@@ -43,7 +44,7 @@ class UserNotifier extends Notifier<UserModel?> {
     final api = ref.read(apiProvider);
 
     final Map<String, dynamic> payload = {
-      'name': name,
+      'name': NameCase.toTitleCase(name),
       if (email.isNotEmpty) 'email': email,
     };
 
@@ -51,12 +52,8 @@ class UserNotifier extends Notifier<UserModel?> {
       payload['onboardingComplete'] = onboardingComplete;
     }
 
-    final response = await api.put(
-      '/profile',
-      payload,
-      requireAuth: true,
-    );
-    
+    final response = await api.put('/profile', payload, requireAuth: true);
+
     if (response.success && response.data != null) {
       final userData = response.data!['data'];
       if (userData != null) {
@@ -82,16 +79,12 @@ class UserNotifier extends Notifier<UserModel?> {
     required String localBody,
   }) async {
     final api = ref.read(apiProvider);
-    final response = await api.put(
-      '/profile/location',
-      {
-        'lat': lat,
-        'lng': lng,
-        'district': district,
-        'localBody': localBody,
-      },
-      requireAuth: true,
-    );
+    final response = await api.put('/profile/location', {
+      'lat': lat,
+      'lng': lng,
+      'district': district,
+      'localBody': localBody,
+    }, requireAuth: true);
 
     if (response.success && response.data != null) {
       final userData = response.data!['data'];
@@ -114,4 +107,6 @@ class UserNotifier extends Notifier<UserModel?> {
   }
 }
 
-final userProvider = NotifierProvider<UserNotifier, UserModel?>(UserNotifier.new);
+final userProvider = NotifierProvider<UserNotifier, UserModel?>(
+  UserNotifier.new,
+);

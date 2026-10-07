@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_history_provider.dart';
 import '../../components/partner/partner_overview_cards.dart';
@@ -63,7 +62,8 @@ class _PartnerHistoryPageState extends ConsumerState<PartnerHistoryPage> {
         titleSpacing: canPop ? 0 : 16,
         title: Text(
           'History',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF373737),

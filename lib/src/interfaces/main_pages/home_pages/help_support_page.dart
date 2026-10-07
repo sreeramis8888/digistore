@@ -219,15 +219,8 @@ class HelpSupportPage extends ConsumerWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: bgColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 24,
-              ),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -236,7 +229,10 @@ class HelpSupportPage extends ConsumerWidget {
                 children: [
                   Text(
                     title,
-                    style: kSmallTitleB.copyWith(color: kTextColor, fontSize: 13),
+                    style: kSmallTitleB.copyWith(
+                      color: kTextColor,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(

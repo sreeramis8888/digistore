@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
@@ -13,11 +12,7 @@ class PartnerRecentOffers extends ConsumerWidget {
   final ScreenSizeData screenSize;
   final List<OfferModel>? offers;
 
-  const PartnerRecentOffers({
-    super.key,
-    required this.screenSize,
-    this.offers,
-  });
+  const PartnerRecentOffers({super.key, required this.screenSize, this.offers});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +32,8 @@ class PartnerRecentOffers extends ConsumerWidget {
             children: [
               Text(
                 'Recently Uploaded Offers',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF111827),
@@ -53,7 +49,8 @@ class PartnerRecentOffers extends ConsumerWidget {
                   children: [
                     Text(
                       'View All',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF10B981),
@@ -107,11 +104,7 @@ class PartnerRecentOffers extends ConsumerWidget {
 
     return InteractiveFeedbackButton(
       onPressed: () {
-        Navigator.pushNamed(
-          context,
-          'offerDetail',
-          arguments: offer.toJson(),
-        );
+        Navigator.pushNamed(context, 'offerDetail', arguments: offer.toJson());
       },
       scaleFactor: 0.98,
       child: Container(
@@ -120,10 +113,7 @@ class PartnerRecentOffers extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: const Color(0xFFE5E7EB),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(23),
@@ -172,7 +162,8 @@ class PartnerRecentOffers extends ConsumerWidget {
                               badgeText,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -193,7 +184,8 @@ class PartnerRecentOffers extends ConsumerWidget {
                     children: [
                       Text(
                         offer.title ?? 'Special Offer',
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF111827),
@@ -204,7 +196,8 @@ class PartnerRecentOffers extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         offer.description ?? '',
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           color: const Color(0xFF6B7280),
@@ -223,4 +216,3 @@ class PartnerRecentOffers extends ConsumerWidget {
     );
   }
 }
-

@@ -50,14 +50,9 @@ class _RelatedProductsSectionState
     setState(() => _loading = true);
     try {
       final api = ref.read(apiProvider);
-      final queryParams = <String, String>{
-        'page': '1',
-        'limit': '10',
-      };
+      final queryParams = <String, String>{'page': '1', 'limit': '10'};
       final categoryId = widget.categoryId;
-      if (categoryId != null &&
-          categoryId.isNotEmpty &&
-          categoryId != 'All') {
+      if (categoryId != null && categoryId.isNotEmpty && categoryId != 'All') {
         queryParams['category'] = categoryId;
       }
 
@@ -151,10 +146,9 @@ class _RelatedProductCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final image =
-        (product.images != null && product.images!.isNotEmpty)
-            ? product.images!.first
-            : '';
+    final image = (product.images != null && product.images!.isNotEmpty)
+        ? product.images!.first
+        : '';
     final priceLabel = _priceLabel;
 
     return InteractiveFeedbackButton(
@@ -162,9 +156,7 @@ class _RelatedProductCard extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductDetailsPage(
-              product: product.toJson(),
-            ),
+            builder: (context) => ProductDetailsPage(product: product.toJson()),
           ),
         );
       },

@@ -73,11 +73,7 @@ class RazorpayService {
       'description': description,
       'order_id': trimmedOrderId,
       'theme': {'color': themeColor},
-      'prefill': _prefill(
-        contact: contact,
-        email: email,
-        name: customerName,
-      ),
+      'prefill': _prefill(contact: contact, email: email, name: customerName),
     };
 
     _open(options);
@@ -94,18 +90,15 @@ class RazorpayService {
     );
   }
 
-  Map<String, String> _prefill({
-    String? contact,
-    String? email,
-    String? name,
-  }) {
+  Map<String, String> _prefill({String? contact, String? email, String? name}) {
     final map = <String, String>{};
     final phone = _normalizeContact(contact);
     final mail = email?.trim();
     final displayName = name?.trim();
     if (phone != null) map['contact'] = phone;
     if (mail != null && mail.isNotEmpty) map['email'] = mail;
-    if (displayName != null && displayName.isNotEmpty) map['name'] = displayName;
+    if (displayName != null && displayName.isNotEmpty)
+      map['name'] = displayName;
     return map;
   }
 
@@ -131,7 +124,11 @@ class RazorpayService {
       );
       _razorpay.open(options);
     } catch (e, st) {
-      log('Failed to open Razorpay: $e', name: 'RazorpayService', stackTrace: st);
+      log(
+        'Failed to open Razorpay: $e',
+        name: 'RazorpayService',
+        stackTrace: st,
+      );
       rethrow;
     }
   }

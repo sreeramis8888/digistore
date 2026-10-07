@@ -60,13 +60,19 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
   final String shopId;
   final bool isPartner;
 
-  ShopAllReviewsNotifier(this.ref, this.shopId, {this.isPartner = false}) : super(ShopAllReviewsState()) {
+  ShopAllReviewsNotifier(this.ref, this.shopId, {this.isPartner = false})
+    : super(ShopAllReviewsState()) {
     fetchReviews(refresh: true);
   }
 
   Future<void> fetchReviews({bool refresh = false}) async {
     if (refresh) {
-      state = state.copyWith(isLoading: true, page: 1, hasMore: true, error: null);
+      state = state.copyWith(
+        isLoading: true,
+        page: 1,
+        hasMore: true,
+        error: null,
+      );
     } else {
       if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
       state = state.copyWith(isLoadingMore: true, error: null);
@@ -75,14 +81,20 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
     try {
       final api = ref.read(apiProvider);
       final currentPage = refresh ? 1 : state.page;
-      final response = isPartner || shopId == 'partner' || shopId == 'partner_reviews' || shopId.isEmpty
+      final response =
+          isPartner ||
+              shopId == 'partner' ||
+              shopId == 'partner_reviews' ||
+              shopId.isEmpty
           ? await api.get('/reviews?page=$currentPage&limit=15')
           : await api.get('/reviews/shop/$shopId?page=$currentPage&limit=15');
 
       if (response.success && response.data != null) {
         final paginated = PaginatedReviews.fromJson(response.data!);
         final newReviews = paginated.reviews;
-        final allReviews = refresh ? newReviews : [...state.reviews, ...newReviews];
+        final allReviews = refresh
+            ? newReviews
+            : [...state.reviews, ...newReviews];
 
         state = state.copyWith(
           reviews: allReviews,
@@ -90,7 +102,12 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
           hasMore: paginated.page < paginated.pages && newReviews.isNotEmpty,
           isLoading: false,
           isLoadingMore: false,
-          totalReviews: paginated.total > 0 ? paginated.total : (isPartner ? (ref.read(partnerProvider)?.businessInfo?.totalReviews ?? allReviews.length) : allReviews.length),
+          totalReviews: paginated.total > 0
+              ? paginated.total
+              : (isPartner
+                    ? (ref.read(partnerProvider)?.businessInfo?.totalReviews ??
+                          allReviews.length)
+                    : allReviews.length),
         );
       } else {
         state = state.copyWith(
@@ -118,13 +135,17 @@ class ShopAllReviewsNotifier extends StateNotifier<ShopAllReviewsState> {
 }
 
 final shopAllReviewsProvider =
-    StateNotifierProvider.family<ShopAllReviewsNotifier, ShopAllReviewsState, String>(
-  (ref, shopId) => ShopAllReviewsNotifier(
-    ref,
-    shopId,
-    isPartner: shopId == 'partner' || shopId == 'partner_reviews',
-  ),
-);
+    StateNotifierProvider.family<
+      ShopAllReviewsNotifier,
+      ShopAllReviewsState,
+      String
+    >(
+      (ref, shopId) => ShopAllReviewsNotifier(
+        ref,
+        shopId,
+        isPartner: shopId == 'partner' || shopId == 'partner_reviews',
+      ),
+    );
 
 class AllReviewsPage extends ConsumerStatefulWidget {
   final ShopModel? shop;
@@ -177,7 +198,9 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
     );
 
     if (result == true) {
-      ref.read(shopAllReviewsProvider(shopId).notifier).fetchReviews(refresh: true);
+      ref
+          .read(shopAllReviewsProvider(shopId).notifier)
+          .fetchReviews(refresh: true);
       ref.invalidate(reviewsProvider(shopId: shopId));
     }
   }
@@ -194,8 +217,8 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
     final int displayTotalReviews = reviewsState.totalReviews > 0
         ? reviewsState.totalReviews
         : (isPartner
-            ? (ref.watch(partnerProvider)?.businessInfo?.totalReviews ?? 0)
-            : (widget.shop?.businessInfo?.totalReviews ?? 0));
+              ? (ref.watch(partnerProvider)?.businessInfo?.totalReviews ?? 0)
+              : (widget.shop?.businessInfo?.totalReviews ?? 0));
 
     final displayedReviews = reviewsState.reviews;
 
@@ -206,16 +229,27 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kTextColor, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: kTextColor,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(isPartner ? 'Shop Reviews' : 'Customer Reviews', style: kBodyTitleSB),
+        title: Text(
+          isPartner ? 'Shop Reviews' : 'Customer Reviews',
+          style: kBodyTitleSB,
+        ),
         actions: isPartner
             ? null
             : [
                 TextButton.icon(
                   onPressed: _openAddReviewSheet,
-                  icon: const Icon(Icons.edit_rounded, color: kPrimaryColor, size: 16),
+                  icon: const Icon(
+                    Icons.edit_rounded,
+                    color: kPrimaryColor,
+                    size: 16,
+                  ),
                   label: Text(
                     'Review',
                     style: kSmallTitleSB.copyWith(color: kPrimaryColor),
@@ -228,7 +262,9 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
           ? const Center(child: LoadingAnimation())
           : RefreshIndicator(
               color: kPrimaryColor,
-              onRefresh: () => ref.read(shopAllReviewsProvider(shopId).notifier).fetchReviews(refresh: true),
+              onRefresh: () => ref
+                  .read(shopAllReviewsProvider(shopId).notifier)
+                  .fetchReviews(refresh: true),
               child: CustomScrollView(
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -238,26 +274,42 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
                       padding: EdgeInsets.all(screenSize.responsivePadding(16)),
                       child: Column(
                         children: [
-                          _buildRatingOverviewCard(screenSize, rating, displayTotalReviews),
+                          _buildRatingOverviewCard(
+                            screenSize,
+                            rating,
+                            displayTotalReviews,
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  if (reviewsState.error != null && reviewsState.reviews.isEmpty)
+                  if (reviewsState.error != null &&
+                      reviewsState.reviews.isEmpty)
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              color: Colors.redAccent,
+                              size: 48,
+                            ),
                             SizedBox(height: screenSize.responsivePadding(12)),
                             Text('Could not load reviews', style: kBodyTitleM),
                             SizedBox(height: screenSize.responsivePadding(8)),
                             ElevatedButton(
-                              onPressed: () => ref.read(shopAllReviewsProvider(shopId).notifier).fetchReviews(refresh: true),
-                              style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
-                              child: const Text('Retry', style: TextStyle(color: kWhite)),
+                              onPressed: () => ref
+                                  .read(shopAllReviewsProvider(shopId).notifier)
+                                  .fetchReviews(refresh: true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kPrimaryColor,
+                              ),
+                              child: const Text(
+                                'Retry',
+                                style: TextStyle(color: kWhite),
+                              ),
                             ),
                           ],
                         ),
@@ -270,25 +322,44 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.rate_review_outlined, color: kSecondaryTextColor.withValues(alpha: 0.5), size: 56),
+                            Icon(
+                              Icons.rate_review_outlined,
+                              color: kSecondaryTextColor.withValues(alpha: 0.5),
+                              size: 56,
+                            ),
                             SizedBox(height: screenSize.responsivePadding(16)),
                             Text(
                               'No reviews yet',
-                              style: kBodyTitleM.copyWith(color: kSecondaryTextColor),
+                              style: kBodyTitleM.copyWith(
+                                color: kSecondaryTextColor,
+                              ),
                             ),
                             if (!isPartner) ...[
-                              SizedBox(height: screenSize.responsivePadding(16)),
+                              SizedBox(
+                                height: screenSize.responsivePadding(16),
+                              ),
                               ElevatedButton.icon(
                                 onPressed: _openAddReviewSheet,
-                                icon: const Icon(Icons.star_outline_rounded, color: kWhite, size: 18),
-                                label: const Text('Be the first to review', style: TextStyle(color: kWhite)),
+                                icon: const Icon(
+                                  Icons.star_outline_rounded,
+                                  color: kWhite,
+                                  size: 18,
+                                ),
+                                label: const Text(
+                                  'Be the first to review',
+                                  style: TextStyle(color: kWhite),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kPrimaryColor,
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: screenSize.responsivePadding(20),
+                                    horizontal: screenSize.responsivePadding(
+                                      20,
+                                    ),
                                     vertical: screenSize.responsivePadding(12),
                                   ),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
                                 ),
                               ),
                             ],
@@ -298,57 +369,75 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
                     )
                   else
                     SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.responsivePadding(16),
+                      ),
                       sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            if (index == displayedReviews.length) {
-                              if (reviewsState.isLoadingMore) {
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(vertical: screenSize.responsivePadding(24)),
-                                  child: const Center(
-                                    child: SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(strokeWidth: 2.5, color: kPrimaryColor),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          if (index == displayedReviews.length) {
+                            if (reviewsState.isLoadingMore) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: screenSize.responsivePadding(24),
+                                ),
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: kPrimaryColor,
                                     ),
                                   ),
-                                );
-                              } else if (!reviewsState.hasMore) {
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(vertical: screenSize.responsivePadding(32)),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.check_circle_outline_rounded, size: 16, color: kSecondaryTextColor.withValues(alpha: 0.6)),
-                                        SizedBox(width: screenSize.responsivePadding(6)),
-                                        Text(
-                                          "You've reached the end of reviews",
-                                          style: kSmallTitleR.copyWith(
-                                            color: kSecondaryTextColor.withValues(alpha: 0.7),
-                                            fontSize: 12,
-                                          ),
+                                ),
+                              );
+                            } else if (!reviewsState.hasMore) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: screenSize.responsivePadding(32),
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle_outline_rounded,
+                                        size: 16,
+                                        color: kSecondaryTextColor.withValues(
+                                          alpha: 0.6,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      SizedBox(
+                                        width: screenSize.responsivePadding(6),
+                                      ),
+                                      Text(
+                                        "You've reached the end of reviews",
+                                        style: kSmallTitleR.copyWith(
+                                          color: kSecondaryTextColor.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              }
-                              return const SizedBox.shrink();
+                                ),
+                              );
                             }
+                            return const SizedBox.shrink();
+                          }
 
-                            final review = displayedReviews[index];
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: screenSize.responsivePadding(16)),
-                              child: _VerticalReviewCard(
-                                review: review,
-                                screenSize: screenSize,
-                              ),
-                            );
-                          },
-                          childCount: displayedReviews.length + 1,
-                        ),
+                          final review = displayedReviews[index];
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: screenSize.responsivePadding(16),
+                            ),
+                            child: _VerticalReviewCard(
+                              review: review,
+                              screenSize: screenSize,
+                            ),
+                          );
+                        }, childCount: displayedReviews.length + 1),
                       ),
                     ),
                 ],
@@ -357,7 +446,11 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
     );
   }
 
-  Widget _buildRatingOverviewCard(ScreenSizeData screenSize, double rating, int totalReviews) {
+  Widget _buildRatingOverviewCard(
+    ScreenSizeData screenSize,
+    double rating,
+    int totalReviews,
+  ) {
     return Container(
       padding: EdgeInsets.all(screenSize.responsivePadding(20)),
       decoration: BoxDecoration(
@@ -379,10 +472,8 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
               Text(
                 RatingLabel.detailed(rating, reviewCount: totalReviews),
                 style: kLargeTitleB.copyWith(
-                  fontSize: RatingLabel.hasRating(
-                        rating,
-                        reviewCount: totalReviews,
-                      )
+                  fontSize:
+                      RatingLabel.hasRating(rating, reviewCount: totalReviews)
                       ? 40
                       : 22,
                   fontWeight: FontWeight.w800,
@@ -437,7 +528,11 @@ class _AllReviewsPageState extends ConsumerState<AllReviewsPage> {
                         color: const Color(0xFFE8F5E9),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.verified_rounded, color: Color(0xFF2E7D32), size: 16),
+                      child: const Icon(
+                        Icons.verified_rounded,
+                        color: Color(0xFF2E7D32),
+                        size: 16,
+                      ),
                     ),
                     SizedBox(width: screenSize.responsivePadding(8)),
                     Expanded(
@@ -475,7 +570,11 @@ class _VerticalReviewCard extends StatelessWidget {
 
   const _VerticalReviewCard({required this.review, required this.screenSize});
 
-  void _showFullImageGallery(BuildContext context, List<String> imageUrls, int initialIndex) {
+  void _showFullImageGallery(
+    BuildContext context,
+    List<String> imageUrls,
+    int initialIndex,
+  ) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
@@ -486,10 +585,7 @@ class _VerticalReviewCard extends StatelessWidget {
           );
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+          return FadeTransition(opacity: animation, child: child);
         },
       ),
     );
@@ -582,7 +678,11 @@ class _VerticalReviewCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: screenSize.responsivePadding(4)),
-                    const Icon(Icons.star_rounded, color: Color(0xFFFFC107), size: 14),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Color(0xFFFFC107),
+                      size: 14,
+                    ),
                   ],
                 ),
               ),
@@ -614,7 +714,8 @@ class _VerticalReviewCard extends StatelessWidget {
                   return Hero(
                     tag: 'vertical_review_${review.id ?? index}_$index',
                     child: GestureDetector(
-                      onTap: () => _showFullImageGallery(context, review.images!, index),
+                      onTap: () =>
+                          _showFullImageGallery(context, review.images!, index),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),

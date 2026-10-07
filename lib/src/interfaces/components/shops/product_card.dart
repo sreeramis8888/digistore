@@ -7,6 +7,7 @@ import '../advanced_network_image.dart';
 import '../../main_pages/partner/product_details_page.dart';
 import '../../../../src/data/models/product_model.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
+import '../../../data/utils/name_case.dart';
 
 class ProductCard extends ConsumerWidget {
   final int index;
@@ -70,35 +71,36 @@ class ProductCard extends ConsumerWidget {
             ? Map<String, dynamic>.from(productMap['partnerId'] as Map)
             : null);
 
-    final fromProduct = productMap['shopName']?.toString().trim();
-    if (fromProduct != null && fromProduct.isNotEmpty) return fromProduct;
+    String? pick(String? value) {
+      final t = value?.trim();
+      if (t == null || t.isEmpty) return null;
+      return NameCase.toTitleCase(t);
+    }
+
+    final fromProduct = pick(productMap['shopName']?.toString());
+    if (fromProduct != null) return fromProduct;
 
     if (partner != null) {
       final businessDetails = partner['businessDetails'];
       final fromBusinessDetails = businessDetails is Map
-          ? businessDetails['businessName']?.toString().trim()
+          ? pick(businessDetails['businessName']?.toString())
           : null;
-      if (fromBusinessDetails != null && fromBusinessDetails.isNotEmpty) {
-        return fromBusinessDetails;
-      }
+      if (fromBusinessDetails != null) return fromBusinessDetails;
 
       final businessInfo = partner['businessInfo'];
       final fromBusinessInfo = businessInfo is Map
-          ? (businessInfo['businessName'] ?? businessInfo['shopName'])
-                ?.toString()
-                .trim()
+          ? pick(
+              (businessInfo['businessName'] ?? businessInfo['shopName'])
+                  ?.toString(),
+            )
           : null;
-      if (fromBusinessInfo != null && fromBusinessInfo.isNotEmpty) {
-        return fromBusinessInfo;
-      }
+      if (fromBusinessInfo != null) return fromBusinessInfo;
 
-      final fromPartner =
-          (partner['shopName'] ?? partner['businessName'] ?? partner['name'])
-              ?.toString()
-              .trim();
-      if (fromPartner != null &&
-          fromPartner.isNotEmpty &&
-          fromPartner.toLowerCase() != 'setgo partner') {
+      final fromPartner = pick(
+        (partner['shopName'] ?? partner['businessName'] ?? partner['name'])
+            ?.toString(),
+      );
+      if (fromPartner != null && fromPartner.toLowerCase() != 'setgo partner') {
         return fromPartner;
       }
     }

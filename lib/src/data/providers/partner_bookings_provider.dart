@@ -1,23 +1,33 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/service_model.dart';
 import 'api_provider.dart';
 
-final partnerBookingDashboardProvider = FutureProvider.family<PartnerBookingDashboardModel?, String?>((ref, date) async {
-  final api = ref.watch(apiProvider);
-  final queryParams = <String, String>{};
-  if (date != null && date.isNotEmpty) {
-    queryParams['date'] = date;
-  }
-  final res = await api.get('/bookings/dashboard', queryParams: queryParams, requireAuth: true);
-  if (res.success && res.data != null) {
-    final dynamic data = res.data!['data'] ?? res.data!;
-    if (data is Map) {
-      return PartnerBookingDashboardModel.fromJson(Map<String, dynamic>.from(data));
-    }
-  }
-  return null;
-});
+final partnerBookingDashboardProvider =
+    FutureProvider.family<PartnerBookingDashboardModel?, String?>((
+      ref,
+      date,
+    ) async {
+      final api = ref.watch(apiProvider);
+      final queryParams = <String, String>{};
+      if (date != null && date.isNotEmpty) {
+        queryParams['date'] = date;
+      }
+      final res = await api.get(
+        '/bookings/dashboard',
+        queryParams: queryParams,
+        requireAuth: true,
+      );
+      if (res.success && res.data != null) {
+        final dynamic data = res.data!['data'] ?? res.data!;
+        if (data is Map) {
+          return PartnerBookingDashboardModel.fromJson(
+            Map<String, dynamic>.from(data),
+          );
+        }
+      }
+      return null;
+    });
 
 class PartnerBookingsState {
   final List<BookingModel> bookings;
@@ -62,7 +72,12 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
     return const PartnerBookingsState();
   }
 
-  Future<void> fetchBookings({String? status, String? date, String? search, int? limit}) async {
+  Future<void> fetchBookings({
+    String? status,
+    String? date,
+    String? search,
+    int? limit,
+  }) async {
     state = state.copyWith(
       isLoading: true,
       error: null,
@@ -86,7 +101,11 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
       queryParams['limit'] = '$limit';
     }
 
-    final res = await api.get('/bookings', queryParams: queryParams, requireAuth: true);
+    final res = await api.get(
+      '/bookings',
+      queryParams: queryParams,
+      requireAuth: true,
+    );
     if (res.success && res.data != null) {
       final dynamic rawList = res.data!['data'] ?? res.data!['bookings'];
       final List<BookingModel> list = [];
@@ -99,13 +118,21 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
       }
       state = state.copyWith(bookings: list, isLoading: false);
     } else {
-      state = state.copyWith(isLoading: false, error: res.message ?? 'Failed to load bookings');
+      state = state.copyWith(
+        isLoading: false,
+        error: res.message ?? 'Failed to load bookings',
+      );
     }
   }
 
-  Future<ApiResponse<void>> updateBookingStatus(String bookingId, String newStatus) async {
+  Future<ApiResponse<void>> updateBookingStatus(
+    String bookingId,
+    String newStatus,
+  ) async {
     final api = ref.read(apiProvider);
-    final res = await api.patch('/bookings/$bookingId/status', {'status': newStatus}, requireAuth: true);
+    final res = await api.patch('/bookings/$bookingId/status', {
+      'status': newStatus,
+    }, requireAuth: true);
     if (res.success) {
       fetchBookings();
       ref.invalidate(partnerHomeBookingRequestsProvider);
@@ -114,12 +141,16 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
     return ApiResponse.error(res.message ?? 'Failed to update status');
   }
 
-  Future<ApiResponse<BookingModel>> issueWalkInToken(Map<String, dynamic> data) async {
+  Future<ApiResponse<BookingModel>> issueWalkInToken(
+    Map<String, dynamic> data,
+  ) async {
     final api = ref.read(apiProvider);
     final res = await api.post('/bookings/walk-in', data, requireAuth: true);
     if (res.success && res.data != null) {
       final bData = res.data!['data'] ?? res.data!;
-      final booking = BookingModel.fromJson(Map<String, dynamic>.from(bData as Map));
+      final booking = BookingModel.fromJson(
+        Map<String, dynamic>.from(bData as Map),
+      );
       fetchBookings();
       ref.invalidate(partnerHomeBookingRequestsProvider);
       return ApiResponse.success(booking);
@@ -130,32 +161,49 @@ class PartnerBookingsNotifier extends Notifier<PartnerBookingsState> {
   Future<ApiResponse<void>> blockSlot(Map<String, dynamic> data) async {
     final api = ref.read(apiProvider);
     final res = await api.post('/bookings/block-slot', data, requireAuth: true);
-    return res.success ? ApiResponse.success(null) : ApiResponse.error(res.message ?? 'Failed to block slot');
+    return res.success
+        ? ApiResponse.success(null)
+        : ApiResponse.error(res.message ?? 'Failed to block slot');
   }
 
   Future<ApiResponse<void>> unblockSlot(Map<String, dynamic> data) async {
     final api = ref.read(apiProvider);
-    final res = await api.post('/bookings/unblock-slot', data, requireAuth: true);
-    return res.success ? ApiResponse.success(null) : ApiResponse.error(res.message ?? 'Failed to unblock slot');
+    final res = await api.post(
+      '/bookings/unblock-slot',
+      data,
+      requireAuth: true,
+    );
+    return res.success
+        ? ApiResponse.success(null)
+        : ApiResponse.error(res.message ?? 'Failed to unblock slot');
   }
 
-  Future<ApiResponse<void>> emergencyDelay({required String date, required int delayMinutes, required String reason}) async {
+  Future<ApiResponse<void>> emergencyDelay({
+    required String date,
+    required int delayMinutes,
+    required String reason,
+  }) async {
     final api = ref.read(apiProvider);
     final res = await api.post('/bookings/emergency-delay', {
       'date': date,
       'delayMinutes': delayMinutes,
       'reason': reason,
     }, requireAuth: true);
-    return res.success ? ApiResponse.success(null) : ApiResponse.error(res.message ?? 'Failed to broadcast delay');
+    return res.success
+        ? ApiResponse.success(null)
+        : ApiResponse.error(res.message ?? 'Failed to broadcast delay');
   }
 }
 
-final partnerBookingsProvider = NotifierProvider<PartnerBookingsNotifier, PartnerBookingsState>(() {
-  return PartnerBookingsNotifier();
-});
+final partnerBookingsProvider =
+    NotifierProvider<PartnerBookingsNotifier, PartnerBookingsState>(() {
+      return PartnerBookingsNotifier();
+    });
 
 /// Independent list for partner home "Booking Requests" (not affected by bookings-page filters).
-final partnerHomeBookingRequestsProvider = FutureProvider<List<BookingModel>>((ref) async {
+final partnerHomeBookingRequestsProvider = FutureProvider<List<BookingModel>>((
+  ref,
+) async {
   final api = ref.watch(apiProvider);
   final res = await api.get(
     '/bookings',
@@ -177,13 +225,20 @@ final partnerHomeBookingRequestsProvider = FutureProvider<List<BookingModel>>((r
   return [];
 });
 
-final partnerBlockedSlotsProvider = FutureProvider<List<BlockedSlotModel>>((ref) async {
+final partnerBlockedSlotsProvider = FutureProvider<List<BlockedSlotModel>>((
+  ref,
+) async {
   final api = ref.watch(apiProvider);
   final res = await api.get('/bookings/blocked-slots', requireAuth: true);
   if (res.success && res.data != null) {
     final dynamic list = res.data!['data'] ?? res.data!;
     if (list is List) {
-      return list.map((e) => BlockedSlotModel.fromJson(Map<String, dynamic>.from(e as Map))).toList();
+      return list
+          .map(
+            (e) =>
+                BlockedSlotModel.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
+          .toList();
     }
   }
   return [];

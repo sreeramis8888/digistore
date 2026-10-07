@@ -11,6 +11,7 @@ import '../../data/models/shop_model.dart';
 import '../../data/models/business_info.dart';
 import '../../data/utils/location_utils.dart';
 import '../../data/utils/global_variables.dart';
+import '../../data/utils/name_case.dart';
 import '../components/shops/shop_grid_card.dart';
 import '../components/loading_indicator.dart';
 import '../../data/providers/banners_provider.dart';
@@ -70,12 +71,14 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     final nearbyState = ref.read(shopsProvider);
     final exploreState = ref.read(allShopsProvider);
 
-    final nearbyHasMore = nearbyState.pagination != null &&
+    final nearbyHasMore =
+        nearbyState.pagination != null &&
         nearbyState.pagination!.page < nearbyState.pagination!.pages &&
         !nearbyState.isLoading &&
         !nearbyState.isLoadingMore;
 
-    final exploreHasMore = exploreState.pagination != null &&
+    final exploreHasMore =
+        exploreState.pagination != null &&
         exploreState.pagination!.page < exploreState.pagination!.pages &&
         !exploreState.isLoading &&
         !exploreState.isLoadingMore;
@@ -219,7 +222,9 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
       category: shop.serviceCategories?.isNotEmpty == true
           ? shop.serviceCategories!.first
           : 'Other',
-      shopName: shop.businessDetails?.businessName ?? 'Unnamed Shop',
+      shopName: NameCase.toTitleCase(
+        shop.businessDetails?.businessName ?? 'Unnamed Shop',
+      ),
       address: address,
       distance: distance,
       rating: shop.businessInfo?.rating?.toString() ?? '',
@@ -474,7 +479,8 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
                   final exploreShops = exploreShopsList
                       .where((s) => !nearbyIds.contains(s.id))
                       .toList();
-                  final exploreHasMore = exploreState.pagination != null &&
+                  final exploreHasMore =
+                      exploreState.pagination != null &&
                       exploreState.pagination!.page <
                           exploreState.pagination!.pages;
 

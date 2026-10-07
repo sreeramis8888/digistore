@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/models/service_model.dart';
@@ -19,6 +18,7 @@ class BookingSummaryPage extends ConsumerStatefulWidget {
   final ServicePartnerModel partner;
   final String partnerId;
   final List<ServiceModel> services;
+
   /// serviceId → quantity (defaults to 1 when missing).
   final Map<String, int> quantities;
   final String bookingDate;
@@ -60,10 +60,7 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
     final items = widget.services
         .where((s) => s.id != null && s.id!.isNotEmpty)
         .map(
-          (s) => <String, dynamic>{
-            'serviceId': s.id,
-            'quantity': _qtyFor(s),
-          },
+          (s) => <String, dynamic>{'serviceId': s.id, 'quantity': _qtyFor(s)},
         )
         .toList();
 
@@ -111,7 +108,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
         builder: (context) => BookingPaymentPage(
           booking: booking,
           initialOrder: result.razorpayOrder,
-          shopName: (shopName != null &&
+          shopName:
+              (shopName != null &&
                   shopName.isNotEmpty &&
                   shopName != 'SetGo Partner')
               ? shopName
@@ -133,18 +131,18 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
         : null;
 
     final String rawPartnerName = widget.partner.name ?? '';
-    final String effectiveShopName = rawPartnerName.isNotEmpty &&
-            rawPartnerName != 'SetGo Partner'
+    final String effectiveShopName =
+        rawPartnerName.isNotEmpty && rawPartnerName != 'SetGo Partner'
         ? rawPartnerName
         : (fetchedShop?.businessDetails?.businessName ??
-            rawPartnerName.ifEmpty('Partner Store'));
+              rawPartnerName.ifEmpty('Partner Store'));
 
     final String? rawPartnerLogo = widget.partner.logo;
-    final String? effectiveShopLogo = (rawPartnerLogo != null &&
-            rawPartnerLogo.isNotEmpty)
+    final String? effectiveShopLogo =
+        (rawPartnerLogo != null && rawPartnerLogo.isNotEmpty)
         ? rawPartnerLogo
         : (fetchedShop?.businessInfo?.businessLogo ??
-            fetchedShop?.businessInfo?.coverImage);
+              fetchedShop?.businessInfo?.coverImage);
 
     final rawPartnerAddress = [
       if (widget.partner.addressLine1 != null &&
@@ -166,13 +164,17 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
     final displayDate = DateFormat('EEEE, d MMM yyyy').format(parsedDate);
 
     final String servicesSummary = widget.services.isNotEmpty
-        ? widget.services.map((s) {
-            final qty = _qtyFor(s);
-            return qty > 1 ? '${s.name} ×$qty' : s.name;
-          }).join(', ')
+        ? widget.services
+              .map((s) {
+                final qty = _qtyFor(s);
+                return qty > 1 ? '${s.name} ×$qty' : s.name;
+              })
+              .join(', ')
         : 'Service';
-    final int totalDuration =
-        widget.services.fold(0, (sum, s) => sum + s.totalTimeMinutes);
+    final int totalDuration = widget.services.fold(
+      0,
+      (sum, s) => sum + s.totalTimeMinutes,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F4),
@@ -191,7 +193,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
         ),
         title: Text(
           'Booking Summary',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -257,8 +260,9 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
     required String servicesSummary,
     required int totalDuration,
   }) {
-    final firstService =
-        widget.services.isNotEmpty ? widget.services.first : null;
+    final firstService = widget.services.isNotEmpty
+        ? widget.services.first
+        : null;
 
     return Container(
       width: double.infinity,
@@ -312,7 +316,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
                   children: [
                     Text(
                       partnerName,
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF111827),
@@ -334,7 +339,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
                             partnerAddress.isNotEmpty
                                 ? partnerAddress
                                 : 'Partner Store',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF6B7280),
@@ -353,16 +359,14 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Container(
-              height: 1,
-              color: const Color(0xFFF3F4F6),
-            ),
+            child: Container(height: 1, color: const Color(0xFFF3F4F6)),
           ),
 
           // Service Title
           Text(
             servicesSummary,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -375,7 +379,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
             const SizedBox(height: 4),
             Text(
               firstService.description!.trim(),
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
                 color: const Color(0xFF6B7280),
@@ -389,7 +394,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
             children: [
               Text(
                 '₹${widget.totalPrice.toInt()}',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF07838C),
@@ -404,7 +410,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
                 ),
                 child: Text(
                   '$totalDuration mins total',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF4B5563),
@@ -440,27 +447,15 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section 1: Appointment Details
-          _buildDetailRow(
-            label: 'Service',
-            value: servicesSummary,
-          ),
+          _buildDetailRow(label: 'Service', value: servicesSummary),
           const SizedBox(height: 10),
-          _buildDetailRow(
-            label: 'Date',
-            value: displayDate,
-          ),
+          _buildDetailRow(label: 'Date', value: displayDate),
           const SizedBox(height: 10),
-          _buildDetailRow(
-            label: 'Time',
-            value: slotTime,
-          ),
+          _buildDetailRow(label: 'Time', value: slotTime),
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Container(
-              height: 1,
-              color: const Color(0xFFEDEDED),
-            ),
+            child: Container(height: 1, color: const Color(0xFFEDEDED)),
           ),
 
           // Section 2: Pricing & Payment
@@ -486,10 +481,7 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Container(
-              height: 1,
-              color: const Color(0xFFEDEDED),
-            ),
+            child: Container(height: 1, color: const Color(0xFFEDEDED)),
           ),
 
           // Section 3: Customer Details
@@ -511,15 +503,9 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
           if (widget.notes.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Container(
-                height: 1,
-                color: const Color(0xFFEDEDED),
-              ),
+              child: Container(height: 1, color: const Color(0xFFEDEDED)),
             ),
-            _buildDetailRow(
-              label: 'Notes',
-              value: widget.notes,
-            ),
+            _buildDetailRow(label: 'Notes', value: widget.notes),
           ],
         ],
       ),
@@ -538,7 +524,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
       children: [
         Text(
           label,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.w400,
             color: const Color(0xFF808080),
@@ -549,7 +536,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 14,
               fontWeight: isValueBold ? FontWeight.w700 : FontWeight.w500,
               color: valueColor ?? const Color(0xFF1C1C1C),
@@ -589,7 +577,9 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
             onPressed: _isSubmitting ? null : _handleConfirmBooking,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6155F5),
-              disabledBackgroundColor: const Color(0xFF6155F5).withValues(alpha: 0.7),
+              disabledBackgroundColor: const Color(
+                0xFF6155F5,
+              ).withValues(alpha: 0.7),
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -600,7 +590,8 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
                 ? const LoadingAnimation(size: 24, loadingColor: Colors.white)
                 : Text(
                     widget.totalPrice > 0 ? 'Confirm & Pay' : 'Confirm Booking',
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,

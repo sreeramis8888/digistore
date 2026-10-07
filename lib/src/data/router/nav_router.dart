@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/legacy.dart';
 
-final selectedIndexProvider = StateNotifierProvider<SelectedIndexNotifier, int>((ref) {
-  return SelectedIndexNotifier();
-});
+final selectedIndexProvider = StateNotifierProvider<SelectedIndexNotifier, int>(
+  (ref) {
+    return SelectedIndexNotifier();
+  },
+);
 
 class SelectedIndexNotifier extends StateNotifier<int> {
   SelectedIndexNotifier() : super(0);
@@ -15,4 +17,3 @@ class SelectedIndexNotifier extends StateNotifier<int> {
 final selectedOffersCategoryProvider = StateProvider<int>((ref) => 0);
 final selectedProductsCategoryProvider = StateProvider<int>((ref) => 0);
 final selectedShopsCategoryProvider = StateProvider<String?>((ref) => null);
-

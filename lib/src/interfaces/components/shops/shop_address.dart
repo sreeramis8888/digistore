@@ -27,7 +27,9 @@ class ShopAddress extends ConsumerWidget {
       primaryBranch = branches.first;
     }
 
-    final shopCoords = selectedBranch?.location?.coordinates ?? primaryBranch?.location?.coordinates;
+    final shopCoords =
+        selectedBranch?.location?.coordinates ??
+        primaryBranch?.location?.coordinates;
     if (shopCoords != null && shopCoords.length >= 2) {
       final lat = shopCoords[1];
       final lng = shopCoords[0];
@@ -38,7 +40,7 @@ class ShopAddress extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    
+
     final branches = shop?.businessInfo?.branches ?? [];
     BusinessBranch? primaryBranch;
     for (final b in branches) {
@@ -52,27 +54,37 @@ class ShopAddress extends ConsumerWidget {
     }
 
     final location = selectedBranch?.location ?? primaryBranch?.location;
-    
+
     String addressText = 'No address provided';
     String? cityStateText;
-    
+
     if (selectedBranch != null && selectedBranch!.address != null) {
       addressText = selectedBranch!.address!;
-      if (location?.city != null || location?.state != null || location?.pincode != null) {
-        cityStateText = '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'.trim();
+      if (location?.city != null ||
+          location?.state != null ||
+          location?.pincode != null) {
+        cityStateText =
+            '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'
+                .trim();
       }
     } else if (primaryBranch != null) {
       addressText = primaryBranch.address ?? 'No address provided';
-      if (location?.city != null || location?.state != null || location?.pincode != null) {
-        cityStateText = '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'.trim();
+      if (location?.city != null ||
+          location?.state != null ||
+          location?.pincode != null) {
+        cityStateText =
+            '${location?.city ?? ''} ${location?.state ?? ''} ${location?.pincode ?? ''}'
+                .trim();
       }
     } else if (shop?.businessDetails?.address != null) {
       addressText = shop!.businessDetails!.address!;
       final parts = <String>[];
-      if (shop?.businessDetails?.district != null && shop!.businessDetails!.district!.isNotEmpty) {
+      if (shop?.businessDetails?.district != null &&
+          shop!.businessDetails!.district!.isNotEmpty) {
         parts.add(shop!.businessDetails!.district!);
       }
-      if (shop?.businessDetails?.pincode != null && shop!.businessDetails!.pincode!.isNotEmpty) {
+      if (shop?.businessDetails?.pincode != null &&
+          shop!.businessDetails!.pincode!.isNotEmpty) {
         parts.add('PIN: ${shop!.businessDetails!.pincode!}');
       }
       if (parts.isNotEmpty) {
@@ -82,7 +94,8 @@ class ShopAddress extends ConsumerWidget {
       addressText = shop!.coverageAreas!.districts!.join(', ');
     }
 
-    final branchContact = selectedBranch?.contactPersonName ?? primaryBranch?.contactPersonName;
+    final branchContact =
+        selectedBranch?.contactPersonName ?? primaryBranch?.contactPersonName;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +103,6 @@ class ShopAddress extends ConsumerWidget {
         const Text(
           'Address',
           style: TextStyle(
-            fontFamily: 'Montserrat',
             fontSize: 16,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111827),
@@ -121,7 +133,6 @@ class ShopAddress extends ConsumerWidget {
                     child: Text(
                       addressText,
                       style: const TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF4B5563),
@@ -134,11 +145,12 @@ class ShopAddress extends ConsumerWidget {
               if (cityStateText != null && cityStateText!.isNotEmpty) ...[
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Padding(
-                  padding: EdgeInsets.only(left: screenSize.responsivePadding(22)),
+                  padding: EdgeInsets.only(
+                    left: screenSize.responsivePadding(22),
+                  ),
                   child: Text(
                     cityStateText!,
                     style: const TextStyle(
-                      fontFamily: 'Montserrat',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF6B7280),
@@ -149,11 +161,12 @@ class ShopAddress extends ConsumerWidget {
               if (branchContact != null && branchContact.isNotEmpty) ...[
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Padding(
-                  padding: EdgeInsets.only(left: screenSize.responsivePadding(22)),
+                  padding: EdgeInsets.only(
+                    left: screenSize.responsivePadding(22),
+                  ),
                   child: Text(
                     'Contact: $branchContact',
                     style: const TextStyle(
-                      fontFamily: 'Montserrat',
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF6B7280),
@@ -198,7 +211,6 @@ class ShopAddress extends ConsumerWidget {
                     const Text(
                       'Get Directions',
                       style: TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF07838C),
@@ -208,10 +220,14 @@ class ShopAddress extends ConsumerWidget {
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: Text(
-                        selectedBranch?.name ?? shop?.businessDetails?.businessName ?? 'Shop Location',
-                        key: ValueKey(selectedBranch?.name ?? shop?.businessDetails?.businessName),
+                        selectedBranch?.name ??
+                            shop?.businessDetails?.businessName ??
+                            'Shop Location',
+                        key: ValueKey(
+                          selectedBranch?.name ??
+                              shop?.businessDetails?.businessName,
+                        ),
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),

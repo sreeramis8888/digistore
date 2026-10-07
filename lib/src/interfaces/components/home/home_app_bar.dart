@@ -20,10 +20,7 @@ enum HomeAppBarVariant { standard, hero }
 class HomeAppBar extends ConsumerWidget {
   final HomeAppBarVariant variant;
 
-  const HomeAppBar({
-    super.key,
-    this.variant = HomeAppBarVariant.standard,
-  });
+  const HomeAppBar({super.key, this.variant = HomeAppBarVariant.standard});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -182,10 +179,7 @@ class HomeAppBar extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SvgPicture.asset(
-                    'assets/svg/coin.svg',
-                    height: 16,
-                  ),
+                  SvgPicture.asset('assets/svg/coin.svg', height: 16),
                   SizedBox(width: screenSize.responsivePadding(6)),
                   Text(
                     '$points',
@@ -349,10 +343,7 @@ class HomeAppBar extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SvgPicture.asset(
-                      'assets/svg/coin.svg',
-                      height: 16,
-                    ),
+                    SvgPicture.asset('assets/svg/coin.svg', height: 16),
                     SizedBox(width: screenSize.responsivePadding(6)),
                     Text(
                       '$points',

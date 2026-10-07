@@ -11,7 +11,8 @@ class SupportTicketsState {
   final bool isLoadingMore;
   final bool isSubmitting;
   final String? error;
-  final String statusFilter; // 'all', 'open', 'in_progress', 'resolved', 'closed'
+  final String
+  statusFilter; // 'all', 'open', 'in_progress', 'resolved', 'closed'
   final String searchQuery;
   final int page;
   final int totalPages;
@@ -80,10 +81,7 @@ class SupportTickets extends _$SupportTickets {
     }
 
     final api = ref.read(apiProvider);
-    final queryParams = {
-      'page': pageNum.toString(),
-      'limit': '20',
-    };
+    final queryParams = {'page': pageNum.toString(), 'limit': '20'};
 
     if (state.statusFilter != 'all') {
       queryParams['status'] = state.statusFilter;
@@ -96,7 +94,8 @@ class SupportTickets extends _$SupportTickets {
       if (!response.success && response.statusCode == 404) {
         final baseUrl = api.baseUrl;
         if (baseUrl.contains('/mobile')) {
-          final loyaltyUrl = baseUrl
+          final loyaltyUrl =
+              baseUrl
                   .replaceFirst('/mobile/partner', '/loyalty')
                   .replaceFirst('/mobile', '/loyalty') +
               '/tickets';
@@ -111,11 +110,11 @@ class SupportTickets extends _$SupportTickets {
         final rawData = response.data!['data'];
         final List<dynamic> list = rawData is List<dynamic> ? rawData : [];
         final newTickets = list
-            .map((e) =>
-                SupportTicketModel.fromJson(e as Map<String, dynamic>))
+            .map((e) => SupportTicketModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        final pagination = response.data!['pagination'] as Map<String, dynamic>?;
+        final pagination =
+            response.data!['pagination'] as Map<String, dynamic>?;
         final totalPages = pagination != null
             ? (pagination['pages'] as num?)?.toInt() ?? 1
             : 1;
@@ -165,13 +164,18 @@ class SupportTickets extends _$SupportTickets {
     state = state.copyWith(searchQuery: query);
   }
 
-  Future<SupportTicketModel?> getTicketById(String ticketId, {bool forceRefresh = false}) async {
+  Future<SupportTicketModel?> getTicketById(
+    String ticketId, {
+    bool forceRefresh = false,
+  }) async {
     try {
       final existing = state.tickets.firstWhere((t) => t.id == ticketId);
       if (!forceRefresh) {
         return existing;
       }
-    } catch (e) { log('Error: $e'); }
+    } catch (e) {
+      log('Error: $e');
+    }
 
     return await _fetchSingleTicket(ticketId);
   }
@@ -183,7 +187,8 @@ class SupportTickets extends _$SupportTickets {
       if (!response.success && response.statusCode == 404) {
         final baseUrl = api.baseUrl;
         if (baseUrl.contains('/mobile')) {
-          final loyaltyUrl = baseUrl
+          final loyaltyUrl =
+              baseUrl
                   .replaceFirst('/mobile/partner', '/loyalty')
                   .replaceFirst('/mobile', '/loyalty') +
               '/tickets/$ticketId';
@@ -232,12 +237,15 @@ class SupportTickets extends _$SupportTickets {
       if (!response.success && response.statusCode == 404) {
         final baseUrl = api.baseUrl;
         if (baseUrl.contains('/mobile')) {
-          final loyaltyUrl = baseUrl
+          final loyaltyUrl =
+              baseUrl
                   .replaceFirst('/mobile/partner', '/loyalty')
                   .replaceFirst('/mobile', '/loyalty') +
               '/tickets';
           response = await api.post(
-              loyaltyUrl.replaceFirst(api.baseUrl, ''), payload);
+            loyaltyUrl.replaceFirst(api.baseUrl, ''),
+            payload,
+          );
         }
       }
 
@@ -250,7 +258,9 @@ class SupportTickets extends _$SupportTickets {
           state = state.copyWith(tickets: [newTicket, ...state.tickets]);
         } else {
           final localTicket = SupportTicketModel(
-            id: response.data?['id']?.toString() ?? 'T${DateTime.now().millisecondsSinceEpoch}',
+            id:
+                response.data?['id']?.toString() ??
+                'T${DateTime.now().millisecondsSinceEpoch}',
             subject: subject,
             category: category,
             status: 'open',
@@ -260,7 +270,7 @@ class SupportTickets extends _$SupportTickets {
                 sender: 'public_user',
                 message: message,
                 createdAt: DateTime.now(),
-              )
+              ),
             ],
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
@@ -288,12 +298,15 @@ class SupportTickets extends _$SupportTickets {
       if (!response.success && response.statusCode == 404) {
         final baseUrl = api.baseUrl;
         if (baseUrl.contains('/mobile')) {
-          final loyaltyUrl = baseUrl
+          final loyaltyUrl =
+              baseUrl
                   .replaceFirst('/mobile/partner', '/loyalty')
                   .replaceFirst('/mobile', '/loyalty') +
               '/tickets/$ticketId/reply';
           response = await api.post(
-              loyaltyUrl.replaceFirst(api.baseUrl, ''), payload);
+            loyaltyUrl.replaceFirst(api.baseUrl, ''),
+            payload,
+          );
         }
       }
 

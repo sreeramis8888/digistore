@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/models/transaction_model.dart';
@@ -23,13 +22,16 @@ class TransactionTile extends ConsumerWidget {
 
   factory TransactionTile.fromTransaction(TransactionModel transaction) {
     final type = (transaction.type ?? 'other').toLowerCase();
-    final isEarned = type == 'earned' || type == 'bonus' || (transaction.amount != null && transaction.amount! > 0);
+    final isEarned =
+        type == 'earned' ||
+        type == 'bonus' ||
+        (transaction.amount != null && transaction.amount! > 0);
 
     final title = transaction.description?.trim().isNotEmpty == true
         ? transaction.description!.trim()
         : (transaction.source?.type != null
-            ? _formatType(transaction.source!.type!)
-            : _formatType(type));
+              ? _formatType(transaction.source!.type!)
+              : _formatType(type));
 
     final dateFormatted = _formatTransactionDate(transaction.createdAt);
 
@@ -47,9 +49,12 @@ class TransactionTile extends ConsumerWidget {
     final now = DateTime.now();
     final local = date.toLocal();
     final isToday =
-        local.year == now.year && local.month == now.month && local.day == now.day;
+        local.year == now.year &&
+        local.month == now.month &&
+        local.day == now.day;
     final yesterday = now.subtract(const Duration(days: 1));
-    final isYesterday = local.year == yesterday.year &&
+    final isYesterday =
+        local.year == yesterday.year &&
         local.month == yesterday.month &&
         local.day == yesterday.day;
 
@@ -77,9 +82,15 @@ class TransactionTile extends ConsumerWidget {
     final screenSize = ref.watch(screenSizeProvider);
 
     final iconBg = isEarned ? const Color(0xFFE6FFFA) : const Color(0xFFFEF2F2);
-    final iconColor = isEarned ? const Color(0xFF07838C) : const Color(0xFFEF4444);
-    final badgeBg = isEarned ? const Color(0xFFD1FAE5) : const Color(0xFFFEE2E2);
-    final badgeTextColor = isEarned ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final iconColor = isEarned
+        ? const Color(0xFF07838C)
+        : const Color(0xFFEF4444);
+    final badgeBg = isEarned
+        ? const Color(0xFFD1FAE5)
+        : const Color(0xFFFEE2E2);
+    final badgeTextColor = isEarned
+        ? const Color(0xFF10B981)
+        : const Color(0xFFEF4444);
 
     return Container(
       width: double.infinity,
@@ -123,7 +134,8 @@ class TransactionTile extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF111827),
@@ -135,7 +147,8 @@ class TransactionTile extends ConsumerWidget {
                       SizedBox(height: screenSize.responsivePadding(2)),
                       Text(
                         subtitle,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                           color: const Color(0xFF6B7280),
@@ -163,7 +176,8 @@ class TransactionTile extends ConsumerWidget {
             ),
             child: Text(
               '${isEarned ? '+' : '-'}$points',
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: badgeTextColor,
@@ -175,4 +189,3 @@ class TransactionTile extends ConsumerWidget {
     );
   }
 }
-

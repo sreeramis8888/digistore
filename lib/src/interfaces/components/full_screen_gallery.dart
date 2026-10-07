@@ -69,7 +69,7 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
               );
             },
           ),
-          
+
           Positioned(
             top: MediaQuery.paddingOf(context).top,
             left: 0,
@@ -83,10 +83,7 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    kBlack.withOpacity(0.7),
-                    Colors.transparent,
-                  ],
+                  colors: [kBlack.withOpacity(0.7), Colors.transparent],
                 ),
               ),
               child: Row(
@@ -107,7 +104,9 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
           ),
 
           Positioned(
-            bottom: MediaQuery.paddingOf(context).bottom + screenSize.responsivePadding(20),
+            bottom:
+                MediaQuery.paddingOf(context).bottom +
+                screenSize.responsivePadding(20),
             left: 0,
             right: 0,
             child: SizedBox(
@@ -115,7 +114,9 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(16)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.responsivePadding(16),
+                ),
                 itemCount: widget.images.length,
                 itemBuilder: (context, index) {
                   final isSelected = _currentIndex == index;
@@ -129,12 +130,14 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      margin: EdgeInsets.only(right: screenSize.responsivePadding(8)),
-                      width: isSelected 
-                          ? screenSize.responsivePadding(60) 
+                      margin: EdgeInsets.only(
+                        right: screenSize.responsivePadding(8),
+                      ),
+                      width: isSelected
+                          ? screenSize.responsivePadding(60)
                           : screenSize.responsivePadding(50),
-                      height: isSelected 
-                          ? screenSize.responsivePadding(60) 
+                      height: isSelected
+                          ? screenSize.responsivePadding(60)
                           : screenSize.responsivePadding(50),
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -152,9 +155,7 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                             fit: BoxFit.cover,
                           ),
                           if (!isSelected)
-                            Container(
-                              color: kBlack.withOpacity(0.4),
-                            ),
+                            Container(color: kBlack.withOpacity(0.4)),
                         ],
                       ),
                     ),

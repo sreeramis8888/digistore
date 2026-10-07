@@ -231,12 +231,16 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                           if (amt == null || amt <= 0) {
                             return 'Enter a valid bill amount';
                           }
-                          
+
                           final priceRange = widget.args?['priceRange'];
                           if (priceRange != null && priceRange is Map) {
-                            final min = double.tryParse(priceRange['min']?.toString() ?? '');
-                            final max = double.tryParse(priceRange['max']?.toString() ?? '');
-                            
+                            final min = double.tryParse(
+                              priceRange['min']?.toString() ?? '',
+                            );
+                            final max = double.tryParse(
+                              priceRange['max']?.toString() ?? '',
+                            );
+
                             if (min != null && amt < min) {
                               return 'Minimum bill amount should be ₹${min.toInt() == min ? min.toInt() : min}';
                             }
@@ -244,7 +248,7 @@ class _RedemptionOtpPageState extends ConsumerState<RedemptionOtpPage> {
                               return 'Maximum bill amount should be ₹${max.toInt() == max ? max.toInt() : max}';
                             }
                           }
-                          
+
                           return null;
                         },
                       ),

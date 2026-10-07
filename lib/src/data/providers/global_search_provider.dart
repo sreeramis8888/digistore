@@ -91,113 +91,116 @@ Map<String, String> _geoParams(Ref ref) {
 
 List<Map<String, dynamic>> _asMapList(dynamic raw) {
   if (raw is! List) return const [];
-  return raw
-      .whereType<Map>()
-      .map((e) => Map<String, dynamic>.from(e))
-      .toList();
+  return raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
 }
 
 /// Overview search (`type=all`) — all domains for home search results.
 final globalSearchOverviewProvider =
     FutureProvider.family<GlobalSearchOverview, String>((ref, query) async {
-  final q = query.trim();
-  if (q.isEmpty) {
-    return const GlobalSearchOverview(query: '');
-  }
+      final q = query.trim();
+      if (q.isEmpty) {
+        return const GlobalSearchOverview(query: '');
+      }
 
-  final api = ref.read(apiProvider);
-  final params = <String, String>{
-    'q': q,
-    'type': 'all',
-    'limit': '10',
-    ..._geoParams(ref),
-  };
+      final api = ref.read(apiProvider);
+      final params = <String, String>{
+        'q': q,
+        'type': 'all',
+        'limit': '10',
+        ..._geoParams(ref),
+      };
 
-  final response = await api.get('/search', queryParams: params);
-  if (!response.success || response.data == null) {
-    throw Exception(response.message ?? 'Search failed');
-  }
+      final response = await api.get('/search', queryParams: params);
+      if (!response.success || response.data == null) {
+        throw Exception(response.message ?? 'Search failed');
+      }
 
-  final data = response.data!['data'];
-  if (data is! Map) {
-    return GlobalSearchOverview(query: q);
-  }
+      final data = response.data!['data'];
+      if (data is! Map) {
+        return GlobalSearchOverview(query: q);
+      }
 
-  final summary = data['summary'] is Map
-      ? Map<String, dynamic>.from(data['summary'] as Map)
-      : <String, dynamic>{};
+      final summary = data['summary'] is Map
+          ? Map<String, dynamic>.from(data['summary'] as Map)
+          : <String, dynamic>{};
 
-  return GlobalSearchOverview(
-    query: q,
-    offersCount: (summary['offersCount'] as num?)?.toInt() ?? 0,
-    shopsCount: (summary['shopsCount'] as num?)?.toInt() ?? 0,
-    servicesCount: (summary['servicesCount'] as num?)?.toInt() ?? 0,
-    productsCount: (summary['productsCount'] as num?)?.toInt() ?? 0,
-    categoriesCount: (summary['categoriesCount'] as num?)?.toInt() ?? 0,
-    offers: _asMapList(data['offers']),
-    shops: _asMapList(data['shops']),
-    services: _asMapList(data['services']),
-    products: _asMapList(data['products']),
-    categories: _asMapList(data['categories']),
-  );
-});
+      return GlobalSearchOverview(
+        query: q,
+        offersCount: (summary['offersCount'] as num?)?.toInt() ?? 0,
+        shopsCount: (summary['shopsCount'] as num?)?.toInt() ?? 0,
+        servicesCount: (summary['servicesCount'] as num?)?.toInt() ?? 0,
+        productsCount: (summary['productsCount'] as num?)?.toInt() ?? 0,
+        categoriesCount: (summary['categoriesCount'] as num?)?.toInt() ?? 0,
+        offers: _asMapList(data['offers']),
+        shops: _asMapList(data['shops']),
+        services: _asMapList(data['services']),
+        products: _asMapList(data['products']),
+        categories: _asMapList(data['categories']),
+      );
+    });
 
 /// Paginated search for a single type (`offers` | `shops` | `services` | `products`).
-final globalSearchPagedProvider = FutureProvider.family<GlobalSearchPaged,
-    ({String query, String type})>((ref, args) async {
-  final q = args.query.trim();
-  final type = args.type;
-  if (q.isEmpty) {
-    return GlobalSearchPaged(query: q, type: type);
-  }
+final globalSearchPagedProvider =
+    FutureProvider.family<GlobalSearchPaged, ({String query, String type})>((
+      ref,
+      args,
+    ) async {
+      final q = args.query.trim();
+      final type = args.type;
+      if (q.isEmpty) {
+        return GlobalSearchPaged(query: q, type: type);
+      }
 
-  // Categories have no dedicated paged type — reuse overview slice.
-  if (type == 'categories') {
-    final overview = await ref.watch(globalSearchOverviewProvider(q).future);
-    return GlobalSearchPaged(
-      query: q,
-      type: type,
-      results: overview.categories,
-      total: overview.categoriesCount,
-      page: 1,
-      pages: 1,
-    );
-  }
+      // Categories have no dedicated paged type — reuse overview slice.
+      if (type == 'categories') {
+        final overview = await ref.watch(
+          globalSearchOverviewProvider(q).future,
+        );
+        return GlobalSearchPaged(
+          query: q,
+          type: type,
+          results: overview.categories,
+          total: overview.categoriesCount,
+          page: 1,
+          pages: 1,
+        );
+      }
 
-  final api = ref.read(apiProvider);
-  final params = <String, String>{
-    'q': q,
-    'type': type,
-    'page': '1',
-    'limit': '20',
-    ..._geoParams(ref),
-  };
+      final api = ref.read(apiProvider);
+      final params = <String, String>{
+        'q': q,
+        'type': type,
+        'page': '1',
+        'limit': '20',
+        ..._geoParams(ref),
+      };
 
-  final response = await api.get('/search', queryParams: params);
-  if (!response.success || response.data == null) {
-    throw Exception(response.message ?? 'Search failed');
-  }
+      final response = await api.get('/search', queryParams: params);
+      if (!response.success || response.data == null) {
+        throw Exception(response.message ?? 'Search failed');
+      }
 
-  final body = response.data!;
-  final data = body['data'];
-  final pagination = body['pagination'] is Map
-      ? Map<String, dynamic>.from(body['pagination'] as Map)
-      : <String, dynamic>{};
+      final body = response.data!;
+      final data = body['data'];
+      final pagination = body['pagination'] is Map
+          ? Map<String, dynamic>.from(body['pagination'] as Map)
+          : <String, dynamic>{};
 
-  final results = data is Map
-      ? _asMapList(data['results'])
-      : _asMapList(data);
+      final results = data is Map
+          ? _asMapList(data['results'])
+          : _asMapList(data);
 
-  return GlobalSearchPaged(
-    query: q,
-    type: type,
-    results: results,
-    total: (data is Map ? data['total'] as num? : null)?.toInt() ??
-        results.length,
-    page: (pagination['page'] as num?)?.toInt() ?? 1,
-    pages: (pagination['pages'] as num?)?.toInt() ?? 1,
-  );
-});
+      return GlobalSearchPaged(
+        query: q,
+        type: type,
+        results: results,
+        total:
+            (data is Map ? data['total'] as num? : null)?.toInt() ??
+            results.length,
+        page: (pagination['page'] as num?)?.toInt() ?? 1,
+        pages: (pagination['pages'] as num?)?.toInt() ?? 1,
+      );
+    });
 
 /// Loads next page for a typed search list.
 Future<GlobalSearchPaged> fetchGlobalSearchPage(
@@ -208,8 +211,7 @@ Future<GlobalSearchPaged> fetchGlobalSearchPage(
   GlobalSearchPaged? previous,
 }) async {
   if (type == 'categories') {
-    return previous ??
-        GlobalSearchPaged(query: query.trim(), type: type);
+    return previous ?? GlobalSearchPaged(query: query.trim(), type: type);
   }
 
   final api = ref.read(apiProvider);
@@ -251,16 +253,17 @@ Future<GlobalSearchPaged> fetchGlobalSearchPage(
     query: query.trim(),
     type: type,
     results: merged,
-    total: (data is Map ? data['total'] as num? : null)?.toInt() ??
-        merged.length,
+    total:
+        (data is Map ? data['total'] as num? : null)?.toInt() ?? merged.length,
     page: (pagination['page'] as num?)?.toInt() ?? page,
     pages: (pagination['pages'] as num?)?.toInt() ?? page,
   );
 }
 
 /// Trending keywords for empty search landing.
-final searchTrendingKeywordsProvider =
-    FutureProvider<List<String>>((ref) async {
+final searchTrendingKeywordsProvider = FutureProvider<List<String>>((
+  ref,
+) async {
   final api = ref.read(apiProvider);
   final response = await api.get('/search/trending', requireAuth: false);
   if (!response.success || response.data == null) return const [];
@@ -278,12 +281,8 @@ Map<String, dynamic> offerArgsFromSearchItem(Map<String, dynamic> item) {
       ? {
           '_id': partner['_id'],
           'id': partner['_id'],
-          'businessDetails': {
-            'businessName': partner['name'],
-          },
-          'businessInfo': {
-            'businessLogo': partner['logo'],
-          },
+          'businessDetails': {'businessName': partner['name']},
+          'businessInfo': {'businessLogo': partner['logo']},
         }
       : partner;
 
@@ -310,9 +309,7 @@ Map<String, dynamic> productArgsFromSearchItem(Map<String, dynamic> item) {
         ? {
             '_id': partner['_id'],
             'id': partner['_id'],
-            'businessDetails': {
-              'businessName': partner['name'],
-            },
+            'businessDetails': {'businessName': partner['name']},
           }
         : (item['partnerId'] ?? partner),
   };

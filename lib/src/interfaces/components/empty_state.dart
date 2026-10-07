@@ -19,7 +19,7 @@ class EmptyState extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -30,15 +30,13 @@ class EmptyState extends ConsumerWidget {
             height: screenSize.responsivePadding(200),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
-          Text(
-            title,
-            style: kBodyTitleM,
-            textAlign: TextAlign.center,
-          ),
+          Text(title, style: kBodyTitleM, textAlign: TextAlign.center),
           if (subtitle != null) ...[
             SizedBox(height: screenSize.responsivePadding(8)),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(40)),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.responsivePadding(40),
+              ),
               child: Text(
                 subtitle!,
                 style: kSmallTitleR.copyWith(color: kSecondaryTextColor),

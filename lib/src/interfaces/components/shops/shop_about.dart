@@ -13,7 +13,8 @@ class ShopAbout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final description = shop?.businessInfo?.description ?? 
+    final description =
+        shop?.businessInfo?.description ??
         'Offering premium services in ${shop?.businessDetails?.businessType ?? 'Shop'} category.';
 
     final specialties = shop?.businessInfo?.specialties ?? [];
@@ -25,7 +26,6 @@ class ShopAbout extends ConsumerWidget {
         const Text(
           'About',
           style: TextStyle(
-            fontFamily: 'Montserrat',
             fontSize: 16,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111827),
@@ -35,7 +35,6 @@ class ShopAbout extends ConsumerWidget {
         Text(
           description,
           style: const TextStyle(
-            fontFamily: 'Montserrat',
             fontSize: 13,
             fontWeight: FontWeight.w400,
             color: Color(0xFF6B7280),
@@ -47,7 +46,6 @@ class ShopAbout extends ConsumerWidget {
           const Text(
             'Specialties',
             style: TextStyle(
-              fontFamily: 'Montserrat',
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: Color(0xFF374151),
@@ -71,7 +69,6 @@ class ShopAbout extends ConsumerWidget {
                 child: Text(
                   s,
                   style: const TextStyle(
-                    fontFamily: 'Montserrat',
                     fontSize: 11,
                     color: Color(0xFF374151),
                     fontWeight: FontWeight.w600,
@@ -86,7 +83,6 @@ class ShopAbout extends ConsumerWidget {
           const Text(
             'Highlights & Achievements',
             style: TextStyle(
-              fontFamily: 'Montserrat',
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: Color(0xFF374151),
@@ -97,7 +93,9 @@ class ShopAbout extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: achievements.map((a) {
               return Padding(
-                padding: EdgeInsets.only(bottom: screenSize.responsivePadding(6)),
+                padding: EdgeInsets.only(
+                  bottom: screenSize.responsivePadding(6),
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -114,7 +112,6 @@ class ShopAbout extends ConsumerWidget {
                       child: Text(
                         a,
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 12,
                           color: Color(0xFF4B5563),
                           fontWeight: FontWeight.w500,

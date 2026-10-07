@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -53,7 +52,7 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     'thursday',
     'friday',
     'saturday',
-    'sunday'
+    'sunday',
   ];
 
   File? _pickedImage;
@@ -69,7 +68,7 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     'thursday',
     'friday',
     'saturday',
-    'sunday'
+    'sunday',
   ];
 
   bool get _isModified {
@@ -77,16 +76,28 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
 
     final s = widget.existingService!;
     if (_nameController.text.trim() != s.name) return true;
-    final oldCatId = s.categoryId ?? (s.category != null && s.category!.length == 24 ? s.category : null);
-    if (_selectedCategoryId != oldCatId && _categoryController.text.trim() != (s.categoryName ?? s.category ?? '')) return true;
-    if (_descriptionController.text.trim() != (s.description ?? '')) return true;
-    if (_priceController.text.trim() != (s.originalPrice > 0 ? s.originalPrice.toInt().toString() : '')) return true;
+    final oldCatId =
+        s.categoryId ??
+        (s.category != null && s.category!.length == 24 ? s.category : null);
+    if (_selectedCategoryId != oldCatId &&
+        _categoryController.text.trim() != (s.categoryName ?? s.category ?? ''))
+      return true;
+    if (_descriptionController.text.trim() != (s.description ?? ''))
+      return true;
+    if (_priceController.text.trim() !=
+        (s.originalPrice > 0 ? s.originalPrice.toInt().toString() : ''))
+      return true;
     if (_hasOffer != s.hasOffer) return true;
     if (_offerType != (s.offerType ?? 'percentage')) return true;
-    if (_offerValueController.text.trim() != (s.offerValue?.toInt().toString() ?? '')) return true;
-    if (_durationController.text.trim() != s.durationMinutes.toString()) return true;
-    if (_bufferController.text.trim() != s.bufferMinutes.toString()) return true;
-    if (_maxGuestsController.text.trim() != s.maxConcurrentGuests.toString()) return true;
+    if (_offerValueController.text.trim() !=
+        (s.offerValue?.toInt().toString() ?? ''))
+      return true;
+    if (_durationController.text.trim() != s.durationMinutes.toString())
+      return true;
+    if (_bufferController.text.trim() != s.bufferMinutes.toString())
+      return true;
+    if (_maxGuestsController.text.trim() != s.maxConcurrentGuests.toString())
+      return true;
     if (_spaceLabelController.text.trim() != s.spaceLabel) return true;
     if (_pickedImage != null || _isImageRemoved) return true;
 
@@ -103,7 +114,9 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     final s = widget.existingService;
     _nameController = TextEditingController(text: s?.name ?? '');
     String initialCat = s?.categoryName ?? s?.category ?? '';
-    _selectedCategoryId = s?.categoryId ?? (s?.category != null && s!.category!.length == 24 ? s.category : null);
+    _selectedCategoryId =
+        s?.categoryId ??
+        (s?.category != null && s!.category!.length == 24 ? s.category : null);
     if (RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(initialCat)) {
       final cats = ref.read(serviceCategoriesProvider).value;
       final matched = cats?.where((c) => c.id == initialCat).firstOrNull;
@@ -114,15 +127,25 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     _categoryController = TextEditingController(text: initialCat);
     _descriptionController = TextEditingController(text: s?.description ?? '');
     _priceController = TextEditingController(
-      text: s != null && s.originalPrice > 0 ? s.originalPrice.toInt().toString() : '',
+      text: s != null && s.originalPrice > 0
+          ? s.originalPrice.toInt().toString()
+          : '',
     );
     _offerValueController = TextEditingController(
       text: s?.offerValue != null ? s!.offerValue!.toInt().toString() : '',
     );
-    _durationController = TextEditingController(text: s?.durationMinutes.toString() ?? '30');
-    _bufferController = TextEditingController(text: s?.bufferMinutes.toString() ?? '5');
-    _maxGuestsController = TextEditingController(text: s?.maxConcurrentGuests.toString() ?? '1');
-    _spaceLabelController = TextEditingController(text: s?.spaceLabel ?? 'Chairs');
+    _durationController = TextEditingController(
+      text: s?.durationMinutes.toString() ?? '30',
+    );
+    _bufferController = TextEditingController(
+      text: s?.bufferMinutes.toString() ?? '5',
+    );
+    _maxGuestsController = TextEditingController(
+      text: s?.maxConcurrentGuests.toString() ?? '1',
+    );
+    _spaceLabelController = TextEditingController(
+      text: s?.spaceLabel ?? 'Chairs',
+    );
 
     _hasOffer = s?.hasOffer ?? false;
     _offerType = s?.offerType ?? 'percentage';
@@ -312,7 +335,11 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
       final notifier = ref.read(partnerServicesProvider.notifier);
       final isEditing = widget.existingService != null;
       final res = isEditing
-          ? await notifier.updateService(widget.existingService!.id!, payload, files: files)
+          ? await notifier.updateService(
+              widget.existingService!.id!,
+              payload,
+              files: files,
+            )
           : await notifier.createService(payload, files: files);
 
       if (mounted) {
@@ -334,11 +361,7 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
       }
     } catch (e) {
       if (mounted) {
-        ToastService().showToast(
-          context,
-          'Error: $e',
-          type: ToastType.error,
-        );
+        ToastService().showToast(context, 'Error: $e', type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -442,7 +465,8 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                               children: [
                                 Text(
                                   'Apply Promotional Offer',
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF111827),
@@ -451,7 +475,8 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                                 const SizedBox(height: 2),
                                 Text(
                                   'Enable special discounted pricing',
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 12,
                                     color: const Color(0xFF6B7280),
                                   ),
@@ -485,7 +510,9 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                                   const SizedBox(height: 8),
                                   Container(
                                     height: 56,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFF5F5F5),
                                       borderRadius: BorderRadius.circular(10),
@@ -494,14 +521,27 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                                       child: DropdownButton<String>(
                                         value: _offerType,
                                         isExpanded: true,
-                                        icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF808080)),
-                                        style: kSmallTitleL.copyWith(color: const Color(0xFF111827)),
+                                        icon: const Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color: Color(0xFF808080),
+                                        ),
+                                        style: kSmallTitleL.copyWith(
+                                          color: const Color(0xFF111827),
+                                        ),
                                         dropdownColor: kWhite,
                                         items: const [
-                                          DropdownMenuItem(value: 'percentage', child: Text('Percent (%)')),
-                                          DropdownMenuItem(value: 'flat', child: Text('Flat (₹)')),
+                                          DropdownMenuItem(
+                                            value: 'percentage',
+                                            child: Text('Percent (%)'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'flat',
+                                            child: Text('Flat (₹)'),
+                                          ),
                                         ],
-                                        onChanged: (v) => setState(() => _offerType = v ?? 'percentage'),
+                                        onChanged: (v) => setState(
+                                          () => _offerType = v ?? 'percentage',
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -513,8 +553,12 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                               flex: 4,
                               child: PrimaryTextField(
                                 controller: _offerValueController,
-                                label: _offerType == 'percentage' ? 'Discount %' : 'Discount ₹',
-                                hint: _offerType == 'percentage' ? 'e.g. 20' : 'e.g. 100',
+                                label: _offerType == 'percentage'
+                                    ? 'Discount %'
+                                    : 'Discount ₹',
+                                hint: _offerType == 'percentage'
+                                    ? 'e.g. 20'
+                                    : 'e.g. 100',
                                 type: TextFieldType.number,
                               ),
                             ),
@@ -600,7 +644,8 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                     return ChoiceChip(
                       label: Text(
                         day.substring(0, 3).toUpperCase(),
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: isSelected ? kWhite : const Color(0xFF374151),
@@ -611,7 +656,9 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                       backgroundColor: const Color(0xFFF5F5F5),
                       showCheckmark: false,
                       side: BorderSide(
-                        color: isSelected ? kPrimaryColor : const Color(0xFFE5E7EB),
+                        color: isSelected
+                            ? kPrimaryColor
+                            : const Color(0xFFE5E7EB),
                         width: 1,
                       ),
                       shape: RoundedRectangleBorder(
@@ -649,7 +696,8 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                       color: const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: (_pickedImage != null ||
+                    child:
+                        (_pickedImage != null ||
                             (_existingImageUrl != null && !_isImageRemoved))
                         ? Stack(
                             fit: StackFit.expand,
@@ -657,7 +705,10 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                               GestureDetector(
                                 onTap: _pickImage,
                                 child: _pickedImage != null
-                                    ? Image.file(_pickedImage!, fit: BoxFit.cover)
+                                    ? Image.file(
+                                        _pickedImage!,
+                                        fit: BoxFit.cover,
+                                      )
                                     : AdvancedNetworkImage(
                                         imageUrl: _existingImageUrl!,
                                         fit: BoxFit.cover,

@@ -57,10 +57,7 @@ class DealPromoCard extends ConsumerWidget {
   });
 
   void _openDetail(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      'offerDetail',
-      arguments: offer.toJson(),
-    );
+    Navigator.of(context).pushNamed('offerDetail', arguments: offer.toJson());
   }
 
   @override
@@ -70,8 +67,9 @@ class DealPromoCard extends ConsumerWidget {
     final title = offer.title ?? '';
     final shopName = offer.partnerId?.businessDetails?.businessName ?? '';
     final shopLogo = offer.partnerId?.businessInfo?.businessLogo;
-    final imageUrl =
-        offer.images?.isNotEmpty == true ? offer.images!.first : null;
+    final imageUrl = offer.images?.isNotEmpty == true
+        ? offer.images!.first
+        : null;
     final badge = DealCard.resolveBadgeText(offer);
     final badgeParts = (badge ?? '')
         .split('\n')

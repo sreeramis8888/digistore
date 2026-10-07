@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/models/service_model.dart';
@@ -18,7 +17,8 @@ class PartnerBookingsPage extends ConsumerStatefulWidget {
   const PartnerBookingsPage({super.key});
 
   @override
-  ConsumerState<PartnerBookingsPage> createState() => _PartnerBookingsPageState();
+  ConsumerState<PartnerBookingsPage> createState() =>
+      _PartnerBookingsPageState();
 }
 
 class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
@@ -67,8 +67,8 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
   List<BookingModel> _visibleBookings(List<BookingModel> bookings) {
     if (_selectedFilter != 'home_services') return bookings;
     return bookings.where((b) {
-      final category =
-          (b.service?.categoryName ?? b.service?.category ?? '').toLowerCase();
+      final category = (b.service?.categoryName ?? b.service?.category ?? '')
+          .toLowerCase();
       final name = b.services.join(' ').toLowerCase();
       return category.contains('home') || name.contains('home');
     }).toList();
@@ -115,10 +115,7 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
           _pendingCount = (_pendingCount - 1).clamp(0, 9999);
         });
       }
-      snackbar.showSnackBar(
-        context,
-        'Booking ${status.replaceAll('_', ' ')}',
-      );
+      snackbar.showSnackBar(context, 'Booking ${status.replaceAll('_', ' ')}');
     } else {
       snackbar.showSnackBar(
         context,
@@ -178,7 +175,8 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
         ),
         title: Text(
           'Bookings',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -247,11 +245,13 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                       children: [
                         Text(
                           filter['label']!,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 14,
                             height: 1,
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w600,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
                             color: isSelected ? kPrimaryColor : _chipIdleText,
                           ),
                         ),
@@ -267,7 +267,8 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                             ),
                             child: Text(
                               '$_pendingCount',
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 10,
                                 height: 1,
                                 fontWeight: FontWeight.w700,
@@ -288,35 +289,35 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
             child: bookingsState.isLoading
                 ? const Center(child: LoadingAnimation(size: 36))
                 : bookings.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No bookings found',
-                          style: GoogleFonts.urbanist(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF6B7280),
-                          ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        color: kPrimaryColor,
-                        onRefresh: () => _loadFilter(_selectedFilter),
-                        child: ListView.separated(
-                          padding: EdgeInsets.fromLTRB(
-                            screenSize.responsivePadding(24),
-                            screenSize.responsivePadding(8),
-                            screenSize.responsivePadding(24),
-                            screenSize.responsivePadding(24),
-                          ),
-                          itemCount: bookings.length,
-                          separatorBuilder: (_, _) => SizedBox(
-                            height: screenSize.responsivePadding(12),
-                          ),
-                          itemBuilder: (context, index) {
-                            return _buildBookingCard(bookings[index]);
-                          },
-                        ),
+                ? Center(
+                    child: Text(
+                      'No bookings found',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF6B7280),
                       ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    color: kPrimaryColor,
+                    onRefresh: () => _loadFilter(_selectedFilter),
+                    child: ListView.separated(
+                      padding: EdgeInsets.fromLTRB(
+                        screenSize.responsivePadding(24),
+                        screenSize.responsivePadding(8),
+                        screenSize.responsivePadding(24),
+                        screenSize.responsivePadding(24),
+                      ),
+                      itemCount: bookings.length,
+                      separatorBuilder: (_, _) =>
+                          SizedBox(height: screenSize.responsivePadding(12)),
+                      itemBuilder: (context, index) {
+                        return _buildBookingCard(bookings[index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -367,7 +368,8 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
               children: [
                 Text(
                   customerName,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: _nameColor,
@@ -376,7 +378,8 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                 const SizedBox(height: 6),
                 Text(
                   serviceName,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: kPrimaryColor,
@@ -395,7 +398,8 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
                       Expanded(
                         child: Text(
                           dateTimeDisplay,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 13,
                             fontWeight: FontWeight.w400,
                             color: _metaColor,
@@ -415,15 +419,12 @@ class _PartnerBookingsPageState extends ConsumerState<PartnerBookingsPage> {
               scaleFactor: 0.99,
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.phone_outlined,
-                    size: 14,
-                    color: _metaColor,
-                  ),
+                  const Icon(Icons.phone_outlined, size: 14, color: _metaColor),
                   const SizedBox(width: 6),
                   Text(
                     phone,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: _metaColor,
@@ -496,7 +497,8 @@ class _PillButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: filled ? Colors.white : color,

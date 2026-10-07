@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/business_info.dart';
 import '../../../data/models/partner_model.dart';
 import '../../../data/providers/partner_provider.dart';
@@ -126,9 +125,7 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
     if (!mounted) return;
     SnackbarService().showSnackBar(
       context,
-      ok
-          ? (index != null ? 'FAQ updated' : 'FAQ added')
-          : 'Failed to save FAQ',
+      ok ? (index != null ? 'FAQ updated' : 'FAQ added') : 'Failed to save FAQ',
       type: ok ? SnackbarType.success : SnackbarType.error,
     );
   }
@@ -182,7 +179,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
         ),
         title: Text(
           'FAQ',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF373737),
@@ -213,7 +211,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
         icon: const Icon(Icons.add_rounded, size: 22),
         label: Text(
           'Add FAQ',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -243,7 +242,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
                     const SizedBox(height: 16),
                     Text(
                       'No FAQs yet',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
@@ -253,7 +253,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
                     Text(
                       'Add questions customers often ask about your shop.',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         color: const Color(0xFF6B7280),
@@ -305,7 +306,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
                                 Expanded(
                                   child: Text(
                                     faq.question ?? '',
-                                    style: GoogleFonts.urbanist(
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
                                       fontSize: 15,
                                       fontWeight: FontWeight.w700,
                                       color: const Color(0xFF111827),
@@ -333,7 +335,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
                                   children: [
                                     Text(
                                       faq.answer ?? '',
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 13,
                                         fontWeight: FontWeight.w400,
                                         height: 1.4,
@@ -386,8 +389,9 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
     required VoidCallback? onTap,
     bool destructive = false,
   }) {
-    final color =
-        destructive ? const Color(0xFFFF383C) : const Color(0xFF6155F5);
+    final color = destructive
+        ? const Color(0xFFFF383C)
+        : const Color(0xFF6155F5);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -404,7 +408,8 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: color,

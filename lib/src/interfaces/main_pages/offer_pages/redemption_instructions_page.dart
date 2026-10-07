@@ -172,8 +172,8 @@ class _RedemptionInstructionsPageState
       final dataMap = response.data?['data'] is Map
           ? Map<String, dynamic>.from(response.data!['data'] as Map)
           : (response.data is Map
-              ? Map<String, dynamic>.from(response.data as Map)
-              : <String, dynamic>{});
+                ? Map<String, dynamic>.from(response.data as Map)
+                : <String, dynamic>{});
 
       final qrBytes = _decodeQrDataUrl(dataMap['qrCode']?.toString());
       if (qrBytes == null) {
@@ -324,10 +324,7 @@ class _RedemptionInstructionsPageState
                       color: kPrimaryColor,
                     ),
                     const SizedBox(height: 24),
-                    Text(
-                      title,
-                      style: kSubHeadingM.copyWith(fontSize: 22),
-                    ),
+                    Text(title, style: kSubHeadingM.copyWith(fontSize: 22)),
                     const SizedBox(height: 32),
                     if (_view == _RedemptionView.instructions) ...[
                       _buildInstructionStep(
@@ -425,10 +422,11 @@ class _RedemptionInstructionsPageState
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: (_qrRemaining.inSeconds <= 60
-                                  ? Colors.orange
-                                  : kPrimaryColor)
-                              .withValues(alpha: 0.1),
+                          color:
+                              (_qrRemaining.inSeconds <= 60
+                                      ? Colors.orange
+                                      : kPrimaryColor)
+                                  .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(

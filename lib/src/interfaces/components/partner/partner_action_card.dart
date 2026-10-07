@@ -1,6 +1,5 @@
 import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
 class PartnerActionCard extends StatelessWidget {
@@ -42,7 +41,8 @@ class PartnerActionCard extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 height: 1.1,

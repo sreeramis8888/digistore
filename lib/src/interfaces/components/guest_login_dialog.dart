@@ -15,7 +15,8 @@ class GuestLoginDialog extends ConsumerWidget {
   const GuestLoginDialog({
     super.key,
     this.title = 'Login Required',
-    this.subtitle = 'Please login or register to access this feature and unlock more benefits.',
+    this.subtitle =
+        'Please login or register to access this feature and unlock more benefits.',
     this.loginText = 'Login / Register',
     this.cancelText = 'Maybe Later',
   });
@@ -34,12 +35,17 @@ class GuestLoginDialog extends ConsumerWidget {
       pageBuilder: (context, animation, secondaryAnimation) {
         return GuestLoginDialog(
           title: title ?? 'Login Required',
-          subtitle: subtitle ?? 'Please login or register to access this feature and unlock more benefits.',
+          subtitle:
+              subtitle ??
+              'Please login or register to access this feature and unlock more benefits.',
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8 * animation.value, sigmaY: 8 * animation.value),
+          filter: ImageFilter.blur(
+            sigmaX: 8 * animation.value,
+            sigmaY: 8 * animation.value,
+          ),
           child: FadeTransition(
             opacity: animation,
             child: ScaleTransition(
@@ -57,11 +63,13 @@ class GuestLoginDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      insetPadding: EdgeInsets.symmetric(horizontal: screenSize.responsivePadding(24)),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: screenSize.responsivePadding(24),
+      ),
       child: Container(
         padding: EdgeInsets.all(screenSize.responsivePadding(24)),
         decoration: BoxDecoration(
@@ -116,7 +124,7 @@ class GuestLoginDialog extends ConsumerWidget {
             Text(
               title,
               style: kSubHeadingL.copyWith(
-                color: kTextColor, 
+                color: kTextColor,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
               ),
@@ -126,7 +134,7 @@ class GuestLoginDialog extends ConsumerWidget {
             Text(
               subtitle,
               style: kBodyTitleM.copyWith(
-                color: kSecondaryTextColor, 
+                color: kSecondaryTextColor,
                 height: 1.5,
                 letterSpacing: 0.1,
               ),
@@ -137,7 +145,11 @@ class GuestLoginDialog extends ConsumerWidget {
               text: loginText,
               onPressed: () {
                 Navigator.pop(context); // Close dialog
-                Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  'login',
+                  (route) => false,
+                );
               },
             ),
             SizedBox(height: screenSize.responsivePadding(12)),
@@ -145,13 +157,15 @@ class GuestLoginDialog extends ConsumerWidget {
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 foregroundColor: kSecondaryTextColor,
               ),
               child: Text(
                 cancelText,
                 style: kBodyTitleM.copyWith(
-                  color: kSecondaryTextColor, 
+                  color: kSecondaryTextColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),

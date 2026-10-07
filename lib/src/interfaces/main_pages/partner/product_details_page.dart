@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/models/product_model.dart';
@@ -52,8 +51,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     return {...widget.product, ...fetched};
   }
 
-  ProductModel _asModel(Map<String, dynamic> map) =>
-      ProductModel.fromJson(map);
+  ProductModel _asModel(Map<String, dynamic> map) => ProductModel.fromJson(map);
 
   void _openGallery({
     required List<String> images,
@@ -67,10 +65,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FullScreenGallery(
-            images: images,
-            initialIndex: initialIndex,
-          );
+          return FullScreenGallery(images: images, initialIndex: initialIndex);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -83,8 +78,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     if (isNavigatingToShop || shopOrPartnerId.isEmpty) return;
     setState(() => isNavigatingToShop = true);
     try {
-      final shop =
-          await ref.read(getShopByPartnerIdProvider(shopOrPartnerId).future);
+      final shop = await ref.read(
+        getShopByPartnerIdProvider(shopOrPartnerId).future,
+      );
       if (!mounted) return;
       if (shop != null) {
         Navigator.of(context).pushNamed('shopDetail', arguments: shop);
@@ -136,8 +132,10 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
       if (first is Map) {
         final address = first['address']?.toString() ?? '';
         final city = first['city']?.toString() ?? '';
-        final joined =
-            [address, city].where((e) => e.trim().isNotEmpty).join(', ');
+        final joined = [
+          address,
+          city,
+        ].where((e) => e.trim().isNotEmpty).join(', ');
         if (joined.isNotEmpty) return joined;
       }
     }
@@ -148,9 +146,11 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         final address = details['address']?.toString() ?? '';
         final city = details['city']?.toString() ?? '';
         final pincode = details['pincode']?.toString() ?? '';
-        final joined = [address, city, pincode]
-            .where((e) => e.trim().isNotEmpty)
-            .join(', ');
+        final joined = [
+          address,
+          city,
+          pincode,
+        ].where((e) => e.trim().isNotEmpty).join(', ');
         if (joined.isNotEmpty) return joined;
       }
     }
@@ -163,8 +163,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
   String _formatMoney(num? value) {
     if (value == null) return '';
     final v = value.toDouble();
-    final formatted =
-        v.truncateToDouble() == v ? v.toStringAsFixed(0) : v.toStringAsFixed(2);
+    final formatted = v.truncateToDouble() == v
+        ? v.toStringAsFixed(0)
+        : v.toStringAsFixed(2);
     return '₹$formatted';
   }
 
@@ -265,10 +266,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     setState(() => isBuying = true);
     try {
       final api = ref.read(apiProvider);
-      final body = <String, dynamic>{
-        'productId': productId,
-        'quantity': 1,
-      };
+      final body = <String, dynamic>{'productId': productId, 'quantity': 1};
       final variant = _selectedVariant(model);
       if (variant?.id != null) {
         body['variantId'] = variant!.id;
@@ -278,7 +276,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
       if (!mounted) return;
 
       if (response.success) {
-        final message = response.data?['message']?.toString() ??
+        final message =
+            response.data?['message']?.toString() ??
             response.message ??
             'Inquiry sent to shop owner!';
         ToastService().showToast(context, message, type: ToastType.success);
@@ -308,8 +307,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     final screenSize = ref.watch(screenSizeProvider);
 
     final productId = _productId;
-    final detailAsync =
-        productId != null ? ref.watch(productDetailProvider(productId)) : null;
+    final detailAsync = productId != null
+        ? ref.watch(productDetailProvider(productId))
+        : null;
     final productMap = _mergedProduct(detailAsync?.value);
     final model = _asModel(productMap);
 
@@ -333,19 +333,19 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         : (partnerObj?.toString() ?? model.partnerId ?? '');
 
     final String shopId = _resolveShopId(productMap);
-    final String targetShopOrPartnerId =
-        shopId.isNotEmpty ? shopId : partnerId;
+    final String targetShopOrPartnerId = shopId.isNotEmpty ? shopId : partnerId;
 
     final ShopModel? fetchedShop = targetShopOrPartnerId.isNotEmpty
         ? ref.watch(getShopByPartnerIdProvider(targetShopOrPartnerId)).value
         : null;
 
-    final partnerDetails =
-        partnerObj is Map ? partnerObj['businessDetails'] : null;
-    final partnerInfo =
-        partnerObj is Map ? partnerObj['businessInfo'] : null;
+    final partnerDetails = partnerObj is Map
+        ? partnerObj['businessDetails']
+        : null;
+    final partnerInfo = partnerObj is Map ? partnerObj['businessInfo'] : null;
 
-    final String rawShopName = productMap['shopName']?.toString() ??
+    final String rawShopName =
+        productMap['shopName']?.toString() ??
         (partnerDetails is Map
             ? partnerDetails['businessName']?.toString()
             : null) ??
@@ -354,22 +354,22 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         ? rawShopName
         : (fetchedShop?.businessDetails?.businessName ?? '');
 
-    final String? rawShopLogo = productMap['shopLogo']?.toString() ??
-        (partnerInfo is Map
-            ? partnerInfo['businessLogo']?.toString()
-            : null);
+    final String? rawShopLogo =
+        productMap['shopLogo']?.toString() ??
+        (partnerInfo is Map ? partnerInfo['businessLogo']?.toString() : null);
     final String? effectiveShopLogo =
         (rawShopLogo != null && rawShopLogo.isNotEmpty)
-            ? rawShopLogo
-            : (fetchedShop?.businessInfo?.businessLogo ??
-                fetchedShop?.businessInfo?.coverImage);
+        ? rawShopLogo
+        : (fetchedShop?.businessInfo?.businessLogo ??
+              fetchedShop?.businessInfo?.coverImage);
 
     final String rawShopAddress = _resolveShopAddress(productMap, partnerObj);
     final String effectiveShopAddress = rawShopAddress.isNotEmpty
         ? rawShopAddress
         : (fetchedShop?.businessDetails?.address ?? '');
 
-    final showShop = !isPartner &&
+    final showShop =
+        !isPartner &&
         !widget.hideShopInfo &&
         !(productMap['hideShopInfo'] ?? false) &&
         (targetShopOrPartnerId.isNotEmpty || effectiveShopName.isNotEmpty);
@@ -386,7 +386,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     final description = model.description?.trim() ?? '';
     final tags = model.tags ?? const <String>[];
     final categoryName = model.category?.category;
-    final subcategories = model.category?.subcategories ??
+    final subcategories =
+        model.category?.subcategories ??
         (model.category?.subcategory != null
             ? [model.category!.subcategory!]
             : <String>[]);
@@ -394,9 +395,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     final currentPrice = _currentPrice(model);
     final basePrice = _currentBasePrice(model);
     final inStock = _currentInStock(model);
-    final showStrike = basePrice != null &&
-        currentPrice != null &&
-        basePrice > currentPrice;
+    final showStrike =
+        basePrice != null && currentPrice != null && basePrice > currentPrice;
     final offerBadge = _offerBadgeText(model);
 
     final metaChips = <String>[];
@@ -420,7 +420,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         ? ref.watch(shopProductsProvider(targetShopOrPartnerId))
         : null;
 
-    final isLoadingDetail = detailAsync?.isLoading == true &&
+    final isLoadingDetail =
+        detailAsync?.isLoading == true &&
         (widget.product['description'] == null ||
             (widget.product['specifications'] == null &&
                 widget.product['variants'] == null));
@@ -442,7 +443,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         ),
         title: Text(
           'Product Details',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -539,12 +541,13 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                   GestureDetector(
                     onTap: allImages.isNotEmpty
                         ? () => _openGallery(
-                              images: allImages,
-                              initialUrl: allImages[_currentImageIndex.clamp(
-                                0,
-                                allImages.length - 1,
-                              )],
-                            )
+                            images: allImages,
+                            initialUrl:
+                                allImages[_currentImageIndex.clamp(
+                                  0,
+                                  allImages.length - 1,
+                                )],
+                          )
                         : null,
                     child: Container(
                       width: double.infinity,
@@ -599,7 +602,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                 ),
                                 child: Text(
                                   offerBadge,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     color: Colors.white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
@@ -661,7 +665,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                             categoryName.trim().isNotEmpty) ...[
                           Text(
                             categoryName.toUpperCase(),
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.6,
@@ -672,7 +677,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                         ],
                         Text(
                           title,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
                             color: const Color(0xFF111827),
@@ -700,7 +706,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                     ),
                                     child: Text(
                                       c,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: const Color(0xFF374151),
@@ -718,7 +725,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                             if (currentPrice != null && currentPrice > 0)
                               Text(
                                 _formatMoney(currentPrice),
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF07838C),
@@ -731,7 +739,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                 padding: const EdgeInsets.only(bottom: 2),
                                 child: Text(
                                   _formatMoney(basePrice),
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                     color: const Color(0xFF9CA3AF),
@@ -754,7 +763,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                               ),
                               child: Text(
                                 inStock ? 'In Stock' : 'Out of Stock',
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: inStock
@@ -783,7 +793,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                     ),
                                     child: Text(
                                       s,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                         color: const Color(0xFF6155F5),
@@ -806,24 +817,21 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Select Option',
-                            style: _sectionTitleStyle(),
-                          ),
+                          Text('Select Option', style: _sectionTitleStyle()),
                           const SizedBox(height: 12),
                           Wrap(
                             spacing: 10,
                             runSpacing: 10,
                             children: model.variants.map((v) {
-                              final selected = _selectedVariant(model)?.id ==
-                                  v.id;
+                              final selected =
+                                  _selectedVariant(model)?.id == v.id;
                               final disabled = !v.inStock;
                               return GestureDetector(
                                 onTap: disabled
                                     ? null
                                     : () => setState(
-                                          () => _selectedVariantId = v.id,
-                                        ),
+                                        () => _selectedVariantId = v.id,
+                                      ),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 180),
                                   padding: const EdgeInsets.symmetric(
@@ -832,8 +840,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: selected
-                                        ? const Color(0xFF07838C)
-                                            .withValues(alpha: 0.1)
+                                        ? const Color(
+                                            0xFF07838C,
+                                          ).withValues(alpha: 0.1)
                                         : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
@@ -851,7 +860,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                         v.name?.isNotEmpty == true
                                             ? v.name!
                                             : 'Option',
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
                                           color: disabled
@@ -867,7 +877,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                         disabled
                                             ? 'Out of stock'
                                             : _formatMoney(v.effectivePrice),
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                           color: disabled
@@ -894,11 +905,15 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('About this product', style: _sectionTitleStyle()),
+                          Text(
+                            'About this product',
+                            style: _sectionTitleStyle(),
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             description,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF4B5563),
@@ -940,7 +955,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                     width: 120,
                                     child: Text(
                                       spec.key,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                         color: const Color(0xFF6B7280),
@@ -950,7 +966,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                   Expanded(
                                     child: Text(
                                       spec.value,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         color: const Color(0xFF111827),
@@ -983,14 +1000,15 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                             }
                             final name =
                                 branch['branchName']?.toString() ?? 'Branch';
-                            final address =
-                                branch['address']?.toString() ?? '';
+                            final address = branch['address']?.toString() ?? '';
                             final city = branch['city']?.toString() ?? '';
                             final district =
                                 branch['district']?.toString() ?? '';
-                            final location = [address, city, district]
-                                .where((e) => e.trim().isNotEmpty)
-                                .join(', ');
+                            final location = [
+                              address,
+                              city,
+                              district,
+                            ].where((e) => e.trim().isNotEmpty).join(', ');
                             final isLast = entry.key == branches.length - 1;
                             return Padding(
                               padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
@@ -1002,8 +1020,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                     height: 36,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF07838C)
-                                          .withValues(alpha: 0.1),
+                                      color: const Color(
+                                        0xFF07838C,
+                                      ).withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
@@ -1020,7 +1039,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                       children: [
                                         Text(
                                           name,
-                                          style: GoogleFonts.urbanist(
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
                                             color: const Color(0xFF111827),
@@ -1030,7 +1050,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                           const SizedBox(height: 3),
                                           Text(
                                             location,
-                                            style: GoogleFonts.urbanist(
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
                                               fontSize: 12,
                                               color: const Color(0xFF6B7280),
                                               height: 1.35,
@@ -1078,7 +1099,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                     ),
                                     child: Text(
                                       tag,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         color: const Color(0xFF07838C),
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12,
@@ -1107,8 +1129,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: targetShopOrPartnerId.isNotEmpty
-                                  ? () =>
-                                      _navigateToShop(targetShopOrPartnerId)
+                                  ? () => _navigateToShop(targetShopOrPartnerId)
                                   : null,
                               borderRadius: BorderRadius.circular(16),
                               child: Container(
@@ -1133,7 +1154,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                         ),
                                       ),
                                       clipBehavior: Clip.antiAlias,
-                                      child: effectiveShopLogo != null &&
+                                      child:
+                                          effectiveShopLogo != null &&
                                               effectiveShopLogo.isNotEmpty
                                           ? AdvancedNetworkImage(
                                               imageUrl: effectiveShopLogo,
@@ -1156,7 +1178,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                             effectiveShopName.isNotEmpty
                                                 ? effectiveShopName
                                                 : 'Partner Shop',
-                                            style: GoogleFonts.urbanist(
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
                                               fontSize: 14,
                                               fontWeight: FontWeight.w700,
                                               color: const Color(0xFF111827),
@@ -1169,7 +1192,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                                             const SizedBox(height: 3),
                                             Text(
                                               effectiveShopAddress,
-                                              style: GoogleFonts.urbanist(
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
                                                 fontSize: 12,
                                                 color: const Color(0xFF4B5563),
                                               ),
@@ -1209,9 +1233,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                     shopProductsAsync.when(
                       data: (shopProducts) {
                         final related = shopProducts
-                            .where(
-                              (p) => p.id != null && p.id != model.id,
-                            )
+                            .where((p) => p.id != null && p.id != model.id)
                             .toList();
                         if (related.isEmpty) return const SizedBox.shrink();
                         return Column(
@@ -1242,13 +1264,13 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                               itemCount: related.length,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing:
-                                    screenSize.responsivePadding(12),
-                                mainAxisSpacing:
-                                    screenSize.responsivePadding(12),
-                                childAspectRatio: 0.72,
-                              ),
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: screenSize
+                                        .responsivePadding(12),
+                                    mainAxisSpacing: screenSize
+                                        .responsivePadding(12),
+                                    childAspectRatio: 0.72,
+                                  ),
                               itemBuilder: (context, index) {
                                 return _buildRecommendationCard(
                                   context,
@@ -1297,7 +1319,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                       children: [
                         Text(
                           'Price',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 12,
                             color: const Color(0xFF6B7280),
                           ),
@@ -1309,7 +1332,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                               currentPrice != null && currentPrice > 0
                                   ? _formatMoney(currentPrice)
                                   : '—',
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 color: const Color(0xFF07838C),
@@ -1319,7 +1343,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                               const SizedBox(width: 8),
                               Text(
                                 _formatMoney(basePrice),
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 13,
                                   color: const Color(0xFF9CA3AF),
                                   decoration: TextDecoration.lineThrough,
@@ -1340,8 +1365,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                           : () => _onBuyNow(model),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF07838C),
-                        disabledBackgroundColor:
-                            const Color(0xFF07838C).withValues(alpha: 0.4),
+                        disabledBackgroundColor: const Color(
+                          0xFF07838C,
+                        ).withValues(alpha: 0.4),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         shape: RoundedRectangleBorder(
@@ -1359,7 +1385,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                             )
                           : Text(
                               inStock ? 'I Want to Buy This' : 'Out of Stock',
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -1376,7 +1403,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
   }
 
   TextStyle _sectionTitleStyle() {
-    return GoogleFonts.urbanist(
+    return TextStyle(
+      fontFamily: 'Poppins',
       fontSize: 16,
       fontWeight: FontWeight.w800,
       color: const Color(0xFF111827),
@@ -1410,7 +1438,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     final image = productModel.images?.isNotEmpty == true
         ? productModel.images!.first
         : null;
-    final formattedPrice = price != null && price > 0 ? _formatMoney(price) : '';
+    final formattedPrice = price != null && price > 0
+        ? _formatMoney(price)
+        : '';
 
     return Container(
       decoration: BoxDecoration(
@@ -1428,26 +1458,26 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     ProductDetailsPage(
-                  product: productModel.toJson(),
-                  hideShopInfo: widget.hideShopInfo,
-                ),
+                      product: productModel.toJson(),
+                      hideShopInfo: widget.hideShopInfo,
+                    ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
-                  final curve = CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  );
-                  return FadeTransition(
-                    opacity: curve,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.04, 0),
-                        end: Offset.zero,
-                      ).animate(curve),
-                      child: child,
-                    ),
-                  );
-                },
+                      final curve = CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      );
+                      return FadeTransition(
+                        opacity: curve,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0.04, 0),
+                            end: Offset.zero,
+                          ).animate(curve),
+                          child: child,
+                        ),
+                      );
+                    },
                 transitionDuration: const Duration(milliseconds: 260),
               ),
             );
@@ -1484,7 +1514,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                 SizedBox(height: screenSize.responsivePadding(8)),
                 Text(
                   title,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF111827),
@@ -1496,7 +1527,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                 if (formattedPrice.isNotEmpty)
                   Text(
                     formattedPrice,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF07838C),

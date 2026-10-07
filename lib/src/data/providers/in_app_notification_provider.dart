@@ -25,7 +25,8 @@ class InAppNotificationData {
 }
 
 /// Provider to manage in-app notification queue
-class InAppNotificationNotifier extends StateNotifier<List<InAppNotificationData>> {
+class InAppNotificationNotifier
+    extends StateNotifier<List<InAppNotificationData>> {
   InAppNotificationNotifier() : super([]);
 
   void addNotification(InAppNotificationData notification) {
@@ -42,6 +43,7 @@ class InAppNotificationNotifier extends StateNotifier<List<InAppNotificationData
 }
 
 final inAppNotificationProvider =
-    StateNotifierProvider<InAppNotificationNotifier, List<InAppNotificationData>>(
-  (ref) => InAppNotificationNotifier(),
-);
+    StateNotifierProvider<
+      InAppNotificationNotifier,
+      List<InAppNotificationData>
+    >((ref) => InAppNotificationNotifier());

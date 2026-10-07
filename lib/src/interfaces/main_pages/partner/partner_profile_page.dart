@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/auth_provider.dart';
@@ -165,7 +164,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
         titleSpacing: 0,
         title: Text(
           'Profile',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF373737),
@@ -213,8 +213,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                     screenSize: screenSize,
                     title: 'History',
                     iconData: Icons.history_rounded,
-                    onTap: () =>
-                        Navigator.pushNamed(context, 'partnerHistory'),
+                    onTap: () => Navigator.pushNamed(context, 'partnerHistory'),
                   ),
                 ],
               ),
@@ -269,7 +268,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                                   children: [
                                     Text(
                                       'Push Notifications',
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
                                         color: const Color(0xFF111827),
@@ -278,7 +278,8 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                                     const SizedBox(height: 2),
                                     Text(
                                       'Stay updated on sales & redemptions',
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                         color: const Color(0xFF6B7280),
@@ -291,8 +292,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage>
                                 value: _isNotificationsEnabled,
                                 onChanged: _toggleNotifications,
                                 activeColor: _accent,
-                                activeTrackColor:
-                                    _accent.withValues(alpha: 0.3),
+                                activeTrackColor: _accent.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                             ],
                           ),

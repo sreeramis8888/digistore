@@ -3,7 +3,6 @@ import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:setgo/src/data/constants/style_constants.dart';
 import 'package:setgo/src/data/models/business_info.dart';
 
-
 class BranchCard extends StatelessWidget {
   final BusinessBranch branch;
   final bool isEditMode;
@@ -30,7 +29,13 @@ class BranchCard extends StatelessWidget {
       case 'service_center':
         return 'Service Center';
       default:
-        return type.split('_').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
+        return type
+            .split('_')
+            .map(
+              (w) =>
+                  w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+            )
+            .join(' ');
     }
   }
 
@@ -42,9 +47,7 @@ class BranchCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: kWhite,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -99,9 +102,7 @@ class BranchCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFFE5E7EB),
-                    ),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                   child: Text(
                     _getBranchTypeLabel(branch.branchType),
@@ -139,10 +140,7 @@ class BranchCard extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: branch.isActive == true
                       ? const Color(0xFFDEF7EC)
@@ -205,7 +203,9 @@ class BranchCard extends StatelessWidget {
               ],
             ),
           ],
-          if (branch.location?.landmark?.isNotEmpty == true || branch.location?.district?.isNotEmpty == true || branch.location?.city?.isNotEmpty == true) ...[
+          if (branch.location?.landmark?.isNotEmpty == true ||
+              branch.location?.district?.isNotEmpty == true ||
+              branch.location?.city?.isNotEmpty == true) ...[
             const SizedBox(height: 8),
             Row(
               children: [
@@ -218,9 +218,12 @@ class BranchCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     [
-                      if (branch.location?.landmark?.isNotEmpty == true) branch.location!.landmark!,
-                      if (branch.location?.city?.isNotEmpty == true) branch.location!.city!,
-                      if (branch.location?.district?.isNotEmpty == true) branch.location!.district!,
+                      if (branch.location?.landmark?.isNotEmpty == true)
+                        branch.location!.landmark!,
+                      if (branch.location?.city?.isNotEmpty == true)
+                        branch.location!.city!,
+                      if (branch.location?.district?.isNotEmpty == true)
+                        branch.location!.district!,
                     ].join(', '),
                     style: kSmallTitleM.copyWith(
                       color: const Color(0xFF6B7280),
@@ -298,10 +301,7 @@ class BranchCard extends StatelessWidget {
           ],
           if (isEditMode) ...[
             const SizedBox(height: 16),
-            const Divider(
-              height: 1,
-              color: Color(0xFFF3F4F6),
-            ),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

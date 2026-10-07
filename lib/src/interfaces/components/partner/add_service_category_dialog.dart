@@ -17,10 +17,12 @@ class AddServiceCategoryDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AddServiceCategoryDialog> createState() => _AddServiceCategoryDialogState();
+  ConsumerState<AddServiceCategoryDialog> createState() =>
+      _AddServiceCategoryDialogState();
 }
 
-class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDialog> {
+class _AddServiceCategoryDialogState
+    extends ConsumerState<AddServiceCategoryDialog> {
   final TextEditingController _searchCtrl = TextEditingController();
   final Set<String> _selected = {};
   String _searchQuery = '';
@@ -76,7 +78,9 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               child: Row(
                 children: [
@@ -87,18 +91,31 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                       color: kPrimaryLightColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.category_outlined, color: kPrimaryColor, size: 22),
+                    child: const Icon(
+                      Icons.category_outlined,
+                      color: kPrimaryColor,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Select Subcategories', style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700)),
-                        if (widget.categoryNameOrId != null && widget.categoryNameOrId!.isNotEmpty)
+                        Text(
+                          'Select Subcategories',
+                          style: kBodyTitleM.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (widget.categoryNameOrId != null &&
+                            widget.categoryNameOrId!.isNotEmpty)
                           Text(
                             widget.categoryNameOrId!,
-                            style: kSmallTitleL.copyWith(color: kSecondaryTextColor, fontSize: 12),
+                            style: kSmallTitleL.copyWith(
+                              color: kSecondaryTextColor,
+                              fontSize: 12,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -123,8 +140,12 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
               child: subcategoriesAsync.when(
                 data: (list) {
                   final available = list.where((cat) {
-                    final isNotExisting = !widget.existingCategories.contains(cat);
-                    final matchesSearch = _searchQuery.isEmpty || cat.toLowerCase().contains(_searchQuery);
+                    final isNotExisting = !widget.existingCategories.contains(
+                      cat,
+                    );
+                    final matchesSearch =
+                        _searchQuery.isEmpty ||
+                        cat.toLowerCase().contains(_searchQuery);
                     return isNotExisting && matchesSearch;
                   }).toList();
 
@@ -143,7 +164,10 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                     );
                   }
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -154,7 +178,9 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                             cat,
                             style: kSmallTitleM.copyWith(
                               color: isSelected ? kWhite : kBlack,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                           ),
                           selected: isSelected,
@@ -173,7 +199,9 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                             side: BorderSide(
-                              color: isSelected ? kPrimaryColor : const Color(0xFFE5E5E5),
+                              color: isSelected
+                                  ? kPrimaryColor
+                                  : const Color(0xFFE5E5E5),
                             ),
                           ),
                         );
@@ -184,13 +212,19 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                 loading: () => const Center(
                   child: Padding(
                     padding: EdgeInsets.all(32.0),
-                    child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: kPrimaryColor,
+                    ),
                   ),
                 ),
                 error: (err, stack) => Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Text('Failed to load subcategories', style: kSmallTitleM.copyWith(color: Colors.red)),
+                    child: Text(
+                      'Failed to load subcategories',
+                      style: kSmallTitleM.copyWith(color: Colors.red),
+                    ),
                   ),
                 ),
               ),
@@ -213,7 +247,9 @@ class _AddServiceCategoryDialogState extends ConsumerState<AddServiceCategoryDia
                   const SizedBox(width: 12),
                   Expanded(
                     child: PrimaryButton(
-                      text: _selected.isEmpty ? 'Done' : 'Add (${_selected.length})',
+                      text: _selected.isEmpty
+                          ? 'Done'
+                          : 'Add (${_selected.length})',
                       borderRadius: BorderRadius.circular(12),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       onPressed: () {

@@ -49,7 +49,9 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
       return;
     }
 
-    if (linkType == 'external_url' && externalUrl != null && externalUrl.isNotEmpty) {
+    if (linkType == 'external_url' &&
+        externalUrl != null &&
+        externalUrl.isNotEmpty) {
       await launchURL(externalUrl);
       return;
     }
@@ -96,7 +98,9 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
     try {
       final offer = await ref.read(getOfferByIdProvider(offerId).future);
       if (offer != null && mounted) {
-        Navigator.of(context).pushNamed('offerDetail', arguments: offer.toJson());
+        Navigator.of(
+          context,
+        ).pushNamed('offerDetail', arguments: offer.toJson());
       } else if (mounted) {
         SnackbarService().showSnackBar(
           context,
@@ -140,7 +144,8 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.banners == null || widget.banners!.isEmpty) return const SizedBox.shrink();
+    if (widget.banners == null || widget.banners!.isEmpty)
+      return const SizedBox.shrink();
     final screenSize = ref.watch(screenSizeProvider);
 
     return Padding(
@@ -166,7 +171,9 @@ class _BannerSectionState extends ConsumerState<BannerSection> {
                 Widget childWidget;
                 if (isVideo) {
                   childWidget = VideoBannerPlayer(
-                    key: ValueKey('vbp_${banner.id ?? banner.videoUrl ?? index.toString()}'),
+                    key: ValueKey(
+                      'vbp_${banner.id ?? banner.videoUrl ?? index.toString()}',
+                    ),
                     videoUrl: banner.videoUrl!,
                     thumbnailUrl: banner.effectiveThumbnailUrl,
                     isActivePage: index == _currentPage,

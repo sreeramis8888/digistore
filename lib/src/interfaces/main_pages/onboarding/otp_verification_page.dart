@@ -213,7 +213,10 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                     child: Checkbox(
                       value: _termsAccepted,
                       activeColor: kPrimaryColor.withValues(alpha: 0.8),
-                      side: const BorderSide(color: Color(0xFFC4C4C4), width: 1.5),
+                      side: const BorderSide(
+                        color: Color(0xFFC4C4C4),
+                        width: 1.5,
+                      ),
                       onChanged: (value) {
                         setState(() {
                           _termsAccepted = value ?? false;
@@ -275,70 +278,71 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                       final storage = ref.read(secureStorageServiceProvider);
                       final data = await storage.getRegistrationData();
                       final phone = data?['phone'] ?? '';
-  
+
                       if (phone.isNotEmpty) {
                         final result = await ref
                             .read(authProvider.notifier)
                             .verifyOtp(phone, otp, _termsAccepted);
-                      if (result['success'] == true && context.mounted) {
-                        final userType = ref.read(userTypeProvider);
+                        if (result['success'] == true && context.mounted) {
+                          final userType = ref.read(userTypeProvider);
 
-                        // Fetch appropriate data based on user type
-                        if (userType == UserType.customer) {
-                          await ref.read(userProvider.notifier).getProfile();
-                        } else {
-                          await ref
-                              .read(partnerProvider.notifier)
-                              .getPartnerProfile();
-                        }
+                          // Fetch appropriate data based on user type
+                          if (userType == UserType.customer) {
+                            await ref.read(userProvider.notifier).getProfile();
+                          } else {
+                            await ref
+                                .read(partnerProvider.notifier)
+                                .getPartnerProfile();
+                          }
 
-                        if (result['onboardingComplete'] == false &&
-                            userType == UserType.customer) {
-                          if (!context.mounted) return;
-                          Navigator.of(context).pushNamed('profileSetup');
-                        } else {
-                          await storage.clearRegistrationData();
-                          if (!context.mounted) return;
-                          // For partners or completed customers, go to navbar
-                          Navigator.of(
+                          if (result['onboardingComplete'] == false &&
+                              userType == UserType.customer) {
+                            if (!context.mounted) return;
+                            Navigator.of(context).pushNamed('profileSetup');
+                          } else {
+                            await storage.clearRegistrationData();
+                            if (!context.mounted) return;
+                            // For partners or completed customers, go to navbar
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              'navbar',
+                              (route) => false,
+                            );
+                          }
+                        } else if (result['success'] == false &&
+                            context.mounted) {
+                          ToastService().showToast(
                             context,
-                          ).pushNamedAndRemoveUntil('navbar', (route) => false);
+                            (result['message'] as String).replaceAll(
+                              'Exception: ',
+                              '',
+                            ),
+                            type: ToastType.error,
+                          );
                         }
-                      } else if (result['success'] == false &&
-                          context.mounted) {
+                      } else {
+                        if (!context.mounted) return;
                         ToastService().showToast(
                           context,
-                          (result['message'] as String).replaceAll(
-                            'Exception: ',
-                            '',
-                          ),
+                          'Phone number not found. Please login again.',
                           type: ToastType.error,
                         );
                       }
-                    } else {
-                      if (!context.mounted) return;
+                    } else if (!_termsAccepted) {
                       ToastService().showToast(
                         context,
-                        'Phone number not found. Please login again.',
-                        type: ToastType.error,
+                        'Please accept the Terms & Conditions and Privacy Policy',
+                        type: ToastType.warning,
+                      );
+                    } else {
+                      ToastService().showToast(
+                        context,
+                        'Please enter a valid 6-digit OTP',
+                        type: ToastType.warning,
                       );
                     }
-                  } else if (!_termsAccepted) {
-                    ToastService().showToast(
-                      context,
-                      'Please accept the Terms & Conditions and Privacy Policy',
-                      type: ToastType.warning,
-                    );
-                  } else {
-                    ToastService().showToast(
-                      context,
-                      'Please enter a valid 6-digit OTP',
-                      type: ToastType.warning,
-                    );
-                  }
-                },
+                  },
+                ),
               ),
-            ),
               SizedBox(height: screenSize.responsivePadding(24)),
               _resendTimerSeconds > 0
                   ? Row(

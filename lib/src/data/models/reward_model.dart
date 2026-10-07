@@ -49,13 +49,15 @@ class RewardModel {
       image: json['image'] as String?,
       pointsCost: json['pointsCost'] as int?,
       category: json['category'] as String?,
-      value: (json['value'] as num? ??
-              json['discountValue'] as num? ??
-              json['discount'] as num? ??
-              json['discountPercent'] as num? ??
-              json['discountAmount'] as num?)?.toDouble(),
-      valueType: (json['valueType'] as String? ??
-                  json['discountType'] as String?),
+      value:
+          (json['value'] as num? ??
+                  json['discountValue'] as num? ??
+                  json['discount'] as num? ??
+                  json['discountPercent'] as num? ??
+                  json['discountAmount'] as num?)
+              ?.toDouble(),
+      valueType:
+          (json['valueType'] as String? ?? json['discountType'] as String?),
       terms: _parseTerms(
         json['terms'] ??
             json['termsAndConditions'] ??
@@ -73,21 +75,21 @@ class RewardModel {
       images: json['images'] != null
           ? List<String>.from(json['images'] as List)
           : json['gallery'] != null
-              ? List<String>.from(json['gallery'] as List)
-              : json['galleryImages'] != null
-                  ? List<String>.from(json['galleryImages'] as List)
-                  : null,
+          ? List<String>.from(json['gallery'] as List)
+          : json['galleryImages'] != null
+          ? List<String>.from(json['galleryImages'] as List)
+          : null,
       expiresAt: json['expiresAt'] != null
           ? DateTime.tryParse(json['expiresAt'].toString())?.toLocal()
           : json['validUntil'] != null
-              ? DateTime.tryParse(json['validUntil'].toString())?.toLocal()
-              : json['validTo'] != null
-                  ? DateTime.tryParse(json['validTo'].toString())?.toLocal()
-                  : json['expiryDate'] != null
-                      ? DateTime.tryParse(json['expiryDate'].toString())?.toLocal()
-                      : json['endDate'] != null
-                          ? DateTime.tryParse(json['endDate'].toString())?.toLocal()
-                          : null,
+          ? DateTime.tryParse(json['validUntil'].toString())?.toLocal()
+          : json['validTo'] != null
+          ? DateTime.tryParse(json['validTo'].toString())?.toLocal()
+          : json['expiryDate'] != null
+          ? DateTime.tryParse(json['expiryDate'].toString())?.toLocal()
+          : json['endDate'] != null
+          ? DateTime.tryParse(json['endDate'].toString())?.toLocal()
+          : null,
     );
   }
 
@@ -118,7 +120,12 @@ class RewardModel {
     if (rawTerms == null) return null;
     if (rawTerms is List) {
       final list = rawTerms
-          .map((e) => e is Map ? (e['text'] ?? e['title'] ?? e['term'] ?? e.values.first).toString() : e.toString())
+          .map(
+            (e) => e is Map
+                ? (e['text'] ?? e['title'] ?? e['term'] ?? e.values.first)
+                      .toString()
+                : e.toString(),
+          )
           .where((s) => s.trim().isNotEmpty)
           .toList();
       return list.isNotEmpty ? list : null;

@@ -22,8 +22,14 @@ class PartnerHomeData {
       totalCustomers: json['totalCustomers'] as int?,
       commissionAmount: (json['commissionAmount'] as num?)?.toDouble(),
       totalSalesViaSetgo: (json['totalSalesViaSetgo'] as num?)?.toInt(),
-      recentOffers: SafeParser.parseList(json['recentOffers'], OfferModel.fromJson),
-      recentProducts: SafeParser.parseList(json['recentProducts'], ProductModel.fromJson),
+      recentOffers: SafeParser.parseList(
+        json['recentOffers'],
+        OfferModel.fromJson,
+      ),
+      recentProducts: SafeParser.parseList(
+        json['recentProducts'],
+        ProductModel.fromJson,
+      ),
     );
   }
 }

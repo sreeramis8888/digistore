@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/models/service_model.dart';
@@ -27,6 +26,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
   late DateTime _viewMonth;
   final Set<String> _selectedServiceIds = {};
   final List<ServiceModel> _selectedServices = [];
+
   /// Per-service quantity (keyed by service id). Backend `items[].quantity`.
   final Map<String, int> _quantities = {};
   TimeSlotModel? _selectedSlot;
@@ -66,14 +66,14 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
       _selectedServices.fold(0, (sum, s) => sum + s.totalTimeMinutes);
 
   double get _totalPrice => _selectedServices.fold(
-        0.0,
-        (sum, s) => sum + (s.effectivePrice * _qtyFor(s)),
-      );
+    0.0,
+    (sum, s) => sum + (s.effectivePrice * _qtyFor(s)),
+  );
 
   double get _originalPrice => _selectedServices.fold(
-        0.0,
-        (sum, s) => sum + (s.originalPrice * _qtyFor(s)),
-      );
+    0.0,
+    (sum, s) => sum + (s.originalPrice * _qtyFor(s)),
+  );
 
   void _onPrevMonth() {
     final now = DateTime.now();
@@ -105,18 +105,18 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
         : null;
 
     final String rawPartnerName = partner?.name ?? '';
-    final String effectiveShopName = rawPartnerName.isNotEmpty &&
-            rawPartnerName != 'SetGo Partner'
+    final String effectiveShopName =
+        rawPartnerName.isNotEmpty && rawPartnerName != 'SetGo Partner'
         ? rawPartnerName
         : (fetchedShop?.businessDetails?.businessName ??
-            rawPartnerName.ifEmpty('Partner Store'));
+              rawPartnerName.ifEmpty('Partner Store'));
 
     final String? rawPartnerLogo = partner?.logo;
-    final String? effectiveShopLogo = (rawPartnerLogo != null &&
-            rawPartnerLogo.isNotEmpty)
+    final String? effectiveShopLogo =
+        (rawPartnerLogo != null && rawPartnerLogo.isNotEmpty)
         ? rawPartnerLogo
         : (fetchedShop?.businessInfo?.businessLogo ??
-            fetchedShop?.businessInfo?.coverImage);
+              fetchedShop?.businessInfo?.coverImage);
 
     final rawPartnerAddress = [
       if (partner?.addressLine1 != null && partner!.addressLine1!.isNotEmpty)
@@ -138,14 +138,18 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
               widget.service.id!,
           ];
     // Stable, sorted key so Riverpod family does not refetch every rebuild.
-    final serviceIdsKey = (List<String>.from(selectedServiceIds)..sort()).join(',');
+    final serviceIdsKey = (List<String>.from(
+      selectedServiceIds,
+    )..sort()).join(',');
 
     final slotsAsync = partnerId.isNotEmpty
-        ? ref.watch(bookingSlotsProvider((
-            serviceIds: serviceIdsKey,
-            partnerId: partnerId,
-            date: formattedDate,
-          )))
+        ? ref.watch(
+            bookingSlotsProvider((
+              serviceIds: serviceIdsKey,
+              partnerId: partnerId,
+              date: formattedDate,
+            )),
+          )
         : const AsyncValue<SlotsResponseModel?>.data(null);
 
     return Scaffold(
@@ -165,7 +169,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
         ),
         title: Text(
           'Booking',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -245,11 +250,11 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
     final service = widget.service;
     final displayPrice = service.hasOffer && service.offerPrice != null
         ? (service.offerPrice!.truncateToDouble() == service.offerPrice
-            ? service.offerPrice!.toStringAsFixed(0)
-            : service.offerPrice!.toStringAsFixed(2))
+              ? service.offerPrice!.toStringAsFixed(0)
+              : service.offerPrice!.toStringAsFixed(2))
         : (service.originalPrice.truncateToDouble() == service.originalPrice
-            ? service.originalPrice.toStringAsFixed(0)
-            : service.originalPrice.toStringAsFixed(2));
+              ? service.originalPrice.toStringAsFixed(0)
+              : service.originalPrice.toStringAsFixed(2));
 
     return Container(
       width: double.infinity,
@@ -303,7 +308,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                   children: [
                     Text(
                       partnerName,
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF111827),
@@ -325,7 +331,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                             partnerAddress.isNotEmpty
                                 ? partnerAddress
                                 : 'Partner Store',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF6B7280),
@@ -344,16 +351,14 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Container(
-              height: 1,
-              color: const Color(0xFFF3F4F6),
-            ),
+            child: Container(height: 1, color: const Color(0xFFF3F4F6)),
           ),
 
           // Service Title & Details
           Text(
             service.name,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -366,7 +371,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
             const SizedBox(height: 4),
             Text(
               service.description!.trim(),
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
                 color: const Color(0xFF6B7280),
@@ -380,7 +386,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
             children: [
               Text(
                 '₹$displayPrice',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF07838C),
@@ -395,7 +402,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 ),
                 child: Text(
                   '${service.totalTimeMinutes} mins',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF4B5563),
@@ -417,8 +425,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
 
     // Days in current view month
     final firstDayOfMonth = DateTime(_viewMonth.year, _viewMonth.month, 1);
-    final daysInMonth =
-        DateTime(_viewMonth.year, _viewMonth.month + 1, 0).day;
+    final daysInMonth = DateTime(_viewMonth.year, _viewMonth.month + 1, 0).day;
     // Monday is 1, Sunday is 7 -> offset 0 to 6
     final startOffset = firstDayOfMonth.weekday - 1;
 
@@ -430,7 +437,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
       children: [
         Text(
           'Select Date',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1C1C1C),
@@ -453,7 +461,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 children: [
                   Text(
                     monthTitle,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF1C1C1C),
@@ -507,7 +516,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                     child: Center(
                       child: Text(
                         day,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF74767D),
@@ -536,10 +546,14 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                   }
 
                   final dayNum = index - startOffset + 1;
-                  final cellDate =
-                      DateTime(_viewMonth.year, _viewMonth.month, dayNum);
+                  final cellDate = DateTime(
+                    _viewMonth.year,
+                    _viewMonth.month,
+                    dayNum,
+                  );
                   final isPast = cellDate.isBefore(today);
-                  final isSelected = cellDate.year == _selectedDate.year &&
+                  final isSelected =
+                      cellDate.year == _selectedDate.year &&
                       cellDate.month == _selectedDate.month &&
                       cellDate.day == _selectedDate.day;
 
@@ -568,15 +582,17 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                           alignment: Alignment.center,
                           child: Text(
                             '$dayNum',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 14,
-                              fontWeight:
-                                  isSelected ? FontWeight.w700 : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                               color: isSelected
                                   ? Colors.white
                                   : (isPast
-                                      ? const Color(0xFFD1D5DB)
-                                      : const Color(0xFF4E4E4E)),
+                                        ? const Color(0xFFD1D5DB)
+                                        : const Color(0xFF4E4E4E)),
                             ),
                           ),
                         ),
@@ -627,7 +643,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
       children: [
         Text(
           'Available Slots',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1C1C1C),
@@ -650,7 +667,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                   child: Center(
                     child: Text(
                       'Store is closed on this date. Please choose another date.',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         color: const Color(0xFF6B7280),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -678,7 +696,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                   child: Center(
                     child: Text(
                       'No available slots for this date.',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         color: const Color(0xFF6B7280),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -700,8 +719,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 ),
                 itemBuilder: (context, index) {
                   final slot = slots[index];
-                  final isSelected =
-                      _selectedSlot?.startTime == slot.startTime;
+                  final isSelected = _selectedSlot?.startTime == slot.startTime;
 
                   return InteractiveFeedbackButton(
                     onPressed: () {
@@ -725,10 +743,12 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                       alignment: Alignment.center,
                       child: Text(
                         slot.startTime,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 13,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
                           color: isSelected
                               ? Colors.white
                               : const Color(0xFF1C1C1C),
@@ -753,7 +773,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
               child: Center(
                 child: Text(
                   'Failed to load slots. Please try again.',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     color: const Color(0xFF6B7280),
                     fontSize: 13,
                   ),
@@ -776,7 +797,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
       children: [
         Text(
           'Services & Add-ons',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1C1C1C),
@@ -884,7 +906,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                               children: [
                                 Text(
                                   s.name,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF111827),
@@ -893,7 +916,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                                 const SizedBox(height: 2),
                                 Text(
                                   '${s.totalTimeMinutes} mins • ${s.categoryName ?? s.category ?? "Service"}',
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     color: const Color(0xFF6B7280),
@@ -903,7 +927,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                                   const SizedBox(height: 2),
                                   Text(
                                     '₹${s.effectivePrice.toInt()} each',
-                                    style: GoogleFonts.urbanist(
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                       color: const Color(0xFF9CA3AF),
@@ -923,7 +948,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                           ],
                           Text(
                             '₹${(isChecked ? linePrice : s.effectivePrice).toInt()}',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF07838C),
@@ -959,7 +985,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
       children: [
         Text(
           'Special Instructions (Optional)',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1C1C1C),
@@ -975,14 +1002,16 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
           child: TextField(
             controller: _notesController,
             maxLines: 2,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 13,
               color: const Color(0xFF111827),
             ),
             decoration: InputDecoration(
               hintText:
                   'Add notes for the staff (e.g. preferred stylist, quiet service)...',
-              hintStyle: GoogleFonts.urbanist(
+              hintStyle: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 13,
                 color: const Color(0xFF9CA3AF),
               ),
@@ -1033,7 +1062,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 children: [
                   Text(
                     '₹${_totalPrice.toInt()}',
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF111827),
@@ -1041,7 +1071,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                   ),
                   Text(
                     '$_totalDuration mins total',
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: const Color(0xFF6B7280),
@@ -1060,7 +1091,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => BookingSummaryPage(
-                              partner: partner ??
+                              partner:
+                                  partner ??
                                   widget.service.partner ??
                                   const ServicePartnerModel(name: 'Store'),
                               partnerId: partnerId,
@@ -1088,7 +1120,8 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 ),
                 child: Text(
                   'Continue',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -1123,25 +1156,20 @@ class _QuantityStepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepperButton(
-            icon: Icons.remove,
-            onTap: onDecrement,
-          ),
+          _StepperButton(icon: Icons.remove, onTap: onDecrement),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Text(
               '$quantity',
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF111827),
               ),
             ),
           ),
-          _StepperButton(
-            icon: Icons.add,
-            onTap: onIncrement,
-          ),
+          _StepperButton(icon: Icons.add, onTap: onIncrement),
         ],
       ),
     );
@@ -1171,4 +1199,3 @@ class _StepperButton extends StatelessWidget {
 extension on String {
   String ifEmpty(String fallback) => trim().isEmpty ? fallback : this;
 }
-

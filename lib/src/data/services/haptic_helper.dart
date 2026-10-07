@@ -1,12 +1,6 @@
 import 'package:flutter/services.dart';
 
-enum HapticImpact {
-  light,
-  medium,
-  heavy,
-  selection,
-  none,
-}
+enum HapticImpact { light, medium, heavy, selection, none }
 
 class HapticHelper {
   static Future<void> impact(HapticImpact impact) async {

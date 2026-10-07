@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/shop_model.dart';
 import '../../../data/providers/rewards_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -86,8 +85,9 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
 
     setState(() => _isLoading = true);
     try {
-      final response =
-          await ref.read(rewardActionProvider.notifier).redeemReward(rewardIdToUse);
+      final response = await ref
+          .read(rewardActionProvider.notifier)
+          .redeemReward(rewardIdToUse);
 
       if (!context.mounted) return;
 
@@ -132,10 +132,7 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FullScreenGallery(
-            images: images,
-            initialIndex: initialIndex,
-          );
+          return FullScreenGallery(images: images, initialIndex: initialIndex);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -156,12 +153,13 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
         args['points']?.toString() ?? args['pointsCost']?.toString() ?? '0';
     final bool isClaimed = args['isClaimed'] == true;
     final String? couponCode = args['couponCode'];
-    final double? value = (args['value'] as num? ??
-            args['discountValue'] as num? ??
-            args['discount'] as num? ??
-            args['discountPercent'] as num? ??
-            args['discountAmount'] as num?)
-        ?.toDouble();
+    final double? value =
+        (args['value'] as num? ??
+                args['discountValue'] as num? ??
+                args['discount'] as num? ??
+                args['discountPercent'] as num? ??
+                args['discountAmount'] as num?)
+            ?.toDouble();
     final String? valueType =
         (args['valueType'] as String? ?? args['discountType'] as String?);
     final String? category = args['category'] as String?;
@@ -177,31 +175,38 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
         ? ref.watch(getShopByPartnerIdProvider(partnerId)).value
         : null;
 
-    final rawShopName = args['shopName'] ??
+    final rawShopName =
+        args['shopName'] ??
         (partnerIdObj is Map && partnerIdObj['businessDetails'] is Map
             ? partnerIdObj['businessDetails']['businessName']
             : null) ??
         '';
     final formattedCategory = formatRewardCategory(category);
-    final String displayShopName = rawShopName.toString().isNotEmpty &&
+    final String displayShopName =
+        rawShopName.toString().isNotEmpty &&
             rawShopName != title &&
             rawShopName.toString().toLowerCase() != category?.toLowerCase() &&
-            rawShopName.toString().toLowerCase() != formattedCategory.toLowerCase()
+            rawShopName.toString().toLowerCase() !=
+                formattedCategory.toLowerCase()
         ? rawShopName.toString()
         : (fetchedShop?.businessDetails?.businessName ??
-            (formattedCategory.isNotEmpty ? formattedCategory : 'Reward'));
+              (formattedCategory.isNotEmpty ? formattedCategory : 'Reward'));
 
-    final rawShopLogo = args['shopLogo'] ??
+    final rawShopLogo =
+        args['shopLogo'] ??
         args['partnerLogo'] ??
         args['logo'] ??
         (partnerIdObj is Map && partnerIdObj['businessInfo'] is Map
             ? partnerIdObj['businessInfo']['businessLogo']
             : null);
-    final String? effectiveShopLogo = (rawShopLogo != null && rawShopLogo.toString().isNotEmpty)
+    final String? effectiveShopLogo =
+        (rawShopLogo != null && rawShopLogo.toString().isNotEmpty)
         ? rawShopLogo.toString()
-        : (fetchedShop?.businessInfo?.businessLogo ?? fetchedShop?.businessInfo?.coverImage);
+        : (fetchedShop?.businessInfo?.businessLogo ??
+              fetchedShop?.businessInfo?.coverImage);
 
-    final rawTerms = args['terms'] ??
+    final rawTerms =
+        args['terms'] ??
         args['termsAndConditions'] ??
         args['terms_and_conditions'] ??
         args['conditions'] ??
@@ -210,10 +215,12 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
     if (rawTerms is List) {
       terms.addAll(
         rawTerms
-            .map((e) => e is Map
-                ? (e['text'] ?? e['title'] ?? e['term'] ?? e.values.first)
-                    .toString()
-                : e.toString())
+            .map(
+              (e) => e is Map
+                  ? (e['text'] ?? e['title'] ?? e['term'] ?? e.values.first)
+                        .toString()
+                  : e.toString(),
+            )
             .where((s) => s.trim().isNotEmpty),
       );
     } else if (rawTerms is String && rawTerms.trim().isNotEmpty) {
@@ -227,17 +234,23 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
 
     final List<String> galleryImages = [];
     if (args['images'] is List) {
-      galleryImages.addAll((args['images'] as List)
-          .map((e) => e.toString())
-          .where((s) => s.isNotEmpty));
+      galleryImages.addAll(
+        (args['images'] as List)
+            .map((e) => e.toString())
+            .where((s) => s.isNotEmpty),
+      );
     } else if (args['gallery'] is List) {
-      galleryImages.addAll((args['gallery'] as List)
-          .map((e) => e.toString())
-          .where((s) => s.isNotEmpty));
+      galleryImages.addAll(
+        (args['gallery'] as List)
+            .map((e) => e.toString())
+            .where((s) => s.isNotEmpty),
+      );
     } else if (args['galleryImages'] is List) {
-      galleryImages.addAll((args['galleryImages'] as List)
-          .map((e) => e.toString())
-          .where((s) => s.isNotEmpty));
+      galleryImages.addAll(
+        (args['galleryImages'] as List)
+            .map((e) => e.toString())
+            .where((s) => s.isNotEmpty),
+      );
     }
 
     final benefit = formatRewardBenefit(
@@ -246,7 +259,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
       category: category,
     );
 
-    final rawExpiry = args['expiresAt'] ??
+    final rawExpiry =
+        args['expiresAt'] ??
         args['validUntil'] ??
         args['expiryDate'] ??
         args['validTo'] ??
@@ -293,7 +307,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
         ),
         title: Text(
           'Reward Detail',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -314,16 +329,19 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                   GestureDetector(
                     onTap: allImages.isNotEmpty
                         ? () => _openGallery(
-                              images: allImages,
-                              initialUrl: imageUrl,
-                            )
+                            images: allImages,
+                            initialUrl: imageUrl,
+                          )
                         : null,
                     child: Container(
                       width: double.infinity,
                       height: screenSize.responsivePadding(200),
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom: BorderSide(color: Color(0xFFE3E3E3), width: 1),
+                          bottom: BorderSide(
+                            color: Color(0xFFE3E3E3),
+                            width: 1,
+                          ),
                         ),
                       ),
                       child: Stack(
@@ -341,7 +359,11 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               color: const Color(0xFFE5E7EB),
                               alignment: Alignment.center,
                               child: icon != null
-                                  ? Icon(icon, size: 64, color: const Color(0xFF6155F5))
+                                  ? Icon(
+                                      icon,
+                                      size: 64,
+                                      color: const Color(0xFF6155F5),
+                                    )
                                   : const Icon(
                                       Icons.image_outlined,
                                       size: 48,
@@ -364,7 +386,9 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -372,7 +396,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                                 ),
                                 child: Text(
                                   floatingTagText,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF292929),
@@ -424,30 +449,32 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                                   ),
                                 ),
                                 clipBehavior: Clip.antiAlias,
-                                child: effectiveShopLogo != null &&
+                                child:
+                                    effectiveShopLogo != null &&
                                         effectiveShopLogo.isNotEmpty
                                     ? AdvancedNetworkImage(
                                         imageUrl: effectiveShopLogo,
                                         fit: BoxFit.cover,
                                       )
                                     : (imageUrl != null && imageUrl.isNotEmpty
-                                        ? AdvancedNetworkImage(
-                                            imageUrl: imageUrl,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : const Center(
-                                            child: Icon(
-                                              Icons.storefront,
-                                              color: Color(0xFF6B7280),
-                                              size: 20,
-                                            ),
-                                          )),
+                                          ? AdvancedNetworkImage(
+                                              imageUrl: imageUrl,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : const Center(
+                                              child: Icon(
+                                                Icons.storefront,
+                                                color: Color(0xFF6B7280),
+                                                size: 20,
+                                              ),
+                                            )),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   displayShopName,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 22,
                                     fontWeight: FontWeight.w800,
                                     color: const Color(0xFF111827),
@@ -492,7 +519,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                         // Reward Title & Subtitle
                         Text(
                           title,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF111827),
@@ -505,7 +533,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                           const SizedBox(height: 4),
                           Text(
                             subtitle,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF111827),
@@ -523,10 +552,14 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6155F5).withValues(alpha: 0.08),
+                              color: const Color(
+                                0xFF6155F5,
+                              ).withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: const Color(0xFF6155F5).withValues(alpha: 0.2),
+                                color: const Color(
+                                  0xFF6155F5,
+                                ).withValues(alpha: 0.2),
                               ),
                             ),
                             child: Row(
@@ -540,7 +573,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                                 const SizedBox(width: 5),
                                 Text(
                                   benefit,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF6155F5),
@@ -571,7 +605,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                       children: [
                         Text(
                           'Details & Terms',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1C1C1C),
@@ -582,7 +617,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                           const SizedBox(height: 12),
                           Text.rich(
                             TextSpan(
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 14,
                                 color: const Color(0xFF1C1C1C),
                               ),
@@ -610,7 +646,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               if (stock != null)
                                 Text(
                                   'Stock: $stock',
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 12,
                                     color: const Color(0xFF6B7280),
                                     fontWeight: FontWeight.w500,
@@ -619,7 +656,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               if (maxPerUser != null)
                                 Text(
                                   'Max per user: $maxPerUser',
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 12,
                                     color: const Color(0xFF6B7280),
                                     fontWeight: FontWeight.w500,
@@ -662,10 +700,7 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(
-                top: BorderSide(
-                  color: Color(0xFFF1F5F9),
-                  width: 1,
-                ),
+                top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
               ),
             ),
             padding: EdgeInsets.fromLTRB(
@@ -691,8 +726,9 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               height: 22,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : Row(
@@ -701,7 +737,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                               children: [
                                 Text(
                                   'Get it for $points',
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -718,47 +755,49 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                     ),
                   )
                 : couponCode != null
-                    ? Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6155F5).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFF6155F5).withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Your Coupon Code: $couponCode',
-                            style: GoogleFonts.urbanist(
-                              color: const Color(0xFF6155F5),
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container(
-                        width: double.infinity,
-                        height: screenSize.responsivePadding(56),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE5E7EB),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Reward Claimed',
-                          style: GoogleFonts.urbanist(
-                            color: const Color(0xFF6B7280),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6155F5).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFF6155F5).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Your Coupon Code: $couponCode',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: const Color(0xFF6155F5),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
+                    ),
+                  )
+                : Container(
+                    width: double.infinity,
+                    height: screenSize.responsivePadding(56),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Reward Claimed',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: const Color(0xFF6B7280),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -783,7 +822,8 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               color: const Color(0xFF4E4E4E),
               height: 1.5,
               fontSize: 12,
@@ -795,4 +835,3 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
     );
   }
 }
-

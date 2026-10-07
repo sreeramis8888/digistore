@@ -43,7 +43,13 @@ void _safeLog(String name, dynamic message) {
         final dynamic decoded = json.decode(safeMessage);
         if (decoded is Map) {
           final sanitized = Map.from(decoded);
-          final sensitiveKeys = ['otp', 'token', 'password', 'fcmToken', '_devOtp'];
+          final sensitiveKeys = [
+            'otp',
+            'token',
+            'password',
+            'fcmToken',
+            '_devOtp',
+          ];
           for (var key in sensitiveKeys) {
             if (sanitized.containsKey(key)) {
               sanitized[key] = '***REDACTED***';
@@ -62,14 +68,19 @@ void _safeLog(String name, dynamic message) {
         }
       }
     } catch (_) {}
-    
-    safeMessage = safeMessage.replaceAll(RegExp(r'"token"\s*:\s*"[^"]+"'), '"token":"***REDACTED***"');
-    safeMessage = safeMessage.replaceAll(RegExp(r'"otp"\s*:\s*"[^"]+"'), '"otp":"***REDACTED***"');
+
+    safeMessage = safeMessage.replaceAll(
+      RegExp(r'"token"\s*:\s*"[^"]+"'),
+      '"token":"***REDACTED***"',
+    );
+    safeMessage = safeMessage.replaceAll(
+      RegExp(r'"otp"\s*:\s*"[^"]+"'),
+      '"otp":"***REDACTED***"',
+    );
 
     log(name: name, safeMessage);
   }
 }
-
 
 class ApiResponse<T> {
   final bool success;
@@ -110,10 +121,7 @@ class ApiProvider {
   }) : _client = client ?? http.Client();
 
   Future<Map<String, String>> _buildHeaders({bool requireAuth = false}) async {
-    final headers = {
-      'Content-Type': 'application/json',
-      'accept': '*/*',
-    };
+    final headers = {'Content-Type': 'application/json', 'accept': '*/*'};
 
     if (requireAuth) {
       final token = await secureStorage.getBearerToken();
@@ -379,10 +387,7 @@ final publicApiProvider = Provider<ApiProvider>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
   const baseUrl = String.fromEnvironment('BASE_URL', defaultValue: '');
 
-  return ApiProvider(
-    baseUrl: baseUrl,
-    secureStorage: secureStorage,
-  );
+  return ApiProvider(baseUrl: baseUrl, secureStorage: secureStorage);
 });
 
 final apiProvider = Provider<ApiProvider>((ref) {
@@ -399,8 +404,5 @@ final apiProvider = Provider<ApiProvider>((ref) {
     }
   }
 
-  return ApiProvider(
-    baseUrl: baseUrl,
-    secureStorage: publicApi.secureStorage,
-  );
+  return ApiProvider(baseUrl: baseUrl, secureStorage: publicApi.secureStorage);
 });

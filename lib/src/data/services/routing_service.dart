@@ -65,10 +65,7 @@ class RoutingService {
         final distanceInKm = road.distance;
         final durationInMinutes = road.duration / 60;
 
-        return {
-          'distance': distanceInKm,
-          'duration': durationInMinutes,
-        };
+        return {'distance': distanceInKm, 'duration': durationInMinutes};
       }
 
       return null;

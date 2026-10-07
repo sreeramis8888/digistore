@@ -5,15 +5,15 @@ class PermissionManagerService {
   /// Request location permission
   Future<bool> requestLocationPermission() async {
     PermissionStatus status = await Permission.locationWhenInUse.status;
-    
+
     if (status.isDenied) {
       status = await Permission.locationWhenInUse.request();
     }
-    
+
     if (status.isPermanentlyDenied) {
       return false;
     }
-    
+
     return status.isGranted;
   }
 
@@ -37,6 +37,8 @@ class PermissionManagerService {
   }
 }
 
-final permissionManagerServiceProvider = Provider<PermissionManagerService>((ref) {
+final permissionManagerServiceProvider = Provider<PermissionManagerService>((
+  ref,
+) {
   return PermissionManagerService();
 });

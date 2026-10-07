@@ -21,11 +21,13 @@ class SupportTicketMessage {
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       sender: (json['sender'] ?? 'system').toString(),
       message: (json['message'] ?? '').toString(),
-      attachments: (json['attachments'] as List<dynamic>?)
+      attachments:
+          (json['attachments'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
-      createdAt: DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
+      createdAt:
+          DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
           DateTime.now(),
     );
   }
@@ -47,7 +49,8 @@ class SupportTicketMessage {
 class SupportTicketModel {
   final String id;
   final String subject;
-  final String category; // 'redemption_issue', 'payment', 'account', 'offer', 'other'
+  final String
+  category; // 'redemption_issue', 'payment', 'account', 'offer', 'other'
   final String status; // 'open', 'in_progress', 'resolved', 'closed'
   final String priority; // 'low', 'medium', 'high'
   final List<SupportTicketMessage> messages;
@@ -72,14 +75,18 @@ class SupportTicketModel {
       category: (json['category'] ?? 'other').toString().toLowerCase(),
       status: (json['status'] ?? 'open').toString().toLowerCase(),
       priority: (json['priority'] ?? 'medium').toString().toLowerCase(),
-      messages: (json['messages'] as List<dynamic>?)
-              ?.map((e) =>
-                  SupportTicketMessage.fromJson(e as Map<String, dynamic>))
+      messages:
+          (json['messages'] as List<dynamic>?)
+              ?.map(
+                (e) => SupportTicketMessage.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
-      createdAt: DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
+      createdAt:
+          DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
           DateTime.now(),
-      updatedAt: DateTime.tryParse((json['updatedAt'] ?? '').toString()) ??
+      updatedAt:
+          DateTime.tryParse((json['updatedAt'] ?? '').toString()) ??
           DateTime.now(),
     );
   }

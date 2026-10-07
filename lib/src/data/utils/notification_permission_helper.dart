@@ -34,9 +34,9 @@ class NotificationPermissionHelper {
     // Check which of the permissions you need are allowed at this time
     List<NotificationPermission> permissionsAllowed =
         await AwesomeNotifications().checkPermissionList(
-      channelKey: channelKey,
-      permissions: permissionList,
-    );
+          channelKey: channelKey,
+          permissions: permissionList,
+        );
 
     // If all permissions are allowed, there is nothing to do
     if (permissionsAllowed.length == permissionList.length) {
@@ -44,15 +44,17 @@ class NotificationPermissionHelper {
     }
 
     // Refresh the permission list with only the disallowed permissions
-    List<NotificationPermission> permissionsNeeded =
-        permissionList.toSet().difference(permissionsAllowed.toSet()).toList();
+    List<NotificationPermission> permissionsNeeded = permissionList
+        .toSet()
+        .difference(permissionsAllowed.toSet())
+        .toList();
 
     // Check if some of the permissions needed request user's intervention to be enabled
     List<NotificationPermission> lockedPermissions =
         await AwesomeNotifications().shouldShowRationaleToRequest(
-      channelKey: channelKey,
-      permissions: permissionsNeeded,
-    );
+          channelKey: channelKey,
+          permissions: permissionsNeeded,
+        );
 
     // If there is no permissions depending on user's intervention, so request it directly
     if (lockedPermissions.isEmpty) {
@@ -73,7 +75,8 @@ class NotificationPermissionHelper {
         context: context,
         builder: (context) => _ModernPermissionDialog(
           title: 'Setgo needs your permission',
-          message: 'To proceed, please enable the following permissions so you don\'t miss out on important updates.',
+          message:
+              'To proceed, please enable the following permissions so you don\'t miss out on important updates.',
           permissionList: lockedPermissions
               .join(', ')
               .replaceAll('NotificationPermission.', ''),
@@ -82,10 +85,11 @@ class NotificationPermissionHelper {
               channelKey: channelKey,
               permissions: lockedPermissions,
             );
-            permissionsAllowed = await AwesomeNotifications().checkPermissionList(
-              channelKey: channelKey,
-              permissions: lockedPermissions,
-            );
+            permissionsAllowed = await AwesomeNotifications()
+                .checkPermissionList(
+                  channelKey: channelKey,
+                  permissions: lockedPermissions,
+                );
             if (context.mounted) Navigator.pop(context);
           },
           onDeny: () => Navigator.pop(context),
@@ -106,7 +110,8 @@ class NotificationPermissionHelper {
         context: context,
         builder: (context) => _ModernPermissionDialog(
           title: 'Allow Notifications',
-          message: 'Setgo would like to send you notifications for exclusive offers, deals, and updates.',
+          message:
+              'Setgo would like to send you notifications for exclusive offers, deals, and updates.',
           onAllow: () async {
             isAllowed = await AwesomeNotifications()
                 .requestPermissionToSendNotifications();
@@ -218,7 +223,10 @@ class _ModernPermissionDialog extends StatelessWidget {
                     ),
                     child: const Text(
                       'Not Now',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -237,7 +245,10 @@ class _ModernPermissionDialog extends StatelessWidget {
                     ),
                     child: const Text(
                       'Allow',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),

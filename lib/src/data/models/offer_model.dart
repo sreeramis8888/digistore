@@ -102,12 +102,15 @@ class OfferModel {
           })
           .where((s) => s.trim().isNotEmpty)
           .toList();
-    } else if (json['subcategory'] != null && json['subcategory'].toString().trim().isNotEmpty) {
+    } else if (json['subcategory'] != null &&
+        json['subcategory'].toString().trim().isNotEmpty) {
       parsedSubcategories = [json['subcategory'].toString().trim()];
     }
 
     String? singleSubcategory = json['subcategory'] as String?;
-    if (singleSubcategory == null && parsedSubcategories != null && parsedSubcategories.isNotEmpty) {
+    if (singleSubcategory == null &&
+        parsedSubcategories != null &&
+        parsedSubcategories.isNotEmpty) {
       singleSubcategory = parsedSubcategories.first;
     }
 
@@ -187,7 +190,9 @@ class OfferModel {
       isScratched: json['isScratched'] as bool?,
       awardedDiscount: json['awardedDiscount'] as num?,
       deals: SafeParser.parseObject(json['deals'], DealsModel.fromJson),
-      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
+      distance: json['distance'] != null
+          ? (json['distance'] as num).toDouble()
+          : null,
     );
   }
 
@@ -330,15 +335,14 @@ class BranchApplicability {
   factory BranchApplicability.fromJson(Map<String, dynamic> json) {
     return BranchApplicability(
       type: json['type'] as String?,
-      branchIds: json['branchIds'] != null ? List<String>.from(json['branchIds']) : null,
+      branchIds: json['branchIds'] != null
+          ? List<String>.from(json['branchIds'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'branchIds': branchIds,
-    };
+    return {'type': type, 'branchIds': branchIds};
   }
 }
 
@@ -356,10 +360,7 @@ class RangeModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      if (min != null) 'min': min,
-      if (max != null) 'max': max,
-    };
+    return {if (min != null) 'min': min, if (max != null) 'max': max};
   }
 }
 
@@ -378,10 +379,22 @@ class DealsModel {
 
   factory DealsModel.fromJson(Map<String, dynamic> json) {
     return DealsModel(
-      dealOfDay: SafeParser.parseObject(json['deal_of_day'], DealItemModel.fromJson),
-      dealOfHour: SafeParser.parseObject(json['deal_of_hour'], DealItemModel.fromJson),
-      dealOfWeek: SafeParser.parseObject(json['deal_of_week'], DealItemModel.fromJson),
-      dealOfMonth: SafeParser.parseObject(json['deal_of_month'], DealItemModel.fromJson),
+      dealOfDay: SafeParser.parseObject(
+        json['deal_of_day'],
+        DealItemModel.fromJson,
+      ),
+      dealOfHour: SafeParser.parseObject(
+        json['deal_of_hour'],
+        DealItemModel.fromJson,
+      ),
+      dealOfWeek: SafeParser.parseObject(
+        json['deal_of_week'],
+        DealItemModel.fromJson,
+      ),
+      dealOfMonth: SafeParser.parseObject(
+        json['deal_of_month'],
+        DealItemModel.fromJson,
+      ),
     );
   }
 
@@ -400,11 +413,7 @@ class DealItemModel {
   final DateTime? startDate;
   final DateTime? expiryDate;
 
-  const DealItemModel({
-    this.isActive,
-    this.startDate,
-    this.expiryDate,
-  });
+  const DealItemModel({this.isActive, this.startDate, this.expiryDate});
 
   factory DealItemModel.fromJson(Map<String, dynamic> json) {
     return DealItemModel(

@@ -83,84 +83,81 @@ class _AnimatedWidgetWrapperState extends State<AnimatedWidgetWrapper>
     final child = widget.child;
 
     return switch (widget.animationType) {
-      AnimationType.fadeIn => Opacity(
-          opacity: animationValue,
-          child: child,
-        ),
+      AnimationType.fadeIn => Opacity(opacity: animationValue, child: child),
       AnimationType.slideInFromLeft => Transform.translate(
-          offset: Offset((1 - animationValue) * -100, 0),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset((1 - animationValue) * -100, 0),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.slideInFromRight => Transform.translate(
-          offset: Offset((1 - animationValue) * 100, 0),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset((1 - animationValue) * 100, 0),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.slideInFromTop => Transform.translate(
-          offset: Offset(0, (1 - animationValue) * -100),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset(0, (1 - animationValue) * -100),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.slideInFromBottom => Transform.translate(
-          offset: Offset(0, (1 - animationValue) * 100),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset(0, (1 - animationValue) * 100),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.scaleUp => Transform.scale(
-          scale: 0.8 + (animationValue * 0.2),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        scale: 0.8 + (animationValue * 0.2),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.scaleDown => Transform.scale(
-          scale: 1.2 - (animationValue * 0.2),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        scale: 1.2 - (animationValue * 0.2),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.bounce => Transform.translate(
-          offset: Offset(0, _calculateBounceOffset(animationValue)),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset(0, _calculateBounceOffset(animationValue)),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.elastic => Transform.scale(
-          scale: 0.5 + (animationValue * 0.5),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        scale: 0.5 + (animationValue * 0.5),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.rotate => Transform.rotate(
-          angle: animationValue * 6.28,
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        angle: animationValue * 6.28,
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.fadeSlideInFromLeft => Transform.translate(
-          offset: Offset((1 - animationValue) * -50, 0),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset((1 - animationValue) * -50, 0),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.fadeSlideInFromRight => Transform.translate(
-          offset: Offset((1 - animationValue) * 50, 0),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset((1 - animationValue) * 50, 0),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.fadeSlideInFromTop => Transform.translate(
-          offset: Offset(0, (1 - animationValue) * -50),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset(0, (1 - animationValue) * -50),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.fadeSlideInFromBottom => Transform.translate(
-          offset: Offset(0, (1 - animationValue) * 50),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        offset: Offset(0, (1 - animationValue) * 50),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.fadeScaleUp => Transform.scale(
-          scale: 0.9 + (animationValue * 0.1),
-          child: Opacity(opacity: animationValue, child: child),
-        ),
+        scale: 0.9 + (animationValue * 0.1),
+        child: Opacity(opacity: animationValue, child: child),
+      ),
       AnimationType.pulse => Opacity(
-          opacity: 0.5 + (animationValue * 0.5),
-          child: child,
-        ),
+        opacity: 0.5 + (animationValue * 0.5),
+        child: child,
+      ),
       AnimationType.shimmer => ShaderMask(
-          shaderCallback: (bounds) {
-            return LinearGradient(
-              begin: Alignment(-1 - animationValue * 2, 0),
-              end: Alignment(1 + animationValue * 2, 0),
-              colors: const [
-                Colors.transparent,
-                Colors.white30,
-                Colors.transparent,
-              ],
-            ).createShader(bounds);
-          },
-          child: child,
-        ),
+        shaderCallback: (bounds) {
+          return LinearGradient(
+            begin: Alignment(-1 - animationValue * 2, 0),
+            end: Alignment(1 + animationValue * 2, 0),
+            colors: const [
+              Colors.transparent,
+              Colors.white30,
+              Colors.transparent,
+            ],
+          ).createShader(bounds);
+        },
+        child: child,
+      ),
     };
   }
 

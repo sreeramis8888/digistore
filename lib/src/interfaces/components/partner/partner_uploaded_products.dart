@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
@@ -37,7 +36,8 @@ class PartnerUploadedProducts extends ConsumerWidget {
             children: [
               Text(
                 'Uploaded Products',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF111827),
@@ -53,7 +53,8 @@ class PartnerUploadedProducts extends ConsumerWidget {
                   children: [
                     Text(
                       'View All',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF10B981),
@@ -123,10 +124,7 @@ class PartnerUploadedProducts extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFE5E7EB),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(19),
@@ -160,7 +158,8 @@ class PartnerUploadedProducts extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         product.title ?? 'Product',
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           height: 1.15,
@@ -174,7 +173,8 @@ class PartnerUploadedProducts extends ConsumerWidget {
                       const SizedBox(width: 6),
                       Text(
                         priceStr,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           height: 1.15,
@@ -192,4 +192,3 @@ class PartnerUploadedProducts extends ConsumerWidget {
     );
   }
 }
-

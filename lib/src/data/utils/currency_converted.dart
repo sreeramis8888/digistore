@@ -17,14 +17,17 @@ Future<double?> convertCurrency({
     final toLower = to.toLowerCase();
 
     // Get rates from the 'from' currency
-    final response = await HttpClient().getUrl(Uri.parse(
-        'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/$fromLower.json'));
+    final response = await HttpClient().getUrl(
+      Uri.parse(
+        'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/$fromLower.json',
+      ),
+    );
     final httpResponse = await response.close();
     final responseBody = await httpResponse.transform(utf8.decoder).join();
-    
+
     final data = json.decode(responseBody);
     final rates = data[fromLower] as Map<String, dynamic>;
-    
+
     if (rates.containsKey(toLower)) {
       final rate = rates[toLower] as double;
       return amount * rate;
@@ -37,4 +40,3 @@ Future<double?> convertCurrency({
     return null;
   }
 }
-

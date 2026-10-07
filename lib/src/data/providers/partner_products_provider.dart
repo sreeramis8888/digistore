@@ -41,7 +41,9 @@ class PartnerProductsState {
       error: error ?? this.error,
       pagination: pagination ?? this.pagination,
       searchQuery: searchQuery ?? this.searchQuery,
-      currentCategoryId: currentCategoryId != null ? currentCategoryId() : this.currentCategoryId,
+      currentCategoryId: currentCategoryId != null
+          ? currentCategoryId()
+          : this.currentCategoryId,
     );
   }
 }
@@ -56,14 +58,19 @@ class PartnerProducts extends _$PartnerProducts {
     return PartnerProductsState();
   }
 
-  Future<void> getProducts({int page = 1, String? search, String? categoryId, bool isRefresh = true}) async {
+  Future<void> getProducts({
+    int page = 1,
+    String? search,
+    String? categoryId,
+    bool isRefresh = true,
+  }) async {
     final currentSearch = search ?? state.searchQuery;
     final isCategoryChange = categoryId != state.currentCategoryId;
-    
+
     if (page == 1) {
       state = state.copyWith(
-        isLoading: true, 
-        error: null, 
+        isLoading: true,
+        error: null,
         searchQuery: currentSearch,
         products: (search != null || isCategoryChange) ? [] : state.products,
         currentCategoryId: () => categoryId ?? state.currentCategoryId,
@@ -73,15 +80,14 @@ class PartnerProducts extends _$PartnerProducts {
     }
 
     final api = ref.read(apiProvider);
-    final queryParams = {
-      'page': page.toString(),
-      'limit': '20',
-    };
+    final queryParams = {'page': page.toString(), 'limit': '20'};
     if (currentSearch.isNotEmpty) {
       queryParams['search'] = currentSearch;
     }
     final activeCategoryId = categoryId ?? state.currentCategoryId;
-    if (activeCategoryId != null && activeCategoryId != 'All' && activeCategoryId.isNotEmpty) {
+    if (activeCategoryId != null &&
+        activeCategoryId != 'All' &&
+        activeCategoryId.isNotEmpty) {
       queryParams['category'] = activeCategoryId;
     }
 
@@ -126,6 +132,7 @@ class PartnerProducts extends _$PartnerProducts {
     if (state.searchQuery == query) return;
     getProducts(page: 1, search: query);
   }
+
   void addProduct(ProductModel product) {
     state = state.copyWith(
       products: [product, ...state.products],
@@ -167,17 +174,18 @@ class PartnerProducts extends _$PartnerProducts {
 /// Fetches full product detail from `GET /products/:id`
 /// (consumer: `/api/mobile/products/:id`, partner: `/api/mobile/partner/products/:id`).
 final productDetailProvider =
-    FutureProvider.family<Map<String, dynamic>?, String>((ref, productId) async {
-  if (productId.isEmpty) return null;
-  final api = ref.read(apiProvider);
-  final response = await api.get('/products/$productId');
-  if (response.success && response.data != null) {
-    final data = response.data!['data'];
-    if (data is Map) {
-      return Map<String, dynamic>.from(data);
-    }
-  }
-  return null;
-});
-
-
+    FutureProvider.family<Map<String, dynamic>?, String>((
+      ref,
+      productId,
+    ) async {
+      if (productId.isEmpty) return null;
+      final api = ref.read(apiProvider);
+      final response = await api.get('/products/$productId');
+      if (response.success && response.data != null) {
+        final data = response.data!['data'];
+        if (data is Map) {
+          return Map<String, dynamic>.from(data);
+        }
+      }
+      return null;
+    });

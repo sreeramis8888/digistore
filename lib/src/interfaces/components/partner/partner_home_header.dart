@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/notifications_provider.dart';
 import '../../../data/providers/partner_provider.dart';
@@ -33,12 +32,16 @@ class PartnerHomeHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final partner = ref.watch(partnerProvider);
-    final businessName = partner?.businessDetails?.businessName ?? 'Partners Shop';
+    final businessName =
+        partner?.businessDetails?.businessName ?? 'Partners Shop';
     final location = partner?.businessDetails?.address ?? 'Location';
     final logo = partner?.businessInfo?.businessLogo;
-    final partnerName = partner?.businessDetails?.businessName?.split(' ').first ?? 'Partner';
+    final partnerName =
+        partner?.businessDetails?.businessName?.split(' ').first ?? 'Partner';
 
-    final initial = businessName.isNotEmpty ? businessName[0].toUpperCase() : 'P';
+    final initial = businessName.isNotEmpty
+        ? businessName[0].toUpperCase()
+        : 'P';
     final unreadCount = ref.watch(notificationsProvider).unreadCount;
 
     return Container(
@@ -47,10 +50,7 @@ class PartnerHomeHeader extends ConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF6D0CB2),
-            Color(0xFFBD6AF1),
-          ],
+          colors: [Color(0xFF6D0CB2), Color(0xFFBD6AF1)],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16),
@@ -106,7 +106,8 @@ class PartnerHomeHeader extends ConsumerWidget {
                                 : Center(
                                     child: Text(
                                       initial,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
@@ -121,7 +122,8 @@ class PartnerHomeHeader extends ConsumerWidget {
                               children: [
                                 Text(
                                   businessName,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -141,7 +143,8 @@ class PartnerHomeHeader extends ConsumerWidget {
                                     Flexible(
                                       child: Text(
                                         location,
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
                                           color: const Color(0xFFE6F4EA),
@@ -196,7 +199,9 @@ class PartnerHomeHeader extends ConsumerWidget {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    unreadCount > 99 ? '99+' : unreadCount.toString(),
+                                    unreadCount > 99
+                                        ? '99+'
+                                        : unreadCount.toString(),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 9,
@@ -218,7 +223,8 @@ class PartnerHomeHeader extends ConsumerWidget {
               // Greeting
               Text(
                 'Welcome Back, $partnerName',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -249,14 +255,16 @@ class PartnerHomeHeader extends ConsumerWidget {
                         focusNode: searchFocusNode,
                         onTapOutside: (_) => searchFocusNode?.unfocus(),
                         onChanged: onSearchChanged,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF111827),
                         ),
                         decoration: InputDecoration(
                           hintText: 'Search for offers',
-                          hintStyle: GoogleFonts.urbanist(
+                          hintStyle: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             color: const Color(0xFF6B7280),
@@ -287,4 +295,3 @@ class PartnerHomeHeader extends ConsumerWidget {
     );
   }
 }
-

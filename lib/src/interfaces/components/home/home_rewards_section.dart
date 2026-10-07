@@ -32,10 +32,7 @@ class HomeRewardsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(
-          title: 'Rewards For You',
-          revampStyle: true,
-        ),
+        const SectionTitle(title: 'Rewards For You', revampStyle: true),
         SizedBox(height: screenSize.responsivePadding(8)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: hPad),
@@ -82,32 +79,33 @@ class _HomeRewardTile extends StatelessWidget {
   const _HomeRewardTile({required this.reward});
 
   Map<String, dynamic> get _detailArgs => {
-        'id': reward.id,
-        'title': reward.title,
-        'subtitle': reward.description,
-        'description': reward.description,
-        'points': reward.pointsCost?.toString() ?? '0',
-        'imageUrl': reward.image,
-        'shopName': '',
-        'isClaimed': false,
-        'value': reward.value,
-        'valueType': reward.valueType,
-        'category': reward.category,
-        'requiredTier': reward.requiredTier,
-        'stock': reward.stock,
-        'maxPerUser': reward.maxPerUser,
-        'terms': reward.terms,
-        'images': reward.images,
-        'gallery': reward.images,
-        'expiresAt': reward.expiresAt,
-      };
+    'id': reward.id,
+    'title': reward.title,
+    'subtitle': reward.description,
+    'description': reward.description,
+    'points': reward.pointsCost?.toString() ?? '0',
+    'imageUrl': reward.image,
+    'shopName': '',
+    'isClaimed': false,
+    'value': reward.value,
+    'valueType': reward.valueType,
+    'category': reward.category,
+    'requiredTier': reward.requiredTier,
+    'stock': reward.stock,
+    'maxPerUser': reward.maxPerUser,
+    'terms': reward.terms,
+    'images': reward.images,
+    'gallery': reward.images,
+    'expiresAt': reward.expiresAt,
+  };
 
   @override
   Widget build(BuildContext context) {
     final title = reward.title ?? '';
     final subtitle = reward.description ?? '';
     final points = reward.pointsCost?.toString() ?? '0';
-    final imageUrl = reward.image ??
+    final imageUrl =
+        reward.image ??
         (reward.images != null && reward.images!.isNotEmpty
             ? reward.images!.first
             : '');
@@ -176,14 +174,16 @@ class _HomeRewardTile extends StatelessWidget {
             const SizedBox(width: 8),
             InteractiveFeedbackButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(
-                  'rewardDetail',
-                  arguments: _detailArgs,
-                );
+                Navigator.of(
+                  context,
+                ).pushNamed('rewardDetail', arguments: _detailArgs);
               },
               scaleFactor: 0.95,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF6D0BB2),
                   borderRadius: BorderRadius.circular(12),

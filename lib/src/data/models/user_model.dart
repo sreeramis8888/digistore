@@ -1,5 +1,6 @@
 import 'package:setgo/src/utils/safe_parser.dart';
 
+import '../utils/name_case.dart';
 import 'device_model.dart';
 
 class UserModel {
@@ -59,7 +60,7 @@ class UserModel {
     return UserModel(
       id: (json['id'] ?? json['_id'])?.toString(),
       phone: json['phone']?.toString(),
-      name: json['name']?.toString(),
+      name: NameCase.maybe(json['name']?.toString()),
       email: json['email']?.toString(),
       avatar: json['avatar']?.toString(),
       location: SafeParser.parseObject(

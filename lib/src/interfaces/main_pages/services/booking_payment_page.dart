@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../../../data/models/booking_razorpay_order.dart';
@@ -60,9 +59,11 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
   }
 
   /// Same idea as Jamiat: prefer live profile, fall back to booking customer.
-  Future<({String? contact, String? email, String? name})> _userPrefill() async {
+  Future<({String? contact, String? email, String? name})>
+  _userPrefill() async {
     var user = ref.read(userProvider);
-    final needsProfile = user == null ||
+    final needsProfile =
+        user == null ||
         (user.phone == null || user.phone!.trim().isEmpty) ||
         (user.email == null || user.email!.trim().isEmpty);
 
@@ -76,18 +77,9 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
     }
 
     final customer = widget.booking.customerDetails;
-    final contact = _firstNonEmpty([
-      user?.phone,
-      customer?.phone,
-    ]);
-    final email = _firstNonEmpty([
-      user?.email,
-      customer?.email,
-    ]);
-    final name = _firstNonEmpty([
-      user?.name,
-      customer?.name,
-    ]);
+    final contact = _firstNonEmpty([user?.phone, customer?.phone]);
+    final email = _firstNonEmpty([user?.email, customer?.email]);
+    final name = _firstNonEmpty([user?.name, customer?.name]);
 
     return (contact: contact, email: email, name: name);
   }
@@ -190,7 +182,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
     if (!verify.success || verify.data == null) {
       setState(() {
         _isBusy = false;
-        _errorMessage = verify.message ??
+        _errorMessage =
+            verify.message ??
             'Payment received but verification failed. Please contact support before paying again.';
       });
       return;
@@ -242,7 +235,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
           surfaceTintColor: const Color(0xFFF3F5F4),
           title: Text(
             'Complete Payment',
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -267,7 +261,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                     children: [
                       Text(
                         widget.shopName,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF111827),
@@ -276,7 +271,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                       const SizedBox(height: 8),
                       Text(
                         'Booking #$bookingRef',
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 13,
                           color: const Color(0xFF6B7280),
                         ),
@@ -287,14 +283,16 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                         children: [
                           Text(
                             'Amount payable',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 14,
                               color: const Color(0xFF6B7280),
                             ),
                           ),
                           Text(
                             '₹${amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2)}',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF111827),
@@ -305,7 +303,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                       const SizedBox(height: 12),
                       Text(
                         'Your slot is reserved for 15 minutes. Complete payment to confirm the booking.',
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 12,
                           height: 1.4,
                           color: const Color(0xFF9CA3AF),
@@ -325,7 +324,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 13,
                         color: const Color(0xFFB91C1C),
                         height: 1.35,
@@ -347,8 +347,9 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                     onPressed: _isBusy ? null : _startPayment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6155F5),
-                      disabledBackgroundColor:
-                          const Color(0xFF6155F5).withValues(alpha: 0.7),
+                      disabledBackgroundColor: const Color(
+                        0xFF6155F5,
+                      ).withValues(alpha: 0.7),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -359,7 +360,8 @@ class _BookingPaymentPageState extends ConsumerState<BookingPaymentPage> {
                       _checkoutOpened && _errorMessage != null
                           ? 'Retry Payment'
                           : 'Pay Now',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),

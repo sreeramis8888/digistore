@@ -29,11 +29,7 @@ class HomeDealsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(
-          title: title,
-          onViewAll: onViewAllTap,
-          revampStyle: true,
-        ),
+        SectionTitle(title: title, onViewAll: onViewAllTap, revampStyle: true),
         SizedBox(height: screenSize.responsivePadding(8)),
         SizedBox(
           height: screenSize.responsivePadding(216),

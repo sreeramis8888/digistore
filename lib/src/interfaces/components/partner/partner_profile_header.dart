@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
@@ -62,7 +61,8 @@ class PartnerProfileHeader extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           businessName,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF111827),
@@ -101,7 +101,8 @@ class PartnerProfileHeader extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           location,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF111827),
@@ -117,7 +118,8 @@ class PartnerProfileHeader extends ConsumerWidget {
                     const Spacer(),
                     Text(
                       category,
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF4E4E4E),

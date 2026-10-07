@@ -18,6 +18,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/branches.dart';
+import '../../../data/utils/name_case.dart';
 import '../../../data/providers/category_provider.dart';
 import '../../components/advanced_network_image.dart';
 import '../../../data/models/partner_model.dart';
@@ -166,7 +167,7 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
     _faqs = List.from(partner?.businessInfo?.faqs ?? []);
     _tags = List.from(partner?.tags ?? []);
     _branches = List.from(partner?.businessInfo?.branches ?? []);
-    
+
     // Fetch branches from separate API /branches GET method
     Future.microtask(() async {
       try {
@@ -392,12 +393,14 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
               final oldB = _branches[i];
               final updatedB = oldB.copyWith(isPrimary: false);
               _branches[i] = updatedB;
-              
+
               final newIndex = _newBranches.indexOf(oldB);
               if (newIndex != -1) {
                 _newBranches[newIndex] = updatedB;
               } else {
-                final editIndex = _editedBranches.indexWhere((b) => b.id == oldB.id);
+                final editIndex = _editedBranches.indexWhere(
+                  (b) => b.id == oldB.id,
+                );
                 if (editIndex != -1) {
                   _editedBranches[editIndex] = updatedB;
                 } else if (oldB.id != null) {
@@ -434,12 +437,14 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
               final oldB = _branches[i];
               final updatedB = oldB.copyWith(isPrimary: false);
               _branches[i] = updatedB;
-              
+
               final newIndex = _newBranches.indexOf(oldB);
               if (newIndex != -1) {
                 _newBranches[newIndex] = updatedB;
               } else {
-                final editIndex = _editedBranches.indexWhere((b) => b.id == oldB.id);
+                final editIndex = _editedBranches.indexWhere(
+                  (b) => b.id == oldB.id,
+                );
                 if (editIndex != -1) {
                   _editedBranches[editIndex] = updatedB;
                 } else if (oldB.id != null) {
@@ -455,7 +460,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
         if (newIndex != -1) {
           _newBranches[newIndex] = result;
         } else {
-          final editIndex = _editedBranches.indexWhere((b) => b.id == oldBranch.id);
+          final editIndex = _editedBranches.indexWhere(
+            (b) => b.id == oldBranch.id,
+          );
           if (editIndex != -1) {
             _editedBranches[editIndex] = result;
           } else {
@@ -1053,7 +1060,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           RatingLabel.compact(
                                             partner?.businessInfo?.rating,
                                             reviewCount: partner
-                                                ?.businessInfo?.totalReviews,
+                                                ?.businessInfo
+                                                ?.totalReviews,
                                           ),
                                           style: kBodyTitleM.copyWith(
                                             color: Color(0xFF4E4E4E),
@@ -1063,7 +1071,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                         if (RatingLabel.hasRating(
                                           partner?.businessInfo?.rating,
                                           reviewCount: partner
-                                              ?.businessInfo?.totalReviews,
+                                              ?.businessInfo
+                                              ?.totalReviews,
                                         )) ...[
                                           const SizedBox(width: 4),
                                           Icon(
@@ -1456,13 +1465,15 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                         PrimaryTextField(
                                           label: 'Tagline',
                                           controller: _taglineCtrl,
-                                          hint: 'Short catchy phrase for your business',
+                                          hint:
+                                              'Short catchy phrase for your business',
                                         ),
                                         const SizedBox(height: 12),
                                         PrimaryTextField(
                                           label: 'Description',
                                           controller: _descriptionCtrl,
-                                          hint: 'Detailed overview of your business & offerings',
+                                          hint:
+                                              'Detailed overview of your business & offerings',
                                           maxLines: 4,
                                         ),
                                         const SizedBox(height: 12),
@@ -1473,9 +1484,18 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           type: TextFieldType.number,
                                         ),
                                       ] else ...[
-                                        _buildReadOnlyRow('Tagline', _taglineCtrl.text),
-                                        _buildReadOnlyRow('Description', _descriptionCtrl.text),
-                                        _buildReadOnlyRow('Years of Experience', _yearsOfExperienceCtrl.text),
+                                        _buildReadOnlyRow(
+                                          'Tagline',
+                                          _taglineCtrl.text,
+                                        ),
+                                        _buildReadOnlyRow(
+                                          'Description',
+                                          _descriptionCtrl.text,
+                                        ),
+                                        _buildReadOnlyRow(
+                                          'Years of Experience',
+                                          _yearsOfExperienceCtrl.text,
+                                        ),
                                       ],
                                     ],
                                   ),
@@ -1500,7 +1520,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           (s) => _buildRemovableChip(
                                             s,
                                             onDelete: () => setState(
-                                              () => _serviceCategories.remove(s),
+                                              () =>
+                                                  _serviceCategories.remove(s),
                                             ),
                                           ),
                                         ),
@@ -1597,9 +1618,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                             padding: const EdgeInsets.all(14),
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFF9FAFB),
-                                              borderRadius: BorderRadius.circular(
-                                                12,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: const Color(0xFFE5E7EB),
                                               ),
@@ -1615,10 +1635,11 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                                         faq.question ?? '',
                                                         style: kSmallTitleM
                                                             .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: kBlack,
-                                                        ),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color: kBlack,
+                                                            ),
                                                       ),
                                                     ),
                                                     if (isEditMode) ...[
@@ -1626,19 +1647,20 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                                         icon: const Icon(
                                                           Icons.edit_outlined,
                                                           size: 18,
-                                                          color: kSecondaryColor,
+                                                          color:
+                                                              kSecondaryColor,
                                                         ),
                                                         constraints:
                                                             const BoxConstraints(),
                                                         padding:
                                                             const EdgeInsets.all(
-                                                          4,
-                                                        ),
+                                                              4,
+                                                            ),
                                                         onPressed: () =>
                                                             _showAddFaqDialog(
-                                                          index: idx,
-                                                          initialFaq: faq,
-                                                        ),
+                                                              index: idx,
+                                                              initialFaq: faq,
+                                                            ),
                                                       ),
                                                       IconButton(
                                                         icon: const Icon(
@@ -1650,12 +1672,15 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                                             const BoxConstraints(),
                                                         padding:
                                                             const EdgeInsets.all(
-                                                          4,
-                                                        ),
-                                                        onPressed: () => setState(
-                                                          () => _faqs
-                                                              .removeAt(idx),
-                                                        ),
+                                                              4,
+                                                            ),
+                                                        onPressed: () =>
+                                                            setState(
+                                                              () => _faqs
+                                                                  .removeAt(
+                                                                    idx,
+                                                                  ),
+                                                            ),
                                                       ),
                                                     ],
                                                   ],
@@ -1711,19 +1736,27 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                           ),
                                         )
                                       else
-                                        ..._branches.asMap().entries.map((entry) {
+                                        ..._branches.asMap().entries.map((
+                                          entry,
+                                        ) {
                                           final index = entry.key;
                                           final branch = entry.value;
                                           return BranchCard(
                                             branch: branch,
                                             isEditMode: isEditMode,
-                                            onEdit: () => _editBranch(index, branch),
+                                            onEdit: () =>
+                                                _editBranch(index, branch),
                                             onDelete: () => setState(() {
-                                              final removed = _branches.removeAt(index);
+                                              final removed = _branches
+                                                  .removeAt(index);
                                               _newBranches.remove(removed);
-                                              _editedBranches.removeWhere((b) => b.id == removed.id);
+                                              _editedBranches.removeWhere(
+                                                (b) => b.id == removed.id,
+                                              );
                                               if (removed.id != null) {
-                                                _deletedBranchIds.add(removed.id!);
+                                                _deletedBranchIds.add(
+                                                  removed.id!,
+                                                );
                                               }
                                             }),
                                           );
@@ -2464,8 +2497,12 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                           id: currentPartner.id,
                           userId: currentPartner.userId,
                           businessDetails: BusinessDetails(
-                            businessName: _shopNameCtrl.text,
-                            businessType: _categoryCtrl.text,
+                            businessName: NameCase.toTitleCase(
+                              _shopNameCtrl.text,
+                            ),
+                            businessType: NameCase.toTitleCase(
+                              _categoryCtrl.text,
+                            ),
                             address: _shopAddressCtrl.text,
                             pincode: _pincodeCtrl.text,
                             gstNumber: _panCtrl.text,
@@ -2474,7 +2511,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                                 ?.registrationNumber,
                           ),
                           businessInfo: BusinessInfo(
-                            ownerName: _ownerNameCtrl.text,
+                            ownerName: NameCase.toTitleCase(
+                              _ownerNameCtrl.text,
+                            ),
                             email: _emailCtrl.text,
                             contactPhone: _contactNumCtrl.text,
                             whatsappNumber: _whatsappCtrl.text,
@@ -2487,12 +2526,16 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             businessImages: _businessImages,
                             tagline: _taglineCtrl.text,
                             description: _descriptionCtrl.text,
-                            yearsOfExperience: int.tryParse(_yearsOfExperienceCtrl.text.trim()),
+                            yearsOfExperience: int.tryParse(
+                              _yearsOfExperienceCtrl.text.trim(),
+                            ),
                             websiteUrl: _websiteUrlCtrl.text,
                             specialties: _specialties,
                             achievements: _achievements,
                             faqs: _faqs,
-                            branches: _branches.where((b) => !_newBranches.contains(b)).toList(),
+                            branches: _branches
+                                .where((b) => !_newBranches.contains(b))
+                                .toList(),
                             socialLinks: SocialLinks(
                               instagram: _instagramCtrl.text,
                               facebook: _facebookCtrl.text,
@@ -2569,12 +2612,15 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
 
                           if (success) {
                             bool allBranchesSucceeded = true;
-                            final branchesNotifier = ref.read(branchesProvider.notifier);
+                            final branchesNotifier = ref.read(
+                              branchesProvider.notifier,
+                            );
 
                             // Delete removed branches
                             if (_deletedBranchIds.isNotEmpty) {
                               for (final id in _deletedBranchIds) {
-                                final deleteSuccess = await branchesNotifier.deleteBranch(id);
+                                final deleteSuccess = await branchesNotifier
+                                    .deleteBranch(id);
                                 if (!deleteSuccess) {
                                   allBranchesSucceeded = false;
                                 }
@@ -2584,7 +2630,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             // Update edited branches
                             if (_editedBranches.isNotEmpty) {
                               for (final branch in _editedBranches) {
-                                final updateSuccess = await branchesNotifier.updateBranch(branch);
+                                final updateSuccess = await branchesNotifier
+                                    .updateBranch(branch);
                                 if (!updateSuccess) {
                                   allBranchesSucceeded = false;
                                 }
@@ -2594,7 +2641,8 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             // Create new branches
                             if (_newBranches.isNotEmpty) {
                               for (final branch in _newBranches) {
-                                final branchSuccess = await branchesNotifier.createBranch(branch);
+                                final branchSuccess = await branchesNotifier
+                                    .createBranch(branch);
                                 if (!branchSuccess) {
                                   allBranchesSucceeded = false;
                                 }

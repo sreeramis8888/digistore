@@ -41,7 +41,9 @@ Future<BusinessBranch?> showAddBranchDialog(BuildContext context) {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               child: Row(
                 children: [
@@ -52,10 +54,17 @@ Future<BusinessBranch?> showAddBranchDialog(BuildContext context) {
                       color: kPrimaryLightColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.store_mall_directory_outlined, color: kPrimaryColor, size: 22),
+                    child: const Icon(
+                      Icons.store_mall_directory_outlined,
+                      color: kPrimaryColor,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Add Branch', style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700)),
+                  Text(
+                    'Add Branch',
+                    style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
             ),
@@ -67,7 +76,11 @@ Future<BusinessBranch?> showAddBranchDialog(BuildContext context) {
                     label: 'Branch Name',
                     hint: 'Enter branch name',
                     controller: nameCtrl,
-                    prefixIcon: const Icon(Icons.storefront_outlined, color: kSecondaryColor, size: 18),
+                    prefixIcon: const Icon(
+                      Icons.storefront_outlined,
+                      color: kSecondaryColor,
+                      size: 18,
+                    ),
                     isRequired: true,
                   ),
                   const SizedBox(height: 12),
@@ -75,7 +88,11 @@ Future<BusinessBranch?> showAddBranchDialog(BuildContext context) {
                     label: 'Address',
                     hint: 'Enter address',
                     controller: addressCtrl,
-                    prefixIcon: const Icon(Icons.location_on_outlined, color: kSecondaryColor, size: 18),
+                    prefixIcon: const Icon(
+                      Icons.location_on_outlined,
+                      color: kSecondaryColor,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   PrimaryTextField(
@@ -83,7 +100,11 @@ Future<BusinessBranch?> showAddBranchDialog(BuildContext context) {
                     hint: 'Enter phone number',
                     controller: phoneCtrl,
                     type: TextFieldType.number,
-                    prefixIcon: const Icon(Icons.phone_outlined, color: kSecondaryColor, size: 18),
+                    prefixIcon: const Icon(
+                      Icons.phone_outlined,
+                      color: kSecondaryColor,
+                      size: 18,
+                    ),
                   ),
                 ],
               ),

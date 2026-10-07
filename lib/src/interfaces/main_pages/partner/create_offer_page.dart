@@ -118,7 +118,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     final initialSubs = widget.offer?['subcategories'];
     if (initialSubs is List) {
       _selectedSubcategories = initialSubs.map((e) => e.toString()).toList();
-    } else if (_selectedSubcategory != null && _selectedSubcategory!.isNotEmpty) {
+    } else if (_selectedSubcategory != null &&
+        _selectedSubcategory!.isNotEmpty) {
       _selectedSubcategories = [_selectedSubcategory!];
     }
     _selectedOfferTypeCode = widget.offer?['offerTypeCode'] as String?;
@@ -135,35 +136,42 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
 
     _discountType = widget.offer?['discountType'] as String? ?? 'percentage';
-    _isScratchCard = widget.offer?['isScratchCard'] == true || widget.offer?['isScratchCard'] == 'true';
+    _isScratchCard =
+        widget.offer?['isScratchCard'] == true ||
+        widget.offer?['isScratchCard'] == 'true';
 
     // Robust discount range extraction
     String? minDiscountText;
     String? maxDiscountText;
     final dynamic rawDiscountRange = widget.offer?['discountRange'];
     if (rawDiscountRange is Map) {
-      minDiscountText = rawDiscountRange['min']?.toString() ??
+      minDiscountText =
+          rawDiscountRange['min']?.toString() ??
           rawDiscountRange['minDiscount']?.toString();
-      maxDiscountText = rawDiscountRange['max']?.toString() ??
+      maxDiscountText =
+          rawDiscountRange['max']?.toString() ??
           rawDiscountRange['maxDiscount']?.toString();
-    } else if (rawDiscountRange is String && rawDiscountRange.trim().startsWith('{')) {
+    } else if (rawDiscountRange is String &&
+        rawDiscountRange.trim().startsWith('{')) {
       try {
         final decoded = json.decode(rawDiscountRange);
         if (decoded is Map) {
-          minDiscountText = decoded['min']?.toString() ??
-              decoded['minDiscount']?.toString();
-          maxDiscountText = decoded['max']?.toString() ??
-              decoded['maxDiscount']?.toString();
+          minDiscountText =
+              decoded['min']?.toString() ?? decoded['minDiscount']?.toString();
+          maxDiscountText =
+              decoded['max']?.toString() ?? decoded['maxDiscount']?.toString();
         }
       } catch (_) {}
     } else if (rawDiscountRange is RangeModel) {
       minDiscountText = rawDiscountRange.min?.toString();
       maxDiscountText = rawDiscountRange.max?.toString();
-    } else if (rawDiscountRange != null && rawDiscountRange.toString() != 'null') {
+    } else if (rawDiscountRange != null &&
+        rawDiscountRange.toString() != 'null') {
       minDiscountText = rawDiscountRange.toString();
     }
 
-    minDiscountText ??= widget.offer?['discountValue']?.toString() ??
+    minDiscountText ??=
+        widget.offer?['discountValue']?.toString() ??
         widget.offer?['discount']?.toString() ??
         widget.offer?['minDiscount']?.toString();
     maxDiscountText ??= widget.offer?['maxDiscount']?.toString();
@@ -229,7 +237,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     );
 
     // Robust Deal Promotion prefill (checks pendingDeal, deal, and deals)
-    dynamic rawDeal = widget.offer?['offerMetadata']?['pendingDeal'] ??
+    dynamic rawDeal =
+        widget.offer?['offerMetadata']?['pendingDeal'] ??
         widget.offer?['pendingDeal'] ??
         widget.offer?['deal'] ??
         widget.offer?['deals'];
@@ -246,7 +255,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     if (rawDeal is Map) {
       if (rawDeal['type'] != null && rawDeal['type'].toString().isNotEmpty) {
         _selectedDealType = rawDeal['type'].toString();
-        _isDealActive = rawDeal['isActive'] == true ||
+        _isDealActive =
+            rawDeal['isActive'] == true ||
             rawDeal['isActive'] == 'true' ||
             rawDeal['pendingActivation'] == true ||
             rawDeal['startDate'] != null;
@@ -285,12 +295,14 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
             if (dealData is Map) {
               sDate = dealData['startDate'];
               eDate = dealData['expiryDate'];
-              active = dealData['isActive'] == true ||
+              active =
+                  dealData['isActive'] == true ||
                   dealData['isActive'] == 'true' ||
                   sDate != null ||
                   eDate != null;
             } else if (dealData is DealItemModel) {
-              active = dealData.isActive == true ||
+              active =
+                  dealData.isActive == true ||
                   dealData.startDate != null ||
                   dealData.expiryDate != null;
               _dealStartDate = dealData.startDate?.toLocal();
@@ -327,7 +339,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       }
     }
 
-    if (_selectedDealType == null && (widget.offer?['isDealOfDay'] == true || widget.offer?['isDealOfDay'] == 'true')) {
+    if (_selectedDealType == null &&
+        (widget.offer?['isDealOfDay'] == true ||
+            widget.offer?['isDealOfDay'] == 'true')) {
       _selectedDealType = 'deal_of_day';
       _isDealActive = true;
     }
@@ -343,20 +357,25 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     String? maxPriceText;
     final dynamic rawPriceRange = widget.offer?['priceRange'];
     if (rawPriceRange is Map) {
-      minPriceText = rawPriceRange['min']?.toString() ??
+      minPriceText =
+          rawPriceRange['min']?.toString() ??
           rawPriceRange['minPrice']?.toString() ??
           rawPriceRange['minimumPrice']?.toString();
-      maxPriceText = rawPriceRange['max']?.toString() ??
+      maxPriceText =
+          rawPriceRange['max']?.toString() ??
           rawPriceRange['maxPrice']?.toString() ??
           rawPriceRange['maximumPrice']?.toString();
-    } else if (rawPriceRange is String && rawPriceRange.trim().startsWith('{')) {
+    } else if (rawPriceRange is String &&
+        rawPriceRange.trim().startsWith('{')) {
       try {
         final decoded = json.decode(rawPriceRange);
         if (decoded is Map) {
-          minPriceText = decoded['min']?.toString() ??
+          minPriceText =
+              decoded['min']?.toString() ??
               decoded['minPrice']?.toString() ??
               decoded['minimumPrice']?.toString();
-          maxPriceText = decoded['max']?.toString() ??
+          maxPriceText =
+              decoded['max']?.toString() ??
               decoded['maxPrice']?.toString() ??
               decoded['maximumPrice']?.toString();
         }
@@ -368,11 +387,13 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       minPriceText = rawPriceRange.toString();
     }
 
-    minPriceText ??= widget.offer?['minPrice']?.toString() ??
+    minPriceText ??=
+        widget.offer?['minPrice']?.toString() ??
         widget.offer?['minimumPrice']?.toString() ??
         widget.offer?['min_price']?.toString() ??
         widget.offer?['price']?.toString();
-    maxPriceText ??= widget.offer?['maxPrice']?.toString() ??
+    maxPriceText ??=
+        widget.offer?['maxPrice']?.toString() ??
         widget.offer?['maximumPrice']?.toString() ??
         widget.offer?['max_price']?.toString();
 
@@ -380,7 +401,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     _maxPriceController = TextEditingController(text: maxPriceText);
 
     // Existing images prefill in edit mode
-    final dynamic rawImages = widget.offer?['images'] ??
+    final dynamic rawImages =
+        widget.offer?['images'] ??
         widget.offer?['imageUrl'] ??
         widget.offer?['image'] ??
         widget.offer?['media'];
@@ -456,15 +478,23 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       minPurchaseAmount = rules['minPurchaseAmount']?.toString() ?? '';
     } else if (rules != null) {
       try {
-        maxTotalRedemptions = (rules as dynamic).maxTotalRedemptions?.toString() ?? '';
+        maxTotalRedemptions =
+            (rules as dynamic).maxTotalRedemptions?.toString() ?? '';
         maxPerUser = (rules as dynamic).maxPerUser?.toString() ?? '';
-        minPurchaseAmount = (rules as dynamic).minPurchaseAmount?.toString() ?? '';
-      } catch (e) { print('Offer Error: $e'); }
+        minPurchaseAmount =
+            (rules as dynamic).minPurchaseAmount?.toString() ?? '';
+      } catch (e) {
+        print('Offer Error: $e');
+      }
     }
 
-    _maxTotalRedemptionsController = TextEditingController(text: maxTotalRedemptions);
+    _maxTotalRedemptionsController = TextEditingController(
+      text: maxTotalRedemptions,
+    );
     _maxPerUserController = TextEditingController(text: maxPerUser);
-    _minPurchaseAmountController = TextEditingController(text: minPurchaseAmount);
+    _minPurchaseAmountController = TextEditingController(
+      text: minPurchaseAmount,
+    );
   }
 
   @override
@@ -878,7 +908,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       }
     }
 
-    if (_selectedDealType != null && _selectedDealType!.isNotEmpty && _isDealActive) {
+    if (_selectedDealType != null &&
+        _selectedDealType!.isNotEmpty &&
+        _isDealActive) {
       if (_dealStartDate == null || _dealStartTime == null) {
         ToastService().showToast(
           context,
@@ -910,8 +942,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         _dealExpiryTime!.minute,
       );
       if (_validFrom != null &&
-          _dealStartDate!.isBefore(DateTime(
-              _validFrom!.year, _validFrom!.month, _validFrom!.day))) {
+          _dealStartDate!.isBefore(
+            DateTime(_validFrom!.year, _validFrom!.month, _validFrom!.day),
+          )) {
         ToastService().showToast(
           context,
           'Deal start date cannot be before the offer start date (${DateFormat('dd MMM yyyy').format(_validFrom!)})',
@@ -920,8 +953,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         return;
       }
       if (_validTo != null &&
-          _dealExpiryDate!.isAfter(DateTime(
-              _validTo!.year, _validTo!.month, _validTo!.day, 23, 59, 59))) {
+          _dealExpiryDate!.isAfter(
+            DateTime(
+              _validTo!.year,
+              _validTo!.month,
+              _validTo!.day,
+              23,
+              59,
+              59,
+            ),
+          )) {
         ToastService().showToast(
           context,
           'Deal expiry date cannot be after the offer expiry date (${DateFormat('dd MMM yyyy').format(_validTo!)})',
@@ -929,7 +970,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         );
         return;
       }
-      if (startDt.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+      if (startDt.isBefore(
+        DateTime.now().subtract(const Duration(minutes: 5)),
+      )) {
         ToastService().showToast(
           context,
           'Start date and time cannot be in the past',
@@ -958,20 +1001,19 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       String maxMsg = 'Deal duration must be between 1 and 24 hours';
       if (_selectedDealType == 'deal_of_day') {
         maxDuration = 7 * 24;
-        maxMsg = 'Deal duration must be at least 1 hour and cannot exceed 7 days';
+        maxMsg =
+            'Deal duration must be at least 1 hour and cannot exceed 7 days';
       } else if (_selectedDealType == 'deal_of_week') {
         maxDuration = 30 * 24;
-        maxMsg = 'Deal duration must be at least 1 hour and cannot exceed 30 days';
+        maxMsg =
+            'Deal duration must be at least 1 hour and cannot exceed 30 days';
       } else if (_selectedDealType == 'deal_of_month') {
         maxDuration = 90 * 24;
-        maxMsg = 'Deal duration must be at least 1 hour and cannot exceed 90 days';
+        maxMsg =
+            'Deal duration must be at least 1 hour and cannot exceed 90 days';
       }
       if (diffHours > maxDuration) {
-        ToastService().showToast(
-          context,
-          maxMsg,
-          type: ToastType.error,
-        );
+        ToastService().showToast(context, maxMsg, type: ToastType.error);
         return;
       }
     }
@@ -1020,7 +1062,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       };
 
       body['redemptionRules'] = json.encode({
-        'maxTotalRedemptions': _maxTotalRedemptionsController.text.trim().isNotEmpty
+        'maxTotalRedemptions':
+            _maxTotalRedemptionsController.text.trim().isNotEmpty
             ? int.tryParse(_maxTotalRedemptionsController.text.trim())
             : null,
         'maxPerUser': _maxPerUserController.text.trim().isNotEmpty
@@ -1059,7 +1102,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       if (_selectedSubcategories.isNotEmpty) {
         body['subcategories'] = json.encode(_selectedSubcategories);
         body['subcategory'] = _selectedSubcategories.first;
-      } else if (_selectedSubcategory != null && _selectedSubcategory!.isNotEmpty) {
+      } else if (_selectedSubcategory != null &&
+          _selectedSubcategory!.isNotEmpty) {
         body['subcategory'] = _selectedSubcategory!;
         body['subcategories'] = json.encode([_selectedSubcategory!]);
       }
@@ -1077,9 +1121,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         } else if (_selectedOfferTypeCode == 'DNP') {
           metaMap = {
             if (_dnpDiscountController.text.trim().isNotEmpty)
-              'nextPurchaseDiscount': double.tryParse(_dnpDiscountController.text.trim()),
+              'nextPurchaseDiscount': double.tryParse(
+                _dnpDiscountController.text.trim(),
+              ),
           };
-        } else if (_selectedOfferTypeCode == 'CO' || _selectedOfferTypeCode == 'CP') {
+        } else if (_selectedOfferTypeCode == 'CO' ||
+            _selectedOfferTypeCode == 'CP') {
           metaMap = {
             if (_comboDescController.text.trim().isNotEmpty)
               'comboDescription': _comboDescController.text.trim(),
@@ -1087,14 +1134,18 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         } else if (_selectedOfferTypeCode == 'LD') {
           metaMap = {
             if (_ldMinPurchaseController.text.trim().isNotEmpty)
-              'minPurchaseLimit': double.tryParse(_ldMinPurchaseController.text.trim()),
+              'minPurchaseLimit': double.tryParse(
+                _ldMinPurchaseController.text.trim(),
+              ),
             if (_ldPrizeDescController.text.trim().isNotEmpty)
               'prizeDescription': _ldPrizeDescController.text.trim(),
           };
         } else if (_selectedOfferTypeCode == 'LO') {
           metaMap = {
             if (_loPurchaseCountController.text.trim().isNotEmpty)
-              'purchaseCount': int.tryParse(_loPurchaseCountController.text.trim()),
+              'purchaseCount': int.tryParse(
+                _loPurchaseCountController.text.trim(),
+              ),
             if (_loFreeItemDescController.text.trim().isNotEmpty)
               'freeItemDescription': _loFreeItemDescController.text.trim(),
           };
@@ -1121,7 +1172,13 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         }
       }
 
-      if (_selectedDealType != null && _selectedDealType!.isNotEmpty && _isDealActive && _dealStartDate != null && _dealStartTime != null && _dealExpiryDate != null && _dealExpiryTime != null) {
+      if (_selectedDealType != null &&
+          _selectedDealType!.isNotEmpty &&
+          _isDealActive &&
+          _dealStartDate != null &&
+          _dealStartTime != null &&
+          _dealExpiryDate != null &&
+          _dealExpiryTime != null) {
         final startDt = DateTime(
           _dealStartDate!.year,
           _dealStartDate!.month,
@@ -1147,7 +1204,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
             'isActive': _isDealActive,
             'startDate': startDt.toUtc().toIso8601String(),
             'expiryDate': expiryDt.toUtc().toIso8601String(),
-          }
+          },
         });
         if (_selectedDealType == 'deal_of_day') {
           body['isDealOfDay'] = _isDealActive.toString();
@@ -1286,7 +1343,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                           : 'Min. 3 characters',
                       style: kSmallerTitleL.copyWith(
                         fontSize: 11,
-                        color: _titleController.text.trim().isNotEmpty &&
+                        color:
+                            _titleController.text.trim().isNotEmpty &&
                                 _titleController.text.trim().length < 3
                             ? Colors.red
                             : const Color(0xFF808080),
@@ -1323,7 +1381,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                           : 'Min. 10 characters',
                       style: kSmallerTitleL.copyWith(
                         fontSize: 11,
-                        color: _descController.text.trim().isNotEmpty &&
+                        color:
+                            _descController.text.trim().isNotEmpty &&
                                 _descController.text.trim().length < 10
                             ? Colors.red
                             : const Color(0xFF808080),
@@ -1409,7 +1468,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                   );
                 }).toList(),
               ),
-              if (_selectedOfferTypeCode != null && _selectedOfferTypeCode != 'DO') ...[
+              if (_selectedOfferTypeCode != null &&
+                  _selectedOfferTypeCode != 'DO') ...[
                 const SizedBox(height: 16),
                 _buildDynamicOfferFields(),
               ],
@@ -1458,26 +1518,32 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                               spacing: 8.0,
                               runSpacing: 8.0,
                               children: list.map((sub) {
-                                final isSelected = _selectedSubcategories.contains(sub);
+                                final isSelected = _selectedSubcategories
+                                    .contains(sub);
                                 return FilterChip(
                                   label: Text(
                                     sub,
                                     style: kSmallerTitleM.copyWith(
-                                      color: isSelected ? kWhite : kSecondaryTextColor,
+                                      color: isSelected
+                                          ? kWhite
+                                          : kSecondaryTextColor,
                                     ),
                                   ),
                                   selected: isSelected,
                                   onSelected: (selected) {
                                     setState(() {
                                       if (selected) {
-                                        if (!_selectedSubcategories.contains(sub)) {
+                                        if (!_selectedSubcategories.contains(
+                                          sub,
+                                        )) {
                                           _selectedSubcategories.add(sub);
                                         }
                                         _selectedSubcategory = sub;
                                       } else {
                                         _selectedSubcategories.remove(sub);
                                         if (_selectedSubcategories.isNotEmpty) {
-                                          _selectedSubcategory = _selectedSubcategories.first;
+                                          _selectedSubcategory =
+                                              _selectedSubcategories.first;
                                         } else {
                                           _selectedSubcategory = null;
                                         }
@@ -1490,7 +1556,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     side: BorderSide(
-                                      color: isSelected ? kPrimaryColor : const Color(0xFFE5E5E5),
+                                      color: isSelected
+                                          ? kPrimaryColor
+                                          : const Color(0xFFE5E5E5),
                                     ),
                                   ),
                                 );
@@ -1701,7 +1769,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               if (_selectedOfferTypeCode == 'DO') ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(10),
@@ -1716,7 +1787,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     ),
                     subtitle: Text(
                       'Random discount within min & max range when scratched',
-                      style: kSmallerTitleL.copyWith(color: kSecondaryTextColor, fontSize: 12),
+                      style: kSmallerTitleL.copyWith(
+                        color: kSecondaryTextColor,
+                        fontSize: 12,
+                      ),
                     ),
                     activeThumbColor: kPrimaryColor,
                     contentPadding: EdgeInsets.zero,
@@ -2433,10 +2507,34 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
 
   Widget _buildDealPromotionSection(BuildContext context) {
     final dealTypes = [
-      {'value': 'deal_of_hour', 'label': 'Deal of the Hour', 'desc': 'Up to 24 hours', 'max': 24, 'unit': 'hours'},
-      {'value': 'deal_of_day', 'label': 'Deal of the Day', 'desc': 'Up to 7 days', 'max': 7, 'unit': 'days'},
-      {'value': 'deal_of_week', 'label': 'Deal of the Week', 'desc': 'Up to 30 days', 'max': 30, 'unit': 'days'},
-      {'value': 'deal_of_month', 'label': 'Deal of the Month', 'desc': 'Up to 90 days', 'max': 90, 'unit': 'days'},
+      {
+        'value': 'deal_of_hour',
+        'label': 'Deal of the Hour',
+        'desc': 'Up to 24 hours',
+        'max': 24,
+        'unit': 'hours',
+      },
+      {
+        'value': 'deal_of_day',
+        'label': 'Deal of the Day',
+        'desc': 'Up to 7 days',
+        'max': 7,
+        'unit': 'days',
+      },
+      {
+        'value': 'deal_of_week',
+        'label': 'Deal of the Week',
+        'desc': 'Up to 30 days',
+        'max': 30,
+        'unit': 'days',
+      },
+      {
+        'value': 'deal_of_month',
+        'label': 'Deal of the Month',
+        'desc': 'Up to 90 days',
+        'max': 90,
+        'unit': 'days',
+      },
     ];
 
     return Column(
@@ -2464,7 +2562,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     _dealExpiryTime = null;
                   });
                 },
-                style: TextButton.styleFrom(foregroundColor: Colors.red, padding: EdgeInsets.zero),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  padding: EdgeInsets.zero,
+                ),
                 child: const Text('Remove Deal'),
               ),
           ],
@@ -2489,7 +2590,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     int maxDays = (deal['unit'] == 'hours')
                         ? 1
                         : (deal['max'] as int);
-                    DateTime maxDealExpiry = _dealStartDate!.add(Duration(days: maxDays));
+                    DateTime maxDealExpiry = _dealStartDate!.add(
+                      Duration(days: maxDays),
+                    );
                     if (_dealExpiryDate!.isAfter(maxDealExpiry)) {
                       _dealExpiryDate = null;
                       _dealExpiryTime = null;
@@ -2499,11 +2602,16 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFFFFFBEB) : kWhite,
                   border: Border.all(
-                    color: isSelected ? const Color(0xFFF59E0B) : const Color(0xFFE5E5E5),
+                    color: isSelected
+                        ? const Color(0xFFF59E0B)
+                        : const Color(0xFFE5E5E5),
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -2513,8 +2621,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     Text(
                       deal['label'] as String,
                       style: kSmallerTitleM.copyWith(
-                        color: isSelected ? const Color(0xFFB45309) : kTextColor,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected
+                            ? const Color(0xFFB45309)
+                            : kTextColor,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -2522,7 +2634,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       deal['desc'] as String,
                       style: TextStyle(
                         fontSize: 11,
-                        color: isSelected ? const Color(0xFFD97706) : kSecondaryTextColor,
+                        color: isSelected
+                            ? const Color(0xFFD97706)
+                            : kSecondaryTextColor,
                       ),
                     ),
                   ],
@@ -2562,7 +2676,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       child: GestureDetector(
                         onTap: () => _selectDealDateTime(context, true),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: kWhite,
                             borderRadius: BorderRadius.circular(8),
@@ -2571,7 +2688,13 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Start Date & Time', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                              Text(
+                                'Start Date & Time',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 _dealStartDate != null && _dealStartTime != null
@@ -2579,8 +2702,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                                     : 'Select Start',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  fontWeight: _dealStartDate != null ? FontWeight.w600 : FontWeight.normal,
-                                  color: _dealStartDate != null ? kTextColor : Colors.grey[400],
+                                  fontWeight: _dealStartDate != null
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  color: _dealStartDate != null
+                                      ? kTextColor
+                                      : Colors.grey[400],
                                 ),
                               ),
                             ],
@@ -2593,7 +2720,10 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                       child: GestureDetector(
                         onTap: () => _selectDealDateTime(context, false),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: kWhite,
                             borderRadius: BorderRadius.circular(8),
@@ -2602,16 +2732,27 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Expiry Date & Time', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                              Text(
+                                'Expiry Date & Time',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Text(
-                                _dealExpiryDate != null && _dealExpiryTime != null
+                                _dealExpiryDate != null &&
+                                        _dealExpiryTime != null
                                     ? '${DateFormat('dd MMM yyyy').format(_dealExpiryDate!)} at ${_dealExpiryTime!.format(context)}'
                                     : 'Select Expiry',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  fontWeight: _dealExpiryDate != null ? FontWeight.w600 : FontWeight.normal,
-                                  color: _dealExpiryDate != null ? kTextColor : Colors.grey[400],
+                                  fontWeight: _dealExpiryDate != null
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  color: _dealExpiryDate != null
+                                      ? kTextColor
+                                      : Colors.grey[400],
                                 ),
                               ),
                             ],
@@ -2625,11 +2766,18 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 SwitchListTile(
                   value: _isDealActive,
                   onChanged: (val) => setState(() => _isDealActive = val),
-                  title: Text('Activate this deal on start date', style: kSmallTitleM.copyWith(fontSize: 14)),
+                  title: Text(
+                    'Activate this deal on start date',
+                    style: kSmallTitleM.copyWith(fontSize: 14),
+                  ),
                   activeThumbColor: kPrimaryColor,
                   contentPadding: EdgeInsets.zero,
                 ),
-                if (_isDealActive && _dealStartDate != null && _dealStartTime != null && _dealExpiryDate != null && _dealExpiryTime != null)
+                if (_isDealActive &&
+                    _dealStartDate != null &&
+                    _dealStartTime != null &&
+                    _dealExpiryDate != null &&
+                    _dealExpiryTime != null)
                   Container(
                     margin: const EdgeInsets.only(top: 8),
                     padding: const EdgeInsets.all(10),
@@ -2640,10 +2788,29 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Deal Schedule', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.green[800])),
+                        Text(
+                          'Deal Schedule',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green[800],
+                          ),
+                        ),
                         const SizedBox(height: 2),
-                        Text('Starts: ${DateFormat('dd MMM yyyy').format(_dealStartDate!)} at ${_dealStartTime!.format(context)}', style: TextStyle(fontSize: 12, color: Colors.green[700])),
-                        Text('Ends: ${DateFormat('dd MMM yyyy').format(_dealExpiryDate!)} at ${_dealExpiryTime!.format(context)}', style: TextStyle(fontSize: 12, color: Colors.green[700])),
+                        Text(
+                          'Starts: ${DateFormat('dd MMM yyyy').format(_dealStartDate!)} at ${_dealStartTime!.format(context)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                          ),
+                        ),
+                        Text(
+                          'Ends: ${DateFormat('dd MMM yyyy').format(_dealExpiryDate!)} at ${_dealExpiryTime!.format(context)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -2697,7 +2864,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       lastDate = firstDate;
     }
 
-    DateTime initialDate = (isStart ? _dealStartDate : _dealExpiryDate) ?? firstDate;
+    DateTime initialDate =
+        (isStart ? _dealStartDate : _dealExpiryDate) ?? firstDate;
     if (initialDate.isBefore(firstDate)) initialDate = firstDate;
     if (initialDate.isAfter(lastDate)) initialDate = lastDate;
 
@@ -2724,7 +2892,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       helpText: helpText,
     );
     if (pickedDate != null && mounted) {
-      TimeOfDay initialTime = (isStart ? _dealStartTime : _dealExpiryTime) ?? TimeOfDay.now();
+      TimeOfDay initialTime =
+          (isStart ? _dealStartTime : _dealExpiryTime) ?? TimeOfDay.now();
       final pickedTime = await showTimePicker(
         context: context,
         initialTime: initialTime,

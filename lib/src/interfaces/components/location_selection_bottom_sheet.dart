@@ -380,8 +380,8 @@ class _LocationSelectionBottomSheetState
                 onTap: _errorMessage.contains('Location services are disabled')
                     ? () => _showLocationServiceDisabledDialog()
                     : _errorMessage.contains('permanently denied')
-                        ? () => _showPermissionPermanentlyDeniedDialog()
-                        : null,
+                    ? () => _showPermissionPermanentlyDeniedDialog()
+                    : null,
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -401,7 +401,9 @@ class _LocationSelectionBottomSheetState
                           ),
                         ),
                       ),
-                      if (_errorMessage.contains('Location services are disabled') ||
+                      if (_errorMessage.contains(
+                            'Location services are disabled',
+                          ) ||
                           _errorMessage.contains('permanently denied')) ...[
                         const SizedBox(width: 6),
                         Text(

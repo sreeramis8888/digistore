@@ -39,7 +39,9 @@ class CategoryList extends ConsumerWidget {
         final aLen = (a.name ?? '').trim().length;
         final bLen = (b.name ?? '').trim().length;
         if (aLen != bLen) return aLen.compareTo(bLen);
-        return (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase());
+        return (a.name ?? '').toLowerCase().compareTo(
+          (b.name ?? '').toLowerCase(),
+        );
       });
 
     final screenSize = ref.watch(screenSizeProvider);

@@ -24,7 +24,6 @@ class ShopGallery extends ConsumerWidget {
         const Text(
           'Gallery',
           style: TextStyle(
-            fontFamily: 'Montserrat',
             fontSize: 16,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111827),
@@ -49,12 +48,13 @@ class ShopGallery extends ConsumerWidget {
                           initialIndex: index,
                         );
                       },
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
                     ),
                   );
                 },
@@ -90,7 +90,6 @@ class ShopGallery extends ConsumerWidget {
                                 child: Text(
                                   '+${images.length - 3} more',
                                   style: const TextStyle(
-                                    fontFamily: 'Montserrat',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,

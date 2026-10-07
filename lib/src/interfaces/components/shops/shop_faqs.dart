@@ -19,7 +19,9 @@ class _ShopFaqsState extends ConsumerState<ShopFaqs> {
 
   @override
   Widget build(BuildContext context) {
-    final faqs = widget.faqs?.where((f) => f.question?.isNotEmpty == true).toList() ?? [];
+    final faqs =
+        widget.faqs?.where((f) => f.question?.isNotEmpty == true).toList() ??
+        [];
     if (faqs.isEmpty) return const SizedBox.shrink();
 
     final screenSize = ref.watch(screenSizeProvider);
@@ -34,7 +36,8 @@ class _ShopFaqsState extends ConsumerState<ShopFaqs> {
           padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: faqs.length,
-          separatorBuilder: (_, __) => SizedBox(height: screenSize.responsivePadding(8)),
+          separatorBuilder: (_, __) =>
+              SizedBox(height: screenSize.responsivePadding(8)),
           itemBuilder: (context, index) {
             final faq = faqs[index];
             final isExpanded = _expandedIndices.contains(index);
@@ -89,7 +92,9 @@ class _ShopFaqsState extends ConsumerState<ShopFaqs> {
                       AnimatedCrossFade(
                         firstChild: const SizedBox.shrink(),
                         secondChild: Padding(
-                          padding: EdgeInsets.only(top: screenSize.responsivePadding(8)),
+                          padding: EdgeInsets.only(
+                            top: screenSize.responsivePadding(8),
+                          ),
                           child: Text(
                             faq.answer ?? '',
                             style: kSmallerTitleL.copyWith(

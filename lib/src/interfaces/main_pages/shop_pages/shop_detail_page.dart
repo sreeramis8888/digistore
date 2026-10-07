@@ -50,10 +50,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FullScreenGallery(
-            images: images,
-            initialIndex: initialIndex,
-          );
+          return FullScreenGallery(images: images, initialIndex: initialIndex);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -101,10 +98,12 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
     }
     // Featured shops return a minimal payload (no address, no branches, no contact info)
     // Full shops return complete nested objects.
-    final needsFetch = widget.shop == null ||
+    final needsFetch =
+        widget.shop == null ||
         (widget.shop!.businessDetails?.address == null &&
-         widget.shop!.businessInfo?.contactPhone == null &&
-         (widget.shop!.businessInfo?.branches == null || widget.shop!.businessInfo!.branches!.isEmpty));
+            widget.shop!.businessInfo?.contactPhone == null &&
+            (widget.shop!.businessInfo?.branches == null ||
+                widget.shop!.businessInfo!.branches!.isEmpty));
 
     final fullShopAsync = (shopId.isNotEmpty && needsFetch)
         ? ref.watch(getShopByPartnerIdProvider(shopId))
@@ -150,433 +149,498 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         : (currentShop?.businessDetails?.businessType ?? 'General');
 
     // Food / Restaurants / Cafes — same group as the home restaurant banner.
-    final isFoodOrRestaurantShop = currentShop != null &&
-        isShopInCategory(currentShop, 'Restaurants');
-    final servicesSectionTitle =
-        isFoodOrRestaurantShop ? 'Menu' : 'Explore Services';
-    final servicesModalTitle =
-        isFoodOrRestaurantShop ? 'Menu' : 'Explore Services';
+    final isFoodOrRestaurantShop =
+        currentShop != null && isShopInCategory(currentShop, 'Restaurants');
+    final servicesSectionTitle = isFoodOrRestaurantShop
+        ? 'Menu'
+        : 'Explore Services';
+    final servicesModalTitle = isFoodOrRestaurantShop
+        ? 'Menu'
+        : 'Explore Services';
 
     return Scaffold(
       backgroundColor: kWhite,
       body: fullShopAsync?.isLoading == true && widget.shop == null
           ? const Center(child: CircularProgressIndicator(color: kPrimaryColor))
           : CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: screenSize.responsivePadding(210),
-            scrolledUnderElevation: 0,
-            floating: false,
-            pinned: true,
-            backgroundColor: kWhite,
-            elevation: 0,
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Color(0xFF111827),
-                    size: 16,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  GestureDetector(
-                    onTap: allImages.isNotEmpty
-                        ? () => _openGallery(
-                              images: allImages,
-                              initialUrl: heroImage,
-                            )
-                        : null,
-                    child: heroImage != null
-                        ? AdvancedNetworkImage(
-                            imageUrl: heroImage,
-                            fit: BoxFit.cover,
-                          )
-                        : Container(
-                            color: const Color(0xFFF3F4F6),
-                            child: const Center(
-                              child: Icon(
-                                Icons.storefront_outlined,
-                                size: 56,
-                                color: Color(0xFF9CA3AF),
-                              ),
-                            ),
-                          ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.paddingOf(context).top + 10,
-                    right: 16,
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: screenSize.responsivePadding(210),
+                  scrolledUnderElevation: 0,
+                  floating: false,
+                  pinned: true,
+                  backgroundColor: kWhite,
+                  elevation: 0,
+                  leading: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.responsivePadding(10),
-                        vertical: screenSize.responsivePadding(5),
-                      ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.75),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white.withValues(alpha: 0.85),
+                        shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      child: Text(
-                        category,
-                        style: const TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF292929),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Color(0xFF111827),
+                          size: 16,
                         ),
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
                   ),
-                ],
-              ),
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        GestureDetector(
+                          onTap: allImages.isNotEmpty
+                              ? () => _openGallery(
+                                  images: allImages,
+                                  initialUrl: heroImage,
+                                )
+                              : null,
+                          child: heroImage != null
+                              ? AdvancedNetworkImage(
+                                  imageUrl: heroImage,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  color: const Color(0xFFF3F4F6),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.storefront_outlined,
+                                      size: 56,
+                                      color: Color(0xFF9CA3AF),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        Positioned(
+                          top: MediaQuery.paddingOf(context).top + 10,
+                          right: 16,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenSize.responsivePadding(10),
+                              vertical: screenSize.responsivePadding(5),
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.75),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.06),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              category,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF292929),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShopHeader(
+                          shopName: currentShopName,
+                          shop: currentShop,
+                          selectedBranch: _selectedBranch,
+                        ),
+                        SizedBox(height: screenSize.responsivePadding(16)),
+                        ShopBranches(
+                          shopId: shopId,
+                          selectedBranch: _selectedBranch,
+                          onBranchSelected: (branch) {
+                            setState(() {
+                              _selectedBranch = branch;
+                            });
+                          },
+                        ),
+                        ShopAbout(shop: currentShop),
+                        SizedBox(height: screenSize.responsivePadding(20)),
+                        if (currentShop?.businessInfo?.businessImages != null &&
+                            currentShop!.businessInfo!.businessImages!.length >
+                                1) ...[
+                          ShopGallery(
+                            images: currentShop.businessInfo!.businessImages!,
+                          ),
+                          SizedBox(height: screenSize.responsivePadding(20)),
+                        ],
+                        ShopAddress(
+                          shop: currentShop,
+                          selectedBranch: _selectedBranch,
+                        ),
+                        SizedBox(height: screenSize.responsivePadding(20)),
+                        ShopReviews(shop: currentShop),
+                        SizedBox(height: screenSize.responsivePadding(20)),
+                        ShopSocials(shop: currentShop),
+                        SizedBox(height: screenSize.responsivePadding(24)),
+                        ShopOperatingHours(
+                          operatingHours:
+                              _selectedBranch?.operatingHours ??
+                              currentShop?.businessInfo?.operatingHours,
+                        ),
+                        if ((_selectedBranch?.operatingHours ??
+                                currentShop?.businessInfo?.operatingHours) !=
+                            null)
+                          SizedBox(height: screenSize.responsivePadding(24)),
+                        if (currentShop?.businessInfo?.faqs?.isNotEmpty ==
+                            true) ...[
+                          ShopFaqs(faqs: currentShop?.businessInfo?.faqs),
+                          SizedBox(height: screenSize.responsivePadding(24)),
+                        ],
+                        if (offersAsync != null)
+                          offersAsync.when(
+                            data: (offers) {
+                              if (offers.isEmpty)
+                                return const SizedBox.shrink();
+                              final displayOffers = offers.take(5).toList();
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Offers',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF111827),
+                                        ),
+                                      ),
+                                      if (offers.length > 2)
+                                        GestureDetector(
+                                          onTap: () {
+                                            _showAllOffersModal(
+                                              context,
+                                              offers,
+                                              screenSize,
+                                            );
+                                          },
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text(
+                                                'View All',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF07982C),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: screenSize
+                                                    .responsivePadding(2),
+                                              ),
+                                              const Icon(
+                                                Icons.chevron_right_rounded,
+                                                size: 16,
+                                                color: Color(0xFF07982C),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(12),
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(195),
+                                    child: ListView.separated(
+                                      clipBehavior: Clip.none,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: displayOffers.length,
+                                      separatorBuilder: (context, index) =>
+                                          SizedBox(
+                                            width: screenSize.responsivePadding(
+                                              12,
+                                            ),
+                                          ),
+                                      itemBuilder: (context, index) {
+                                        return SizedBox(
+                                          width: screenSize.responsivePadding(
+                                            190,
+                                          ),
+                                          child: DealCard.fromOffer(
+                                            displayOffers[index],
+                                            margin: EdgeInsets.zero,
+                                            hideShopName: true,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(24),
+                                  ),
+                                ],
+                              );
+                            },
+                            loading: () => const Center(
+                              child: CircularProgressIndicator(
+                                color: kPrimaryColor,
+                              ),
+                            ),
+                            error: (e, s) => const SizedBox.shrink(),
+                          ),
+                        if (productsAsync != null)
+                          productsAsync.when(
+                            data: (products) {
+                              if (products.isEmpty)
+                                return const SizedBox.shrink();
+                              final displayProducts = products.take(5).toList();
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Explore Products',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF111827),
+                                        ),
+                                      ),
+                                      if (products.length > 2)
+                                        GestureDetector(
+                                          onTap: () {
+                                            _showAllProductsModal(
+                                              context,
+                                              products,
+                                              screenSize,
+                                            );
+                                          },
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text(
+                                                'View All',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF07982C),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: screenSize
+                                                    .responsivePadding(2),
+                                              ),
+                                              const Icon(
+                                                Icons.chevron_right_rounded,
+                                                size: 16,
+                                                color: Color(0xFF07982C),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(12),
+                                  ),
+                                  SizedBox(
+                                    // Image (16:9) + compact details (no shop row).
+                                    height:
+                                        screenSize.responsivePadding(180) *
+                                            9 /
+                                            16 +
+                                        screenSize.responsivePadding(70),
+                                    child: ListView.separated(
+                                      clipBehavior: Clip.none,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: displayProducts.length,
+                                      separatorBuilder: (context, index) =>
+                                          SizedBox(
+                                            width: screenSize.responsivePadding(
+                                              12,
+                                            ),
+                                          ),
+                                      itemBuilder: (context, index) {
+                                        final product = displayProducts[index];
+                                        return SizedBox(
+                                          width: screenSize.responsivePadding(
+                                            180,
+                                          ),
+                                          child: ProductCard(
+                                            index: index,
+                                            name: product.title,
+                                            image:
+                                                product.images?.isNotEmpty ==
+                                                    true
+                                                ? product.images!.first
+                                                : null,
+                                            description: product.description,
+                                            price:
+                                                '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
+                                            tags: product.tags,
+                                            rawProduct: product,
+                                            hideShopInfo: true,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(32),
+                                  ),
+                                ],
+                              );
+                            },
+                            loading: () => const Center(
+                              child: CircularProgressIndicator(
+                                color: kPrimaryColor,
+                              ),
+                            ),
+                            error: (e, s) => const SizedBox.shrink(),
+                          ),
+                        if (servicesAsync != null)
+                          servicesAsync.when(
+                            data: (services) {
+                              if (services.isEmpty)
+                                return const SizedBox.shrink();
+                              final displayServices = services.take(5).toList();
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        servicesSectionTitle,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF111827),
+                                        ),
+                                      ),
+                                      if (services.length > 2)
+                                        GestureDetector(
+                                          onTap: () {
+                                            _showAllServicesModal(
+                                              context,
+                                              services,
+                                              screenSize,
+                                              title: servicesModalTitle,
+                                            );
+                                          },
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text(
+                                                'View All',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF07982C),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: screenSize
+                                                    .responsivePadding(2),
+                                              ),
+                                              const Icon(
+                                                Icons.chevron_right_rounded,
+                                                size: 16,
+                                                color: Color(0xFF07982C),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(12),
+                                  ),
+                                  SizedBox(
+                                    // Image (16:9) + compact details (no shop row).
+                                    height:
+                                        screenSize.responsivePadding(180) *
+                                            9 /
+                                            16 +
+                                        screenSize.responsivePadding(70),
+                                    child: ListView.separated(
+                                      clipBehavior: Clip.none,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: displayServices.length,
+                                      separatorBuilder: (context, index) =>
+                                          SizedBox(
+                                            width: screenSize.responsivePadding(
+                                              12,
+                                            ),
+                                          ),
+                                      itemBuilder: (context, index) {
+                                        final service = displayServices[index];
+                                        return SizedBox(
+                                          width: screenSize.responsivePadding(
+                                            180,
+                                          ),
+                                          child: ServiceCard(
+                                            service: service,
+                                            hideShopInfo: true,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: screenSize.responsivePadding(32),
+                                  ),
+                                ],
+                              );
+                            },
+                            loading: () => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: screenSize.responsivePadding(24),
+                              ),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+                            ),
+                            error: (e, s) => const SizedBox.shrink(),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(screenSize.responsivePadding(16)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShopHeader(
-                    shopName: currentShopName,
-                    shop: currentShop,
-                    selectedBranch: _selectedBranch,
-                  ),
-                  SizedBox(height: screenSize.responsivePadding(16)),
-                  ShopBranches(
-                    shopId: shopId,
-                    selectedBranch: _selectedBranch,
-                    onBranchSelected: (branch) {
-                      setState(() {
-                        _selectedBranch = branch;
-                      });
-                    },
-                  ),
-                  ShopAbout(shop: currentShop),
-                  SizedBox(height: screenSize.responsivePadding(20)),
-                  if (currentShop?.businessInfo?.businessImages != null &&
-                      currentShop!.businessInfo!.businessImages!.length >
-                          1) ...[
-                    ShopGallery(
-                      images: currentShop.businessInfo!.businessImages!,
-                    ),
-                    SizedBox(height: screenSize.responsivePadding(20)),
-                  ],
-                  ShopAddress(
-                    shop: currentShop,
-                    selectedBranch: _selectedBranch,
-                  ),
-                  SizedBox(height: screenSize.responsivePadding(20)),
-                  ShopReviews(shop: currentShop),
-                  SizedBox(height: screenSize.responsivePadding(20)),
-                  ShopSocials(shop: currentShop),
-                  SizedBox(height: screenSize.responsivePadding(24)),
-                  ShopOperatingHours(
-                    operatingHours: _selectedBranch?.operatingHours ??
-                        currentShop?.businessInfo?.operatingHours,
-                  ),
-                  if ((_selectedBranch?.operatingHours ??
-                          currentShop?.businessInfo?.operatingHours) !=
-                      null)
-                    SizedBox(height: screenSize.responsivePadding(24)),
-                  if (currentShop?.businessInfo?.faqs?.isNotEmpty == true) ...[
-                    ShopFaqs(faqs: currentShop?.businessInfo?.faqs),
-                    SizedBox(height: screenSize.responsivePadding(24)),
-                  ],
-                  if (offersAsync != null)
-                    offersAsync.when(
-                      data: (offers) {
-                        if (offers.isEmpty) return const SizedBox.shrink();
-                        final displayOffers = offers.take(5).toList();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Offers',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF111827),
-                                  ),
-                                ),
-                                if (offers.length > 2)
-                                  GestureDetector(
-                                    onTap: () {
-                                      _showAllOffersModal(context, offers, screenSize);
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          'View All',
-                                          style: TextStyle(
-                                            fontFamily: 'Montserrat',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xFF07982C),
-                                          ),
-                                        ),
-                                        SizedBox(width: screenSize.responsivePadding(2)),
-                                        const Icon(
-                                          Icons.chevron_right_rounded,
-                                          size: 16,
-                                          color: Color(0xFF07982C),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(12)),
-                            SizedBox(
-                              height: screenSize.responsivePadding(195),
-                              child: ListView.separated(
-                                clipBehavior: Clip.none,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: displayOffers.length,
-                                separatorBuilder: (context, index) =>
-                                    SizedBox(width: screenSize.responsivePadding(12)),
-                                itemBuilder: (context, index) {
-                                  return SizedBox(
-                                    width: screenSize.responsivePadding(190),
-                                    child: DealCard.fromOffer(
-                                      displayOffers[index],
-                                      margin: EdgeInsets.zero,
-                                      hideShopName: true,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(24)),
-                          ],
-                        );
-                      },
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(color: kPrimaryColor),
-                      ),
-                      error: (e, s) => const SizedBox.shrink(),
-                    ),
-                  if (productsAsync != null)
-                    productsAsync.when(
-                      data: (products) {
-                        if (products.isEmpty) return const SizedBox.shrink();
-                        final displayProducts = products.take(5).toList();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Explore Products',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF111827),
-                                  ),
-                                ),
-                                if (products.length > 2)
-                                  GestureDetector(
-                                    onTap: () {
-                                      _showAllProductsModal(context, products, screenSize);
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          'View All',
-                                          style: TextStyle(
-                                            fontFamily: 'Montserrat',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xFF07982C),
-                                          ),
-                                        ),
-                                        SizedBox(width: screenSize.responsivePadding(2)),
-                                        const Icon(
-                                          Icons.chevron_right_rounded,
-                                          size: 16,
-                                          color: Color(0xFF07982C),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(12)),
-                            SizedBox(
-                              // Image (16:9) + compact details (no shop row).
-                              height: screenSize.responsivePadding(180) * 9 / 16 +
-                                  screenSize.responsivePadding(70),
-                              child: ListView.separated(
-                                clipBehavior: Clip.none,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: displayProducts.length,
-                                separatorBuilder: (context, index) =>
-                                    SizedBox(width: screenSize.responsivePadding(12)),
-                                itemBuilder: (context, index) {
-                                  final product = displayProducts[index];
-                                  return SizedBox(
-                                    width: screenSize.responsivePadding(180),
-                                    child: ProductCard(
-                                      index: index,
-                                      name: product.title,
-                                      image: product.images?.isNotEmpty == true
-                                          ? product.images!.first
-                                          : null,
-                                      description: product.description,
-                                      price:
-                                          '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
-                                      tags: product.tags,
-                                      rawProduct: product,
-                                      hideShopInfo: true,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(32)),
-                          ],
-                        );
-                      },
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(color: kPrimaryColor),
-                      ),
-                      error: (e, s) => const SizedBox.shrink(),
-                    ),
-                  if (servicesAsync != null)
-                    servicesAsync.when(
-                      data: (services) {
-                        if (services.isEmpty) return const SizedBox.shrink();
-                        final displayServices = services.take(5).toList();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  servicesSectionTitle,
-                                  style: const TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF111827),
-                                  ),
-                                ),
-                                if (services.length > 2)
-                                  GestureDetector(
-                                    onTap: () {
-                                      _showAllServicesModal(
-                                        context,
-                                        services,
-                                        screenSize,
-                                        title: servicesModalTitle,
-                                      );
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          'View All',
-                                          style: TextStyle(
-                                            fontFamily: 'Montserrat',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xFF07982C),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: screenSize.responsivePadding(2),
-                                        ),
-                                        const Icon(
-                                          Icons.chevron_right_rounded,
-                                          size: 16,
-                                          color: Color(0xFF07982C),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(12)),
-                            SizedBox(
-                              // Image (16:9) + compact details (no shop row).
-                              height: screenSize.responsivePadding(180) * 9 / 16 +
-                                  screenSize.responsivePadding(70),
-                              child: ListView.separated(
-                                clipBehavior: Clip.none,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: displayServices.length,
-                                separatorBuilder: (context, index) => SizedBox(
-                                  width: screenSize.responsivePadding(12),
-                                ),
-                                itemBuilder: (context, index) {
-                                  final service = displayServices[index];
-                                  return SizedBox(
-                                    width: screenSize.responsivePadding(180),
-                                    child: ServiceCard(
-                                      service: service,
-                                      hideShopInfo: true,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: screenSize.responsivePadding(32)),
-                          ],
-                        );
-                      },
-                      loading: () => Padding(
-                        padding: EdgeInsets.only(
-                          bottom: screenSize.responsivePadding(24),
-                        ),
-                        child: const Center(
-                          child: CircularProgressIndicator(color: kPrimaryColor),
-                        ),
-                      ),
-                      error: (e, s) => const SizedBox.shrink(),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  void _showAllOffersModal(BuildContext context, List<dynamic> offers, ScreenSizeData screenSize) {
+  void _showAllOffersModal(
+    BuildContext context,
+    List<dynamic> offers,
+    ScreenSizeData screenSize,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -586,7 +650,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         final totalPadding =
             screenSize.responsivePadding(32) +
             screenSize.responsivePadding(12 * (crossAxisCount - 1));
-        final offerItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+        final offerItemWidth =
+            (screenSize.width - totalPadding) / crossAxisCount;
         final offerItemHeight = screenSize.responsivePadding(175);
         final offerAspectRatio = offerItemWidth / offerItemHeight;
 
@@ -621,7 +686,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                       Text(
                         'All Offers (${offers.length})',
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF111827),
@@ -665,7 +729,11 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
     );
   }
 
-  void _showAllProductsModal(BuildContext context, List<dynamic> products, ScreenSizeData screenSize) {
+  void _showAllProductsModal(
+    BuildContext context,
+    List<dynamic> products,
+    ScreenSizeData screenSize,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -675,7 +743,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         final totalPadding =
             screenSize.responsivePadding(32) +
             screenSize.responsivePadding(12 * (crossAxisCount - 1));
-        final productItemWidth = (screenSize.width - totalPadding) / crossAxisCount;
+        final productItemWidth =
+            (screenSize.width - totalPadding) / crossAxisCount;
         final productItemHeight =
             productItemWidth * 9 / 16 + screenSize.responsivePadding(70);
         final productAspectRatio = productItemWidth / productItemHeight;
@@ -711,7 +780,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                       Text(
                         'All Products (${products.length})',
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF111827),
@@ -746,7 +814,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                               ? product.images!.first
                               : null,
                           description: product.description,
-                          price: '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
+                          price:
+                              '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
                           tags: product.tags,
                           rawProduct: product,
                           hideShopInfo: true,
@@ -814,7 +883,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                       Text(
                         '$title (${services.length})',
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF111827),

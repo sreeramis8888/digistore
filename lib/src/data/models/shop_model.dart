@@ -1,5 +1,6 @@
 import 'package:setgo/src/utils/safe_parser.dart';
 
+import '../utils/name_case.dart';
 import 'business_details.dart';
 import 'business_info.dart';
 import 'coverage_areas.dart';
@@ -65,7 +66,9 @@ class ShopModel {
       BusinessDetails.fromJson,
     );
     if (bDetails == null && json['name'] != null) {
-      bDetails = BusinessDetails(businessName: json['name'] as String?);
+      bDetails = BusinessDetails(
+        businessName: NameCase.maybe(json['name']?.toString()),
+      );
     }
 
     var bInfo = SafeParser.parseObject(

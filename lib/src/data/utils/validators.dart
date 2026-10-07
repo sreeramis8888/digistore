@@ -1,56 +1,56 @@
 class Validators {
-static String? validateAadharNumber(String? value) {
-  if (value == null || value.isEmpty) {
-    return 'Aadhar number is required';
+  static String? validateAadharNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Aadhar number is required';
+    }
+
+    final aadhar = value.trim();
+
+    if (!RegExp(r'^\d{12}$').hasMatch(aadhar)) {
+      return 'Aadhar number must be exactly 12 digits';
+    }
+
+    if (!_verifyAadharChecksum(aadhar)) {
+      return 'Invalid Aadhar number';
+    }
+
+    return null;
   }
 
-  final aadhar = value.trim();
+  static bool _verifyAadharChecksum(String aadhar) {
+    const List<List<int>> d = [
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+      [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+      [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+      [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
+      [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+      [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
+      [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+      [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+      [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+    ];
 
-  if (!RegExp(r'^\d{12}$').hasMatch(aadhar)) {
-    return 'Aadhar number must be exactly 12 digits';
+    const List<List<int>> p = [
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+      [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
+      [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+      [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
+      [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+      [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
+      [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
+    ];
+
+    int c = 0;
+
+    for (int i = 0; i < aadhar.length; i++) {
+      int digit = int.parse(aadhar[aadhar.length - i - 1]);
+      c = d[c][p[i % 8][digit]];
+    }
+
+    return c == 0;
   }
-
-  if (!_verifyAadharChecksum(aadhar)) {
-    return 'Invalid Aadhar number';
-  }
-
-  return null;
-}
-
-static bool _verifyAadharChecksum(String aadhar) {
-  const List<List<int>> d = [
-    [0,1,2,3,4,5,6,7,8,9],
-    [1,2,3,4,0,6,7,8,9,5],
-    [2,3,4,0,1,7,8,9,5,6],
-    [3,4,0,1,2,8,9,5,6,7],
-    [4,0,1,2,3,9,5,6,7,8],
-    [5,9,8,7,6,0,4,3,2,1],
-    [6,5,9,8,7,1,0,4,3,2],
-    [7,6,5,9,8,2,1,0,4,3],
-    [8,7,6,5,9,3,2,1,0,4],
-    [9,8,7,6,5,4,3,2,1,0],
-  ];
-
-  const List<List<int>> p = [
-    [0,1,2,3,4,5,6,7,8,9],
-    [1,5,7,6,2,8,3,0,9,4],
-    [5,8,0,3,7,9,6,1,4,2],
-    [8,9,1,6,0,4,3,5,2,7],
-    [9,4,5,3,1,2,6,8,7,0],
-    [4,2,8,6,5,7,3,9,0,1],
-    [2,7,9,3,8,0,6,4,1,5],
-    [7,0,4,6,9,1,3,2,5,8],
-  ];
-
-  int c = 0;
-
-  for (int i = 0; i < aadhar.length; i++) {
-    int digit = int.parse(aadhar[aadhar.length - i - 1]);
-    c = d[c][p[i % 8][digit]];
-  }
-
-  return c == 0;
-}
 
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {

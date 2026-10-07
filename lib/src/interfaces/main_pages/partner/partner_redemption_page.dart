@@ -86,9 +86,9 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
         final dataMap = response.data;
         final bool? isScratched = dataMap != null
             ? (dataMap['isScratched'] as bool? ??
-                (dataMap['data'] is Map
-                    ? dataMap['data']['isScratched'] as bool?
-                    : null))
+                  (dataMap['data'] is Map
+                      ? dataMap['data']['isScratched'] as bool?
+                      : null))
             : null;
 
         if (isScratched == false) {
@@ -218,12 +218,15 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
                 SizedBox(height: screenSize.responsivePadding(28)),
                 PrimaryButton(
                   text: 'Scan Customer QR',
-                  icon: const Icon(Icons.qr_code_scanner, color: kWhite, size: 20),
+                  icon: const Icon(
+                    Icons.qr_code_scanner,
+                    color: kWhite,
+                    size: 20,
+                  ),
                   onPressed: () {
-                    Navigator.of(context).pushNamed(
-                      'partnerQrScanner',
-                      arguments: widget.args,
-                    );
+                    Navigator.of(
+                      context,
+                    ).pushNamed('partnerQrScanner', arguments: widget.args);
                   },
                 ),
                 SizedBox(height: screenSize.responsivePadding(24)),
@@ -236,7 +239,9 @@ class _PartnerRedemptionPageState extends ConsumerState<PartnerRedemptionPage> {
                       ),
                       child: Text(
                         'OR',
-                        style: kSmallTitleM.copyWith(color: kSecondaryTextColor),
+                        style: kSmallTitleM.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
                       ),
                     ),
                     const Expanded(child: Divider(color: Color(0xFFE5E7EB))),

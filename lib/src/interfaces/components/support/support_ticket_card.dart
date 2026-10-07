@@ -118,11 +118,7 @@ class SupportTicketCard extends StatelessWidget {
               ],
 
               const SizedBox(height: 10),
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFF3F4F6),
-              ),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
               const SizedBox(height: 8),
 
               // Bottom: ID & Date

@@ -33,7 +33,8 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
         top: screenSize.responsivePadding(12),
         left: screenSize.responsivePadding(20),
         right: screenSize.responsivePadding(20),
-        bottom: screenSize.responsivePadding(24) +
+        bottom:
+            screenSize.responsivePadding(24) +
             MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Column(
@@ -80,7 +81,11 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 30.0),
               child: Column(
                 children: [
-                  const Icon(Icons.error_outline_rounded, color: kRed, size: 40),
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: kRed,
+                    size: 40,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     'Failed to load plan details',
@@ -101,8 +106,10 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text('Retry',
-                        style: kSmallTitleM.copyWith(color: kWhite)),
+                    child: Text(
+                      'Retry',
+                      style: kSmallTitleM.copyWith(color: kWhite),
+                    ),
                   ),
                 ],
               ),
@@ -110,16 +117,19 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
             data: (planDetails) {
               final currentPlan = planDetails.currentPlan;
               final snapshot = currentPlan?.planSnapshot;
-              final planName = snapshot?.displayName ??
+              final planName =
+                  snapshot?.displayName ??
                   currentPlan?.planId?.displayName ??
                   'No Plan';
-              final status = planDetails.subscriptionStatus ??
+              final status =
+                  planDetails.subscriptionStatus ??
                   currentPlan?.status ??
                   'inactive';
               final isActive = status.toLowerCase() == 'active';
               final expiryDate =
                   planDetails.planExpiryDate ?? currentPlan?.endDate;
-              final daysRemaining = planDetails.planInfo?.daysRemaining ??
+              final daysRemaining =
+                  planDetails.planInfo?.daysRemaining ??
                   currentPlan?.daysRemaining ??
                   0;
               final type = currentPlan?.subscriptionType ?? 'free';
@@ -130,20 +140,24 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
                   limits?.branchLimit ?? snapshot?.features?.branchLimit ?? 0;
               final hexCount =
                   limits?.hexCount ?? snapshot?.features?.hexCount ?? 0;
-              final coverageArea = limits?.coverageAreaKm2 ??
+              final coverageArea =
+                  limits?.coverageAreaKm2 ??
                   snapshot?.features?.coverageAreaKm2 ??
                   0;
-              final maxLeads = currentPlan?.planSnapshot?.limits?.maxLeads ??
+              final maxLeads =
+                  currentPlan?.planSnapshot?.limits?.maxLeads ??
                   currentPlan?.planId?.limits?.maxLeads ??
                   0;
               final maxRedemptions =
                   currentPlan?.planSnapshot?.limits?.maxRedemptions ??
-                      currentPlan?.planId?.limits?.maxRedemptions ??
-                      0;
-              final maxOffers = currentPlan?.planSnapshot?.limits?.maxOffers ??
+                  currentPlan?.planId?.limits?.maxRedemptions ??
+                  0;
+              final maxOffers =
+                  currentPlan?.planSnapshot?.limits?.maxOffers ??
                   currentPlan?.planId?.limits?.maxOffers ??
                   0;
-              final allKerala = limits?.isAllKeralaAllowed ??
+              final allKerala =
+                  limits?.isAllKeralaAllowed ??
                   snapshot?.features?.isAllKeralaAllowed ??
                   false;
 
@@ -156,7 +170,10 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
                       gradient: LinearGradient(
                         colors: isActive
                             ? [const Color(0xFFE8F0FE), const Color(0xFFF4F8FF)]
-                            : [const Color(0xFFFEE8E8), const Color(0xFFFFF4F4)],
+                            : [
+                                const Color(0xFFFEE8E8),
+                                const Color(0xFFFFF4F4),
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -185,13 +202,15 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
                                   ),
                                 ),
                                 SizedBox(
-                                    height: screenSize.responsivePadding(4)),
+                                  height: screenSize.responsivePadding(4),
+                                ),
                                 Text(
                                   type == 'paid'
                                       ? 'Paid Subscription'
                                       : 'Free / Trial Plan',
                                   style: kSmallerTitleM.copyWith(
-                                      color: kGreyDark),
+                                    color: kGreyDark,
+                                  ),
                                 ),
                               ],
                             ),
@@ -243,17 +262,21 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
                                   expiryDate != null
                                       ? 'Expiry Date'
                                       : 'No Expiry',
-                                  style:
-                                      kSmallerTitleR.copyWith(color: kGreyDark),
+                                  style: kSmallerTitleR.copyWith(
+                                    color: kGreyDark,
+                                  ),
                                 ),
                                 if (expiryDate != null) ...[
                                   SizedBox(
-                                      height: screenSize.responsivePadding(2)),
+                                    height: screenSize.responsivePadding(2),
+                                  ),
                                   Text(
-                                    DateFormat('MMM dd, yyyy')
-                                        .format(expiryDate),
-                                    style:
-                                        kSmallTitleSB.copyWith(color: kBlack),
+                                    DateFormat(
+                                      'MMM dd, yyyy',
+                                    ).format(expiryDate),
+                                    style: kSmallTitleSB.copyWith(
+                                      color: kBlack,
+                                    ),
                                   ),
                                 ],
                               ],
@@ -335,8 +358,7 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
                           screenSize,
                           icon: Icons.local_offer_outlined,
                           title: 'Max Offers Limit',
-                          value:
-                              '$maxOffers Offer${maxOffers > 1 ? 's' : ''}',
+                          value: '$maxOffers Offer${maxOffers > 1 ? 's' : ''}',
                         ),
                         const Divider(height: 1, color: Color(0xFFE5E7EB)),
                         _buildLimitRow(
@@ -378,10 +400,7 @@ class PartnerPlanDetailsSheet extends ConsumerWidget {
               style: kSmallTitleL.copyWith(color: kGreyDarker),
             ),
           ),
-          Text(
-            value,
-            style: kSmallTitleSB.copyWith(color: kBlack),
-          ),
+          Text(value, style: kSmallTitleSB.copyWith(color: kBlack)),
         ],
       ),
     );

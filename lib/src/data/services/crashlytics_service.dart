@@ -7,7 +7,10 @@ class CrashlyticsService {
     await _crashlytics.recordError(error, stackTrace);
   }
 
-  static Future<void> logFatalError(dynamic error, StackTrace? stackTrace) async {
+  static Future<void> logFatalError(
+    dynamic error,
+    StackTrace? stackTrace,
+  ) async {
     await _crashlytics.recordError(error, stackTrace, fatal: true);
   }
 
@@ -27,15 +30,3 @@ class CrashlyticsService {
     await _crashlytics.setCrashlyticsCollectionEnabled(enabled);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

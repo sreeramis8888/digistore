@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
@@ -21,7 +20,8 @@ class PartnerQuickActions extends ConsumerWidget {
           ),
           child: Text(
             'Quick Actions',
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: const Color(0xFF111827),
@@ -105,10 +105,7 @@ class PartnerQuickActions extends ConsumerWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: const Color(0xFFE5E7EB),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +131,8 @@ class PartnerQuickActions extends ConsumerWidget {
             const SizedBox(height: 6),
             Text(
               title,
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF111827),
@@ -150,4 +148,3 @@ class PartnerQuickActions extends ConsumerWidget {
     );
   }
 }
-

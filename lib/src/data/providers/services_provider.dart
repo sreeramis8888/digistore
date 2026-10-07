@@ -5,13 +5,18 @@ import 'package:flutter_riverpod/legacy.dart';
 import '../models/category_model.dart';
 import '../models/booking_razorpay_order.dart';
 import '../models/service_model.dart';
+import '../utils/name_case.dart';
 import 'api_provider.dart';
 import 'auth_provider.dart';
 
-final selectedProductsTabProvider = StateProvider<int>((ref) => 0); // 0: Products, 1: Services
+final selectedProductsTabProvider = StateProvider<int>(
+  (ref) => 0,
+); // 0: Products, 1: Services
 final selectedServicesCategoryProvider = StateProvider<int>((ref) => 0);
 
-final serviceCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
+final serviceCategoriesProvider = FutureProvider<List<CategoryModel>>((
+  ref,
+) async {
   final api = ref.watch(publicApiProvider);
   final res = await api.get('/services/categories', requireAuth: false);
   if (res.success && res.data != null) {
@@ -23,7 +28,10 @@ final serviceCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) asyn
       final list = raw
           .whereType<Map>()
           .map((e) => CategoryModel.fromJson(Map<String, dynamic>.from(e)))
-          .where((c) => (c.name != null && c.name!.trim().isNotEmpty) || (c.id != null))
+          .where(
+            (c) =>
+                (c.name != null && c.name!.trim().isNotEmpty) || (c.id != null),
+          )
           .toList();
       if (list.isNotEmpty) return list;
     }
@@ -79,7 +87,9 @@ class ServicesState {
       error: error,
       page: page ?? this.page,
       pages: pages ?? this.pages,
-      currentCategory: clearCategory ? null : (currentCategory ?? this.currentCategory),
+      currentCategory: clearCategory
+          ? null
+          : (currentCategory ?? this.currentCategory),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -121,7 +131,9 @@ class ServicesNotifier extends Notifier<ServicesState> {
     bool isCategoryChange = false,
     bool isRefresh = false,
   }) async {
-    final activeCategory = isCategoryChange ? category : (category ?? state.currentCategory);
+    final activeCategory = isCategoryChange
+        ? category
+        : (category ?? state.currentCategory);
     final activeSearch = search ?? state.searchQuery;
 
     if (page == 1) {
@@ -129,7 +141,9 @@ class ServicesNotifier extends Notifier<ServicesState> {
         isLoading: true,
         error: null,
         currentCategory: activeCategory,
-        clearCategory: isCategoryChange && (activeCategory == null || activeCategory == 'All'),
+        clearCategory:
+            isCategoryChange &&
+            (activeCategory == null || activeCategory == 'All'),
         searchQuery: activeSearch,
         services: isRefresh ? [] : state.services,
       );
@@ -143,14 +157,20 @@ class ServicesNotifier extends Notifier<ServicesState> {
       'limit': '20',
     };
 
-    if (activeCategory != null && activeCategory != 'All' && activeCategory.isNotEmpty) {
+    if (activeCategory != null &&
+        activeCategory != 'All' &&
+        activeCategory.isNotEmpty) {
       queryParams['category'] = activeCategory;
     }
     if (activeSearch.isNotEmpty) {
       queryParams['search'] = activeSearch;
     }
 
-    final res = await api.get('/services', queryParams: queryParams, requireAuth: false);
+    final res = await api.get(
+      '/services',
+      queryParams: queryParams,
+      requireAuth: false,
+    );
 
     if (res.success && res.data != null) {
       final dynamic rawList = _extractServicesList(res.data);
@@ -171,9 +191,12 @@ class ServicesNotifier extends Notifier<ServicesState> {
       if (res.data is Map) {
         final Map map = res.data as Map;
         final dynamic innerData = map['data'];
-        final dynamic pagination = map['pagination'] ?? (innerData is Map ? innerData['pagination'] : null);
+        final dynamic pagination =
+            map['pagination'] ??
+            (innerData is Map ? innerData['pagination'] : null);
         if (pagination is Map) {
-          final dynamic rawPages = pagination['pages'] ?? pagination['totalPages'];
+          final dynamic rawPages =
+              pagination['pages'] ?? pagination['totalPages'];
           if (rawPages is num) {
             totalPages = rawPages.toInt();
           } else if (rawPages != null) {
@@ -207,7 +230,8 @@ class ServicesNotifier extends Notifier<ServicesState> {
   }
 
   Future<void> loadMore() async {
-    if (state.isLoading || state.isLoadingMore || state.page >= state.pages) return;
+    if (state.isLoading || state.isLoadingMore || state.page >= state.pages)
+      return;
     await getServices(page: state.page + 1);
   }
 
@@ -221,17 +245,27 @@ class ServicesNotifier extends Notifier<ServicesState> {
   }
 
   void updateCategory(String? category) {
-    getServices(page: 1, category: category, isCategoryChange: true, isRefresh: true);
+    getServices(
+      page: 1,
+      category: category,
+      isCategoryChange: true,
+      isRefresh: true,
+    );
   }
 }
 
-final servicesListProvider = NotifierProvider<ServicesNotifier, ServicesState>(() {
-  return ServicesNotifier();
-});
+final servicesListProvider = NotifierProvider<ServicesNotifier, ServicesState>(
+  () {
+    return ServicesNotifier();
+  },
+);
 
 // Partner store specific services — mobile GET /services/partner/:partnerId
 // (backend: getPartnerServices / getPartnerServicesPublic).
-final storeServicesProvider = FutureProvider.family<List<ServiceModel>, String>((ref, partnerId) async {
+final storeServicesProvider = FutureProvider.family<List<ServiceModel>, String>((
+  ref,
+  partnerId,
+) async {
   if (partnerId.isEmpty) return [];
   final api = ref.watch(publicApiProvider);
   final res = await api.get('/services/partner/$partnerId', requireAuth: false);
@@ -291,7 +325,11 @@ List<String> _parseServiceIdsParam(dynamic raw) {
     return raw.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
   }
   if (raw is String && raw.trim().isNotEmpty) {
-    return raw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    return raw
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
   }
   return const [];
 }
@@ -335,38 +373,46 @@ final bookingSlotsProvider =
     });
 
 // Customer bookings provider with status filter family
-final customerBookingsProvider = FutureProvider.family<List<BookingModel>, String>((ref, statusFilter) async {
-  final api = ref.watch(apiProvider);
-  final queryParams = <String, String>{};
-  if (statusFilter.isNotEmpty && statusFilter.toLowerCase() != 'all') {
-    final s = statusFilter.toLowerCase();
-    if (s == 'past') {
-      queryParams['status'] = 'COMPLETED';
-    } else {
-      queryParams['status'] = statusFilter.toUpperCase();
-    }
-  }
-  final res = await api.get('/bookings/my-bookings', queryParams: queryParams);
-  if (res.success && res.data != null) {
-    final rawList = _extractServicesList(res.data);
-    final List<BookingModel> list = [];
-    for (var item in rawList) {
-      if (item is Map) {
-        try {
-          list.add(BookingModel.fromJson(Map<String, dynamic>.from(item)));
-        } catch (_) {}
+final customerBookingsProvider =
+    FutureProvider.family<List<BookingModel>, String>((
+      ref,
+      statusFilter,
+    ) async {
+      final api = ref.watch(apiProvider);
+      final queryParams = <String, String>{};
+      if (statusFilter.isNotEmpty && statusFilter.toLowerCase() != 'all') {
+        final s = statusFilter.toLowerCase();
+        if (s == 'past') {
+          queryParams['status'] = 'COMPLETED';
+        } else {
+          queryParams['status'] = statusFilter.toUpperCase();
+        }
       }
-    }
-    return list;
-  }
-  return [];
-});
+      final res = await api.get(
+        '/bookings/my-bookings',
+        queryParams: queryParams,
+      );
+      if (res.success && res.data != null) {
+        final rawList = _extractServicesList(res.data);
+        final List<BookingModel> list = [];
+        for (var item in rawList) {
+          if (item is Map) {
+            try {
+              list.add(BookingModel.fromJson(Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+        return list;
+      }
+      return [];
+    });
 
 class BookingService {
   static Future<ApiResponse<CreateBookingResult>> createBooking({
     required ApiProvider api,
     String? partnerId,
     List<String>? serviceIds,
+
     /// Preferred payload: `[{ serviceId, quantity, variantId?, variantName? }]`.
     List<Map<String, dynamic>>? items,
     String? bookingDate,
@@ -374,20 +420,22 @@ class BookingService {
     String? notes,
     Map<String, dynamic>? bookingData,
   }) async {
-    final payload = bookingData ?? {
-      'partnerId': partnerId,
-      if (items != null && items.isNotEmpty)
-        'items': items
-      else
-        'serviceIds': serviceIds,
-      'bookingDate': bookingDate,
-      'date': bookingDate,
-      'startTime': startTime,
-      'timeSlot': startTime,
-      // Backend requires online payment for paid slots.
-      'paymentMethod': 'online',
-      if (notes != null && notes.isNotEmpty) 'notes': notes,
-    };
+    final payload =
+        bookingData ??
+        {
+          'partnerId': partnerId,
+          if (items != null && items.isNotEmpty)
+            'items': items
+          else
+            'serviceIds': serviceIds,
+          'bookingDate': bookingDate,
+          'date': bookingDate,
+          'startTime': startTime,
+          'timeSlot': startTime,
+          // Backend requires online payment for paid slots.
+          'paymentMethod': 'online',
+          if (notes != null && notes.isNotEmpty) 'notes': notes,
+        };
     final res = await api.post('/bookings', payload);
     if (res.success && res.data != null) {
       final data = res.data!['data'] ?? res.data!;
@@ -486,10 +534,7 @@ class CreateBookingResult {
   final BookingModel booking;
   final BookingRazorpayOrder? razorpayOrder;
 
-  const CreateBookingResult({
-    required this.booking,
-    this.razorpayOrder,
-  });
+  const CreateBookingResult({required this.booking, this.razorpayOrder});
 
   /// Free bookings are confirmed immediately (no Razorpay).
   bool get requiresPayment =>
@@ -497,4 +542,3 @@ class CreateBookingResult {
       (razorpayOrder?.isValid == true ||
           booking.paymentStatus.toUpperCase() == 'PENDING');
 }
-

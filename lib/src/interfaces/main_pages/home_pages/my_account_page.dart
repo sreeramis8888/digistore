@@ -49,8 +49,8 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
       text: (_localBody != null && _localBody!.isNotEmpty)
           ? _localBody!.split(' ').first
           : (_district != null && _district!.isNotEmpty)
-              ? _district!.split(' ').first
-              : '',
+          ? _district!.split(' ').first
+          : '',
     );
   }
 
@@ -106,10 +106,14 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
       return 'Please enter a valid email prefix';
     }
     final domain = parts[1];
-    if (domain.isEmpty || !domain.contains('.') || domain.split('.').last.length < 2) {
+    if (domain.isEmpty ||
+        !domain.contains('.') ||
+        domain.split('.').last.length < 2) {
       return 'Please enter a valid domain (e.g. example.com)';
     }
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(trimmed)) {
       return 'Please enter a valid email address';
     }
@@ -128,10 +132,17 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kTextColor, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: kTextColor,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('My Account', style: kSubHeadingM.copyWith(color: kTextColor)),
+        title: Text(
+          'My Account',
+          style: kSubHeadingM.copyWith(color: kTextColor),
+        ),
         centerTitle: false,
         titleSpacing: 0,
       ),
@@ -201,34 +212,45 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                               context: context,
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
-                              builder: (context) => LocationSelectionBottomSheet(
-                                initialLat: _lat,
-                                initialLng: _lng,
-                                initialDistrict: _district,
-                                initialLocalBody: _localBody,
-                                onLocationSelected:
-                                    (district, localBody, lat, lng) {
-                                  setState(() {
-                                    _locationController.text =
-                                        localBody.isNotEmpty
-                                            ? localBody.split(' ').first
-                                            : district.split(' ').first;
-                                    _district = district;
-                                    _localBody = localBody;
-                                    _lat = lat;
-                                    _lng = lng;
-                                  });
-                                },
-                              ),
+                              builder: (context) =>
+                                  LocationSelectionBottomSheet(
+                                    initialLat: _lat,
+                                    initialLng: _lng,
+                                    initialDistrict: _district,
+                                    initialLocalBody: _localBody,
+                                    onLocationSelected:
+                                        (district, localBody, lat, lng) {
+                                          setState(() {
+                                            _locationController.text =
+                                                localBody.isNotEmpty
+                                                ? localBody.split(' ').first
+                                                : district.split(' ').first;
+                                            _district = district;
+                                            _localBody = localBody;
+                                            _lat = lat;
+                                            _lng = lng;
+                                          });
+                                        },
+                                  ),
                             );
                           },
                         ),
                       ] else ...[
                         _buildReadOnlyField('Name', _nameController.text),
-                        _buildReadOnlyField('Mobile Number', _mobileController.text),
+                        _buildReadOnlyField(
+                          'Mobile Number',
+                          _mobileController.text,
+                        ),
                         _buildReadOnlyField('Email', _emailController.text),
-                        _buildReadOnlyField('Location', _locationController.text.split(',').first.split(' ').first),
-                      ]
+                        _buildReadOnlyField(
+                          'Location',
+                          _locationController.text
+                              .split(',')
+                              .first
+                              .split(' ')
+                              .first,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -252,15 +274,17 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                     }
 
                     // Auto-trim leading/trailing spaces and normalize multiple spaces
-                    final cleanedName = _nameController.text
-                        .trim()
-                        .replaceAll(RegExp(r'\s+'), ' ');
+                    final cleanedName = _nameController.text.trim().replaceAll(
+                      RegExp(r'\s+'),
+                      ' ',
+                    );
                     _nameController.text = cleanedName;
 
                     // Auto-trim spaces and convert uppercase email to lowercase
-                    final rawEmail = _emailController.text
-                        .trim()
-                        .replaceAll(' ', '');
+                    final rawEmail = _emailController.text.trim().replaceAll(
+                      ' ',
+                      '',
+                    );
                     final cleanedEmail = rawEmail.toLowerCase();
                     _emailController.text = cleanedEmail;
 
@@ -277,12 +301,14 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
                           );
 
                       if (success && _lat != null && _lng != null) {
-                        await ref.read(userProvider.notifier).updateLocation(
-                          lat: _lat!,
-                          lng: _lng!,
-                          district: _district ?? '',
-                          localBody: _localBody ?? '',
-                        );
+                        await ref
+                            .read(userProvider.notifier)
+                            .updateLocation(
+                              lat: _lat!,
+                              lng: _lng!,
+                              district: _district ?? '',
+                              localBody: _localBody ?? '',
+                            );
                       }
 
                       if (success && context.mounted) {
@@ -313,11 +339,11 @@ class _MyAccountPageState extends ConsumerState<MyAccountPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-             label,
-             style: kSmallTitleM.copyWith(
-               color: const Color(0xFF0A0A0A),
-               fontWeight: FontWeight.w500,
-             ),
+            label,
+            style: kSmallTitleM.copyWith(
+              color: const Color(0xFF0A0A0A),
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: screenSize.responsivePadding(16)),
           Text(

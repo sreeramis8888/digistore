@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/services_provider.dart';
@@ -175,7 +174,8 @@ class ServicesBannerCard extends ConsumerWidget {
                       children: [
                         Text(
                           'Book trusted\nservices fast',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: screenSize.responsivePadding(20),
                             fontWeight: FontWeight.w800,
                             color: _titleColor,
@@ -185,7 +185,8 @@ class ServicesBannerCard extends ConsumerWidget {
                         SizedBox(height: screenSize.responsivePadding(6)),
                         Text(
                           'Home cleaning, beauty, errands, and more - all in one place.',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: screenSize.responsivePadding(11),
                             fontWeight: FontWeight.w500,
                             color: _subtitleColor,
@@ -206,7 +207,8 @@ class ServicesBannerCard extends ConsumerWidget {
                           ),
                           child: Text(
                             'Explore services',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: screenSize.responsivePadding(12),
                               fontWeight: FontWeight.w700,
                               color: kWhite,
@@ -227,10 +229,7 @@ class ServicesBannerCard extends ConsumerWidget {
 }
 
 class _FloatingServiceIcon extends StatelessWidget {
-  const _FloatingServiceIcon({
-    required this.icon,
-    required this.size,
-  });
+  const _FloatingServiceIcon({required this.icon, required this.size});
 
   final IconData icon;
   final double size;

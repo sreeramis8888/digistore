@@ -51,22 +51,31 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   bool get _isModified {
     if (widget.product == null) return true;
 
-    if (_nameController.text.trim() != (widget.product?['title'] ?? widget.product?['name'] ?? '')) return true;
-    if (_descController.text.trim() != (widget.product?['description'] ?? '')) return true;
-    if (_priceController.text.trim() != (widget.product?['price']?.toString() ?? '')) return true;
-    
-    final oldCategoryId = widget.product?['category'] is Map ? widget.product?['category']?['_id'] : widget.product?['category'];
+    if (_nameController.text.trim() !=
+        (widget.product?['title'] ?? widget.product?['name'] ?? ''))
+      return true;
+    if (_descController.text.trim() != (widget.product?['description'] ?? ''))
+      return true;
+    if (_priceController.text.trim() !=
+        (widget.product?['price']?.toString() ?? ''))
+      return true;
+
+    final oldCategoryId = widget.product?['category'] is Map
+        ? widget.product?['category']?['_id']
+        : widget.product?['category'];
     if (_selectedCategoryId != oldCategoryId) return true;
 
-    final oldTags = (widget.product?['tags'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    final oldTags =
+        (widget.product?['tags'] as List?)?.map((e) => e.toString()).toList() ??
+        [];
     if (_tags.length != oldTags.length) return true;
     for (int i = 0; i < _tags.length; i++) {
-       if (_tags[i] != oldTags[i]) return true;
+      if (_tags[i] != oldTags[i]) return true;
     }
 
     if (_pickedImage != null) return true;
     if (_isImageRemoved) return true;
-    
+
     if (_isActive != (widget.product?['isActive'] ?? true)) return true;
 
     return false;
@@ -79,12 +88,20 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.product?['title'] ?? widget.product?['name'] ?? '');
-    _descController = TextEditingController(text: widget.product?['description'] ?? '');
-    _priceController = TextEditingController(text: widget.product?['price']?.toString() ?? '');
-    
+    _nameController = TextEditingController(
+      text: widget.product?['title'] ?? widget.product?['name'] ?? '',
+    );
+    _descController = TextEditingController(
+      text: widget.product?['description'] ?? '',
+    );
+    _priceController = TextEditingController(
+      text: widget.product?['price']?.toString() ?? '',
+    );
+
     final cat = widget.product?['category'];
-    _categoryController = TextEditingController(text: cat is Map ? cat['category'] : '');
+    _categoryController = TextEditingController(
+      text: cat is Map ? cat['category'] : '',
+    );
 
     _nameController.addListener(_onFieldChanged);
     _descController.addListener(_onFieldChanged);
@@ -192,7 +209,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
         'tags': _tags.isNotEmpty ? jsonEncode(_tags) : null,
         'isActive': _isActive.toString(),
       };
-      
+
       if (_selectedCategoryId != null) {
         rawBody['category'] = _selectedCategoryId!;
       }
@@ -237,22 +254,33 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       }
 
       final cleanedBody = cleanMap(rawBody);
-      final body = cleanedBody.map((key, value) => MapEntry(key, value.toString()));
+      final body = cleanedBody.map(
+        (key, value) => MapEntry(key, value.toString()),
+      );
       log('body: $body');
 
       final isEdit = widget.product != null;
       final response = isEdit
-          ? await api.putMultipart('/products/${widget.product!['_id'] ?? widget.product!['id']}', body, files: files)
+          ? await api.putMultipart(
+              '/products/${widget.product!['_id'] ?? widget.product!['id']}',
+              body,
+              files: files,
+            )
           : await api.postMultipart('/products', body, files: files);
 
       if (response.success && mounted) {
         final newProduct = ProductModel.fromJson(response.data!['data']);
         if (isEdit) {
-          ref.read(partnerProductsProvider.notifier).updateProductLocally(newProduct);
+          ref
+              .read(partnerProductsProvider.notifier)
+              .updateProductLocally(newProduct);
         } else {
           ref.read(partnerProductsProvider.notifier).addProduct(newProduct);
         }
-        ToastService().showToast(context, 'Product ${isEdit ? 'updated' : 'created'} successfully');
+        ToastService().showToast(
+          context,
+          'Product ${isEdit ? 'updated' : 'created'} successfully',
+        );
         if (isEdit) {
           Navigator.pop(context);
           Navigator.pop(context);
@@ -413,7 +441,9 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                     color: const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: (_pickedImage != null || (_existingImageUrl != null && !_isImageRemoved))
+                  child:
+                      (_pickedImage != null ||
+                          (_existingImageUrl != null && !_isImageRemoved))
                       ? Stack(
                           fit: StackFit.expand,
                           children: [

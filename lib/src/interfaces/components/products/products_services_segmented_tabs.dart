@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/services_provider.dart';
 
@@ -42,7 +41,9 @@ class ProductsServicesSegmentedTabs extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF2563EB).withValues(alpha: 0.22),
+                          color: const Color(
+                            0xFF2563EB,
+                          ).withValues(alpha: 0.22),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -59,14 +60,18 @@ class ProductsServicesSegmentedTabs extends ConsumerWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
                           if (selectedTab != 0) {
-                            ref.read(selectedProductsTabProvider.notifier).state = 0;
+                            ref
+                                    .read(selectedProductsTabProvider.notifier)
+                                    .state =
+                                0;
                           }
                         },
                         child: Center(
                           child: AnimatedDefaultTextStyle(
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeInOut,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 14,
                               fontWeight: selectedTab == 0
                                   ? FontWeight.w700
@@ -85,14 +90,18 @@ class ProductsServicesSegmentedTabs extends ConsumerWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
                           if (selectedTab != 1) {
-                            ref.read(selectedProductsTabProvider.notifier).state = 1;
+                            ref
+                                    .read(selectedProductsTabProvider.notifier)
+                                    .state =
+                                1;
                           }
                         },
                         child: Center(
                           child: AnimatedDefaultTextStyle(
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeInOut,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 14,
                               fontWeight: selectedTab == 1
                                   ? FontWeight.w700
@@ -116,4 +125,3 @@ class ProductsServicesSegmentedTabs extends ConsumerWidget {
     );
   }
 }
-

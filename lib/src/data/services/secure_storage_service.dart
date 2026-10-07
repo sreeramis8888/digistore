@@ -59,7 +59,10 @@ class SecureStorageService {
   }
 
   Future<void> saveHasPromptedForNotifications(bool value) async {
-    await _storage.write(key: 'has_prompted_for_notifications', value: value.toString());
+    await _storage.write(
+      key: 'has_prompted_for_notifications',
+      value: value.toString(),
+    );
   }
 
   Future<bool> getHasPromptedForNotifications() async {
@@ -130,7 +133,6 @@ class SecureStorageService {
   Future<bool> hasBearerToken() async {
     final token = await getBearerToken();
     return token != null && token.isNotEmpty;
-    
   }
 
   /// Save FCM token
@@ -142,8 +144,6 @@ class SecureStorageService {
   Future<String?> getFcmToken() async {
     return await _storage.read(key: _fcmTokenKey);
   }
-
-  
 
   /// Save registration data temporarily during the registration process
   Future<void> saveRegistrationData(Map<String, dynamic> data) async {

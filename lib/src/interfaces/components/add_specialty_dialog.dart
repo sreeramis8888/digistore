@@ -38,7 +38,9 @@ Future<String?> showAddSpecialtyDialog(BuildContext context) {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               child: Row(
                 children: [
@@ -49,10 +51,17 @@ Future<String?> showAddSpecialtyDialog(BuildContext context) {
                       color: kPrimaryLightColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.add_circle_outline_rounded, color: kPrimaryColor, size: 22),
+                    child: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: kPrimaryColor,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Add Specialty', style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700)),
+                  Text(
+                    'Add Specialty',
+                    style: kBodyTitleM.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
             ),
@@ -62,7 +71,11 @@ Future<String?> showAddSpecialtyDialog(BuildContext context) {
                 label: 'Specialty',
                 hint: 'e.g. Organic Vegetables',
                 controller: controller,
-                prefixIcon: const Icon(Icons.local_offer_outlined, color: kSecondaryColor, size: 18),
+                prefixIcon: const Icon(
+                  Icons.local_offer_outlined,
+                  color: kSecondaryColor,
+                  size: 18,
+                ),
               ),
             ),
             Padding(

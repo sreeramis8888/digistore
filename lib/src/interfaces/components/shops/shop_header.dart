@@ -216,7 +216,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                   Text(
                     widget.shopName,
                     style: const TextStyle(
-                      fontFamily: 'Montserrat',
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111827),
@@ -233,7 +232,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                     Text(
                       widget.shop!.businessInfo!.tagline!.trim(),
                       style: const TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                         color: Color(0xFF6B7280),
@@ -267,7 +265,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                     const Text(
                       'Featured',
                       style: TextStyle(
-                        fontFamily: 'Montserrat',
                         color: Color(0xFF92400E),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -304,7 +301,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                   child: Text(
                     '$address${distanceLabel.isNotEmpty ? ' · ${distanceLabel.replaceAll(RegExp(r'[()]'), '').trim()}' : ''}',
                     style: const TextStyle(
-                      fontFamily: 'Montserrat',
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFF6B7280),
@@ -357,7 +353,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                         Text(
                           RatingLabel.compact(rating, reviewCount: totalSales),
                           style: const TextStyle(
-                            fontFamily: 'Montserrat',
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
                             color: Color(0xFF92400E),
@@ -368,7 +363,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                           Text(
                             '($totalSales reviews)',
                             style: const TextStyle(
-                              fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                               fontSize: 11,
                               color: Color(0xFFB45309),
@@ -392,7 +386,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                       child: Text(
                         '${widget.shop!.businessInfo!.yearsOfExperience}+ yrs exp',
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           color: Color(0xFF6B7280),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -465,7 +458,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                         const Text(
                           'WhatsApp',
                           style: TextStyle(
-                            fontFamily: 'Montserrat',
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -518,7 +510,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                         const Text(
                           'Call',
                           style: TextStyle(
-                            fontFamily: 'Montserrat',
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,

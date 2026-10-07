@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -138,7 +137,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
         ),
         title: Text(
           'My Bookings',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -175,18 +175,31 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.transparent : const Color(0xFFF7F4F4),
+                          color: isSelected
+                              ? Colors.transparent
+                              : const Color(0xFFF7F4F4),
                           borderRadius: BorderRadius.circular(20),
                           border: isSelected
-                              ? Border.all(color: const Color(0xFF07982C), width: 1)
-                              : Border.all(color: const Color(0xFFE5E7EB), width: 0.5),
+                              ? Border.all(
+                                  color: const Color(0xFF07982C),
+                                  width: 1,
+                                )
+                              : Border.all(
+                                  color: const Color(0xFFE5E7EB),
+                                  width: 0.5,
+                                ),
                         ),
                         child: Text(
                           filter['label']!,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                            color: isSelected ? const Color(0xFF07982C) : const Color(0xFF808080),
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            color: isSelected
+                                ? const Color(0xFF07982C)
+                                : const Color(0xFF808080),
                           ),
                         ),
                       ),
@@ -220,7 +233,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                         const SizedBox(height: 12),
                         Text(
                           'No $currentLabel Bookings',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF6B7280),
@@ -233,7 +247,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
 
                 return RefreshIndicator(
                   color: const Color(0xFF07982C),
-                  onRefresh: () async => ref.refresh(customerBookingsProvider(_selectedFilter)),
+                  onRefresh: () async =>
+                      ref.refresh(customerBookingsProvider(_selectedFilter)),
                   child: ListView.separated(
                     padding: EdgeInsets.fromLTRB(
                       screenSize.responsivePadding(16),
@@ -242,7 +257,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                       screenSize.responsivePadding(24),
                     ),
                     itemCount: bookings.length,
-                    separatorBuilder: (_, _) => SizedBox(height: screenSize.responsivePadding(10)),
+                    separatorBuilder: (_, _) =>
+                        SizedBox(height: screenSize.responsivePadding(10)),
                     itemBuilder: (context, index) {
                       final booking = bookings[index];
                       final statusStyle = _getStatusStyle(booking.status);
@@ -253,15 +269,21 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
 
                       final dateFormatted = _formatDate(booking.bookingDate);
                       final timeFormatted = _formatTime(booking.startTime);
-                      final dateTimeDisplay = dateFormatted.isNotEmpty && timeFormatted.isNotEmpty
+                      final dateTimeDisplay =
+                          dateFormatted.isNotEmpty && timeFormatted.isNotEmpty
                           ? '$dateFormatted • $timeFormatted'
-                          : (dateFormatted.isNotEmpty ? dateFormatted : timeFormatted);
+                          : (dateFormatted.isNotEmpty
+                                ? dateFormatted
+                                : timeFormatted);
 
-                      final isCancelable = booking.status.toUpperCase() == 'CONFIRMED' ||
+                      final isCancelable =
+                          booking.status.toUpperCase() == 'CONFIRMED' ||
                           booking.status.toUpperCase() == 'PENDING';
 
                       return Container(
-                        padding: EdgeInsets.all(screenSize.responsivePadding(16)),
+                        padding: EdgeInsets.all(
+                          screenSize.responsivePadding(16),
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -284,11 +306,13 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         serviceName,
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           fontSize: 16,
                                           fontWeight: FontWeight.w800,
                                           color: const Color(0xFF111827),
@@ -298,7 +322,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                                         const SizedBox(height: 2),
                                         Text(
                                           partnerName,
-                                          style: GoogleFonts.urbanist(
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
                                             fontSize: 13,
                                             fontWeight: FontWeight.w400,
                                             color: const Color(0xFF373737),
@@ -311,14 +336,20 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                                 if (booking.tokenNumber.isNotEmpty) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF6155F5).withValues(alpha: 0.08),
+                                      color: const Color(
+                                        0xFF6155F5,
+                                      ).withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
                                       booking.tokenNumber,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: const Color(0xFF6155F5),
@@ -336,21 +367,26 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                               children: [
                                 Text(
                                   dateTimeDisplay,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 13,
                                     fontWeight: FontWeight.w400,
                                     color: const Color(0xFF6B7280),
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: statusStyle.$1,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     _formatStatusLabel(booking.status),
-                                    style: GoogleFonts.urbanist(
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: statusStyle.$2,
@@ -361,14 +397,21 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                             ),
 
                             // Total Amount and Services row (if available)
-                            if (booking.totalAmount > 0 || booking.services.length > 1) ...[
-                              const Divider(height: 20, color: Color(0xFFE5E7EB), thickness: 1),
+                            if (booking.totalAmount > 0 ||
+                                booking.services.length > 1) ...[
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE5E7EB),
+                                thickness: 1,
+                              ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     '${booking.services.length} ${booking.services.length == 1 ? "Service" : "Services"}',
-                                    style: GoogleFonts.urbanist(
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
                                       fontSize: 13,
                                       color: const Color(0xFF6B7280),
                                       fontWeight: FontWeight.w500,
@@ -376,7 +419,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                                   ),
                                   Text(
                                     '₹ ${booking.totalAmount.toInt()}',
-                                    style: GoogleFonts.urbanist(
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800,
                                       color: const Color(0xFF111827),
@@ -388,13 +432,17 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
 
                             // Cancel Button
                             if (isCancelable) ...[
-                              SizedBox(height: screenSize.responsivePadding(12)),
+                              SizedBox(
+                                height: screenSize.responsivePadding(12),
+                              ),
                               SizedBox(
                                 width: double.infinity,
                                 height: 38,
                                 child: OutlinedButton(
                                   style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Color(0xFFEF4444)),
+                                    side: const BorderSide(
+                                      color: Color(0xFFEF4444),
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -402,7 +450,8 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                                   onPressed: () => _handleCancel(booking.id),
                                   child: Text(
                                     'Cancel Booking',
-                                    style: GoogleFonts.urbanist(
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
                                       color: const Color(0xFFEF4444),
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
@@ -418,15 +467,13 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
                   ),
                 );
               },
-              loading: () => const Center(
-                child: LoadingAnimation(size: 36),
-              ),
+              loading: () => const Center(child: LoadingAnimation(size: 36)),
               error: (e, _) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Text(
                     'Failed to load bookings: $e',
-                    style: GoogleFonts.urbanist(color: Colors.red),
+                    style: TextStyle(fontFamily: 'Poppins', color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
                 ),

@@ -178,7 +178,11 @@ class OperatingHoursEditor extends StatelessWidget {
                       ),
                     );
                     if (time != null && context.mounted) {
-                      _updateDayStatus(context, day, open: time.format(context));
+                      _updateDayStatus(
+                        context,
+                        day,
+                        open: time.format(context),
+                      );
                     }
                   },
                   child: Container(
@@ -263,7 +267,11 @@ class OperatingHoursEditor extends StatelessWidget {
                       ),
                     );
                     if (time != null && context.mounted) {
-                      _updateDayStatus(context, day, close: time.format(context));
+                      _updateDayStatus(
+                        context,
+                        day,
+                        close: time.format(context),
+                      );
                     }
                   },
                   child: Container(

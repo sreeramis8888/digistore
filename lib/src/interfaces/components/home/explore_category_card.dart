@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/category_model.dart';
 
 class _ExploreCategoryTheme {
@@ -145,10 +144,7 @@ class ExploreCategoryCard extends StatelessWidget {
             right: 8,
             // Leave room for the icon at the bottom.
             bottom: iconSize + 10,
-            child: _CategoryTitle(
-              text: name,
-              color: theme.titleColor,
-            ),
+            child: _CategoryTitle(text: name, color: theme.titleColor),
           ),
           Positioned(
             left: 8,
@@ -165,8 +161,8 @@ class ExploreCategoryCard extends StatelessWidget {
   }
 
   Widget _buildVisual(String pathOrUrl) {
-    final isNetwork = pathOrUrl.startsWith('http://') ||
-        pathOrUrl.startsWith('https://');
+    final isNetwork =
+        pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://');
 
     if (isNetwork) {
       final isSvg = pathOrUrl.toLowerCase().contains('.svg');
@@ -226,12 +222,13 @@ class _CategoryTitle extends StatelessWidget {
 
   const _CategoryTitle({required this.text, required this.color});
 
-  TextStyle get _style => GoogleFonts.montserrat(
-        color: color,
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        height: 1.15,
-      );
+  TextStyle get _style => TextStyle(
+    fontFamily: 'Poppins',
+    color: color,
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
+    height: 1.15,
+  );
 
   double _measure(String value, TextStyle style) {
     final painter = TextPainter(
@@ -287,12 +284,7 @@ class _CategoryTitle extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(
-                trimmed,
-                maxLines: 1,
-                softWrap: false,
-                style: style,
-              ),
+              child: Text(trimmed, maxLines: 1, softWrap: false, style: style),
             ),
           );
         }

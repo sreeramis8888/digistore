@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/models/category_model.dart';
@@ -47,10 +46,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FullScreenGallery(
-            images: images,
-            initialIndex: initialIndex,
-          );
+          return FullScreenGallery(images: images, initialIndex: initialIndex);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -188,14 +184,20 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final rawShopLogo =
         widget.args['shopLogo'] ??
         widget.args['partnerId']?['businessInfo']?['businessLogo'];
-    final String? effectiveShopLogo = (rawShopLogo != null && rawShopLogo.isNotEmpty)
+    final String? effectiveShopLogo =
+        (rawShopLogo != null && rawShopLogo.isNotEmpty)
         ? rawShopLogo
-        : (fetchedShop?.businessInfo?.businessLogo ?? fetchedShop?.businessInfo?.coverImage);
+        : (fetchedShop?.businessInfo?.businessLogo ??
+              fetchedShop?.businessInfo?.coverImage);
 
     final rawAddress = [
-      if (partnerIdObj is Map && partnerIdObj['addressLine1'] != null && partnerIdObj['addressLine1'].toString().isNotEmpty)
+      if (partnerIdObj is Map &&
+          partnerIdObj['addressLine1'] != null &&
+          partnerIdObj['addressLine1'].toString().isNotEmpty)
         partnerIdObj['addressLine1'].toString(),
-      if (partnerIdObj is Map && partnerIdObj['city'] != null && partnerIdObj['city'].toString().isNotEmpty)
+      if (partnerIdObj is Map &&
+          partnerIdObj['city'] != null &&
+          partnerIdObj['city'].toString().isNotEmpty)
         partnerIdObj['city'].toString(),
     ].join(', ');
     final String effectiveShopAddress = rawAddress.isNotEmpty
@@ -211,8 +213,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
 
     final branchApplicability = widget.args['branchApplicability'];
     final branchLocationsObj = widget.args['branchLocations'];
-    final List branchLocations =
-        branchLocationsObj is List ? branchLocationsObj : [];
+    final List branchLocations = branchLocationsObj is List
+        ? branchLocationsObj
+        : [];
 
     bool isAllBranches = false;
     List specificBranches = [];
@@ -223,8 +226,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       } else if (branchApplicability['type'] == 'specific') {
         final branchIdsObj = branchApplicability['branchIds'];
         final List branchIds = branchIdsObj is List ? branchIdsObj : [];
-        final List<String> stringBranchIds =
-            branchIds.map((e) => e.toString()).toList();
+        final List<String> stringBranchIds = branchIds
+            .map((e) => e.toString())
+            .toList();
 
         specificBranches = branchLocations.where((branch) {
           if (branch is! Map) return false;
@@ -234,10 +238,14 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       }
     }
 
-    bool hasPriceRange = priceRange != null &&
+    bool hasPriceRange =
+        priceRange != null &&
         priceRange.toString() != 'null' &&
-        (priceRange is Map ? priceRange.isNotEmpty : priceRange.toString().isNotEmpty);
-    bool hasDiscountRange = discountRange != null &&
+        (priceRange is Map
+            ? priceRange.isNotEmpty
+            : priceRange.toString().isNotEmpty);
+    bool hasDiscountRange =
+        discountRange != null &&
         discountRange.toString() != 'null' &&
         (discountRange is Map
             ? discountRange.isNotEmpty
@@ -260,7 +268,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     String getDiscountRangeText() {
       final rawType = widget.args['discountType'];
       final discountType = rawType?.toString().toLowerCase();
-      final isFlat = discountType == 'flat' ||
+      final isFlat =
+          discountType == 'flat' ||
           discountType == 'amount' ||
           discountType == 'fixed';
 
@@ -298,7 +307,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     }
 
     final List<String> subcategories = [];
-    final rawSubs = widget.args['subcategories'] ??
+    final rawSubs =
+        widget.args['subcategories'] ??
         cachedOffer?.subcategories ??
         widget.args['subcategory'] ??
         cachedOffer?.subcategory ??
@@ -311,10 +321,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         final val = s.trim();
         if (!subcategories.contains(val)) subcategories.add(val);
       } else if (s is Map) {
-        final name = s['name'] ??
-            s['category'] ??
-            s['title'] ??
-            s['subCategoryName'];
+        final name =
+            s['name'] ?? s['category'] ?? s['title'] ?? s['subCategoryName'];
         if (name != null &&
             name.toString().trim().isNotEmpty &&
             name.toString() != 'null') {
@@ -347,12 +355,16 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       addSubcategory(rawSubs);
     }
 
-    final floatingTagText = activeDealText ??
+    final floatingTagText =
+        activeDealText ??
         categoryName ??
         (subcategories.isNotEmpty ? subcategories.first : null);
 
-    final validToStr = widget.args['validTo'] ?? cachedOffer?.validTo?.toString();
-    final validToDate = validToStr != null ? DateTime.tryParse(validToStr)?.toLocal() : null;
+    final validToStr =
+        widget.args['validTo'] ?? cachedOffer?.validTo?.toString();
+    final validToDate = validToStr != null
+        ? DateTime.tryParse(validToStr)?.toLocal()
+        : null;
 
     final termsList = (widget.args['terms'] is List)
         ? (widget.args['terms'] as List).map((e) => e.toString()).toList()
@@ -375,7 +387,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         ),
         title: Text(
           'Offer Details',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -445,7 +458,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           } catch (e) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Something went wrong')),
+                                const SnackBar(
+                                  content: Text('Something went wrong'),
+                                ),
                               );
                             }
                           }
@@ -472,12 +487,14 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                   GestureDetector(
                     onTap: images.isNotEmpty
                         ? () => _openGallery(
-                              images: images,
-                              initialUrl: images.isNotEmpty
-                                  ? images[_currentImageIndex.clamp(
-                                      0, images.length - 1)]
-                                  : null,
-                            )
+                            images: images,
+                            initialUrl: images.isNotEmpty
+                                ? images[_currentImageIndex.clamp(
+                                    0,
+                                    images.length - 1,
+                                  )]
+                                : null,
+                          )
                         : null,
                     child: Container(
                       width: double.infinity,
@@ -524,7 +541,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                       alignment: Alignment.center,
                                       child: Text(
                                         logoText,
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           color: logoColor == Colors.white
                                               ? kTextColor
                                               : Colors.white,
@@ -556,8 +574,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black
-                                          .withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -565,7 +584,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                 ),
                                 child: Text(
                                   floatingTagText,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF292929),
@@ -586,8 +606,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   final isActive =
                                       _currentImageIndex == entry.key;
                                   return AnimatedContainer(
-                                    duration:
-                                        const Duration(milliseconds: 250),
+                                    duration: const Duration(milliseconds: 250),
                                     width: isActive ? 18.0 : 6.0,
                                     height: 6.0,
                                     margin: const EdgeInsets.symmetric(
@@ -597,8 +616,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                       borderRadius: BorderRadius.circular(3.0),
                                       color: isActive
                                           ? Colors.white
-                                          : Colors.white
-                                              .withValues(alpha: 0.5),
+                                          : Colors.white.withValues(alpha: 0.5),
                                     ),
                                   );
                                 }).toList(),
@@ -639,11 +657,11 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   : null,
                               borderRadius: BorderRadius.circular(12),
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
                                 child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 44,
@@ -657,7 +675,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                         color: const Color(0xFFF3F4F6),
                                       ),
                                       clipBehavior: Clip.antiAlias,
-                                      child: effectiveShopLogo != null &&
+                                      child:
+                                          effectiveShopLogo != null &&
                                               effectiveShopLogo.isNotEmpty
                                           ? AdvancedNetworkImage(
                                               imageUrl: effectiveShopLogo,
@@ -679,7 +698,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                         children: [
                                           Text(
                                             effectiveShopName,
-                                            style: GoogleFonts.urbanist(
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
                                               fontSize: 16,
                                               fontWeight: FontWeight.w700,
                                               height: 1.25,
@@ -702,8 +722,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                                 Expanded(
                                                   child: Text(
                                                     effectiveShopAddress,
-                                                    style:
-                                                        GoogleFonts.urbanist(
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
                                                       fontSize: 12,
                                                       fontWeight:
                                                           FontWeight.w400,
@@ -733,8 +753,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                             strokeWidth: 2,
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                              Color(0xFF6155F5),
-                                            ),
+                                                  Color(0xFF6155F5),
+                                                ),
                                           ),
                                         )
                                       else
@@ -760,7 +780,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                           // Offer Title & Subtitle
                           Text(
                             title,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               height: 1.3,
@@ -773,7 +794,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                             const SizedBox(height: 8),
                             Text(
                               subtitle,
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w400,
                                 height: 1.45,
@@ -804,7 +826,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                     ),
                                     child: Text(
                                       categoryName,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         color: const Color(0xFF6155F5),
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
@@ -826,7 +849,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                     ),
                                     child: Text(
                                       sub,
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         color: const Color(0xFF374151),
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
@@ -868,7 +892,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   Expanded(
                                     child: Text(
                                       'Scratch card revealed! You got $awardedDiscount% OFF.',
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         color: const Color(0xFF03543F),
                                         fontWeight: FontWeight.w700,
                                         fontSize: 14,
@@ -891,326 +916,353 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                  // Separator Band
-                  const SizedBox(
-                    width: double.infinity,
-                    height: 8,
-                    child: ColoredBox(color: Color(0xFFF3F5F4)),
-                  ),
-
-                  // Details & Terms
-                  Container(
-                    width: double.infinity,
-                    color: Colors.white,
-                    padding: EdgeInsets.fromLTRB(
-                      screenSize.responsivePadding(20),
-                      screenSize.responsivePadding(20),
-                      screenSize.responsivePadding(20),
-                      screenSize.responsivePadding(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Details & Terms',
-                          style: GoogleFonts.urbanist(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            height: 1.25,
-                            color: const Color(0xFF1C1C1C),
-                          ),
+                        // Separator Band
+                        const SizedBox(
+                          width: double.infinity,
+                          height: 8,
+                          child: ColoredBox(color: Color(0xFFF3F5F4)),
                         ),
-                        if (validToDate != null) ...[
-                          const SizedBox(height: 14),
-                          Text(
-                            'Expires on: ${formatOfferDate(validToDate)}',
-                            style: GoogleFonts.urbanist(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              height: 1.3,
-                              color: const Color(0xFF1C1C1C),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        if (termsList.isNotEmpty)
-                          ...termsList.map(
-                            (term) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: _buildBulletPoint(term),
-                            ),
-                          )
-                        else if (subtitle.isNotEmpty && subtitle != 'null')
-                          Text(
-                            subtitle,
-                            style: GoogleFonts.urbanist(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF4E4E4E),
-                              height: 1.55,
-                            ),
-                          )
-                        else
-                          Text(
-                            'No specific terms provided.',
-                            style: GoogleFonts.urbanist(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF4E4E4E),
-                              height: 1.4,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
 
-                  // Available At / Branch Locations
-                  if (isAllBranches || specificBranches.isNotEmpty) ...[
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 8,
-                      child: ColoredBox(color: Color(0xFFF3F5F4)),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: EdgeInsets.fromLTRB(
-                        screenSize.responsivePadding(20),
-                        screenSize.responsivePadding(20),
-                        screenSize.responsivePadding(20),
-                        screenSize.responsivePadding(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF6155F5)
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(
-                                  Icons.storefront_rounded,
-                                  color: Color(0xFF6155F5),
-                                  size: 18,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Available At',
-                                style: GoogleFonts.urbanist(
-                                  color: const Color(0xFF6155F5),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                  height: 1.2,
-                                ),
-                              ),
-                            ],
+                        // Details & Terms
+                        Container(
+                          width: double.infinity,
+                          color: Colors.white,
+                          padding: EdgeInsets.fromLTRB(
+                            screenSize.responsivePadding(20),
+                            screenSize.responsivePadding(20),
+                            screenSize.responsivePadding(20),
+                            screenSize.responsivePadding(20),
                           ),
-                          const SizedBox(height: 16),
-                          if (isAllBranches)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(
-                                    Icons.check_circle_outline,
-                                    size: 18,
-                                    color: Colors.green,
-                                  ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Details & Terms',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.25,
+                                  color: const Color(0xFF1C1C1C),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Available on all branches',
-                                    style: GoogleFonts.urbanist(
-                                      color: const Color(0xFF374151),
-                                      fontSize: 13,
-                                      height: 1.35,
-                                    ),
+                              ),
+                              if (validToDate != null) ...[
+                                const SizedBox(height: 14),
+                                Text(
+                                  'Expires on: ${formatOfferDate(validToDate)}',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
+                                    color: const Color(0xFF1C1C1C),
                                   ),
                                 ),
                               ],
-                            )
-                          else
-                            ...specificBranches.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final branch = entry.value;
-                              final isLast =
-                                  index == specificBranches.length - 1;
-                              final branchName =
-                                  branch['branchName']?.toString() ?? 'Branch';
-                              final address =
-                                  branch['address']?.toString() ?? '';
-                              final city = branch['city']?.toString() ?? '';
-                              final locationDetails = [address, city]
-                                  .where((e) => e.trim().isNotEmpty)
-                                  .join(', ');
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: isLast ? 0 : 14,
+                              const SizedBox(height: 12),
+                              if (termsList.isNotEmpty)
+                                ...termsList.map(
+                                  (term) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: _buildBulletPoint(term),
+                                  ),
+                                )
+                              else if (subtitle.isNotEmpty &&
+                                  subtitle != 'null')
+                                Text(
+                                  subtitle,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: const Color(0xFF4E4E4E),
+                                    height: 1.55,
+                                  ),
+                                )
+                              else
+                                Text(
+                                  'No specific terms provided.',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: const Color(0xFF4E4E4E),
+                                    height: 1.4,
+                                  ),
                                 ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                            ],
+                          ),
+                        ),
+
+                        // Available At / Branch Locations
+                        if (isAllBranches || specificBranches.isNotEmpty) ...[
+                          const SizedBox(
+                            width: double.infinity,
+                            height: 8,
+                            child: ColoredBox(color: Color(0xFFF3F5F4)),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.white,
+                            padding: EdgeInsets.fromLTRB(
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 36,
                                       height: 36,
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF6155F5)
-                                            .withValues(alpha: 0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
+                                        color: const Color(
+                                          0xFF6155F5,
+                                        ).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: const Icon(
-                                        Icons.location_on_outlined,
-                                        size: 18,
+                                        Icons.storefront_rounded,
                                         color: Color(0xFF6155F5),
+                                        size: 18,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            branchName,
-                                            style: GoogleFonts.urbanist(
-                                              color: const Color(0xFF111827),
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13,
-                                              height: 1.3,
-                                            ),
-                                          ),
-                                          if (locationDetails.isNotEmpty) ...[
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              locationDetails,
-                                              style: GoogleFonts.urbanist(
-                                                color:
-                                                    const Color(0xFF6B7280),
-                                                fontSize: 12,
-                                                height: 1.35,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
+                                    Text(
+                                      'Available At',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: const Color(0xFF6155F5),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        height: 1.2,
                                       ),
                                     ),
                                   ],
                                 ),
-                              );
-                            }),
+                                const SizedBox(height: 16),
+                                if (isAllBranches)
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.check_circle_outline,
+                                          size: 18,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Available on all branches',
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            color: const Color(0xFF374151),
+                                            fontSize: 13,
+                                            height: 1.35,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  ...specificBranches.asMap().entries.map((
+                                    entry,
+                                  ) {
+                                    final index = entry.key;
+                                    final branch = entry.value;
+                                    final isLast =
+                                        index == specificBranches.length - 1;
+                                    final branchName =
+                                        branch['branchName']?.toString() ??
+                                        'Branch';
+                                    final address =
+                                        branch['address']?.toString() ?? '';
+                                    final city =
+                                        branch['city']?.toString() ?? '';
+                                    final locationDetails = [address, city]
+                                        .where((e) => e.trim().isNotEmpty)
+                                        .join(', ');
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom: isLast ? 0 : 14,
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: const Color(
+                                                0xFF6155F5,
+                                              ).withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: const Icon(
+                                              Icons.location_on_outlined,
+                                              size: 18,
+                                              color: Color(0xFF6155F5),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  branchName,
+                                                  style: TextStyle(
+                                                    fontFamily: 'Poppins',
+                                                    color: const Color(
+                                                      0xFF111827,
+                                                    ),
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 13,
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                                if (locationDetails
+                                                    .isNotEmpty) ...[
+                                                  const SizedBox(height: 3),
+                                                  Text(
+                                                    locationDetails,
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      color: const Color(
+                                                        0xFF6B7280,
+                                                      ),
+                                                      fontSize: 12,
+                                                      height: 1.35,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                              ],
+                            ),
+                          ),
                         ],
-                      ),
-                    ),
-                  ],
 
-                  // Offer Highlights
-                  if (hasPriceRange || hasDiscountRange) ...[
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 8,
-                      child: ColoredBox(color: Color(0xFFF3F5F4)),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: EdgeInsets.fromLTRB(
-                        screenSize.responsivePadding(20),
-                        screenSize.responsivePadding(20),
-                        screenSize.responsivePadding(20),
-                        screenSize.responsivePadding(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        // Offer Highlights
+                        if (hasPriceRange || hasDiscountRange) ...[
+                          const SizedBox(
+                            width: double.infinity,
+                            height: 8,
+                            child: ColoredBox(color: Color(0xFFF3F5F4)),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.white,
+                            padding: EdgeInsets.fromLTRB(
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF6155F5,
+                                        ).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(
+                                        Icons.star_rounded,
+                                        color: Color(0xFF6155F5),
+                                        size: 18,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Offer Highlights',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: const Color(0xFF6155F5),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                if (hasPriceRange)
+                                  _buildHighlightRow(
+                                    Icons.account_balance_wallet_rounded,
+                                    'Price Range',
+                                    getPriceRangeText(),
+                                    Colors.blue.shade600,
+                                  ),
+                                if (hasPriceRange && hasDiscountRange)
+                                  const SizedBox(height: 12),
+                                if (hasDiscountRange)
+                                  _buildHighlightRow(
+                                    Icons.local_offer_rounded,
+                                    'Discount',
+                                    getDiscountRangeText(),
+                                    Colors.green.shade600,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        if (isPartner) ...[
+                          const SizedBox(height: 20),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF6155F5)
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFF6155F5),
-                                  size: 18,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
                               Text(
-                                'Offer Highlights',
-                                style: GoogleFonts.urbanist(
-                                  color: const Color(0xFF6155F5),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                  height: 1.2,
+                                'Status: ',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: const Color(0xFF6B7280),
+                                  fontSize: 13,
                                 ),
                               ),
+                              _buildStatusChip(offerStatus),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          if (hasPriceRange)
-                            _buildHighlightRow(
-                              Icons.account_balance_wallet_rounded,
-                              'Price Range',
-                              getPriceRangeText(),
-                              Colors.blue.shade600,
-                            ),
-                          if (hasPriceRange && hasDiscountRange)
-                            const SizedBox(height: 12),
-                          if (hasDiscountRange)
-                            _buildHighlightRow(
-                              Icons.local_offer_rounded,
-                              'Discount',
-                              getDiscountRangeText(),
-                              Colors.green.shade600,
-                            ),
                         ],
-                      ),
-                    ),
-                  ],
 
-                  if (isPartner) ...[
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Status: ',
-                          style: GoogleFonts.urbanist(
-                            color: const Color(0xFF6B7280),
-                            fontSize: 13,
-                          ),
-                        ),
-                        _buildStatusChip(offerStatus),
-                      ],
-                    ),
-                  ],
-
-                  const SizedBox(height: 16),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
@@ -1273,8 +1325,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   arguments: offerDetails,
                                 )
                                 .then((_) {
-                              if (mounted) setState(() {});
-                            });
+                                  if (mounted) setState(() {});
+                                });
                           } else {
                             Navigator.of(context).pushNamed(
                               'redemptionInstructions',
@@ -1285,8 +1337,9 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6155F5),
-                  disabledBackgroundColor:
-                      const Color(0xFF6155F5).withValues(alpha: 0.5),
+                  disabledBackgroundColor: const Color(
+                    0xFF6155F5,
+                  ).withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1298,13 +1351,15 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text(
                         isPartner ? 'Initiate Redemption' : 'Redeem Now',
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -1336,7 +1391,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: const Color(0xFF4E4E4E),
@@ -1389,7 +1445,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       ),
       child: Text(
         displayStatus,
-        style: GoogleFonts.urbanist(
+        style: TextStyle(
+          fontFamily: 'Poppins',
           color: textColor,
           fontWeight: FontWeight.w600,
           fontSize: 10,
@@ -1399,7 +1456,11 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
   }
 
   Widget _buildHighlightRow(
-      IconData icon, String label, String value, Color color) {
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -1420,7 +1481,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 12,
                   height: 1.3,
                   color: const Color(0xFF6B7280),
@@ -1429,7 +1491,8 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
@@ -1443,4 +1506,3 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     );
   }
 }
-

@@ -29,10 +29,7 @@ class DealsCarousel extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(
-          title: title,
-          onViewAll: onViewAllTap,
-        ),
+        SectionTitle(title: title, onViewAll: onViewAllTap),
         SizedBox(height: screenSize.responsivePadding(12)),
         CarouselSlider.builder(
           itemCount: deals.length,

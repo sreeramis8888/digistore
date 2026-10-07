@@ -33,7 +33,9 @@ class PartnerServicesState {
       services: services ?? this.services,
       isLoading: isLoading ?? this.isLoading,
       error: error,
-      currentCategory: clearCategory ? null : (currentCategory ?? this.currentCategory),
+      currentCategory: clearCategory
+          ? null
+          : (currentCategory ?? this.currentCategory),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -76,27 +78,37 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     String? search,
     bool isCategoryChange = false,
   }) async {
-    final activeCategory = isCategoryChange ? category : (category ?? state.currentCategory);
+    final activeCategory = isCategoryChange
+        ? category
+        : (category ?? state.currentCategory);
     final activeSearch = search ?? state.searchQuery;
 
     state = state.copyWith(
       isLoading: true,
       error: null,
       currentCategory: activeCategory,
-      clearCategory: isCategoryChange && (activeCategory == null || activeCategory == 'All'),
+      clearCategory:
+          isCategoryChange &&
+          (activeCategory == null || activeCategory == 'All'),
       searchQuery: activeSearch,
     );
 
     final api = ref.read(apiProvider);
     final queryParams = <String, String>{};
-    if (activeCategory != null && activeCategory != 'All' && activeCategory.isNotEmpty) {
+    if (activeCategory != null &&
+        activeCategory != 'All' &&
+        activeCategory.isNotEmpty) {
       queryParams['category'] = activeCategory;
     }
     if (activeSearch.isNotEmpty) {
       queryParams['search'] = activeSearch;
     }
 
-    final res = await api.get('/services', queryParams: queryParams, requireAuth: true);
+    final res = await api.get(
+      '/services',
+      queryParams: queryParams,
+      requireAuth: true,
+    );
 
     if (res.success && res.data != null) {
       final rawList = _extractServicesList(res.data);
@@ -110,7 +122,10 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
       }
       state = state.copyWith(services: list, isLoading: false);
     } else {
-      state = state.copyWith(isLoading: false, error: res.message ?? 'Failed to load partner services');
+      state = state.copyWith(
+        isLoading: false,
+        error: res.message ?? 'Failed to load partner services',
+      );
     }
   }
 
@@ -122,10 +137,12 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     final res = (files != null && files.isNotEmpty)
         ? await api.postMultipart(
             '/services',
-            cleanMap(data).map((k, v) => MapEntry(
-                  k,
-                  v is List || v is Map ? jsonEncode(v) : v.toString(),
-                )),
+            cleanMap(data).map(
+              (k, v) => MapEntry(
+                k,
+                v is List || v is Map ? jsonEncode(v) : v.toString(),
+              ),
+            ),
             files: files,
           )
         : await api.post('/services', data, requireAuth: true);
@@ -136,7 +153,9 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
           ? sData['service']
           : (sData is Map && sData['data'] is Map ? sData['data'] : sData);
       if (rawService is Map) {
-        final created = ServiceModel.fromJson(Map<String, dynamic>.from(rawService));
+        final created = ServiceModel.fromJson(
+          Map<String, dynamic>.from(rawService),
+        );
         state = state.copyWith(services: [created, ...state.services]);
         return ApiResponse.success(created);
       }
@@ -153,10 +172,12 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     final res = (files != null && files.isNotEmpty)
         ? await api.putMultipart(
             '/services/$id',
-            cleanMap(data).map((k, v) => MapEntry(
-                  k,
-                  v is List || v is Map ? jsonEncode(v) : v.toString(),
-                )),
+            cleanMap(data).map(
+              (k, v) => MapEntry(
+                k,
+                v is List || v is Map ? jsonEncode(v) : v.toString(),
+              ),
+            ),
             files: files,
           )
         : await api.put('/services/$id', data, requireAuth: true);
@@ -167,9 +188,13 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
           ? sData['service']
           : (sData is Map && sData['data'] is Map ? sData['data'] : sData);
       if (rawService is Map) {
-        final updated = ServiceModel.fromJson(Map<String, dynamic>.from(rawService));
+        final updated = ServiceModel.fromJson(
+          Map<String, dynamic>.from(rawService),
+        );
         state = state.copyWith(
-          services: state.services.map((s) => s.id == id ? updated : s).toList(),
+          services: state.services
+              .map((s) => s.id == id ? updated : s)
+              .toList(),
         );
         return ApiResponse.success(updated);
       }
@@ -189,9 +214,14 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     return ApiResponse.error(res.message ?? 'Failed to delete service');
   }
 
-  Future<ApiResponse<void>> toggleServiceStatus(String id, bool isActive) async {
+  Future<ApiResponse<void>> toggleServiceStatus(
+    String id,
+    bool isActive,
+  ) async {
     final api = ref.read(apiProvider);
-    final res = await api.patch('/services/$id/status', {'isActive': isActive}, requireAuth: true);
+    final res = await api.patch('/services/$id/status', {
+      'isActive': isActive,
+    }, requireAuth: true);
     if (res.success) {
       getServices();
       return ApiResponse.success(null);
@@ -200,6 +230,7 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
   }
 }
 
-final partnerServicesProvider = NotifierProvider<PartnerServicesNotifier, PartnerServicesState>(() {
-  return PartnerServicesNotifier();
-});
+final partnerServicesProvider =
+    NotifierProvider<PartnerServicesNotifier, PartnerServicesState>(() {
+      return PartnerServicesNotifier();
+    });

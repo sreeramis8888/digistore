@@ -1,4 +1,5 @@
 import 'package:setgo/src/utils/safe_parser.dart';
+import '../utils/name_case.dart';
 import 'location_point.dart';
 
 class BusinessInfo {
@@ -82,10 +83,10 @@ class BusinessInfo {
       faqs: SafeParser.parseList(json['faqs'], BusinessFAQ.fromJson),
       branches: json['branches'] != null
           ? (json['branches'] as List<dynamic>)
-              .map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map((e) => BusinessBranch.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
-      ownerName: json['ownerName'] as String?,
+      ownerName: NameCase.maybe(json['ownerName']?.toString()),
       email: json['email'] as String?,
     );
   }
@@ -269,7 +270,8 @@ class BusinessBranch {
       phone: phone ?? this.phone,
       email: email ?? this.email,
       contactPersonName: contactPersonName ?? this.contactPersonName,
-      contactPersonDesignation: contactPersonDesignation ?? this.contactPersonDesignation,
+      contactPersonDesignation:
+          contactPersonDesignation ?? this.contactPersonDesignation,
       location: location ?? this.location,
       operatingHours: operatingHours ?? this.operatingHours,
       isActive: isActive ?? this.isActive,
@@ -280,12 +282,16 @@ class BusinessBranch {
 
   factory BusinessBranch.fromJson(Map<String, dynamic> json) {
     String? phoneVal = json['phone'] as String?;
-    if (phoneVal == null && json['phoneNumbers'] is List && (json['phoneNumbers'] as List).isNotEmpty) {
+    if (phoneVal == null &&
+        json['phoneNumbers'] is List &&
+        (json['phoneNumbers'] as List).isNotEmpty) {
       phoneVal = (json['phoneNumbers'] as List).first as String?;
     }
 
     String? emailVal = json['email'] as String?;
-    if (emailVal == null && json['emailAddresses'] is List && (json['emailAddresses'] as List).isNotEmpty) {
+    if (emailVal == null &&
+        json['emailAddresses'] is List &&
+        (json['emailAddresses'] as List).isNotEmpty) {
       emailVal = (json['emailAddresses'] as List).first as String?;
     }
 
@@ -317,11 +323,16 @@ class BusinessBranch {
 
     return BusinessBranch(
       id: (json['_id'] ?? json['id']) as String?,
-      name: (json['name'] ?? json['branchName']) as String?,
-      address: (json['address'] ?? (json['location'] is Map ? json['location']['address'] : null)) as String?,
+      name: NameCase.maybe((json['name'] ?? json['branchName'])?.toString()),
+      address:
+          (json['address'] ??
+                  (json['location'] is Map
+                      ? json['location']['address']
+                      : null))
+              as String?,
       phone: phoneVal,
       email: emailVal,
-      contactPersonName: cName,
+      contactPersonName: NameCase.maybe(cName),
       contactPersonDesignation: cDesig,
       location: SafeParser.parseObject(
         json['location'],

@@ -152,11 +152,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
-      child: Icon(
-        icon,
-        size: 20,
-        color: color ?? _menuIconColor,
-      ),
+      child: Icon(icon, size: 20, color: color ?? _menuIconColor),
     );
   }
 
@@ -305,10 +301,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     alignment: Alignment.center,
                     child: Text(
                       initial,
-                      style: kLargeTitleM.copyWith(
-                        color: kWhite,
-                        fontSize: 24,
-                      ),
+                      style: kLargeTitleM.copyWith(color: kWhite, fontSize: 24),
                     ),
                   ),
                   SizedBox(width: screenSize.responsivePadding(14)),
@@ -465,7 +458,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       ),
                     );
                   },
-                  child: (!(_isTokenRegistered && _isNotificationsEnabled) &&
+                  child:
+                      (!(_isTokenRegistered && _isNotificationsEnabled) &&
                           !_isHiding)
                       ? Container(
                           key: const ValueKey('notif_card'),
@@ -504,8 +498,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                         ),
                                       ),
                                       SizedBox(
-                                        height:
-                                            screenSize.responsivePadding(4),
+                                        height: screenSize.responsivePadding(4),
                                       ),
                                       Text(
                                         'Stay updated on offers & rewards',
@@ -521,8 +514,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                   value: _isNotificationsEnabled,
                                   onChanged: _toggleNotifications,
                                   activeColor: kRewardCtaPurple,
-                                  activeTrackColor: kRewardCtaPurple
-                                      .withValues(alpha: 0.3),
+                                  activeTrackColor: kRewardCtaPurple.withValues(
+                                    alpha: 0.3,
+                                  ),
                                 ),
                               ],
                             ),
@@ -591,10 +585,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         ? Icons.login_rounded
                         : Icons.logout_rounded,
                     screenSize,
-                    textColor:
-                        GlobalVariables.isGuest ? kRewardCtaPurple : kRed,
-                    iconColor:
-                        GlobalVariables.isGuest ? kRewardCtaPurple : kRed,
+                    textColor: GlobalVariables.isGuest
+                        ? kRewardCtaPurple
+                        : kRed,
+                    iconColor: GlobalVariables.isGuest
+                        ? kRewardCtaPurple
+                        : kRed,
                     showDivider: !GlobalVariables.isGuest,
                     onTap: () async {
                       if (GlobalVariables.isGuest) {

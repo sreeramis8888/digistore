@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../data/constants/color_constants.dart';
 import '../data/router/nav_router.dart';
 import '../data/services/deep_link_service.dart';
@@ -304,7 +303,8 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       labels[index],
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         color: isSelected
                                             ? activeColor
                                             : inactiveColor,

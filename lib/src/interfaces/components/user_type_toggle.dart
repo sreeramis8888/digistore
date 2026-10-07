@@ -30,11 +30,16 @@ class UserTypeToggle extends ConsumerWidget {
                 ? Alignment.centerLeft
                 : Alignment.centerRight,
             child: Container(
-              width: (MediaQuery.of(context).size.width - screenSize.responsivePadding(56)) / 2,
+              width:
+                  (MediaQuery.of(context).size.width -
+                      screenSize.responsivePadding(56)) /
+                  2,
               height: double.infinity,
               decoration: BoxDecoration(
                 color: kWhite,
-                borderRadius: BorderRadius.circular(screenSize.responsivePadding(10)),
+                borderRadius: BorderRadius.circular(
+                  screenSize.responsivePadding(10),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -49,7 +54,9 @@ class UserTypeToggle extends ConsumerWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => ref.read(userTypeProvider.notifier).setUserType(UserType.customer),
+                  onTap: () => ref
+                      .read(userTypeProvider.notifier)
+                      .setUserType(UserType.customer),
                   behavior: HitTestBehavior.opaque,
                   child: Center(
                     child: Row(
@@ -58,13 +65,17 @@ class UserTypeToggle extends ConsumerWidget {
                         Icon(
                           Icons.person_outline_rounded,
                           size: screenSize.responsivePadding(18),
-                          color: userType == UserType.customer ? kPrimaryColor : kGreyDarker,
+                          color: userType == UserType.customer
+                              ? kPrimaryColor
+                              : kGreyDarker,
                         ),
                         SizedBox(width: screenSize.responsivePadding(8)),
                         Text(
                           'Customer',
                           style: kSmallTitleSB.copyWith(
-                            color: userType == UserType.customer ? kPrimaryColor : kGreyDarker,
+                            color: userType == UserType.customer
+                                ? kPrimaryColor
+                                : kGreyDarker,
                           ),
                         ),
                       ],
@@ -74,7 +85,9 @@ class UserTypeToggle extends ConsumerWidget {
               ),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => ref.read(userTypeProvider.notifier).setUserType(UserType.partner),
+                  onTap: () => ref
+                      .read(userTypeProvider.notifier)
+                      .setUserType(UserType.partner),
                   behavior: HitTestBehavior.opaque,
                   child: Center(
                     child: Row(
@@ -83,13 +96,17 @@ class UserTypeToggle extends ConsumerWidget {
                         Icon(
                           Icons.storefront_outlined,
                           size: screenSize.responsivePadding(18),
-                          color: userType == UserType.partner ? kPrimaryColor : kGreyDarker,
+                          color: userType == UserType.partner
+                              ? kPrimaryColor
+                              : kGreyDarker,
                         ),
                         SizedBox(width: screenSize.responsivePadding(8)),
                         Text(
                           'Partner',
                           style: kSmallTitleSB.copyWith(
-                            color: userType == UserType.partner ? kPrimaryColor : kGreyDarker,
+                            color: userType == UserType.partner
+                                ? kPrimaryColor
+                                : kGreyDarker,
                           ),
                         ),
                       ],

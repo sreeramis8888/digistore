@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/service_model.dart';
 import '../../../data/providers/partner_bookings_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -42,7 +41,8 @@ class PartnerBookingRequests extends ConsumerWidget {
             children: [
               Text(
                 'Booking Requests',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF111827),
@@ -63,7 +63,8 @@ class PartnerBookingRequests extends ConsumerWidget {
                   children: [
                     Text(
                       'View All',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF6154F5),
@@ -110,9 +111,8 @@ class PartnerBookingRequests extends ConsumerWidget {
         ? booking.services.first
         : (booking.service?.name ?? 'Service Booking');
 
-    final customerName = booking.customer?.name ??
-        booking.customerDetails?.name ??
-        'Customer';
+    final customerName =
+        booking.customer?.name ?? booking.customerDetails?.name ?? 'Customer';
 
     String formattedDateStr = '';
     if (booking.date.isNotEmpty) {
@@ -164,10 +164,7 @@ class PartnerBookingRequests extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFE5E7EB),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -185,7 +182,8 @@ class PartnerBookingRequests extends ConsumerWidget {
               children: [
                 Text(
                   serviceTitle,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF111827),
@@ -196,7 +194,8 @@ class PartnerBookingRequests extends ConsumerWidget {
                 const SizedBox(height: 2),
                 Text(
                   customerName,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     color: const Color(0xFF202020),
@@ -209,7 +208,8 @@ class PartnerBookingRequests extends ConsumerWidget {
             if (dateTimeStr.isNotEmpty)
               Text(
                 dateTimeStr,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 10,
                   fontWeight: FontWeight.w400,
                   color: const Color(0xFF6B7280),
@@ -225,7 +225,8 @@ class PartnerBookingRequests extends ConsumerWidget {
               ),
               child: Text(
                 displayStatus,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: statusTextColor,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/models/redemption_model.dart';
@@ -25,7 +24,8 @@ class PartnerRedemptionList extends StatelessWidget {
           ),
           child: Text(
             'No redemption history',
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: const Color(0xFF99A1AF),
@@ -102,10 +102,9 @@ class _RedemptionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final offer = redemption.offerId;
-    final imageUrl =
-        (offer?.images != null && offer!.images!.isNotEmpty)
-            ? offer.images!.first
-            : '';
+    final imageUrl = (offer?.images != null && offer!.images!.isNotEmpty)
+        ? offer.images!.first
+        : '';
     final status = _statusStyle();
     final subtitle = (offer?.description ?? '').trim();
 
@@ -147,7 +146,8 @@ class _RedemptionRow extends StatelessWidget {
                   children: [
                     Text(
                       offer?.title ?? 'Redeemed Offer',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF111827),
@@ -159,7 +159,8 @@ class _RedemptionRow extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           color: const Color(0xFF6B7280),
@@ -173,14 +174,18 @@ class _RedemptionRow extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: status.bg,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   status.label,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: status.fg,
@@ -196,7 +201,8 @@ class _RedemptionRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Redeemed on: ${_formatRedeemedAt(redemption.redeemedAt)}',
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 10,
                     fontWeight: FontWeight.w400,
                     color: const Color(0xFF6B7280),
@@ -208,7 +214,8 @@ class _RedemptionRow extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'ID: ${_shortId(redemption.id)}',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF6B7280),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/models/service_model.dart';
@@ -45,10 +44,7 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FullScreenGallery(
-            images: images,
-            initialIndex: initialIndex,
-          );
+          return FullScreenGallery(images: images, initialIndex: initialIndex);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -62,20 +58,24 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     setState(() => _isNavigatingToShop = true);
 
     try {
-      final shop = await ref.read(getShopByPartnerIdProvider(shopOrPartnerId).future);
+      final shop = await ref.read(
+        getShopByPartnerIdProvider(shopOrPartnerId).future,
+      );
       if (!mounted) return;
       if (shop != null) {
         Navigator.of(context).pushNamed('shopDetail', arguments: shop);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No shop details found for this service provider.')),
+          const SnackBar(
+            content: Text('No shop details found for this service provider.'),
+          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading shop: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading shop: $e')));
     } finally {
       if (mounted) {
         setState(() => _isNavigatingToShop = false);
@@ -127,17 +127,22 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
         : null;
 
     final String rawPartnerName = partner?.name ?? '';
-    final String effectiveShopName = rawPartnerName.isNotEmpty && rawPartnerName != 'SetGo Partner'
+    final String effectiveShopName =
+        rawPartnerName.isNotEmpty && rawPartnerName != 'SetGo Partner'
         ? rawPartnerName
-        : (fetchedShop?.businessDetails?.businessName ?? rawPartnerName.ifEmpty('Partner Shop'));
+        : (fetchedShop?.businessDetails?.businessName ??
+              rawPartnerName.ifEmpty('Partner Shop'));
 
     final String? rawPartnerLogo = partner?.logo;
-    final String? effectiveShopLogo = (rawPartnerLogo != null && rawPartnerLogo.isNotEmpty)
+    final String? effectiveShopLogo =
+        (rawPartnerLogo != null && rawPartnerLogo.isNotEmpty)
         ? rawPartnerLogo
-        : (fetchedShop?.businessInfo?.businessLogo ?? fetchedShop?.businessInfo?.coverImage);
+        : (fetchedShop?.businessInfo?.businessLogo ??
+              fetchedShop?.businessInfo?.coverImage);
 
     final rawPartnerAddress = [
-      if (partner?.addressLine1 != null && partner!.addressLine1!.isNotEmpty) partner.addressLine1!,
+      if (partner?.addressLine1 != null && partner!.addressLine1!.isNotEmpty)
+        partner.addressLine1!,
       if (partner?.city != null && partner!.city!.isNotEmpty) partner.city!,
     ].join(', ');
     final String effectiveShopAddress = rawPartnerAddress.isNotEmpty
@@ -147,13 +152,14 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     final hasOffer = service.hasOffer && service.offerPrice != null;
     final displayPrice = hasOffer
         ? (service.offerPrice!.truncateToDouble() == service.offerPrice
-            ? service.offerPrice!.toStringAsFixed(0)
-            : service.offerPrice!.toStringAsFixed(2))
+              ? service.offerPrice!.toStringAsFixed(0)
+              : service.offerPrice!.toStringAsFixed(2))
         : (service.originalPrice.truncateToDouble() == service.originalPrice
-            ? service.originalPrice.toStringAsFixed(0)
-            : service.originalPrice.toStringAsFixed(2));
+              ? service.originalPrice.toStringAsFixed(0)
+              : service.originalPrice.toStringAsFixed(2));
 
-    final showShop = !isPartner &&
+    final showShop =
+        !isPartner &&
         !widget.hideShopInfo &&
         (targetShopOrPartnerId.isNotEmpty || effectiveShopName.isNotEmpty);
 
@@ -178,12 +184,17 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF373737), size: 18),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF373737),
+            size: 18,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Service Details',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -202,7 +213,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CreateServicePage(existingService: service),
+                          builder: (context) =>
+                              CreateServicePage(existingService: service),
                         ),
                       );
                     },
@@ -239,15 +251,16 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                       final confirm = await showConfirmationDialog(
                         context: context,
                         title: 'Delete Service',
-                        message: 'Are you sure you want to delete this service?',
+                        message:
+                            'Are you sure you want to delete this service?',
                         confirmText: 'Delete',
                         isDestructive: true,
                         onConfirm: () async {
                           try {
                             if (service.id != null) {
                               await ref
-                                    .read(partnerServicesProvider.notifier)
-                                    .deleteService(service.id!);
+                                  .read(partnerServicesProvider.notifier)
+                                  .deleteService(service.id!);
                             }
                           } catch (e) {
                             if (context.mounted) {
@@ -278,14 +291,20 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                   // Service Hero Image
                   GestureDetector(
                     onTap: allImages.isNotEmpty
-                        ? () => _openGallery(images: allImages, initialUrl: imageUrl)
+                        ? () => _openGallery(
+                            images: allImages,
+                            initialUrl: imageUrl,
+                          )
                         : null,
                     child: Container(
                       width: double.infinity,
                       height: screenSize.responsivePadding(300),
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom: BorderSide(color: Color(0xFFE3E3E3), width: 1),
+                          bottom: BorderSide(
+                            color: Color(0xFFE3E3E3),
+                            width: 1,
+                          ),
                         ),
                       ),
                       child: (imageUrl.isNotEmpty)
@@ -327,7 +346,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                       children: [
                         Text(
                           service.name,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: const Color(0xFF111827),
@@ -337,7 +357,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                         SizedBox(height: screenSize.responsivePadding(6)),
                         Text(
                           '₹$displayPrice',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
                             color: const Color(0xFF07838C),
@@ -365,7 +386,9 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF3F5F4),
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                                  border: Border.all(
+                                    color: const Color(0xFFE5E7EB),
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
@@ -381,7 +404,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                         ),
                                       ),
                                       clipBehavior: Clip.antiAlias,
-                                      child: effectiveShopLogo != null &&
+                                      child:
+                                          effectiveShopLogo != null &&
                                               effectiveShopLogo.isNotEmpty
                                           ? AdvancedNetworkImage(
                                               imageUrl: effectiveShopLogo,
@@ -399,11 +423,13 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             effectiveShopName,
-                                            style: GoogleFonts.urbanist(
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
                                               fontSize: 14,
                                               fontWeight: FontWeight.w700,
                                               color: const Color(0xFF111827),
@@ -411,7 +437,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          if (effectiveShopAddress.isNotEmpty) ...[
+                                          if (effectiveShopAddress
+                                              .isNotEmpty) ...[
                                             const SizedBox(height: 2),
                                             Row(
                                               children: [
@@ -424,13 +451,18 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                                 Expanded(
                                                   child: Text(
                                                     effectiveShopAddress,
-                                                    style: GoogleFonts.urbanist(
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
                                                       fontSize: 12,
-                                                      fontWeight: FontWeight.w400,
-                                                      color: const Color(0xFF4B5563),
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: const Color(
+                                                        0xFF4B5563,
+                                                      ),
                                                     ),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -449,9 +481,10 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                           height: 18,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                              Color(0xFF07838C),
-                                            ),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Color(0xFF07838C),
+                                                ),
                                           ),
                                         )
                                       else
@@ -488,7 +521,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                         children: [
                           Text(
                             'Service Details',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF111827),
@@ -498,7 +532,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                             SizedBox(height: screenSize.responsivePadding(12)),
                             Text(
                               description,
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
                                 color: const Color(0xFF4B5563),
@@ -515,10 +550,11 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                   .map(
                                     (tag) => Container(
                                       padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            screenSize.responsivePadding(12),
-                                        vertical:
-                                            screenSize.responsivePadding(6),
+                                        horizontal: screenSize
+                                            .responsivePadding(12),
+                                        vertical: screenSize.responsivePadding(
+                                          6,
+                                        ),
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFF3F5F4),
@@ -529,7 +565,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                       ),
                                       child: Text(
                                         tag,
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           color: const Color(0xFF07838C),
                                           fontWeight: FontWeight.w600,
                                           fontSize: 12,
@@ -553,7 +590,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                             .where((s) => s.id != null && s.id != service.id)
                             .toList();
 
-                        if (relatedServices.isEmpty) return const SizedBox.shrink();
+                        if (relatedServices.isEmpty)
+                          return const SizedBox.shrink();
 
                         return Padding(
                           padding: EdgeInsets.fromLTRB(
@@ -567,7 +605,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                             children: [
                               Text(
                                 'You May Also Like',
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF111827),
@@ -582,13 +621,13 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                                 itemCount: relatedServices.length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing:
-                                      screenSize.responsivePadding(12),
-                                  mainAxisSpacing:
-                                      screenSize.responsivePadding(12),
-                                  childAspectRatio: 0.72,
-                                ),
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: screenSize
+                                          .responsivePadding(12),
+                                      mainAxisSpacing: screenSize
+                                          .responsivePadding(12),
+                                      childAspectRatio: 0.72,
+                                    ),
                                 itemBuilder: (context, index) {
                                   return _buildRecommendationCard(
                                     context,
@@ -640,7 +679,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookServicePage(service: service),
+                          builder: (context) =>
+                              BookServicePage(service: service),
                         ),
                       );
                     },
@@ -654,7 +694,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                     ),
                     child: Text(
                       'Book Now',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -678,8 +719,9 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     final price = serviceModel.hasOffer && serviceModel.offerPrice != null
         ? serviceModel.offerPrice!
         : serviceModel.originalPrice;
-    final image =
-        serviceModel.images.isNotEmpty ? serviceModel.images.first : null;
+    final image = serviceModel.images.isNotEmpty
+        ? serviceModel.images.first
+        : null;
 
     final formattedPrice = price.truncateToDouble() == price
         ? '₹${price.toStringAsFixed(0)}'
@@ -738,7 +780,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                 SizedBox(height: screenSize.responsivePadding(8)),
                 Text(
                   title,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF111827),
@@ -749,7 +792,8 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                 SizedBox(height: screenSize.responsivePadding(4)),
                 Text(
                   formattedPrice,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF07838C),
@@ -767,4 +811,3 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
 extension on String {
   String ifEmpty(String fallback) => trim().isEmpty ? fallback : this;
 }
-

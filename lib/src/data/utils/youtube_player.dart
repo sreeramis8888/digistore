@@ -56,7 +56,8 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
       child: InAppWebView(
         initialUrlRequest: URLRequest(
           url: WebUri(
-              'https://www.youtube.com/embed/${widget.videoId}?playsinline=1&enablejsapi=1&origin=https://flutter.dev'),
+            'https://www.youtube.com/embed/${widget.videoId}?playsinline=1&enablejsapi=1&origin=https://flutter.dev',
+          ),
         ),
         initialSettings: InAppWebViewSettings(
           // iOS specific settings
@@ -95,8 +96,10 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
                   DeviceOrientation.landscapeRight,
                 ]);
               } else {
-                SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-                    overlays: SystemUiOverlay.values);
+                SystemChrome.setEnabledSystemUIMode(
+                  SystemUiMode.manual,
+                  overlays: SystemUiOverlay.values,
+                );
                 SystemChrome.setPreferredOrientations([
                   DeviceOrientation.portraitUp,
                 ]);
@@ -108,15 +111,17 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
           // iOS specific: Set user agent to avoid mobile restrictions
           if (Platform.isIOS) {
             await controller.setSettings(
-                settings: InAppWebViewSettings(
-              userAgent:
-                  'Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
-            ));
+              settings: InAppWebViewSettings(
+                userAgent:
+                    'Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
+              ),
+            );
           }
         },
         onLoadStop: (controller, url) async {
           // Inject JavaScript to detect fullscreen changes and handle iOS specifics
-          await controller.evaluateJavascript(source: '''
+          await controller.evaluateJavascript(
+            source: '''
             // Fullscreen detection
             document.addEventListener('fullscreenchange', function() {
               window.flutter_inappwebview.callHandler('fullscreenHandler');
@@ -140,7 +145,8 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
               meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
               document.head.appendChild(meta);
             }
-          ''');
+          ''',
+          );
         },
         onPermissionRequest: (controller, request) async {
           return PermissionResponse(
@@ -156,10 +162,12 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
               host.contains('googleusercontent.com') ||
               host.contains('ytimg.com')) {
             return ServerTrustAuthResponse(
-                action: ServerTrustAuthResponseAction.PROCEED);
+              action: ServerTrustAuthResponseAction.PROCEED,
+            );
           }
           return ServerTrustAuthResponse(
-              action: ServerTrustAuthResponseAction.CANCEL);
+            action: ServerTrustAuthResponseAction.CANCEL,
+          );
         },
         shouldOverrideUrlLoading: (controller, navigationAction) async {
           var uri = navigationAction.request.url!;
@@ -183,11 +191,11 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
 
   @override
   void dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
   }
 }

@@ -51,9 +51,7 @@ class CategoryCard extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: Color(0xFFF5F5F5).withOpacity(.55),
               ),
-              child: Center(
-                child: _buildIcon(category['icon'] as String),
-              ),
+              child: Center(child: _buildIcon(category['icon'] as String)),
             ),
             SizedBox(height: screenSize.responsivePadding(8)),
             Text(
@@ -101,31 +99,21 @@ class CategoryCard extends ConsumerWidget {
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
             ),
           ),
-          errorWidget: (context, url, error) => const Icon(
-            Icons.category_outlined,
-            size: 34,
-            color: Colors.grey,
-          ),
+          errorWidget: (context, url, error) =>
+              const Icon(Icons.category_outlined, size: 34, color: Colors.grey),
         );
       }
     } else {
       if (cleanPath.endsWith('.svg')) {
-        return SvgPicture.asset(
-          cleanPath,
-          width: 34,
-          height: 34,
-        );
+        return SvgPicture.asset(cleanPath, width: 34, height: 34);
       } else {
         return Image.asset(
           cleanPath,
           width: 34,
           height: 34,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => const Icon(
-            Icons.category_outlined,
-            size: 34,
-            color: Colors.grey,
-          ),
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.category_outlined, size: 34, color: Colors.grey),
         );
       }
     }

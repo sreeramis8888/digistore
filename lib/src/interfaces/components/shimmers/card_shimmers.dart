@@ -46,15 +46,15 @@ class CardShimmers {
         width: size,
         height: size,
         margin: margin,
-        decoration: const BoxDecoration(
-          color: kWhite,
-          shape: BoxShape.circle,
-        ),
+        decoration: const BoxDecoration(color: kWhite, shape: BoxShape.circle),
       ),
     );
   }
 
-  static Widget dealCardShimmer(ScreenSizeData screenSize, {bool hideShopName = false}) {
+  static Widget dealCardShimmer(
+    ScreenSizeData screenSize, {
+    bool hideShopName = false,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: kWhite,
@@ -162,9 +162,13 @@ class CardShimmers {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(child: _shimmerRect(screenSize.width * 0.25, 15, radius: 4)),
+                  Center(
+                    child: _shimmerRect(screenSize.width * 0.25, 15, radius: 4),
+                  ),
                   SizedBox(height: screenSize.responsivePadding(4)),
-                  Center(child: _shimmerRect(screenSize.width * 0.35, 12, radius: 4)),
+                  Center(
+                    child: _shimmerRect(screenSize.width * 0.35, 12, radius: 4),
+                  ),
                   const Spacer(),
                   _shimmerRect(
                     double.infinity,

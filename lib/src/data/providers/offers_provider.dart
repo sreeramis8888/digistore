@@ -107,13 +107,16 @@ class PaginatedOffers {
       isLoading: isLoading ?? this.isLoading,
       isFetchingMore: isFetchingMore ?? this.isFetchingMore,
       error: error != null ? error() : this.error,
-      currentCategoryId: currentCategoryId != null ? currentCategoryId() : this.currentCategoryId,
+      currentCategoryId: currentCategoryId != null
+          ? currentCategoryId()
+          : this.currentCategoryId,
       exploreOffers: exploreOffers ?? this.exploreOffers,
       explorePage: explorePage ?? this.explorePage,
       exploreTotalPages: exploreTotalPages ?? this.exploreTotalPages,
       exploreHasMore: exploreHasMore ?? this.exploreHasMore,
       isExploreLoading: isExploreLoading ?? this.isExploreLoading,
-      isExploreFetchingMore: isExploreFetchingMore ?? this.isExploreFetchingMore,
+      isExploreFetchingMore:
+          isExploreFetchingMore ?? this.isExploreFetchingMore,
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -168,7 +171,8 @@ class Offers extends _$Offers {
       if (lat != null && lng != null) {
         queryParams['lat'] = lat.toString();
         queryParams['lng'] = lng.toString();
-      } else if (currentUserType == UserType.customer && !GlobalVariables.isGuest) {
+      } else if (currentUserType == UserType.customer &&
+          !GlobalVariables.isGuest) {
         state = const PaginatedOffers.empty();
         return;
       }
@@ -194,7 +198,10 @@ class Offers extends _$Offers {
             .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        final isHasMore = pagination['hasMore'] as bool? ?? ((pagination['page'] as int? ?? 1) < (pagination['pages'] as int? ?? 1));
+        final isHasMore =
+            pagination['hasMore'] as bool? ??
+            ((pagination['page'] as int? ?? 1) <
+                (pagination['pages'] as int? ?? 1));
 
         state = state.copyWith(
           offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
@@ -207,16 +214,28 @@ class Offers extends _$Offers {
           error: () => null,
           currentCategoryId: () => categoryId,
         );
-        log('fetchOffers success: newOffers.length=${newOffers.length}, currentCategoryId=$categoryId');
+        log(
+          'fetchOffers success: newOffers.length=${newOffers.length}, currentCategoryId=$categoryId',
+        );
       } else {
-        state = state.copyWith(isLoading: false, isFetchingMore: false, error: () => response.message);
+        state = state.copyWith(
+          isLoading: false,
+          isFetchingMore: false,
+          error: () => response.message,
+        );
       }
     } catch (e, stack) {
       log('Error fetching offers: $e', stackTrace: stack);
-      state = state.copyWith(isLoading: false, isFetchingMore: false, error: () => 'Parsing error: $e');
+      state = state.copyWith(
+        isLoading: false,
+        isFetchingMore: false,
+        error: () => 'Parsing error: $e',
+      );
     }
 
-    if (isRefresh && currentUserType == UserType.customer && !GlobalVariables.isGuest) {
+    if (isRefresh &&
+        currentUserType == UserType.customer &&
+        !GlobalVariables.isGuest) {
       fetchExploreOffers(categoryId: categoryId);
     }
   }
@@ -270,7 +289,10 @@ class Offers extends _$Offers {
             .where((o) => !nearbyIds.contains(o.id))
             .toList();
 
-        final isExploreHasMore = pagination['hasMore'] as bool? ?? ((pagination['page'] as int? ?? 1) < (pagination['pages'] as int? ?? 1));
+        final isExploreHasMore =
+            pagination['hasMore'] as bool? ??
+            ((pagination['page'] as int? ?? 1) <
+                (pagination['pages'] as int? ?? 1));
 
         state = state.copyWith(
           exploreOffers: isRefresh
@@ -283,11 +305,17 @@ class Offers extends _$Offers {
           isExploreFetchingMore: false,
         );
       } else {
-        state = state.copyWith(isExploreLoading: false, isExploreFetchingMore: false);
+        state = state.copyWith(
+          isExploreLoading: false,
+          isExploreFetchingMore: false,
+        );
       }
     } catch (e, stack) {
       log('Error fetching explore offers: $e', stackTrace: stack);
-      state = state.copyWith(isExploreLoading: false, isExploreFetchingMore: false);
+      state = state.copyWith(
+        isExploreLoading: false,
+        isExploreFetchingMore: false,
+      );
     }
   }
 
@@ -352,9 +380,7 @@ class Offers extends _$Offers {
   Future<ApiResponse<Map<String, dynamic>>> scratchOffer(String offerId) async {
     try {
       final api = ref.read(publicApiProvider);
-      final response = await api.post('/offers/scratch', {
-        'offerId': offerId,
-      });
+      final response = await api.post('/offers/scratch', {'offerId': offerId});
       return response;
     } catch (e, stack) {
       log('Error scratching offer: $e', stackTrace: stack);
@@ -371,10 +397,7 @@ class Offers extends _$Offers {
   }) async {
     try {
       final api = ref.read(publicApiProvider);
-      final Map<String, dynamic> payload = {
-        'userPhone': userPhone,
-        'otp': otp,
-      };
+      final Map<String, dynamic> payload = {'userPhone': userPhone, 'otp': otp};
       if (saleAmount != null) {
         payload['saleAmount'] = saleAmount;
       }
@@ -453,9 +476,7 @@ class Offers extends _$Offers {
   }) async {
     try {
       final api = ref.read(publicApiProvider);
-      final Map<String, dynamic> payload = {
-        'otp': otp,
-      };
+      final Map<String, dynamic> payload = {'otp': otp};
       if (saleAmount != null) {
         payload['saleAmount'] = saleAmount;
       }
@@ -482,11 +503,7 @@ class ActiveDeals extends _$ActiveDeals {
 
   Future<void> fetchDeals({bool isRefresh = true}) async {
     if (isRefresh) {
-      state = state.copyWith(
-        isLoading: true,
-        error: () => null,
-        offers: [],
-      );
+      state = state.copyWith(isLoading: true, error: () => null, offers: []);
     } else {
       if (state.isFetchingMore || !state.hasMore) return;
       state = state.copyWith(isFetchingMore: true, error: () => null);
@@ -516,7 +533,8 @@ class ActiveDeals extends _$ActiveDeals {
 
       if (response.success && response.data != null) {
         final List<dynamic> data = response.data!['data'] as List<dynamic>;
-        final pagination = response.data!['pagination'] as Map<String, dynamic>?;
+        final pagination =
+            response.data!['pagination'] as Map<String, dynamic>?;
         final newOffers = data
             .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -524,13 +542,14 @@ class ActiveDeals extends _$ActiveDeals {
         final int currentPage = pagination != null
             ? (pagination['page'] as int? ?? 1)
             : (isRefresh ? 1 : state.page + 1);
-        final int totalPages =
-            pagination != null ? (pagination['pages'] as int? ?? 1) : 1;
+        final int totalPages = pagination != null
+            ? (pagination['pages'] as int? ?? 1)
+            : 1;
         final int totalCount = pagination != null
             ? (pagination['total'] as int? ?? newOffers.length)
             : (isRefresh
-                ? newOffers.length
-                : state.totalCount + newOffers.length);
+                  ? newOffers.length
+                  : state.totalCount + newOffers.length);
         final bool isHasMore = pagination != null
             ? (pagination['hasMore'] as bool? ?? (currentPage < totalPages))
             : (newOffers.length >= 20);
@@ -563,7 +582,6 @@ class ActiveDeals extends _$ActiveDeals {
   }
 }
 
-
 @riverpod
 Future<OfferModel?> getOfferById(Ref ref, String offerId) async {
   if (offerId.isEmpty) return null;
@@ -577,4 +595,3 @@ Future<OfferModel?> getOfferById(Ref ref, String offerId) async {
   }
   return null;
 }
-

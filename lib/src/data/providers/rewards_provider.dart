@@ -72,11 +72,8 @@ class RewardsList extends _$RewardsList {
     try {
       final api = ref.read(apiProvider);
       final user = ref.read(userProvider);
-      
-      final queryParams = {
-        'page': page.toString(),
-        'limit': '10',
-      };
+
+      final queryParams = {'page': page.toString(), 'limit': '10'};
 
       final coords = user?.location?.coordinates;
       if (coords != null) {
@@ -89,7 +86,9 @@ class RewardsList extends _$RewardsList {
         queryParams['tier'] = tier;
       }
 
-      if (currentCategory != null && currentCategory != 'All' && currentCategory.isNotEmpty) {
+      if (currentCategory != null &&
+          currentCategory != 'All' &&
+          currentCategory.isNotEmpty) {
         queryParams['category'] = currentCategory;
       }
 
@@ -101,7 +100,7 @@ class RewardsList extends _$RewardsList {
 
       if (response.success && response.data != null) {
         final paginated = PaginatedRewards.fromJson(response.data!);
-        
+
         if (page == 1) {
           state = state.copyWith(
             rewards: paginated.rewards,
@@ -155,11 +154,8 @@ Future<PaginatedClaimedRewards> claimedRewards(
   int limit = 10,
 }) async {
   final api = ref.watch(apiProvider);
-  
-  final queryParams = {
-    'page': page.toString(),
-    'limit': limit.toString(),
-  };
+
+  final queryParams = {'page': page.toString(), 'limit': limit.toString()};
 
   final response = await api.get(
     '/rewards/my-coupons',
@@ -174,13 +170,14 @@ Future<PaginatedClaimedRewards> claimedRewards(
   }
 }
 
-
 @Riverpod(keepAlive: true)
 class RewardAction extends _$RewardAction {
   @override
   void build() {}
 
-  Future<ApiResponse<Map<String, dynamic>>> redeemReward(String rewardId) async {
+  Future<ApiResponse<Map<String, dynamic>>> redeemReward(
+    String rewardId,
+  ) async {
     final api = ref.read(apiProvider);
     final response = await api.post('/rewards/$rewardId/redeem', {});
 
@@ -205,4 +202,3 @@ Future<RewardModel?> getRewardById(Ref ref, String rewardId) async {
   }
   return null;
 }
-

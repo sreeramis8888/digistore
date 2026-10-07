@@ -18,9 +18,9 @@ class ProductCategory {
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
     final subs = json['subcategories'] is List
         ? (json['subcategories'] as List)
-            .map((e) => e.toString())
-            .where((e) => e.isNotEmpty)
-            .toList()
+              .map((e) => e.toString())
+              .where((e) => e.isNotEmpty)
+              .toList()
         : <String>[];
     final single = json['subcategory']?.toString();
     return ProductCategory(
@@ -97,7 +97,9 @@ class ProductVariant {
   });
 
   double get effectivePrice {
-    if (offerPrice != null && offerPrice! > 0 && offerPrice! < (price ?? double.infinity)) {
+    if (offerPrice != null &&
+        offerPrice! > 0 &&
+        offerPrice! < (price ?? double.infinity)) {
       return offerPrice!;
     }
     return price ?? 0;
@@ -106,11 +108,13 @@ class ProductVariant {
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
     final attrs = json['attributes'] is List
         ? (json['attributes'] as List)
-            .whereType<Map>()
-            .map((e) => ProductVariantAttribute.fromJson(
+              .whereType<Map>()
+              .map(
+                (e) => ProductVariantAttribute.fromJson(
                   Map<String, dynamic>.from(e),
-                ))
-            .toList()
+                ),
+              )
+              .toList()
         : <ProductVariantAttribute>[];
     return ProductVariant(
       id: json['_id']?.toString() ?? json['id']?.toString(),
@@ -213,20 +217,21 @@ class ProductModel {
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final specs = json['specifications'] is List
         ? (json['specifications'] as List)
-            .whereType<Map>()
-            .map((e) => ProductSpec.fromJson(Map<String, dynamic>.from(e)))
-            .where((s) => s.key.isNotEmpty || s.value.isNotEmpty)
-            .toList()
+              .whereType<Map>()
+              .map((e) => ProductSpec.fromJson(Map<String, dynamic>.from(e)))
+              .where((s) => s.key.isNotEmpty || s.value.isNotEmpty)
+              .toList()
         : <ProductSpec>[];
 
     final variants = json['variants'] is List
         ? (json['variants'] as List)
-            .whereType<Map>()
-            .map((e) => ProductVariant.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
+              .whereType<Map>()
+              .map((e) => ProductVariant.fromJson(Map<String, dynamic>.from(e)))
+              .toList()
         : <ProductVariant>[];
 
-    final views = (json['viewCount'] as num?)?.toInt() ??
+    final views =
+        (json['viewCount'] as num?)?.toInt() ??
         (json['views'] as num?)?.toInt() ??
         0;
 
@@ -234,14 +239,12 @@ class ProductModel {
       id: json['_id']?.toString() ?? json['id']?.toString(),
       partnerId: json['partnerId'] is Map
           ? (json['partnerId']['_id']?.toString() ??
-              json['partnerId']['id']?.toString())
+                json['partnerId']['id']?.toString())
           : json['partnerId']?.toString(),
       title: json['title'] as String? ?? json['name'] as String?,
       description: json['description'] as String?,
       images: json['images'] != null
-          ? List<String>.from(
-              (json['images'] as List).map((e) => e.toString()),
-            )
+          ? List<String>.from((json['images'] as List).map((e) => e.toString()))
           : null,
       price: (json['price'] as num?)?.toDouble(),
       hasOffer: json['hasOffer'] as bool? ?? false,
@@ -259,14 +262,9 @@ class ProductModel {
       variants: variants,
       category: json['category'] is String
           ? ProductCategory(id: json['category'] as String)
-          : SafeParser.parseObject(
-              json['category'],
-              ProductCategory.fromJson,
-            ),
+          : SafeParser.parseObject(json['category'], ProductCategory.fromJson),
       tags: json['tags'] != null
-          ? List<String>.from(
-              (json['tags'] as List).map((e) => e.toString()),
-            )
+          ? List<String>.from((json['tags'] as List).map((e) => e.toString()))
           : null,
       isActive: json['isActive'] as bool?,
       views: views,
@@ -279,11 +277,10 @@ class ProductModel {
       partnerObj: json['partner'] is Map
           ? Map<String, dynamic>.from(json['partner'] as Map)
           : json['partnerId'] is Map
-              ? Map<String, dynamic>.from(json['partnerId'] as Map)
-              : null,
+          ? Map<String, dynamic>.from(json['partnerId'] as Map)
+          : null,
       branchLocations: json['branchLocations'] as List<dynamic>?,
-      isFavorited:
-          json['isFavorited'] as bool? ?? json['isFavorite'] as bool?,
+      isFavorited: json['isFavorited'] as bool? ?? json['isFavorite'] as bool?,
     );
   }
 

@@ -54,13 +54,10 @@ List<Widget> buildPaginatedGridSliversWithBanners<T>({
           horizontal: screenSize.responsivePadding(16.0),
         ),
         sliver: SliverGrid(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final itemIdx = startIdx + index;
-              return itemBuilder(context, itemIdx, items[itemIdx]);
-            },
-            childCount: count,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final itemIdx = startIdx + index;
+            return itemBuilder(context, itemIdx, items[itemIdx]);
+          }, childCount: count),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             mainAxisSpacing: screenSize.responsivePadding(16.0),
@@ -76,7 +73,10 @@ List<Widget> buildPaginatedGridSliversWithBanners<T>({
     bool bannerInserted = false;
 
     if (blockNum <= totalFullBlocks) {
-      final bool isLastChunkInList = (blockNum == totalFullBlocks) && (totalItems == blockNum * 10) && !hasMore;
+      final bool isLastChunkInList =
+          (blockNum == totalFullBlocks) &&
+          (totalItems == blockNum * 10) &&
+          !hasMore;
 
       if (isLastChunkInList) {
         if (currentBannerIndex < banners.length) {

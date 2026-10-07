@@ -42,11 +42,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    _connectivitySubscription =
-        ConnectivityService.instance.onConnectionRestored.listen((_) {
-      if (!mounted) return;
-      _autoRetryIfError();
-    });
+    _connectivitySubscription = ConnectivityService
+        .instance
+        .onConnectionRestored
+        .listen((_) {
+          if (!mounted) return;
+          _autoRetryIfError();
+        });
   }
 
   void _autoRetryIfError() {
@@ -60,9 +62,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _openGlobalSearch() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => GlobalSearchPage(
-          initialQuery: _searchController.text.trim(),
-        ),
+        builder: (_) =>
+            GlobalSearchPage(initialQuery: _searchController.text.trim()),
       ),
     );
   }
@@ -94,7 +95,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     final screenSize = ref.watch(screenSizeProvider);
     final homeDataAsync = ref.watch(homeDataProvider);
 
-    ref.listen<AsyncValue<HomeResponseState?>>(homeDataProvider, (previous, next) {
+    ref.listen<AsyncValue<HomeResponseState?>>(homeDataProvider, (
+      previous,
+      next,
+    ) {
       if (next.hasError) {
         ConnectivityService.instance.checkConnectivity();
       }
@@ -140,7 +144,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                       return _buildEmptyState(context, 'No data available');
                     }
                     if (state is CustomerHomeState) {
-                      return _buildContent(context, ref, state.data, screenSize);
+                      return _buildContent(
+                        context,
+                        ref,
+                        state.data,
+                        screenSize,
+                      );
                     }
                     return _buildEmptyState(context, 'Invalid state');
                   },
@@ -159,7 +168,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, String message, {bool isError = false}) {
+  Widget _buildEmptyState(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.5,
       child: Center(
@@ -208,8 +221,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       return _buildEmptyState(context, 'No data available');
     }
 
-    final homeBannersAsync = ref.watch(bannersProvider(const BannerFilter(page: 'home')));
-    final effectiveBanners = (homeBannersAsync.value != null && homeBannersAsync.value!.isNotEmpty)
+    final homeBannersAsync = ref.watch(
+      bannersProvider(const BannerFilter(page: 'home')),
+    );
+    final effectiveBanners =
+        (homeBannersAsync.value != null && homeBannersAsync.value!.isNotEmpty)
         ? homeBannersAsync.value
         : data.premiumBanners;
 

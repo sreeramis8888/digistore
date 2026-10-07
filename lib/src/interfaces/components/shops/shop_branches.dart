@@ -35,7 +35,6 @@ class ShopBranches extends ConsumerWidget {
             const Text(
               'Branches',
               style: TextStyle(
-                fontFamily: 'Montserrat',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF111827),
@@ -64,7 +63,10 @@ class ShopBranches extends ConsumerWidget {
         child: SizedBox(
           width: 20,
           height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2, color: kPrimaryColor),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: kPrimaryColor,
+          ),
         ),
       ),
       error: (e, s) => const SizedBox.shrink(),
@@ -98,10 +100,11 @@ class ShopBranches extends ConsumerWidget {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOutCubic,
           style: TextStyle(
-            fontFamily: 'Montserrat',
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? const Color(0xFF07982C) : const Color(0xFF808080),
+            color: isSelected
+                ? const Color(0xFF07982C)
+                : const Color(0xFF808080),
           ),
           child: Text(label),
         ),

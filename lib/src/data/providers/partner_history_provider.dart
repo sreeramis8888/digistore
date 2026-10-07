@@ -83,19 +83,13 @@ class PartnerHistory extends _$PartnerHistory {
     final api = ref.read(apiProvider);
     final response = await api.get(
       '/history',
-      queryParams: {
-        'page': page.toString(),
-        'limit': '20',
-      },
+      queryParams: {'page': page.toString(), 'limit': '20'},
     );
 
     if (response.success && response.data != null) {
       final historyData = PartnerHistoryData.fromJson(response.data!['data']);
       if (page == 1) {
-        state = state.copyWith(
-          data: historyData,
-          isLoading: false,
-        );
+        state = state.copyWith(data: historyData, isLoading: false);
       } else {
         final currentData = state.data;
         if (currentData != null) {
@@ -104,7 +98,10 @@ class PartnerHistory extends _$PartnerHistory {
               totalCustomers: historyData.totalCustomers,
               commissionAmount: historyData.commissionAmount,
               totalSalesViaSetgo: historyData.totalSalesViaSetgo,
-              redemptions: [...currentData.redemptions, ...historyData.redemptions],
+              redemptions: [
+                ...currentData.redemptions,
+                ...historyData.redemptions,
+              ],
               pagination: historyData.pagination,
             ),
             isLoadingMore: false,
@@ -131,5 +128,3 @@ class PartnerHistory extends _$PartnerHistory {
     await getHistory(page: 1);
   }
 }
-
-

@@ -183,10 +183,7 @@ class _CreateSupportTicketSheetState
               // 1. Category Dropdown
               Text(
                 'Category',
-                style: kSmallTitleB.copyWith(
-                  color: kTextColor,
-                  fontSize: 13,
-                ),
+                style: kSmallTitleB.copyWith(color: kTextColor, fontSize: 13),
               ),
               const SizedBox(height: 6),
               AnimatedDropdown<String>(
@@ -209,10 +206,7 @@ class _CreateSupportTicketSheetState
               // 2. Subject Input
               Text(
                 'Subject',
-                style: kSmallTitleB.copyWith(
-                  color: kTextColor,
-                  fontSize: 13,
-                ),
+                style: kSmallTitleB.copyWith(color: kTextColor, fontSize: 13),
               ),
               const SizedBox(height: 6),
               TextFormField(
@@ -260,10 +254,7 @@ class _CreateSupportTicketSheetState
               // 3. Detailed Message
               Text(
                 'Description',
-                style: kSmallTitleB.copyWith(
-                  color: kTextColor,
-                  fontSize: 13,
-                ),
+                style: kSmallTitleB.copyWith(color: kTextColor, fontSize: 13),
               ),
               const SizedBox(height: 6),
               TextFormField(

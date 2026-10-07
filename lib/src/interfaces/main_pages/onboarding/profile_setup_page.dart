@@ -105,10 +105,14 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
       return 'Please enter a valid email prefix';
     }
     final domain = parts[1];
-    if (domain.isEmpty || !domain.contains('.') || domain.split('.').last.length < 2) {
+    if (domain.isEmpty ||
+        !domain.contains('.') ||
+        domain.split('.').last.length < 2) {
       return 'Please enter a valid domain (e.g. example.com)';
     }
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(trimmed)) {
       return 'Please enter a valid email address';
     }
@@ -311,7 +315,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                         text: 'Submit',
                         onPressed: () async {
                           final nameErr = _validateName(_nameController.text);
-                          final emailErr = _validateEmail(_emailController.text);
+                          final emailErr = _validateEmail(
+                            _emailController.text,
+                          );
                           final locErr = _locationController.text.trim().isEmpty
                               ? 'Location is required'
                               : null;
@@ -322,8 +328,12 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                             _locationError = locErr;
                           });
 
-                          if (nameErr != null || emailErr != null || locErr != null) {
-                            if (locErr != null && nameErr == null && emailErr == null) {
+                          if (nameErr != null ||
+                              emailErr != null ||
+                              locErr != null) {
+                            if (locErr != null &&
+                                nameErr == null &&
+                                emailErr == null) {
                               ToastService().showToast(
                                 context,
                                 'Please select your location',
@@ -386,8 +396,10 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              final errorMsg =
-                                  e.toString().replaceAll('Exception: ', '');
+                              final errorMsg = e.toString().replaceAll(
+                                'Exception: ',
+                                '',
+                              );
                               ToastService().showToast(
                                 context,
                                 errorMsg,

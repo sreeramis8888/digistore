@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/models/service_model.dart';
@@ -50,10 +49,7 @@ class _PartnerBookingDetailPageState
 
     if (res.success) {
       setState(() => _currentStatus = status.toUpperCase());
-      snackbar.showSnackBar(
-        context,
-        'Booking ${status.replaceAll('_', ' ')}',
-      );
+      snackbar.showSnackBar(context, 'Booking ${status.replaceAll('_', ' ')}');
     } else {
       snackbar.showSnackBar(
         context,
@@ -168,7 +164,9 @@ class _PartnerBookingDetailPageState
             .replaceAll('_', ' ')
             .toLowerCase()
             .split(' ')
-            .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+            .map(
+              (w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}',
+            )
             .join(' ');
     }
   }
@@ -199,10 +197,11 @@ class _PartnerBookingDetailPageState
     final notes = (b.notes?.isNotEmpty == true)
         ? b.notes!
         : (b.customerDetails?.notes?.isNotEmpty == true
-            ? b.customerDetails!.notes!
-            : 'None');
-    final bookingReference =
-        b.bookingNumber.isNotEmpty ? b.bookingNumber : (b.id.isNotEmpty ? b.id : '—');
+              ? b.customerDetails!.notes!
+              : 'None');
+    final bookingReference = b.bookingNumber.isNotEmpty
+        ? b.bookingNumber
+        : (b.id.isNotEmpty ? b.id : '—');
     final statusStyle = _statusStyle(_currentStatus);
     final isPending = _currentStatus == 'PENDING';
     final isConfirmed =
@@ -226,7 +225,8 @@ class _PartnerBookingDetailPageState
         ),
         title: Text(
           'Booking Details',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -271,7 +271,8 @@ class _PartnerBookingDetailPageState
                       children: [
                         Text(
                           'Service Details',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: _valueColor,
@@ -291,7 +292,8 @@ class _PartnerBookingDetailPageState
                             ),
                             child: Text(
                               _formatStatusLabel(_currentStatus),
-                              style: GoogleFonts.urbanist(
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: statusStyle.$2,
@@ -339,7 +341,11 @@ class _PartnerBookingDetailPageState
                           ),
                         ],
                         const SizedBox(height: 16),
-                        const Divider(height: 1, thickness: 1, color: _cardBorder),
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: _cardBorder,
+                        ),
                         const SizedBox(height: 16),
                         _DetailRow(
                           label: 'Booking Reference',
@@ -385,7 +391,8 @@ class _PartnerBookingDetailPageState
                                       alignment: Alignment.center,
                                       child: Text(
                                         _initials(customerName),
-                                        style: GoogleFonts.urbanist(
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
@@ -398,7 +405,8 @@ class _PartnerBookingDetailPageState
                                     alignment: Alignment.center,
                                     child: Text(
                                       _initials(customerName),
-                                      style: GoogleFonts.urbanist(
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
@@ -414,7 +422,8 @@ class _PartnerBookingDetailPageState
                             children: [
                               Text(
                                 customerName,
-                                style: GoogleFonts.urbanist(
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: _valueColor,
@@ -424,7 +433,8 @@ class _PartnerBookingDetailPageState
                                 const SizedBox(height: 4),
                                 Text(
                                   phone,
-                                  style: GoogleFonts.urbanist(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                     color: _labelColor,
@@ -489,8 +499,8 @@ class _PartnerBookingDetailPageState
                         label: isPending
                             ? 'Confirm Booking'
                             : isConfirmed
-                                ? 'Start Service'
-                                : 'Mark Completed',
+                            ? 'Start Service'
+                            : 'Mark Completed',
                         filled: true,
                         color: kPrimaryColor,
                         borderRadius: 999,
@@ -537,7 +547,8 @@ class _DetailRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: fontSize,
             fontWeight: FontWeight.w400,
             color: const Color(0xFF74767D),
@@ -547,13 +558,15 @@ class _DetailRow extends StatelessWidget {
         Expanded(
           child: Align(
             alignment: Alignment.centerRight,
-            child: child ??
+            child:
+                child ??
                 Text(
                   value ?? '—',
                   textAlign: TextAlign.right,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: fontSize,
                     fontWeight: compact ? FontWeight.w700 : FontWeight.w600,
                     color: compact
@@ -602,7 +615,8 @@ class _ActionButton extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: filled ? Colors.white : color,

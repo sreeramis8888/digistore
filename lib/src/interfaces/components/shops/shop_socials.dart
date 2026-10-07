@@ -27,7 +27,12 @@ class ShopSocials extends ConsumerWidget {
     final hasWhatsapp = whatsappNumber?.isNotEmpty == true;
     final hasEmail = email?.isNotEmpty == true;
 
-    if (!hasWebsite && !hasInstagram && !hasFacebook && !hasYoutube && !hasWhatsapp && !hasEmail) {
+    if (!hasWebsite &&
+        !hasInstagram &&
+        !hasFacebook &&
+        !hasYoutube &&
+        !hasWhatsapp &&
+        !hasEmail) {
       return const SizedBox.shrink();
     }
 
@@ -37,7 +42,6 @@ class ShopSocials extends ConsumerWidget {
         const Text(
           'Connect With Us',
           style: TextStyle(
-            fontFamily: 'Montserrat',
             fontSize: 16,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111827),
@@ -61,10 +65,17 @@ class ShopSocials extends ConsumerWidget {
                 svgAsset: 'assets/svg/whatsapp.svg',
                 label: 'WhatsApp',
                 onPressed: () {
-                  final cleanPhone = whatsappNumber!.replaceAll(RegExp(r'[^\d]'), '');
-                  final actualPhone = cleanPhone.length == 10 ? '91$cleanPhone' : cleanPhone;
-                  final message = "Hello, I would like to enquire about ${shop?.businessDetails?.businessName ?? 'your shop'}.";
-                  final url = "https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}";
+                  final cleanPhone = whatsappNumber!.replaceAll(
+                    RegExp(r'[^\d]'),
+                    '',
+                  );
+                  final actualPhone = cleanPhone.length == 10
+                      ? '91$cleanPhone'
+                      : cleanPhone;
+                  final message =
+                      "Hello, I would like to enquire about ${shop?.businessDetails?.businessName ?? 'your shop'}.";
+                  final url =
+                      "https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}";
                   launchURL(url);
                 },
                 screenSize: screenSize,
@@ -154,16 +165,11 @@ class _SocialButton extends StatelessWidget {
                   colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                 )
               else
-                Icon(
-                  iconData ?? Icons.link,
-                  size: 16,
-                  color: color,
-                ),
+                Icon(iconData ?? Icons.link, size: 16, color: color),
               SizedBox(width: screenSize.responsivePadding(6)),
               Text(
                 label,
                 style: TextStyle(
-                  fontFamily: 'Montserrat',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: color,

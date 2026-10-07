@@ -210,9 +210,8 @@ class _PartnerQrScannerPageState extends ConsumerState<PartnerQrScannerPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(
-        child: CircularProgressIndicator(color: kPrimaryColor),
-      ),
+      builder: (_) =>
+          const Center(child: CircularProgressIndicator(color: kPrimaryColor)),
     );
 
     final response = await ref
@@ -230,8 +229,8 @@ class _PartnerQrScannerPageState extends ConsumerState<PartnerQrScannerPage> {
       final data = response.data?['data'] is Map
           ? Map<String, dynamic>.from(response.data!['data'] as Map)
           : (response.data is Map
-              ? Map<String, dynamic>.from(response.data as Map)
-              : <String, dynamic>{});
+                ? Map<String, dynamic>.from(response.data as Map)
+                : <String, dynamic>{});
 
       ToastService().showToast(
         context,
@@ -288,10 +287,9 @@ class _PartnerQrScannerPageState extends ConsumerState<PartnerQrScannerPage> {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     } else {
-      Navigator.of(context).pushReplacementNamed(
-        'partnerRedemption',
-        arguments: widget.args,
-      );
+      Navigator.of(
+        context,
+      ).pushReplacementNamed('partnerRedemption', arguments: widget.args);
     }
   }
 
@@ -311,10 +309,7 @@ class _PartnerQrScannerPageState extends ConsumerState<PartnerQrScannerPage> {
             ),
             const SizedBox(height: 24),
             if (_fatalError?.contains('settings') == true)
-              PrimaryButton(
-                text: 'Open Settings',
-                onPressed: openAppSettings,
-              ),
+              PrimaryButton(text: 'Open Settings', onPressed: openAppSettings),
             const SizedBox(height: 12),
             PrimaryButton(
               text: 'Go Back',
@@ -374,94 +369,86 @@ class _PartnerQrScannerPageState extends ConsumerState<PartnerQrScannerPage> {
         ],
       ),
       body: _starting
-          ? const Center(
-              child: CircularProgressIndicator(color: kPrimaryColor),
-            )
+          ? const Center(child: CircularProgressIndicator(color: kPrimaryColor))
           : _fatalError != null
-              ? _buildFatalError()
-              : Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (_controller != null)
-                      MobileScanner(
-                        controller: _controller!,
-                        onDetect: _onDetect,
-                        errorBuilder: (context, error) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Text(
-                                error.errorDetails?.message ??
-                                    error.errorCode.message,
-                                textAlign: TextAlign.center,
-                                style: kSmallTitleM.copyWith(
-                                  color: Colors.white,
-                                ),
+          ? _buildFatalError()
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                if (_controller != null)
+                  MobileScanner(
+                    controller: _controller!,
+                    onDetect: _onDetect,
+                    errorBuilder: (context, error) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            error.errorDetails?.message ??
+                                error.errorCode.message,
+                            textAlign: TextAlign.center,
+                            style: kSmallTitleM.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                CustomPaint(
+                  painter: _ScanOverlayPainter(),
+                  child: const SizedBox.expand(),
+                ),
+                Positioned(
+                  left: 24,
+                  right: 24,
+                  bottom: screenSize.responsivePadding(48),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.65),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Point at the customer\'s redemption QR',
+                              textAlign: TextAlign.center,
+                              style: kSmallTitleM.copyWith(color: Colors.white),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: kSmallerTitleM.copyWith(
+                                color: Colors.white70,
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    CustomPaint(
-                      painter: _ScanOverlayPainter(),
-                      child: const SizedBox.expand(),
-                    ),
-                    Positioned(
-                      left: 24,
-                      right: 24,
-                      bottom: screenSize.responsivePadding(48),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.65),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Point at the customer\'s redemption QR',
-                                  textAlign: TextAlign.center,
-                                  style: kSmallTitleM.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  title,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: kSmallerTitleM.copyWith(
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'QR expires ~5 minutes after generation',
-                                  textAlign: TextAlign.center,
-                                  style: kSmallerTitleM.copyWith(
-                                    color: Colors.white54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (_isProcessing) ...[
-                            const SizedBox(height: 16),
-                            const CircularProgressIndicator(
-                              color: kPrimaryColor,
+                            const SizedBox(height: 4),
+                            Text(
+                              'QR expires ~5 minutes after generation',
+                              textAlign: TextAlign.center,
+                              style: kSmallerTitleM.copyWith(
+                                color: Colors.white54,
+                              ),
                             ),
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                      if (_isProcessing) ...[
+                        const SizedBox(height: 16),
+                        const CircularProgressIndicator(color: kPrimaryColor),
+                      ],
+                    ],
+                  ),
                 ),
+              ],
+            ),
     );
   }
 }
@@ -522,10 +509,7 @@ class _SaleAmountSheetState extends State<_SaleAmountSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          Text(
-            'Enter bill amount',
-            style: kSubHeadingM.copyWith(fontSize: 18),
-          ),
+          Text('Enter bill amount', style: kSubHeadingM.copyWith(fontSize: 18)),
           const SizedBox(height: 8),
           Text(
             'Required to calculate customer points for this redemption.',
@@ -542,10 +526,7 @@ class _SaleAmountSheetState extends State<_SaleAmountSheet> {
             ],
           ),
           const SizedBox(height: 24),
-          PrimaryButton(
-            text: 'Confirm & Redeem',
-            onPressed: _confirm,
-          ),
+          PrimaryButton(text: 'Confirm & Redeem', onPressed: _confirm),
           const SizedBox(height: 8),
           TextButton(
             onPressed: () {

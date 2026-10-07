@@ -9,11 +9,7 @@ class SupportTicketDetailPage extends ConsumerStatefulWidget {
   final SupportTicketModel? initialTicket;
   final String? ticketId;
 
-  const SupportTicketDetailPage({
-    super.key,
-    this.initialTicket,
-    this.ticketId,
-  });
+  const SupportTicketDetailPage({super.key, this.initialTicket, this.ticketId});
 
   @override
   ConsumerState<SupportTicketDetailPage> createState() =>
@@ -101,7 +97,8 @@ class _SupportTicketDetailPageState
     final targetId = widget.initialTicket?.id ?? widget.ticketId;
     final ticket = ticketsState.tickets.firstWhere(
       (t) => t.id == targetId,
-      orElse: () => widget.initialTicket ??
+      orElse: () =>
+          widget.initialTicket ??
           SupportTicketModel(
             id: targetId ?? '',
             subject: 'Loading ticket details...',
@@ -217,7 +214,9 @@ class _SupportTicketDetailPageState
                   ? Center(
                       child: Text(
                         'No messages yet',
-                        style: kSmallTitleL.copyWith(color: kSecondaryTextColor),
+                        style: kSmallTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
                       ),
                     )
                   : ListView.builder(
@@ -267,7 +266,10 @@ class _SupportTicketDetailPageState
               )
             else
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: const BoxDecoration(
                   color: kWhite,
                   border: Border(
@@ -361,8 +363,9 @@ class _SupportTicketDetailPageState
         ),
         margin: const EdgeInsets.only(bottom: 12),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,

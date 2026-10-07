@@ -59,7 +59,10 @@ class MapLocationNotifier extends StateNotifier<MapLocationState> {
         ),
       );
 
-  Future<void> initLocation(LatLng? initialCenter, String? initialLocalBody) async {
+  Future<void> initLocation(
+    LatLng? initialCenter,
+    String? initialLocalBody,
+  ) async {
     if (initialCenter != null) {
       await updateLocation(initialCenter);
     } else {

@@ -11,7 +11,6 @@ import '../../components/home/explore_category_card.dart';
 import '../../components/loading_indicator.dart';
 import 'category_offers_page.dart';
 
-
 class CategoriesGridPage extends ConsumerStatefulWidget {
   const CategoriesGridPage({super.key});
 
@@ -52,7 +51,6 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +96,7 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
                 decoration: BoxDecoration(
                   color: kField,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: kBorder.withValues(alpha: 0.6),
-                  ),
+                  border: Border.all(color: kBorder.withValues(alpha: 0.6)),
                 ),
                 child: Row(
                   children: [
@@ -149,8 +145,7 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
 
                   // Option for "All Offers" at index 0
                   if (_searchQuery.isEmpty ||
-                      'all offers'
-                          .contains(_searchQuery.toLowerCase())) {
+                      'all offers'.contains(_searchQuery.toLowerCase())) {
                     items.add(
                       const MapEntry(0, CategoryModel(name: 'All Offers')),
                     );
@@ -161,9 +156,9 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
                     final cat = categories[i];
                     final catName = cat.name ?? '';
                     if (_searchQuery.isEmpty ||
-                        catName
-                            .toLowerCase()
-                            .contains(_searchQuery.toLowerCase())) {
+                        catName.toLowerCase().contains(
+                          _searchQuery.toLowerCase(),
+                        )) {
                       items.add(MapEntry(i + 1, cat));
                     }
                   }
@@ -224,7 +219,8 @@ class _CategoriesGridPageState extends ConsumerState<CategoriesGridPage> {
                           width: double.infinity,
                           height: double.infinity,
                           iconSize: screenSize.responsivePadding(68),
-                          fallbackAsset: _categoryIcons[category.name] ??
+                          fallbackAsset:
+                              _categoryIcons[category.name] ??
                               'assets/svg/daily_needs.svg',
                         ),
                       );

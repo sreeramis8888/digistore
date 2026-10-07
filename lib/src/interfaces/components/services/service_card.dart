@@ -31,10 +31,10 @@ class ServiceCard extends ConsumerWidget {
     final shopName = hideShopInfo
         ? null
         : ((rawPartnerName != null &&
-                rawPartnerName.isNotEmpty &&
-                rawPartnerName.toLowerCase() != 'setgo partner')
-            ? rawPartnerName
-            : null);
+                  rawPartnerName.isNotEmpty &&
+                  rawPartnerName.toLowerCase() != 'setgo partner')
+              ? rawPartnerName
+              : null);
 
     String categoryName = service.categoryName ?? service.category ?? '';
     if (categoryName.isEmpty ||
@@ -177,38 +177,38 @@ class ServiceCard extends ConsumerWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                              Text(
-                                priceStr,
-                                style: kSmallerTitleM.copyWith(
-                                  color: const Color(0xFF4E4E4E),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    ratingLabel,
-                                    style: kSmallerTitleL.copyWith(
-                                      color: const Color(0xFF4E4E4E),
-                                      fontSize: 11,
-                                      fontWeight: hasRating
-                                          ? FontWeight.w400
-                                          : FontWeight.w600,
-                                    ),
+                                Text(
+                                  priceStr,
+                                  style: kSmallerTitleM.copyWith(
+                                    color: const Color(0xFF4E4E4E),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  if (hasRating) ...[
-                                    const SizedBox(width: 2),
-                                    const Icon(
-                                      Icons.star_rounded,
-                                      size: 14,
-                                      color: Color(0xFFFFCB2B),
+                                ),
+                                const SizedBox(width: 6),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      ratingLabel,
+                                      style: kSmallerTitleL.copyWith(
+                                        color: const Color(0xFF4E4E4E),
+                                        fontSize: 11,
+                                        fontWeight: hasRating
+                                            ? FontWeight.w400
+                                            : FontWeight.w600,
+                                      ),
                                     ),
+                                    if (hasRating) ...[
+                                      const SizedBox(width: 2),
+                                      const Icon(
+                                        Icons.star_rounded,
+                                        size: 14,
+                                        color: Color(0xFFFFCB2B),
+                                      ),
+                                    ],
                                   ],
-                                ],
-                              ),
+                                ),
                               ],
                             ),
                           ),

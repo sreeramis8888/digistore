@@ -1,3 +1,5 @@
+import '../utils/name_case.dart';
+
 class BusinessDetails {
   final String? businessName;
   final String? businessType;
@@ -19,15 +21,15 @@ class BusinessDetails {
 
   factory BusinessDetails.fromJson(Map<String, dynamic> json) {
     return BusinessDetails(
-      businessName: json['businessName'] as String?,
+      businessName: NameCase.maybe(json['businessName']?.toString()),
       businessType: json['businessType'] is Map
-          ? (json['businessType'] as Map<String, dynamic>)['name'] as String?
-          : json['businessType'] as String?,
+          ? NameCase.maybe((json['businessType'] as Map)['name']?.toString())
+          : NameCase.maybe(json['businessType']?.toString()),
       registrationNumber: json['registrationNumber'] as String?,
       gstNumber: json['gstNumber'] as String?,
       address: json['address'] as String?,
       pincode: json['pincode'] as String?,
-      district: json['district'] as String?,
+      district: NameCase.maybe(json['district']?.toString()),
     );
   }
 

@@ -208,7 +208,6 @@ class RewardCard extends ConsumerWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF111827),
@@ -223,7 +222,6 @@ class RewardCard extends ConsumerWidget {
                       Text(
                         subtitle,
                         style: const TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -236,7 +234,10 @@ class RewardCard extends ConsumerWidget {
                     ],
                     const Spacer(),
                     if (isClaimed)
-                      _ClaimedBadge(couponCode: couponCode, screenSize: screenSize)
+                      _ClaimedBadge(
+                        couponCode: couponCode,
+                        screenSize: screenSize,
+                      )
                     else
                       _ClaimButton(
                         points: points,
@@ -285,7 +286,6 @@ class _ClaimButton extends StatelessWidget {
               child: Text(
                 'Get it for $points',
                 style: const TextStyle(
-                  fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w700,
                   color: kWhite,
                   fontSize: 12,
@@ -311,10 +311,7 @@ class _ClaimedBadge extends StatelessWidget {
   final String? couponCode;
   final ScreenSizeData screenSize;
 
-  const _ClaimedBadge({
-    required this.couponCode,
-    required this.screenSize,
-  });
+  const _ClaimedBadge({required this.couponCode, required this.screenSize});
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +326,6 @@ class _ClaimedBadge extends StatelessWidget {
       child: Text(
         couponCode != null ? 'Code: $couponCode' : 'Claimed',
         style: const TextStyle(
-          fontFamily: 'Montserrat',
           fontWeight: FontWeight.w700,
           color: kRewardCtaPurple,
           fontSize: 12,

@@ -27,8 +27,12 @@ class BannerFilter {
   String toString() => 'BannerFilter(page: $page, category: $category)';
 }
 
-final bannersProvider = FutureProvider.family<List<BannerModel>, BannerFilter>((ref, filter) async {
-  if (GlobalVariables.isPartner || ref.watch(userTypeProvider) == UserType.partner) {
+final bannersProvider = FutureProvider.family<List<BannerModel>, BannerFilter>((
+  ref,
+  filter,
+) async {
+  if (GlobalVariables.isPartner ||
+      ref.watch(userTypeProvider) == UserType.partner) {
     return [];
   }
   try {
@@ -37,7 +41,9 @@ final bannersProvider = FutureProvider.family<List<BannerModel>, BannerFilter>((
     if (filter.page != null && filter.page!.isNotEmpty) {
       queryParams['page'] = filter.page!;
     }
-    if (filter.category != null && filter.category!.isNotEmpty && filter.category != 'All') {
+    if (filter.category != null &&
+        filter.category!.isNotEmpty &&
+        filter.category != 'All') {
       queryParams['category'] = filter.category!;
     }
 
@@ -54,7 +60,11 @@ final bannersProvider = FutureProvider.family<List<BannerModel>, BannerFilter>((
 List<BannerModel> parseBannersFromResponse(Map<String, dynamic> responseData) {
   dynamic rawList = responseData['data'];
   if (rawList is Map) {
-    rawList = rawList['banners'] ?? rawList['all'] ?? rawList['data'] ?? rawList['list'];
+    rawList =
+        rawList['banners'] ??
+        rawList['all'] ??
+        rawList['data'] ??
+        rawList['list'];
     if (rawList is Map) {
       rawList = rawList['all'] ?? rawList['banners'] ?? rawList['data'];
     }

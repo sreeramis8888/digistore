@@ -235,11 +235,7 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage>
     }
 
     return IconButton(
-      icon: const Icon(
-        Icons.arrow_forward_rounded,
-        color: kGrey,
-        size: 20,
-      ),
+      icon: const Icon(Icons.arrow_forward_rounded, color: kGrey, size: 20),
       onPressed: () {
         FocusManager.instance.primaryFocus?.unfocus();
         _submitSearch(_searchController.text);
@@ -255,8 +251,7 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage>
       return const SizedBox.shrink();
     }
 
-    final maxOverlayHeight =
-        (constraints.maxHeight - 24).clamp(140.0, 360.0);
+    final maxOverlayHeight = (constraints.maxHeight - 24).clamp(140.0, 360.0);
 
     return Positioned(
       top: 8,
@@ -300,133 +295,132 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage>
                   ),
                 )
               : _suggestions.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 20.0,
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 20.0,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF3F4F6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.location_off_outlined,
+                          size: 20,
+                          color: Color(0xFF9CA3AF),
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF3F4F6),
-                              shape: BoxShape.circle,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'No locations found',
+                              style: kSmallTitleM.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: kBlack,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.location_off_outlined,
-                              size: 20,
+                            const SizedBox(height: 2),
+                            Text(
+                              'Try searching with city or area name',
+                              style: kSmallerTitleL.copyWith(
+                                color: const Color(0xFF6B7280),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  shrinkWrap: true,
+                  itemCount: _suggestions.length,
+                  separatorBuilder: (context, index) => const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFF3F4F6),
+                    indent: 52,
+                    endIndent: 16,
+                  ),
+                  itemBuilder: (context, index) {
+                    final item = _suggestions[index];
+                    return InkWell(
+                      onTap: () => _selectSuggestion(item),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14.0,
+                          vertical: 10.0,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: kPrimaryColor.withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(
+                                Icons.location_on_rounded,
+                                size: 18,
+                                color: kPrimaryColor,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    item.title,
+                                    style: kBodyTitleM.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: kBlack,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (item.subtitle.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item.subtitle,
+                                      style: kSmallTitleL.copyWith(
+                                        fontSize: 12,
+                                        color: const Color(0xFF6B7280),
+                                        height: 1.2,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.arrow_outward_rounded,
+                              size: 16,
                               color: Color(0xFF9CA3AF),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'No locations found',
-                                  style: kSmallTitleM.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: kBlack,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Try searching with city or area name',
-                                  style: kSmallerTitleL.copyWith(
-                                    color: const Color(0xFF6B7280),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      shrinkWrap: true,
-                      itemCount: _suggestions.length,
-                      separatorBuilder: (context, index) => const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: Color(0xFFF3F4F6),
-                        indent: 52,
-                        endIndent: 16,
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = _suggestions[index];
-                        return InkWell(
-                          onTap: () => _selectSuggestion(item),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14.0,
-                              vertical: 10.0,
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: kPrimaryColor.withOpacity(0.08),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.location_on_rounded,
-                                    size: 18,
-                                    color: kPrimaryColor,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        item.title,
-                                        style: kBodyTitleM.copyWith(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: kBlack,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      if (item.subtitle.isNotEmpty) ...[
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          item.subtitle,
-                                          style: kSmallTitleL.copyWith(
-                                            fontSize: 12,
-                                            color: const Color(0xFF6B7280),
-                                            height: 1.2,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.arrow_outward_rounded,
-                                  size: 16,
-                                  color: Color(0xFF9CA3AF),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    );
+                  },
+                ),
         ),
       ),
     );
@@ -492,10 +486,7 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage>
               mapState.address.isNotEmpty
                   ? mapState.address
                   : 'Move map to select location',
-              style: kBodyTitleR.copyWith(
-                color: kTextColor,
-                fontSize: 13,
-              ),
+              style: kBodyTitleR.copyWith(color: kTextColor, fontSize: 13),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -549,7 +540,8 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage>
       }
 
       if (next.errorReason == LocationErrorReason.permissionPermanentlyDenied &&
-          prev?.errorReason != LocationErrorReason.permissionPermanentlyDenied) {
+          prev?.errorReason !=
+              LocationErrorReason.permissionPermanentlyDenied) {
         _showPermissionPermanentlyDeniedDialog();
       } else if (next.errorReason == LocationErrorReason.serviceDisabled &&
           prev?.errorReason != LocationErrorReason.serviceDisabled) {
@@ -678,8 +670,7 @@ class _MapLocationPickerPageState extends ConsumerState<MapLocationPickerPage>
                               await ref
                                   .read(mapLocationProvider.notifier)
                                   .determineCurrentLocation();
-                              final mapLocState =
-                                  ref.read(mapLocationProvider);
+                              final mapLocState = ref.read(mapLocationProvider);
                               if (mapLocState.errorReason ==
                                   LocationErrorReason.none) {
                                 _mapController.move(mapLocState.center, 15.0);

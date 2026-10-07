@@ -30,7 +30,8 @@ class VideoBannerPlayer extends StatefulWidget {
   State<VideoBannerPlayer> createState() => _VideoBannerPlayerState();
 }
 
-class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKeepAliveClientMixin<VideoBannerPlayer> {
+class _VideoBannerPlayerState extends State<VideoBannerPlayer>
+    with AutomaticKeepAliveClientMixin<VideoBannerPlayer> {
   VideoPlayerController? _controller;
   bool _isInitialized = false;
   bool _hasError = false;
@@ -40,7 +41,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
 
   bool _isVisible = false;
   bool _isManuallyPaused = false;
-  
+
   bool _isUsingCachedFile = false;
   Timer? _cacheTimer;
   StreamSubscription? _downloadSubscription;
@@ -57,8 +58,10 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
 
   Future<void> _initializePlayer() async {
     try {
-      final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
-      
+      final fileInfo = await DefaultCacheManager().getFileFromCache(
+        widget.videoUrl,
+      );
+
       if (!mounted) return;
 
       if (fileInfo != null) {
@@ -66,7 +69,9 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
         _controller = VideoPlayerController.file(fileInfo.file);
       } else {
         _isUsingCachedFile = false;
-        _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+        _controller = VideoPlayerController.networkUrl(
+          Uri.parse(widget.videoUrl),
+        );
       }
 
       await _controller!.initialize();
@@ -93,7 +98,11 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
   void _handlePlaybackState() {
     if (_controller == null || !_isInitialized) return;
 
-    final shouldPlay = widget.isActivePage && _isVisible && widget.autoplay && !_isManuallyPaused;
+    final shouldPlay =
+        widget.isActivePage &&
+        _isVisible &&
+        widget.autoplay &&
+        !_isManuallyPaused;
     if (shouldPlay) {
       if (!_controller!.value.isPlaying) {
         _controller!.play();
@@ -108,7 +117,10 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
   }
 
   void _triggerCacheTimerIfNeeded() {
-    if (_isUsingCachedFile || _cacheTimer != null || _downloadSubscription != null) return;
+    if (_isUsingCachedFile ||
+        _cacheTimer != null ||
+        _downloadSubscription != null)
+      return;
 
     _cacheTimer = Timer(const Duration(seconds: 3), () {
       _startBackgroundDownload();
@@ -118,18 +130,20 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
   void _startBackgroundDownload() {
     if (_downloadSubscription != null) return;
 
-    _downloadSubscription = DefaultCacheManager().getFileStream(widget.videoUrl).listen(
-      (fileResponse) {
-        if (fileResponse is FileInfo) {
-          _isUsingCachedFile = true;
-          _cancelCacheAndDownload();
-        }
-      },
-      onError: (e) {
-        _cancelCacheAndDownload();
-      },
-      cancelOnError: true,
-    );
+    _downloadSubscription = DefaultCacheManager()
+        .getFileStream(widget.videoUrl)
+        .listen(
+          (fileResponse) {
+            if (fileResponse is FileInfo) {
+              _isUsingCachedFile = true;
+              _cancelCacheAndDownload();
+            }
+          },
+          onError: (e) {
+            _cancelCacheAndDownload();
+          },
+          cancelOnError: true,
+        );
   }
 
   void _cancelCacheAndDownload() {
@@ -159,9 +173,9 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
 
   Future<void> _togglePlayPause() async {
     if (_controller == null || !_isInitialized) return;
-    
+
     final isPlaying = _controller!.value.isPlaying;
-    
+
     if (isPlaying) {
       await _controller!.pause();
       if (!mounted) return;
@@ -251,11 +265,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
                       color: Colors.black.withOpacity(0.5),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      _overlayIcon,
-                      color: Colors.white,
-                      size: 36,
-                    ),
+                    child: Icon(_overlayIcon, color: Colors.white, size: 36),
                   ),
                 ),
               ),
@@ -315,9 +325,7 @@ class _VideoBannerPlayerState extends State<VideoBannerPlayer> with AutomaticKee
                       alignment: Alignment.centerLeft,
                       child: FractionallySizedBox(
                         widthFactor: progress.clamp(0.0, 1.0),
-                        child: Container(
-                          color: kPrimaryColor,
-                        ),
+                        child: Container(color: kPrimaryColor),
                       ),
                     );
                   },

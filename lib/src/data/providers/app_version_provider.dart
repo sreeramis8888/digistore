@@ -45,7 +45,8 @@ class AppVersionCheckResult {
   });
 }
 
-class AppVersionNotifier extends StateNotifier<AsyncValue<AppVersionCheckResult>> {
+class AppVersionNotifier
+    extends StateNotifier<AsyncValue<AppVersionCheckResult>> {
   final ApiProvider _api;
 
   AppVersionNotifier(this._api) : super(const AsyncValue.loading());
@@ -53,45 +54,54 @@ class AppVersionNotifier extends StateNotifier<AsyncValue<AppVersionCheckResult>
   Future<AppVersionCheckResult> checkAppVersion() async {
     try {
       state = const AsyncValue.loading();
-      
+
       String platform = Platform.isIOS ? 'ios' : 'android';
-      final response = await _api.get('/app-version?platform=$platform', requireAuth: false);
-      
-      if (!response.success || response.data == null || response.data!['data'] == null) {
+      final response = await _api.get(
+        '/app-version?platform=$platform',
+        requireAuth: false,
+      );
+
+      if (!response.success ||
+          response.data == null ||
+          response.data!['data'] == null) {
         final res = AppVersionCheckResult(
-          needsHardUpdate: false, 
-          needsSoftUpdate: false, 
-          isMaintenanceMode: false
+          needsHardUpdate: false,
+          needsSoftUpdate: false,
+          isMaintenanceMode: false,
         );
         state = AsyncValue.data(res);
         return res;
       }
 
       final appVersionData = AppVersionData.fromJson(response.data!['data']);
-      
+
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       String currentVersion = packageInfo.version;
-      
+
       log('Current App Version: $currentVersion', name: 'AppVersionProvider');
 
-      bool needsHardUpdate = _compareVersions(currentVersion, appVersionData.minSupportedVersion) < 0;
-      bool needsSoftUpdate = !needsHardUpdate && _compareVersions(currentVersion, appVersionData.latestVersion) < 0;
-      
+      bool needsHardUpdate =
+          _compareVersions(currentVersion, appVersionData.minSupportedVersion) <
+          0;
+      bool needsSoftUpdate =
+          !needsHardUpdate &&
+          _compareVersions(currentVersion, appVersionData.latestVersion) < 0;
+
       final result = AppVersionCheckResult(
         needsHardUpdate: needsHardUpdate,
         needsSoftUpdate: needsSoftUpdate,
         isMaintenanceMode: appVersionData.isMaintenanceMode,
         data: appVersionData,
       );
-      
+
       state = AsyncValue.data(result);
       return result;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       return AppVersionCheckResult(
-        needsHardUpdate: false, 
-        needsSoftUpdate: false, 
-        isMaintenanceMode: false
+        needsHardUpdate: false,
+        needsSoftUpdate: false,
+        isMaintenanceMode: false,
       );
     }
   }
@@ -110,7 +120,11 @@ class AppVersionNotifier extends StateNotifier<AsyncValue<AppVersionCheckResult>
   }
 }
 
-final appVersionProvider = StateNotifierProvider<AppVersionNotifier, AsyncValue<AppVersionCheckResult>>((ref) {
-  final api = ref.watch(publicApiProvider);
-  return AppVersionNotifier(api);
-});
+final appVersionProvider =
+    StateNotifierProvider<
+      AppVersionNotifier,
+      AsyncValue<AppVersionCheckResult>
+    >((ref) {
+      final api = ref.watch(publicApiProvider);
+      return AppVersionNotifier(api);
+    });

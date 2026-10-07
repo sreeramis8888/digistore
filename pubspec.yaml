@@ -78,7 +78,6 @@ dependencies:
   visibility_detector: ^0.4.0+2
   package_info_plus: ^9.0.1
   flutter_displaymode: ^0.7.0
-  google_fonts: ^8.2.1
   razorpay_flutter: ^1.4.5
 
 dev_dependencies:
@@ -105,25 +104,25 @@ flutter:
     - assets/jpg/
 
   fonts:
-    - family: Inter
+    - family: Poppins
       fonts:
-        - asset: assets/fonts/Inter/Inter_18pt-Thin.ttf
+        - asset: assets/fonts/Poppins/Poppins-Thin.ttf
           weight: 100
-        - asset: assets/fonts/Inter/Inter_18pt-ExtraLight.ttf
+        - asset: assets/fonts/Poppins/Poppins-ExtraLight.ttf
           weight: 200
-        - asset: assets/fonts/Inter/Inter_18pt-Light.ttf
+        - asset: assets/fonts/Poppins/Poppins-Light.ttf
           weight: 300
-        - asset: assets/fonts/Inter/Inter_18pt-Regular.ttf
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Inter/Inter_18pt-Medium.ttf
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Inter/Inter_18pt-SemiBold.ttf
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Inter/Inter_18pt-Bold.ttf
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Inter/Inter_18pt-ExtraBold.ttf
+        - asset: assets/fonts/Poppins/Poppins-ExtraBold.ttf
           weight: 800
-        - asset: assets/fonts/Inter/Inter_18pt-Black.ttf
+        - asset: assets/fonts/Poppins/Poppins-Black.ttf
           weight: 900
 
 flutter_launcher_icons:

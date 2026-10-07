@@ -33,8 +33,10 @@ class _ShopOperatingHoursState extends ConsumerState<ShopOperatingHours>
       parent: _controller,
       curve: Curves.easeInOut,
     );
-    _iconAnimation =
-        Tween<double>(begin: 0.0, end: 0.5).animate(_expandAnimation);
+    _iconAnimation = Tween<double>(
+      begin: 0.0,
+      end: 0.5,
+    ).animate(_expandAnimation);
   }
 
   @override
@@ -170,10 +172,7 @@ class _ShopOperatingHoursState extends ConsumerState<ShopOperatingHours>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Operating Hours',
-                            style: kSmallTitleSB,
-                          ),
+                          Text('Operating Hours', style: kSmallTitleSB),
                           SizedBox(height: screenSize.responsivePadding(4)),
                           Row(
                             children: [
@@ -248,9 +247,9 @@ class _ShopOperatingHoursState extends ConsumerState<ShopOperatingHours>
                               _getDayName(dayIndex),
                               style: isToday
                                   ? kSmallerTitleSB.copyWith(
-                                      color: kPrimaryColor)
-                                  : kSmallerTitleM.copyWith(
-                                      color: kTextColor),
+                                      color: kPrimaryColor,
+                                    )
+                                  : kSmallerTitleM.copyWith(color: kTextColor),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(
@@ -261,15 +260,16 @@ class _ShopOperatingHoursState extends ConsumerState<ShopOperatingHours>
                                 color: isToday
                                     ? kPrimaryColor.withOpacity(0.1)
                                     : (isOpen
-                                        ? Colors.green.withOpacity(0.05)
-                                        : Colors.red.withOpacity(0.05)),
+                                          ? Colors.green.withOpacity(0.05)
+                                          : Colors.red.withOpacity(0.05)),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 hoursStr,
                                 style: isToday
                                     ? kSmallerTitleSB.copyWith(
-                                        color: kPrimaryColor)
+                                        color: kPrimaryColor,
+                                      )
                                     : kSmallerTitleM.copyWith(
                                         color: isOpen
                                             ? Colors.green[700]

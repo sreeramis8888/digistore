@@ -9,6 +9,7 @@ import 'section_title.dart';
 enum DealOfHourVariant {
   /// Pastel promo cards (Figma Style A)
   promo,
+
   /// White image cards (Figma Style B)
   cards,
 }
@@ -55,10 +56,7 @@ class DealOfHourSection extends ConsumerWidget {
             separatorBuilder: (_, _) => SizedBox(width: gap),
             itemBuilder: (context, index) {
               if (isPromo) {
-                return DealPromoCard(
-                  offer: offers[index],
-                  index: index,
-                );
+                return DealPromoCard(offer: offers[index], index: index);
               }
               return DealOfferCard(offer: offers[index]);
             },

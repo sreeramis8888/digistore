@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/models/category_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -69,7 +68,8 @@ class _ServiceCategorySelectionBottomSheetState
               children: [
                 Text(
                   widget.title,
-                  style: GoogleFonts.urbanist(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF111827),
@@ -89,23 +89,29 @@ class _ServiceCategorySelectionBottomSheetState
               controller: _searchController,
               hint: 'Search categories...',
               prefixIcon: const Icon(Icons.search, color: Color(0xFF9CA3AF)),
-              onChanged: (v) => setState(() => _searchQuery = v.trim().toLowerCase()),
+              onChanged: (v) =>
+                  setState(() => _searchQuery = v.trim().toLowerCase()),
             ),
           ),
           Expanded(
             child: categoriesAsync.when(
               data: (categories) {
                 final filtered = categories
-                    .where((c) =>
-                        (c.name?.toLowerCase().contains(_searchQuery) ?? false) ||
-                        (c.slug?.toLowerCase().contains(_searchQuery) ?? false))
+                    .where(
+                      (c) =>
+                          (c.name?.toLowerCase().contains(_searchQuery) ??
+                              false) ||
+                          (c.slug?.toLowerCase().contains(_searchQuery) ??
+                              false),
+                    )
                     .toList();
 
                 if (filtered.isEmpty) {
                   return Center(
                     child: Text(
                       'No categories found',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 14,
                         color: const Color(0xFF6B7280),
                       ),
@@ -124,7 +130,8 @@ class _ServiceCategorySelectionBottomSheetState
                   itemBuilder: (context, index) {
                     final cat = filtered[index];
                     final catName = cat.name ?? '';
-                    final isSelected = (widget.selectedCategoryId != null &&
+                    final isSelected =
+                        (widget.selectedCategoryId != null &&
                             widget.selectedCategoryId == cat.id) ||
                         (widget.selectedCategory != null &&
                             widget.selectedCategory!.toLowerCase() ==
@@ -141,9 +148,12 @@ class _ServiceCategorySelectionBottomSheetState
                       },
                       title: Text(
                         catName,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 15,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
                           color: isSelected
                               ? kPrimaryColor
                               : const Color(0xFF1F2937),
@@ -164,7 +174,8 @@ class _ServiceCategorySelectionBottomSheetState
                 );
               },
               loading: () => const Center(child: LoadingAnimation()),
-              error: (e, s) => const Center(child: Text('No categories available')),
+              error: (e, s) =>
+                  const Center(child: Text('No categories available')),
             ),
           ),
         ],

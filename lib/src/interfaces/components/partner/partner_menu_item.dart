@@ -1,6 +1,5 @@
 import 'package:setgo/src/data/utils/interactive_feedback_button.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 
 class PartnerMenuItem extends StatelessWidget {
@@ -25,8 +24,9 @@ class PartnerMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleColor =
-        isDestructive ? const Color(0xFFFF383C) : const Color(0xFF111827);
+    final titleColor = isDestructive
+        ? const Color(0xFFFF383C)
+        : const Color(0xFF111827);
 
     final row = InteractiveFeedbackButton(
       onPressed: onTap ?? () {},
@@ -35,16 +35,13 @@ class PartnerMenuItem extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: Center(child: icon),
-            ),
+            SizedBox(width: 20, height: 20, child: Center(child: icon)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: titleColor,

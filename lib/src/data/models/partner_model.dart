@@ -53,16 +53,23 @@ class PartnerModel {
       id: json['_id'] as String?,
       userId: json['userId'] as String?,
       businessDetails: json['businessDetails'] != null
-          ? BusinessDetails.fromJson(json['businessDetails'] as Map<String, dynamic>)
+          ? BusinessDetails.fromJson(
+              json['businessDetails'] as Map<String, dynamic>,
+            )
           : null,
       businessInfo: json['businessInfo'] != null
           ? BusinessInfo.fromJson(json['businessInfo'] as Map<String, dynamic>)
           : null,
       coverageAreas: json['coverageAreas'] != null
-          ? CoverageAreas.fromJson(json['coverageAreas'] as Map<String, dynamic>)
+          ? CoverageAreas.fromJson(
+              json['coverageAreas'] as Map<String, dynamic>,
+            )
           : null,
-      serviceCategories: json['serviceCategories'] != null ? List<String>.from(json['serviceCategories']) : null,
-      incomeSharingPercentage: (json['incomeSharingPercentage'] as num?)?.toDouble(),
+      serviceCategories: json['serviceCategories'] != null
+          ? List<String>.from(json['serviceCategories'])
+          : null,
+      incomeSharingPercentage: (json['incomeSharingPercentage'] as num?)
+          ?.toDouble(),
       verificationStatus: json['verificationStatus'] as String?,
       isActive: json['isActive'] as bool?,
       isFeatured: json['isFeatured'] as bool?,
@@ -72,13 +79,23 @@ class PartnerModel {
       convertedLeads: json['convertedLeads'] as int?,
       totalRevenue: (json['totalRevenue'] as num?)?.toDouble(),
       paymentDetails: json['paymentDetails'] != null
-          ? PaymentDetails.fromJson(json['paymentDetails'] as Map<String, dynamic>)
+          ? PaymentDetails.fromJson(
+              json['paymentDetails'] as Map<String, dynamic>,
+            )
           : null,
-      documents: json['documents'] != null ? PartnerDocuments.fromJson(json['documents'] as Map<String, dynamic>) : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'])?.toLocal() : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'])?.toLocal() : null,
+      documents: json['documents'] != null
+          ? PartnerDocuments.fromJson(json['documents'] as Map<String, dynamic>)
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])?.toLocal()
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])?.toLocal()
+          : null,
       devices: json['devices'] != null
-          ? (json['devices'] as List<dynamic>).map((e) => DeviceModel.fromJson(e as Map<String, dynamic>)).toList()
+          ? (json['devices'] as List<dynamic>)
+                .map((e) => DeviceModel.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }

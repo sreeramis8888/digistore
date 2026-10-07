@@ -46,7 +46,9 @@ class _SalesCalculatorPageState extends State<SalesCalculatorPage> {
           children: [
             InAppWebView(
               initialUrlRequest: URLRequest(
-                url: WebUri('https://register.setgoinnovations.com/sales-calculator'),
+                url: WebUri(
+                  'https://register.setgoinnovations.com/sales-calculator',
+                ),
               ),
               onWebViewCreated: (controller) {
                 webViewController = controller;

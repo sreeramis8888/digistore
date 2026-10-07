@@ -25,9 +25,22 @@ class StaggeredAnimationBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (direction) {
       Axis.vertical => Column(
-          children: List.generate(
-            children.length,
-            (index) => AnimatedWidgetWrapper(
+        children: List.generate(
+          children.length,
+          (index) => AnimatedWidgetWrapper(
+            animationType: animationType,
+            duration: duration,
+            curveType: curveType,
+            delayMilliseconds: index * staggerDelayMilliseconds,
+            child: children[index],
+          ),
+        ),
+      ),
+      Axis.horizontal => Row(
+        children: List.generate(
+          children.length,
+          (index) => Expanded(
+            child: AnimatedWidgetWrapper(
               animationType: animationType,
               duration: duration,
               curveType: curveType,
@@ -36,20 +49,7 @@ class StaggeredAnimationBuilder extends StatelessWidget {
             ),
           ),
         ),
-      Axis.horizontal => Row(
-          children: List.generate(
-            children.length,
-            (index) => Expanded(
-              child: AnimatedWidgetWrapper(
-                animationType: animationType,
-                duration: duration,
-                curveType: curveType,
-                delayMilliseconds: index * staggerDelayMilliseconds,
-                child: children[index],
-              ),
-            ),
-          ),
-        ),
+      ),
     };
   }
 }

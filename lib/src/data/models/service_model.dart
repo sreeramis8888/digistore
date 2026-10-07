@@ -1,3 +1,5 @@
+import '../utils/name_case.dart';
+
 class ServicePartnerModel {
   final String? id;
   final String? name;
@@ -30,7 +32,10 @@ class ServicePartnerModel {
     String? cityName;
 
     if (rawAddress is Map) {
-      addr1 = rawAddress['addressLine1']?.toString() ?? rawAddress['address']?.toString() ?? rawAddress['street']?.toString();
+      addr1 =
+          rawAddress['addressLine1']?.toString() ??
+          rawAddress['address']?.toString() ??
+          rawAddress['street']?.toString();
       cityName = rawAddress['city']?.toString();
       if (rawAddress['coordinates'] is List) {
         coords = (rawAddress['coordinates'] as List)
@@ -46,12 +51,18 @@ class ServicePartnerModel {
       cityName = bd['city']?.toString();
     }
 
-    String? logoUrl = json['logo']?.toString() ?? json['image']?.toString() ?? json['shopLogo']?.toString();
+    String? logoUrl =
+        json['logo']?.toString() ??
+        json['image']?.toString() ??
+        json['shopLogo']?.toString();
     if (logoUrl == null && json['businessInfo'] is Map) {
       logoUrl = json['businessInfo']['businessLogo']?.toString();
     }
 
-    String? partnerName = json['name']?.toString() ?? json['shopName']?.toString() ?? json['businessName']?.toString();
+    String? partnerName =
+        json['name']?.toString() ??
+        json['shopName']?.toString() ??
+        json['businessName']?.toString();
     if (partnerName == null && json['businessDetails'] is Map) {
       partnerName = json['businessDetails']['businessName']?.toString();
     }
@@ -65,12 +76,12 @@ class ServicePartnerModel {
 
     return ServicePartnerModel(
       id: (json['_id'] ?? json['id'])?.toString(),
-      name: partnerName ?? 'SetGo Partner',
-      category: json['category']?.toString(),
+      name: NameCase.maybe(partnerName),
+      category: NameCase.maybe(json['category']?.toString()),
       logo: logoUrl,
       phone: json['phone']?.toString(),
       addressLine1: addr1,
-      city: cityName,
+      city: NameCase.maybe(cityName),
       coordinates: coords,
       businessMode: json['businessMode']?.toString(),
       rating: rat,
@@ -113,11 +124,16 @@ class ServiceAddOnModel {
     if (json['price'] is num) {
       p = (json['price'] as num).toDouble();
     } else if (json['price'] != null) {
-      p = double.tryParse(json['price'].toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+      p =
+          double.tryParse(
+            json['price'].toString().replaceAll(RegExp(r'[^0-9.]'), ''),
+          ) ??
+          0.0;
     }
 
     int dur = 0;
-    final rawDur = json['durationMinutes'] ?? json['duration'] ?? json['duration_minutes'];
+    final rawDur =
+        json['durationMinutes'] ?? json['duration'] ?? json['duration_minutes'];
     if (rawDur is num) {
       dur = rawDur.toInt();
     } else if (rawDur != null) {
@@ -207,7 +223,7 @@ class ServiceModel {
       'thursday',
       'friday',
       'saturday',
-      'sunday'
+      'sunday',
     ],
     this.hasCustomHours = false,
     this.customStartTime,
@@ -221,7 +237,12 @@ class ServiceModel {
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
-    final rawPartner = json['partner'] ?? json['partnerId'] ?? json['partner_id'] ?? json['shop'] ?? json['store'];
+    final rawPartner =
+        json['partner'] ??
+        json['partnerId'] ??
+        json['partner_id'] ??
+        json['shop'] ??
+        json['store'];
     ServicePartnerModel? partnerModel;
     String? partnerIdStr;
 
@@ -229,7 +250,9 @@ class ServiceModel {
       partnerModel = ServicePartnerModel.fromJson(rawPartner);
       partnerIdStr = partnerModel.id;
     } else if (rawPartner is Map) {
-      partnerModel = ServicePartnerModel.fromJson(Map<String, dynamic>.from(rawPartner));
+      partnerModel = ServicePartnerModel.fromJson(
+        Map<String, dynamic>.from(rawPartner),
+      );
       partnerIdStr = partnerModel.id;
     } else if (rawPartner is String) {
       partnerIdStr = rawPartner;
@@ -249,12 +272,19 @@ class ServiceModel {
       return m != null ? int.tryParse(m.group(0)!) ?? def : def;
     }
 
-    final origPrice = parseDouble(json['originalPrice'] ?? json['price'] ?? json['mrp']);
+    final origPrice = parseDouble(
+      json['originalPrice'] ?? json['price'] ?? json['mrp'],
+    );
     final offPrice = json['offerPrice'] != null
         ? parseDouble(json['offerPrice'])
-        : (json['discountPrice'] != null ? parseDouble(json['discountPrice']) : null);
-    final effPrice = parseDouble(json['effectivePrice'] ?? offPrice ?? origPrice);
-    final hasOff = json['hasOffer'] == true || (offPrice != null && offPrice < origPrice);
+        : (json['discountPrice'] != null
+              ? parseDouble(json['discountPrice'])
+              : null);
+    final effPrice = parseDouble(
+      json['effectivePrice'] ?? offPrice ?? origPrice,
+    );
+    final hasOff =
+        json['hasOffer'] == true || (offPrice != null && offPrice < origPrice);
 
     List<String> imgList = [];
     if (json['images'] is List) {
@@ -265,19 +295,32 @@ class ServiceModel {
           imgList.add(img['url'].toString());
         }
       }
-    } else if (json['image'] is String && (json['image'] as String).isNotEmpty) {
+    } else if (json['image'] is String &&
+        (json['image'] as String).isNotEmpty) {
       imgList.add(json['image'].toString());
-    } else if (json['imageUrl'] is String && (json['imageUrl'] as String).isNotEmpty) {
+    } else if (json['imageUrl'] is String &&
+        (json['imageUrl'] as String).isNotEmpty) {
       imgList.add(json['imageUrl'].toString());
-    } else if (json['bannerImage'] is String && (json['bannerImage'] as String).isNotEmpty) {
+    } else if (json['bannerImage'] is String &&
+        (json['bannerImage'] as String).isNotEmpty) {
       imgList.add(json['bannerImage'].toString());
     }
 
     List<String> daysList = [];
     if (json['availableDays'] is List) {
-      daysList = (json['availableDays'] as List).map((e) => e.toString().toLowerCase()).toList();
+      daysList = (json['availableDays'] as List)
+          .map((e) => e.toString().toLowerCase())
+          .toList();
     } else {
-      daysList = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      daysList = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+      ];
     }
 
     final catId = json['categoryId']?.toString();
@@ -285,9 +328,15 @@ class ServiceModel {
     final subCat = json['subCategory']?.toString();
 
     String? catName;
-    final rawCat = json['category'] ?? json['categoryName'] ?? json['categoryId'];
+    final rawCat =
+        json['category'] ?? json['categoryName'] ?? json['categoryId'];
     if (rawCat is Map) {
-      catName = (rawCat['name'] ?? rawCat['category'] ?? rawCat['title'] ?? rawCat['_id'])?.toString();
+      catName =
+          (rawCat['name'] ??
+                  rawCat['category'] ??
+                  rawCat['title'] ??
+                  rawCat['_id'])
+              ?.toString();
     } else if (rawCat != null) {
       catName = rawCat.toString();
     }
@@ -302,23 +351,39 @@ class ServiceModel {
       }
     }
 
-    final rawAddons = json['addOns'] ?? json['addons'] ?? json['extras'] ?? json['subServices'];
+    final rawAddons =
+        json['addOns'] ??
+        json['addons'] ??
+        json['extras'] ??
+        json['subServices'];
     List<ServiceAddOnModel> addOnsList = [];
     if (rawAddons is List) {
       for (var a in rawAddons) {
         if (a is Map) {
-          addOnsList.add(ServiceAddOnModel.fromJson(Map<String, dynamic>.from(a)));
+          addOnsList.add(
+            ServiceAddOnModel.fromJson(Map<String, dynamic>.from(a)),
+          );
         }
       }
     }
 
-    final dur = parseInt(json['durationMinutes'] ?? json['duration'] ?? json['timeMinutes'] ?? json['duration_minutes'], 30);
-    final buf = parseInt(json['bufferMinutes'] ?? json['buffer'] ?? json['buffer_minutes'], 0);
+    final dur = parseInt(
+      json['durationMinutes'] ??
+          json['duration'] ??
+          json['timeMinutes'] ??
+          json['duration_minutes'],
+      30,
+    );
+    final buf = parseInt(
+      json['bufferMinutes'] ?? json['buffer'] ?? json['buffer_minutes'],
+      0,
+    );
 
     return ServiceModel(
       id: (json['_id'] ?? json['id'])?.toString(),
       partnerId: partnerIdStr,
-      name: (json['name'] ?? json['title'] ?? json['serviceName'] ?? 'Service').toString(),
+      name: (json['name'] ?? json['title'] ?? json['serviceName'] ?? 'Service')
+          .toString(),
       category: catName,
       categoryId: catId,
       categoryName: catNameExplicit ?? catName,
@@ -329,14 +394,21 @@ class ServiceModel {
       effectivePrice: effPrice,
       hasOffer: hasOff,
       offerType: json['offerType']?.toString(),
-      offerValue: json['offerValue'] != null ? parseDouble(json['offerValue']) : null,
+      offerValue: json['offerValue'] != null
+          ? parseDouble(json['offerValue'])
+          : null,
       offerPrice: offPrice,
-      savings: json['savings'] != null ? parseDouble(json['savings']) : (origPrice > effPrice ? origPrice - effPrice : 0),
+      savings: json['savings'] != null
+          ? parseDouble(json['savings'])
+          : (origPrice > effPrice ? origPrice - effPrice : 0),
       durationMinutes: dur > 0 ? dur : 30,
       bufferMinutes: buf,
       totalTimeMinutes: parseInt(json['totalTimeMinutes'], dur + buf),
       bookingType: json['bookingType']?.toString() ?? 'appointment',
-      maxConcurrentGuests: parseInt(json['maxConcurrentGuests'] ?? json['capacity'], 1),
+      maxConcurrentGuests: parseInt(
+        json['maxConcurrentGuests'] ?? json['capacity'],
+        1,
+      ),
       spaceLabel: json['spaceLabel']?.toString() ?? 'Chairs',
       availableDays: daysList,
       hasCustomHours: json['hasCustomHours'] == true,
@@ -448,16 +520,21 @@ class SlotsResponseModel {
   factory SlotsResponseModel.fromJson(Map<String, dynamic> json) {
     return SlotsResponseModel(
       partner: json['partner'] != null
-          ? ServicePartnerModel.fromJson(Map<String, dynamic>.from(json['partner']))
+          ? ServicePartnerModel.fromJson(
+              Map<String, dynamic>.from(json['partner']),
+            )
           : null,
       date: json['date']?.toString() ?? '',
-      requiredDurationMinutes: (json['requiredDurationMinutes'] as num?)?.toInt() ?? 30,
+      requiredDurationMinutes:
+          (json['requiredDurationMinutes'] as num?)?.toInt() ?? 30,
       isPartnerOpen: json['isPartnerOpen'] as bool? ?? true,
       availableSlotsCount: (json['availableSlotsCount'] as num?)?.toInt() ?? 0,
       slots: json['slots'] is List
           ? (json['slots'] as List)
-              .map((e) => TimeSlotModel.fromJson(Map<String, dynamic>.from(e)))
-              .toList()
+                .map(
+                  (e) => TimeSlotModel.fromJson(Map<String, dynamic>.from(e)),
+                )
+                .toList()
           : [],
     );
   }
@@ -480,7 +557,7 @@ class CustomerDetailsModel {
 
   factory CustomerDetailsModel.fromJson(Map<String, dynamic> json) {
     return CustomerDetailsModel(
-      name: json['name']?.toString() ?? '',
+      name: NameCase.toTitleCase(json['name']?.toString() ?? ''),
       phone: json['phone']?.toString() ?? '',
       notes: json['notes']?.toString(),
       email: json['email']?.toString(),
@@ -558,8 +635,9 @@ class BookingModel {
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     ServiceModel? serviceObj;
     if (json['service'] is Map) {
-      serviceObj =
-          ServiceModel.fromJson(Map<String, dynamic>.from(json['service']));
+      serviceObj = ServiceModel.fromJson(
+        Map<String, dynamic>.from(json['service']),
+      );
     }
 
     ServicePartnerModel? partnerObj;
@@ -652,32 +730,33 @@ class BookingModel {
                     : 'TK-1001'))
             .toString();
 
-    final notes = json['notes']?.toString() ??
-        customerMap?['notes']?.toString();
+    final notes =
+        json['notes']?.toString() ?? customerMap?['notes']?.toString();
 
     return BookingModel(
       id: idStr,
       bookingNumber: (json['bookingNumber'] ?? json['booking_number'] ?? '')
           .toString(),
       tokenNumber: token,
-      partnerId: (json['partnerId'] is Map
-              ? (json['partnerId']['_id'] ?? json['partnerId']['id'])
-              : (json['partnerId'] ?? json['partner_id']))
-          ?.toString(),
-      customerId: (json['userId'] is Map
-              ? (json['userId']['_id'] ?? json['userId']['id'])
-              : (json['userId'] ??
-                  json['customerId'] ??
-                  json['customer_id']))
-          ?.toString(),
+      partnerId:
+          (json['partnerId'] is Map
+                  ? (json['partnerId']['_id'] ?? json['partnerId']['id'])
+                  : (json['partnerId'] ?? json['partner_id']))
+              ?.toString(),
+      customerId:
+          (json['userId'] is Map
+                  ? (json['userId']['_id'] ?? json['userId']['id'])
+                  : (json['userId'] ??
+                        json['customerId'] ??
+                        json['customer_id']))
+              ?.toString(),
       partner: partnerObj,
       service: serviceObj,
       serviceNames: names,
       selectedAddOns: addOns,
       date: (json['bookingDate'] ?? json['date'] ?? '').toString(),
-      timeSlot:
-          (json['startTime'] ?? json['timeSlot'] ?? json['slot'] ?? '')
-              .toString(),
+      timeSlot: (json['startTime'] ?? json['timeSlot'] ?? json['slot'] ?? '')
+          .toString(),
       endTime: (json['endTime'] ?? '').toString(),
       durationMinutes: parseInt(
         json['totalDurationMinutes'] ??
@@ -685,14 +764,15 @@ class BookingModel {
             json['duration'],
         30,
       ),
-      totalAmount:
-          parseDouble(json['totalAmount'] ?? json['amount'] ?? json['price']),
+      totalAmount: parseDouble(
+        json['totalAmount'] ?? json['amount'] ?? json['price'],
+      ),
       basePrice: parseDouble(json['basePrice']),
       discountAmount: parseDouble(json['discountAmount'] ?? json['discount']),
       taxes: parseDouble(json['taxes'] ?? json['tax']),
       status: (json['status']?.toString() ?? 'PENDING').toUpperCase(),
-      paymentStatus:
-          (json['paymentStatus']?.toString() ?? 'PAY_AT_VENUE').toUpperCase(),
+      paymentStatus: (json['paymentStatus']?.toString() ?? 'PAY_AT_VENUE')
+          .toUpperCase(),
       customer: customerObj,
       notes: notes,
       createdAt: json['createdAt'] != null
@@ -730,7 +810,10 @@ class BlockedSlotModel {
 
 class PartnerBookingDashboardModel {
   int get todayAppointmentsCount => confirmedBookings + completedBookings;
-  int get inQueueCount => totalBookings > (completedBookings + cancelledBookings) ? totalBookings - completedBookings - cancelledBookings : (confirmedBookings > 0 ? confirmedBookings : totalBookings);
+  int get inQueueCount =>
+      totalBookings > (completedBookings + cancelledBookings)
+      ? totalBookings - completedBookings - cancelledBookings
+      : (confirmedBookings > 0 ? confirmedBookings : totalBookings);
   int get completedCount => completedBookings;
   final int totalBookings;
   final int confirmedBookings;
@@ -770,9 +853,15 @@ class PartnerBookingDashboardModel {
 
     return PartnerBookingDashboardModel(
       totalBookings: parseInt(json['totalBookings'] ?? json['total']),
-      confirmedBookings: parseInt(json['confirmedBookings'] ?? json['confirmed']),
-      completedBookings: parseInt(json['completedBookings'] ?? json['completed']),
-      cancelledBookings: parseInt(json['cancelledBookings'] ?? json['cancelled']),
+      confirmedBookings: parseInt(
+        json['confirmedBookings'] ?? json['confirmed'],
+      ),
+      completedBookings: parseInt(
+        json['completedBookings'] ?? json['completed'],
+      ),
+      cancelledBookings: parseInt(
+        json['cancelledBookings'] ?? json['cancelled'],
+      ),
       totalRevenue: parseDouble(json['totalRevenue'] ?? json['revenue']),
       recentBookings: recents,
     );

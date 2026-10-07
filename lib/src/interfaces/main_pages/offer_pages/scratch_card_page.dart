@@ -88,9 +88,7 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
         _TouchParticle(
           position: pos,
           velocity: Offset(math.cos(angle) * speed, math.sin(angle) * speed),
-          color: i % 2 == 0
-              ? const Color(0xFFFFD700)
-              : const Color(0xFF60A5FA),
+          color: i % 2 == 0 ? const Color(0xFFFFD700) : const Color(0xFF60A5FA),
         ),
       );
     }
@@ -196,9 +194,8 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
       final discount = dataMap['awardedDiscount'] as num?;
 
       final currentOffers = ref.read(offersProvider).offers;
-      final existingOffer = currentOffers
-          .where((o) => o.id == offerId)
-          .firstOrNull ??
+      final existingOffer =
+          currentOffers.where((o) => o.id == offerId).firstOrNull ??
           ref
               .read(offersProvider)
               .exploreOffers
@@ -206,7 +203,9 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
               .firstOrNull;
 
       if (existingOffer != null) {
-        ref.read(offersProvider.notifier).updateOfferLocally(
+        ref
+            .read(offersProvider.notifier)
+            .updateOfferLocally(
               existingOffer.copyWith(
                 isScratched: true,
                 awardedDiscount: discount,
@@ -293,10 +292,14 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                                   const Color(0xFF60A5FA),
                                   const Color(0xFF1E40AF),
                                 ],
-                          stops: isRevealed ? null : const [0.0, 0.35, 0.65, 1.0],
+                          stops: isRevealed
+                              ? null
+                              : const [0.0, 0.35, 0.65, 1.0],
                           transform: isRevealed
                               ? null
-                              : GradientRotation(_shimmerController.value * 2 * math.pi),
+                              : GradientRotation(
+                                  _shimmerController.value * 2 * math.pi,
+                                ),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -306,7 +309,9 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(2.5), // High-precision gradient frame
+                      padding: const EdgeInsets.all(
+                        2.5,
+                      ), // High-precision gradient frame
                       child: child,
                     );
                   },
@@ -320,10 +325,7 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                           height: cardSize,
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [
-                                Color(0xFFF8FAFC),
-                                Color(0xFFEFF6FF),
-                              ],
+                              colors: [Color(0xFFF8FAFC), Color(0xFFEFF6FF)],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                             ),
@@ -340,8 +342,8 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                                           strokeWidth: 2.5,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                            Color(0xFF2B6BFF),
-                                          ),
+                                                Color(0xFF2B6BFF),
+                                              ),
                                         ),
                                       ),
                                       SizedBox(height: 12),
@@ -356,14 +358,16 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                                     ],
                                   )
                                 : ScaleTransition(
-                                    scale: Tween<double>(begin: 0.85, end: 1.0).animate(
-                                      CurvedAnimation(
-                                        parent: _scaleController,
-                                        curve: Curves.easeOutBack,
-                                      ),
-                                    ),
+                                    scale: Tween<double>(begin: 0.85, end: 1.0)
+                                        .animate(
+                                          CurvedAnimation(
+                                            parent: _scaleController,
+                                            curve: Curves.easeOutBack,
+                                          ),
+                                        ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Container(
                                           padding: const EdgeInsets.all(10),
@@ -379,8 +383,9 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: const Color(0xFF3B82F6)
-                                                    .withOpacity(0.2),
+                                                color: const Color(
+                                                  0xFF3B82F6,
+                                                ).withOpacity(0.2),
                                                 blurRadius: 10,
                                               ),
                                             ],
@@ -410,10 +415,12 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                                             vertical: 3.5,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF3B82F6)
-                                                .withOpacity(0.1),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                                            color: const Color(
+                                              0xFF3B82F6,
+                                            ).withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                           child: const Text(
                                             '✨ Reward Verified',
@@ -433,8 +440,10 @@ class _ScratchCardPageState extends ConsumerState<ScratchCardPage>
                         // Top Scratch Layer: Advanced Blue Confetti Card
                         if (!isRevealed)
                           GestureDetector(
-                            onPanUpdate: (details) =>
-                                _onPanUpdate(details, const Size(cardSize, cardSize)),
+                            onPanUpdate: (details) => _onPanUpdate(
+                              details,
+                              const Size(cardSize, cardSize),
+                            ),
                             onPanEnd: _onPanEnd,
                             child: CustomPaint(
                               size: const Size(cardSize, cardSize),
@@ -587,13 +596,18 @@ class _AdvancedBlueScratchPainter extends CustomPainter {
       canvas.save();
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
-      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: w, height: h), goldPaint);
+      canvas.drawOval(
+        Rect.fromCenter(center: Offset.zero, width: w, height: h),
+        goldPaint,
+      );
       canvas.drawArc(
         Rect.fromCenter(center: Offset.zero, width: w * 0.7, height: h * 0.7),
         0,
         math.pi,
         false,
-        goldShadow..style = PaintingStyle.stroke..strokeWidth = 1.5,
+        goldShadow
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5,
       );
       canvas.restore();
     }
@@ -636,8 +650,16 @@ class _AdvancedBlueScratchPainter extends CustomPainter {
       ..strokeWidth = 1.8;
 
     void drawStar(Offset center, double r) {
-      canvas.drawLine(Offset(center.dx - r, center.dy), Offset(center.dx + r, center.dy), starPaint);
-      canvas.drawLine(Offset(center.dx, center.dy - r), Offset(center.dx, center.dy + r), starPaint);
+      canvas.drawLine(
+        Offset(center.dx - r, center.dy),
+        Offset(center.dx + r, center.dy),
+        starPaint,
+      );
+      canvas.drawLine(
+        Offset(center.dx, center.dy - r),
+        Offset(center.dx, center.dy + r),
+        starPaint,
+      );
     }
 
     drawStar(const Offset(158, 40), 4.5);
@@ -653,11 +675,25 @@ class _AdvancedBlueScratchPainter extends CustomPainter {
     final Paint boxPaint = Paint()..color = Colors.white;
     final Paint ribbonPaint = Paint()..color = const Color(0xFF4080FF);
 
-    final Rect bodyRect = Rect.fromCenter(center: const Offset(0, 12), width: 48, height: 42);
-    canvas.drawRRect(RRect.fromRectAndRadius(bodyRect, const Radius.circular(5)), boxPaint);
+    final Rect bodyRect = Rect.fromCenter(
+      center: const Offset(0, 12),
+      width: 48,
+      height: 42,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(bodyRect, const Radius.circular(5)),
+      boxPaint,
+    );
 
-    final Rect lidRect = Rect.fromCenter(center: const Offset(0, -12), width: 55, height: 14);
-    canvas.drawRRect(RRect.fromRectAndRadius(lidRect, const Radius.circular(4.5)), boxPaint);
+    final Rect lidRect = Rect.fromCenter(
+      center: const Offset(0, -12),
+      width: 55,
+      height: 14,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(lidRect, const Radius.circular(4.5)),
+      boxPaint,
+    );
 
     canvas.drawRect(Rect.fromLTWH(-5, -19, 10, 52), ribbonPaint);
 

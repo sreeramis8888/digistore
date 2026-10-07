@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/models/category_model.dart';
@@ -23,7 +22,10 @@ CategoryModel _categoryFromSearchItem(Map<String, dynamic> item) {
     name: (item['name'] ?? item['category'])?.toString(),
     iconUrl: item['iconUrl']?.toString(),
     subcategories: subs is List
-        ? subs.map((e) => e.toString()).where((s) => s.trim().isNotEmpty).toList()
+        ? subs
+              .map((e) => e.toString())
+              .where((s) => s.trim().isNotEmpty)
+              .toList()
         : null,
   );
 }
@@ -36,9 +38,7 @@ Map<String, dynamic> _shopArgsFromSearchItem(Map<String, dynamic> item) {
     'name': item['name']?.toString(),
     'logo': item['logo']?.toString(),
     'serviceCategories': item['serviceCategories'] is List
-        ? (item['serviceCategories'] as List)
-            .map((e) => e.toString())
-            .toList()
+        ? (item['serviceCategories'] as List).map((e) => e.toString()).toList()
         : item['serviceCategories'],
   };
 }
@@ -118,18 +118,16 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
   }
 
   void _openOffer(Map<String, dynamic> item) {
-    Navigator.of(context).pushNamed(
-      'offerDetail',
-      arguments: offerArgsFromSearchItem(item),
-    );
+    Navigator.of(
+      context,
+    ).pushNamed('offerDetail', arguments: offerArgsFromSearchItem(item));
   }
 
   void _openService(Map<String, dynamic> item) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ServiceDetailsPage(
-          service: ServiceModel.fromJson(item),
-        ),
+        builder: (_) =>
+            ServiceDetailsPage(service: ServiceModel.fromJson(item)),
       ),
     );
   }
@@ -137,9 +135,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
   void _openProduct(Map<String, dynamic> item) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ProductDetailsPage(
-          product: productArgsFromSearchItem(item),
-        ),
+        builder: (_) =>
+            ProductDetailsPage(product: productArgsFromSearchItem(item)),
       ),
     );
   }
@@ -151,9 +148,7 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
       return;
     }
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => CategoryOffersPage(category: category),
-      ),
+      MaterialPageRoute(builder: (_) => CategoryOffersPage(category: category)),
     );
   }
 
@@ -162,11 +157,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
     if (q.isEmpty) return;
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => GlobalSearchListPage(
-          query: q,
-          type: type,
-          title: title,
-        ),
+        builder: (_) =>
+            GlobalSearchListPage(query: q, type: type, title: title),
       ),
     );
   }
@@ -248,9 +240,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
           ? _buildLanding(trendingAsync, screenSize)
           : overviewAsync!.when(
               loading: () => const Center(child: LoadingAnimation()),
-              error: (e, _) => _buildMessage(
-                'Could not load results.\n${e.toString()}',
-              ),
+              error: (e, _) =>
+                  _buildMessage('Could not load results.\n${e.toString()}'),
               data: (overview) {
                 if (overview.isEmpty) {
                   return _buildMessage('No results found for "$query"');
@@ -270,12 +261,13 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
                         _sectionHeader(
                           title: 'Categories',
                           count: overview.categoriesCount,
-                          onViewMore: overview.categoriesCount >
+                          onViewMore:
+                              overview.categoriesCount >
                                   overview.categories.length
                               ? () => _openViewMore(
-                                    type: 'categories',
-                                    title: 'Categories',
-                                  )
+                                  type: 'categories',
+                                  title: 'Categories',
+                                )
                               : null,
                         ),
                         ...overview.categories.map(
@@ -289,10 +281,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
                         _sectionHeader(
                           title: 'Offers',
                           count: overview.offersCount,
-                          onViewMore: () => _openViewMore(
-                            type: 'offers',
-                            title: 'Offers',
-                          ),
+                          onViewMore: () =>
+                              _openViewMore(type: 'offers', title: 'Offers'),
                         ),
                         ...overview.offers.map(
                           (item) => _OfferResultTile(
@@ -305,10 +295,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
                         _sectionHeader(
                           title: 'Shops',
                           count: overview.shopsCount,
-                          onViewMore: () => _openViewMore(
-                            type: 'shops',
-                            title: 'Shops',
-                          ),
+                          onViewMore: () =>
+                              _openViewMore(type: 'shops', title: 'Shops'),
                         ),
                         ...overview.shops.map(
                           (item) => _ShopResultTile(
@@ -366,7 +354,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
       children: [
         Text(
           'Search everything',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF111827),
@@ -375,7 +364,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
         const SizedBox(height: 8),
         Text(
           'Find offers, shops, services, products, and categories.',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 14,
             color: const Color(0xFF6B7280),
           ),
@@ -392,7 +382,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
                 children: [
                   Text(
                     'Trending',
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF111827),
@@ -407,7 +398,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
                         label: Text(kw),
                         backgroundColor: kWhite,
                         side: const BorderSide(color: Color(0xFFE5E7EB)),
-                        labelStyle: GoogleFonts.urbanist(
+                        labelStyle: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF374151),
@@ -442,7 +434,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
           Expanded(
             child: Text(
               count > 0 ? '$title ($count)' : title,
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF111827),
@@ -454,7 +447,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
               onPressed: onViewMore,
               child: Text(
                 'View more',
-                style: GoogleFonts.urbanist(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: kPrimaryColor,
@@ -473,7 +467,8 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 14,
             color: const Color(0xFF6B7280),
             height: 1.4,
@@ -568,18 +563,16 @@ class _GlobalSearchListPageState extends ConsumerState<GlobalSearchListPage> {
   }
 
   void _openOffer(Map<String, dynamic> item) {
-    Navigator.of(context).pushNamed(
-      'offerDetail',
-      arguments: offerArgsFromSearchItem(item),
-    );
+    Navigator.of(
+      context,
+    ).pushNamed('offerDetail', arguments: offerArgsFromSearchItem(item));
   }
 
   void _openService(Map<String, dynamic> item) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ServiceDetailsPage(
-          service: ServiceModel.fromJson(item),
-        ),
+        builder: (_) =>
+            ServiceDetailsPage(service: ServiceModel.fromJson(item)),
       ),
     );
   }
@@ -587,9 +580,8 @@ class _GlobalSearchListPageState extends ConsumerState<GlobalSearchListPage> {
   void _openProduct(Map<String, dynamic> item) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ProductDetailsPage(
-          product: productArgsFromSearchItem(item),
-        ),
+        builder: (_) =>
+            ProductDetailsPage(product: productArgsFromSearchItem(item)),
       ),
     );
   }
@@ -601,9 +593,7 @@ class _GlobalSearchListPageState extends ConsumerState<GlobalSearchListPage> {
       return;
     }
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => CategoryOffersPage(category: category),
-      ),
+      MaterialPageRoute(builder: (_) => CategoryOffersPage(category: category)),
     );
   }
 
@@ -639,7 +629,8 @@ class _GlobalSearchListPageState extends ConsumerState<GlobalSearchListPage> {
         ),
         title: Text(
           '${widget.title} for "${widget.query}"',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF111827),
@@ -653,7 +644,10 @@ class _GlobalSearchListPageState extends ConsumerState<GlobalSearchListPage> {
         error: (e, _) => Center(
           child: Text(
             e.toString(),
-            style: GoogleFonts.urbanist(color: const Color(0xFF6B7280)),
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              color: const Color(0xFF6B7280),
+            ),
           ),
         ),
         data: (initial) {
@@ -662,7 +656,10 @@ class _GlobalSearchListPageState extends ConsumerState<GlobalSearchListPage> {
             return Center(
               child: Text(
                 'No ${widget.title.toLowerCase()} found',
-                style: GoogleFonts.urbanist(color: const Color(0xFF6B7280)),
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  color: const Color(0xFF6B7280),
+                ),
               ),
             );
           }
@@ -778,7 +775,8 @@ class _SearchResultTile extends StatelessWidget {
                         title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.urbanist(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF111827),
@@ -790,7 +788,8 @@ class _SearchResultTile extends StatelessWidget {
                           subtitle!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 12,
                             color: const Color(0xFF6B7280),
                           ),
@@ -800,7 +799,8 @@ class _SearchResultTile extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           meta!,
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: kPrimaryColor,
@@ -842,8 +842,7 @@ class _OfferResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final partner = item['partner'];
-    final shopName =
-        partner is Map ? partner['name']?.toString() ?? '' : '';
+    final shopName = partner is Map ? partner['name']?.toString() ?? '' : '';
     final image = (item['bannerImage'] ?? _firstImage(item['images']))
         ?.toString();
 
@@ -889,15 +888,11 @@ class _ServiceResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final partner = item['partner'];
-    final shopName =
-        partner is Map ? partner['name']?.toString() ?? '' : '';
+    final shopName = partner is Map ? partner['name']?.toString() ?? '' : '';
     final price = item['effectivePrice'] ?? item['offerPrice'] ?? item['price'];
     final priceLabel = price is num ? '₹ ${price.toInt()}' : null;
     final distance = _distanceLabel(item['distance']);
-    final meta = [
-      ?priceLabel,
-      ?distance,
-    ].join(' · ');
+    final meta = [?priceLabel, ?distance].join(' · ');
 
     return _SearchResultTile(
       title: item['name']?.toString() ?? 'Service',
@@ -923,8 +918,7 @@ class _ProductResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final partner = item['partner'];
-    final shopName =
-        partner is Map ? partner['name']?.toString() ?? '' : '';
+    final shopName = partner is Map ? partner['name']?.toString() ?? '' : '';
     final price = item['effectivePrice'] ?? item['offerPrice'] ?? item['price'];
     final priceLabel = price is num ? '₹ ${price.toInt()}' : null;
 

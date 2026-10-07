@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/shops_provider.dart';
@@ -100,7 +99,8 @@ class RestaurantBannerCard extends ConsumerWidget {
                       children: [
                         Text(
                           'Restaurants',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: screenSize.responsivePadding(22),
                             fontWeight: FontWeight.w800,
                             color: _titleColor,
@@ -111,7 +111,8 @@ class RestaurantBannerCard extends ConsumerWidget {
                           SizedBox(height: screenSize.responsivePadding(4)),
                           Text(
                             shopCountLabel,
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: screenSize.responsivePadding(14),
                               fontWeight: FontWeight.w500,
                               color: _subtitleColor,
@@ -131,7 +132,8 @@ class RestaurantBannerCard extends ConsumerWidget {
                           ),
                           child: Text(
                             'Explore shops',
-                            style: GoogleFonts.urbanist(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: screenSize.responsivePadding(13),
                               fontWeight: FontWeight.w700,
                               color: kWhite,

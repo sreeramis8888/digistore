@@ -54,8 +54,9 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
-    final dealsState =
-        ref.watch(activeDealsProvider(dealType: widget.dealType));
+    final dealsState = ref.watch(
+      activeDealsProvider(dealType: widget.dealType),
+    );
 
     final itemWidth = (screenSize.width - screenSize.responsivePadding(48)) / 2;
     final itemHeight = screenSize.responsivePadding(200);
@@ -76,7 +77,8 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
           childAspectRatio: aspectRatio,
         ),
         itemCount: 6,
-        itemBuilder: (context, index) => CardShimmers.dealCardShimmer(screenSize),
+        itemBuilder: (context, index) =>
+            CardShimmers.dealCardShimmer(screenSize),
       );
     } else if (dealsState.error != null && dealsState.offers.isEmpty) {
       bodyContent = CustomScrollView(
@@ -123,7 +125,11 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
                         ),
                       ),
                       onPressed: () => ref
-                          .read(activeDealsProvider(dealType: widget.dealType).notifier)
+                          .read(
+                            activeDealsProvider(
+                              dealType: widget.dealType,
+                            ).notifier,
+                          )
                           .fetchDeals(isRefresh: true),
                       child: const Text('Try Again'),
                     ),
@@ -143,7 +149,8 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
             child: EmptyState(
               imagePath: 'assets/png/empty_offers.png',
               title: 'No active deals',
-              subtitle: 'There are currently no active offers for ${widget.dealTitle}.',
+              subtitle:
+                  'There are currently no active offers for ${widget.dealTitle}.',
             ),
           ),
         ],
@@ -159,13 +166,10 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
               vertical: screenSize.responsivePadding(16.0),
             ),
             sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final deal = dealsState.offers[index];
-                  return DealCard.fromOffer(deal);
-                },
-                childCount: dealsState.offers.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final deal = dealsState.offers[index];
+                return DealCard.fromOffer(deal);
+              }, childCount: dealsState.offers.length),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: screenSize.responsivePadding(16.0),
@@ -181,7 +185,9 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
                   vertical: screenSize.responsivePadding(24.0),
                 ),
                 child: Center(
-                  child: LoadingAnimation(size: screenSize.responsivePadding(30)),
+                  child: LoadingAnimation(
+                    size: screenSize.responsivePadding(30),
+                  ),
                 ),
               ),
             ),
@@ -194,7 +200,8 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
 
     return Scaffold(
       backgroundColor: kWhite,
-      appBar: AppBar(   titleSpacing: 0,
+      appBar: AppBar(
+        titleSpacing: 0,
         title: Text(
           widget.dealTitle,
           style: kBodyTitleM.copyWith(
@@ -206,7 +213,11 @@ class _ActiveDealsPageState extends ConsumerState<ActiveDealsPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: kTextColor),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+            color: kTextColor,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),

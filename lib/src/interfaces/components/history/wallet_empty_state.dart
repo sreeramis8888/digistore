@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
 
@@ -41,7 +40,8 @@ class WalletEmptyState extends ConsumerWidget {
             // Title
             Text(
               'No Wallet Activity',
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF111827),
@@ -52,7 +52,8 @@ class WalletEmptyState extends ConsumerWidget {
             // Subtitle
             Text(
               'Start shopping to earn points and track them here.',
-              style: GoogleFonts.urbanist(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: const Color(0xFF6B7280),
@@ -78,17 +79,15 @@ class WalletEmptyState extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFF6155F5),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFF6155F5), width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'View Offers',
-                      style: GoogleFonts.urbanist(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF6155F5),

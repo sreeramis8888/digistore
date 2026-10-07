@@ -54,10 +54,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
       vsync: this,
     );
 
-    _fade = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    );
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
   }
 
   void _toggleDropdown() {
@@ -103,10 +100,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
     _slide = Tween<Offset>(
       begin: openUpwards ? const Offset(0, 0.05) : const Offset(0, -0.05),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -130,8 +124,12 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
               link: _layerLink,
 
               // ⭐ FIXED OFFSET LOGIC
-              targetAnchor: openUpwards ? Alignment.topLeft : Alignment.bottomLeft,
-              followerAnchor: openUpwards ? Alignment.bottomLeft : Alignment.topLeft,
+              targetAnchor: openUpwards
+                  ? Alignment.topLeft
+                  : Alignment.bottomLeft,
+              followerAnchor: openUpwards
+                  ? Alignment.bottomLeft
+                  : Alignment.topLeft,
               offset: openUpwards
                   ? const Offset(0, -6) // place just above dropdown
                   : const Offset(0, 6), // place below dropdown
@@ -150,7 +148,9 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(widget.borderRadius > 0 ? widget.borderRadius : 16),
+                        borderRadius: BorderRadius.circular(
+                          widget.borderRadius > 0 ? widget.borderRadius : 16,
+                        ),
                         border: Border.all(color: Colors.grey.withOpacity(0.1)),
                         boxShadow: [
                           BoxShadow(
@@ -158,7 +158,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                             blurRadius: 24,
                             spreadRadius: 2,
                             offset: const Offset(0, 8),
-                          )
+                          ),
                         ],
                       ),
                       child: ListView.separated(
@@ -175,7 +175,9 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                           final isSelected = item == widget.value;
                           return Container(
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.blue.shade50 : Colors.transparent,
+                              color: isSelected
+                                  ? Colors.blue.shade50
+                                  : Colors.transparent,
                             ),
                             child: Material(
                               color: Colors.transparent,
@@ -207,13 +209,21 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                                           widget.itemLabel(item),
                                           style: TextStyle(
                                             fontSize: 14,
-                                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                            color: isSelected ? Colors.blue.shade700 : Colors.black87,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w500,
+                                            color: isSelected
+                                                ? Colors.blue.shade700
+                                                : Colors.black87,
                                           ),
                                         ),
                                       ),
                                       if (isSelected)
-                                        Icon(Icons.check_circle, size: 18, color: Colors.blue.shade600),
+                                        Icon(
+                                          Icons.check_circle,
+                                          size: 18,
+                                          color: Colors.blue.shade600,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -279,7 +289,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                 openUpwards
                     ? Icons.keyboard_arrow_up
                     : Icons.keyboard_arrow_down,
-              )
+              ),
             ],
           ),
         ),

@@ -1,6 +1,5 @@
 import 'package:setgo/src/data/constants/color_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const kExtraLight = FontWeight.w300;
 const kUltraLight = FontWeight.w200;
@@ -26,8 +25,12 @@ const double kBody = 16;
 const double kSize14 = 14;
 const double kSize12 = 12;
 
-// Helper — Urbanist (Figma Digistore-Pay)
-TextStyle kStyle(FontWeight weight, double size) => GoogleFonts.urbanist(
+/// App-wide font family (bundled via pubspec.yaml).
+const String kFontFamily = 'Poppins';
+
+// Helper — Poppins (app-wide font)
+TextStyle kStyle(FontWeight weight, double size) => TextStyle(
+  fontFamily: kFontFamily,
   fontWeight: weight,
   color: kTextColor,
   fontSize: size,

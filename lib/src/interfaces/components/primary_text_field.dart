@@ -118,7 +118,12 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           maxLength: widget.maxLength,
           buildCounter: widget.showCounter
               ? null
-              : (context, {required currentLength, required isFocused, maxLength}) => null,
+              : (
+                  context, {
+                  required currentLength,
+                  required isFocused,
+                  maxLength,
+                }) => null,
           style: kSmallTitleL,
           decoration: InputDecoration(
             hintText: widget.hint,

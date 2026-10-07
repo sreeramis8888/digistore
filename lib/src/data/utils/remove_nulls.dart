@@ -7,9 +7,11 @@ Map<String, dynamic> removeNulls(Map<String, dynamic> json) {
     } else if (value is List) {
       final cleanedList = value
           .where((element) => element != null)
-          .map((element) => element is Map
-              ? removeNulls(Map<String, dynamic>.from(element))
-              : element)
+          .map(
+            (element) => element is Map
+                ? removeNulls(Map<String, dynamic>.from(element))
+                : element,
+          )
           .toList();
       if (cleanedList.isNotEmpty) newMap[key] = cleanedList;
     } else if (value != null) {
@@ -18,7 +20,6 @@ Map<String, dynamic> removeNulls(Map<String, dynamic> json) {
   });
   return newMap;
 }
-
 
 Map<String, dynamic> cleanMap(Map<String, dynamic> json) {
   final Map<String, dynamic> newMap = {};
@@ -29,9 +30,11 @@ Map<String, dynamic> cleanMap(Map<String, dynamic> json) {
     } else if (value is List) {
       final cleanedList = value
           .where((element) => element != null && element != '')
-          .map((element) => element is Map
-              ? cleanMap(Map<String, dynamic>.from(element))
-              : element)
+          .map(
+            (element) => element is Map
+                ? cleanMap(Map<String, dynamic>.from(element))
+                : element,
+          )
           .toList();
       if (cleanedList.isNotEmpty) newMap[key] = cleanedList;
     } else if (value != null && value != '') {

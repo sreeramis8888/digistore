@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
 import '../../data/models/banner_model.dart';
@@ -205,7 +204,8 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                         const SizedBox(width: 4),
                         Text(
                           'Add New',
-                          style: GoogleFonts.urbanist(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,

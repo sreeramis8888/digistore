@@ -46,7 +46,12 @@ class HomeHeroSection extends ConsumerWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(hPad, 8, hPad, screenSize.responsivePadding(24)),
+          padding: EdgeInsets.fromLTRB(
+            hPad,
+            8,
+            hPad,
+            screenSize.responsivePadding(24),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -107,9 +112,7 @@ class _HeroSearchField extends StatelessWidget {
                 onTap: onTap,
                 onTapOutside: (_) => focusNode.unfocus(),
                 onChanged: onChanged,
-                onSubmitted: onTap == null
-                    ? null
-                    : (_) => onTap?.call(),
+                onSubmitted: onTap == null ? null : (_) => onTap?.call(),
                 style: kSmallTitleL.copyWith(color: kBlack),
                 decoration: InputDecoration(
                   hintText: 'Search anything',

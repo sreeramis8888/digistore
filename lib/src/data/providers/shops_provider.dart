@@ -112,12 +112,13 @@ List<ShopModel> sortShopsByNearest(List<ShopModel> shops) {
 }
 
 Future<({List<ShopModel> shops, PaginationModel? pagination})>
-    _fetchShopsForCategories({
+_fetchShopsForCategories({
   required ApiProvider api,
   required Map<String, String> baseQueryParams,
   required String? currentCategory,
 }) async {
-  final hasCategory = currentCategory != null &&
+  final hasCategory =
+      currentCategory != null &&
       currentCategory != 'All' &&
       currentCategory.isNotEmpty;
 
@@ -132,9 +133,7 @@ Future<({List<ShopModel> shops, PaginationModel? pagination})>
     );
     return (
       shops: sortShopsByNearest(
-        data
-            .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
-            .toList(),
+        data.map((e) => ShopModel.fromJson(e as Map<String, dynamic>)).toList(),
       ),
       pagination: pagination,
     );
@@ -171,8 +170,7 @@ Future<({List<ShopModel> shops, PaginationModel? pagination})>
   if (shops.isEmpty) {
     final fallbackParams = Map<String, String>.from(baseQueryParams)
       ..remove('category');
-    final fallbackResp =
-        await api.get('/shops', queryParams: fallbackParams);
+    final fallbackResp = await api.get('/shops', queryParams: fallbackParams);
     if (fallbackResp.success && fallbackResp.data != null) {
       final List<dynamic> fallbackData =
           fallbackResp.data!['data'] as List<dynamic>;
@@ -215,7 +213,9 @@ class Shops extends _$Shops {
         category: category,
         clearCategory: clearCategory,
         searchQuery: currentSearch,
-        shops: (category != null || clearCategory || search != null) ? [] : state.shops,
+        shops: (category != null || clearCategory || search != null)
+            ? []
+            : state.shops,
       );
     } else {
       state = state.copyWith(isLoadingMore: true, error: null);
@@ -257,10 +257,15 @@ class Shops extends _$Shops {
           isLoading: false,
         );
       } else {
-        final existingIds = state.shops.map((s) => s.id).whereType<String>().toSet();
+        final existingIds = state.shops
+            .map((s) => s.id)
+            .whereType<String>()
+            .toSet();
         final merged = sortShopsByNearest([
           ...state.shops,
-          ...result.shops.where((s) => s.id == null || !existingIds.contains(s.id)),
+          ...result.shops.where(
+            (s) => s.id == null || !existingIds.contains(s.id),
+          ),
         ]);
         state = state.copyWith(
           shops: merged,
@@ -331,7 +336,9 @@ class AllShops extends _$AllShops {
         category: category,
         clearCategory: clearCategory,
         searchQuery: currentSearch,
-        shops: (category != null || clearCategory || search != null) ? [] : state.shops,
+        shops: (category != null || clearCategory || search != null)
+            ? []
+            : state.shops,
       );
     } else {
       state = state.copyWith(isLoadingMore: true, error: null);
@@ -368,12 +375,15 @@ class AllShops extends _$AllShops {
           isLoading: false,
         );
       } else {
-        final existingIds =
-            state.shops.map((s) => s.id).whereType<String>().toSet();
+        final existingIds = state.shops
+            .map((s) => s.id)
+            .whereType<String>()
+            .toSet();
         final merged = sortShopsByNearest([
           ...state.shops,
-          ...result.shops
-              .where((s) => s.id == null || !existingIds.contains(s.id)),
+          ...result.shops.where(
+            (s) => s.id == null || !existingIds.contains(s.id),
+          ),
         ]);
         state = state.copyWith(
           shops: merged,
@@ -428,10 +438,7 @@ class FeaturedShops extends _$FeaturedShops {
     return ShopsState();
   }
 
-  Future<void> getShops({
-    int page = 1,
-    String? search,
-  }) async {
+  Future<void> getShops({int page = 1, String? search}) async {
     final currentSearch = search ?? state.searchQuery;
 
     if (page == 1) {
@@ -450,10 +457,7 @@ class FeaturedShops extends _$FeaturedShops {
     final lat = user?.location?.coordinates?.lat;
     final lng = user?.location?.coordinates?.lng;
 
-    final queryParams = {
-      'page': page.toString(),
-      'limit': '10',
-    };
+    final queryParams = {'page': page.toString(), 'limit': '10'};
 
     if (lat != null && lng != null) {
       queryParams['lat'] = lat.toString();
@@ -562,10 +566,7 @@ final restaurantShopsCountProvider = FutureProvider<int>((ref) async {
   final user = ref.watch(userProvider);
   final api = ref.read(apiProvider);
 
-  final queryParams = <String, String>{
-    'page': '1',
-    'limit': '1',
-  };
+  final queryParams = <String, String>{'page': '1', 'limit': '1'};
   final lat = user?.location?.coordinates?.lat;
   final lng = user?.location?.coordinates?.lng;
   if (lat != null && lng != null) {
@@ -589,10 +590,7 @@ final restaurantShopsCountProvider = FutureProvider<int>((ref) async {
   if (total == 0) {
     final result = await _fetchShopsForCategories(
       api: api,
-      baseQueryParams: {
-        ...queryParams,
-        'limit': '100',
-      },
+      baseQueryParams: {...queryParams, 'limit': '100'},
       currentCategory: 'Restaurants',
     );
     total = result.shops.length;
@@ -600,4 +598,3 @@ final restaurantShopsCountProvider = FutureProvider<int>((ref) async {
 
   return total;
 });
-

@@ -35,10 +35,7 @@ class ShopReviews extends ConsumerWidget {
           pageBuilder: (context, animation, secondaryAnimation) =>
               AllReviewsPage(shop: shop!),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+            return FadeTransition(opacity: animation, child: child);
           },
         ),
       );
@@ -55,7 +52,6 @@ class ShopReviews extends ConsumerWidget {
                   ? 'Customer Reviews ($totalFetchedReviews)'
                   : 'Customer Reviews',
               style: const TextStyle(
-                fontFamily: 'Montserrat',
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF111827),
@@ -95,7 +91,6 @@ class ShopReviews extends ConsumerWidget {
                       const Text(
                         'Add Review',
                         style: TextStyle(
-                          fontFamily: 'Montserrat',
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF07838C),
@@ -124,7 +119,6 @@ class ShopReviews extends ConsumerWidget {
                   child: Text(
                     'No reviews yet. Be the first to review!',
                     style: const TextStyle(
-                      fontFamily: 'Montserrat',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF6B7280),
@@ -133,9 +127,13 @@ class ShopReviews extends ConsumerWidget {
                 ),
               );
             }
-            final hasImages = paginated.reviews.any((r) => r.images != null && r.images!.isNotEmpty);
+            final hasImages = paginated.reviews.any(
+              (r) => r.images != null && r.images!.isNotEmpty,
+            );
             final cardHeight = hasImages ? 175.0 : 120.0;
-            final displayCount = paginated.reviews.length > 10 ? 10 : paginated.reviews.length;
+            final displayCount = paginated.reviews.length > 10
+                ? 10
+                : paginated.reviews.length;
             final totalCards = showViewAll ? displayCount + 1 : displayCount;
 
             return SizedBox(
@@ -189,7 +187,9 @@ class _ViewAllCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF07838C).withValues(alpha: 0.2)),
+          border: Border.all(
+            color: const Color(0xFF07838C).withValues(alpha: 0.2),
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -210,7 +210,6 @@ class _ViewAllCard extends StatelessWidget {
             const Text(
               'View All',
               style: TextStyle(
-                fontFamily: 'Montserrat',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF07838C),
@@ -220,7 +219,6 @@ class _ViewAllCard extends StatelessWidget {
             Text(
               '$totalCount reviews',
               style: const TextStyle(
-                fontFamily: 'Montserrat',
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF6B7280),
@@ -240,7 +238,11 @@ class _ReviewCard extends StatelessWidget {
 
   const _ReviewCard({required this.review, required this.screenSize});
 
-  void _showFullImageGallery(BuildContext context, List<String> imageUrls, int initialIndex) {
+  void _showFullImageGallery(
+    BuildContext context,
+    List<String> imageUrls,
+    int initialIndex,
+  ) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
@@ -251,10 +253,7 @@ class _ReviewCard extends StatelessWidget {
           );
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+          return FadeTransition(opacity: animation, child: child);
         },
       ),
     );
@@ -293,7 +292,6 @@ class _ReviewCard extends StatelessWidget {
                     child: Text(
                       (review.userName ?? 'U')[0].toUpperCase(),
                       style: TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: color,
@@ -306,7 +304,6 @@ class _ReviewCard extends StatelessWidget {
                     child: Text(
                       review.userName ?? 'Anonymous',
                       style: const TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF111827),
@@ -329,14 +326,17 @@ class _ReviewCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 13),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Color(0xFFFBBF24),
+                      size: 13,
+                    ),
                     SizedBox(width: screenSize.responsivePadding(2)),
                     Text(
                       (review.rating != null && review.rating! > 0)
                           ? review.rating!.toStringAsFixed(1)
                           : '—',
                       style: const TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF92400E),
@@ -352,7 +352,6 @@ class _ReviewCard extends StatelessWidget {
             child: Text(
               review.comment ?? '',
               style: const TextStyle(
-                fontFamily: 'Montserrat',
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
                 color: Color(0xFF6B7280),
@@ -375,7 +374,8 @@ class _ReviewCard extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final imageUrl = review.images![index];
                   return GestureDetector(
-                    onTap: () => _showFullImageGallery(context, review.images!, index),
+                    onTap: () =>
+                        _showFullImageGallery(context, review.images!, index),
                     child: AdvancedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,

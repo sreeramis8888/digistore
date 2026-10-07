@@ -8,11 +8,7 @@ class InAppWebViewPage extends StatefulWidget {
   final String title;
   final String url;
 
-  const InAppWebViewPage({
-    super.key,
-    required this.title,
-    required this.url,
-  });
+  const InAppWebViewPage({super.key, required this.title, required this.url});
 
   @override
   State<InAppWebViewPage> createState() => _InAppWebViewPageState();
@@ -58,10 +54,10 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
         child: Stack(
           children: [
             InAppWebView(
-              initialSettings: InAppWebViewSettings(transparentBackground: true),
-              initialUrlRequest: URLRequest(
-                url: WebUri(widget.url),
+              initialSettings: InAppWebViewSettings(
+                transparentBackground: true,
               ),
+              initialUrlRequest: URLRequest(url: WebUri(widget.url)),
               onWebViewCreated: (controller) {
                 webViewController = controller;
               },

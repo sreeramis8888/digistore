@@ -161,9 +161,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                   try {
                     final storage = ref.read(secureStorageServiceProvider);
-                    await storage.saveRegistrationData({
-                      'phone': phoneNumber,
-                    });
+                    await storage.saveRegistrationData({'phone': phoneNumber});
 
                     final success = await ref
                         .read(authProvider.notifier)

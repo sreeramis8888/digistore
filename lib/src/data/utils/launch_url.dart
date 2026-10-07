@@ -1,10 +1,6 @@
 import 'package:url_launcher/url_launcher.dart';
 
-
-enum LaunchModeOption {
-  inAppWebView,
-  externalApplication,
-}
+enum LaunchModeOption { inAppWebView, externalApplication }
 
 Future<void> launchURL(
   String rawUrl, {
@@ -46,10 +42,10 @@ Future<void> launchURL(
   }
 }
 
-
 Future<void> openGoogleMaps(String location) async {
-  final Uri googleMapsUrl =
-      Uri.parse("https://www.google.com/maps/search/?api=1&query=$location");
+  final Uri googleMapsUrl = Uri.parse(
+    "https://www.google.com/maps/search/?api=1&query=$location",
+  );
 
   if (await canLaunchUrl(googleMapsUrl)) {
     await launchUrl(googleMapsUrl);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../data/constants/color_constants.dart';
 import '../components/history/wallet_header.dart';
 import '../components/history/transaction_tile.dart';
@@ -23,7 +22,8 @@ class HistoryPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F4),
-      appBar: AppBar(titleSpacing:0,
+      appBar: AppBar(
+        titleSpacing: 0,
         backgroundColor: const Color(0xFFF3F5F4),
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -40,7 +40,8 @@ class HistoryPage extends ConsumerWidget {
             : null,
         title: Text(
           'My Wallet',
-          style: GoogleFonts.urbanist(
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: const Color(0xFF373737),
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -51,8 +52,7 @@ class HistoryPage extends ConsumerWidget {
       body: GlobalVariables.isGuest
           ? const GuestLoginPrompt(
               title: 'Login Required',
-              subtitle:
-                  'Please login or register to view your wallet history.',
+              subtitle: 'Please login or register to view your wallet history.',
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -86,10 +86,10 @@ class HistoryPage extends ConsumerWidget {
                           ),
                           itemCount: paginated.transactions.length,
                           itemBuilder: (context, index) {
-                            final transaction =
-                                paginated.transactions[index];
-                            return TransactionTile.fromTransaction(transaction)
-                                .fadeSlideInFromLeft(
+                            final transaction = paginated.transactions[index];
+                            return TransactionTile.fromTransaction(
+                              transaction,
+                            ).fadeSlideInFromLeft(
                               delayMilliseconds: index * 40,
                             );
                           },

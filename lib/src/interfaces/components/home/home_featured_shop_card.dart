@@ -12,11 +12,7 @@ class HomeFeaturedShopCard extends ConsumerWidget {
   final ShopModel shop;
   final double? width;
 
-  const HomeFeaturedShopCard({
-    super.key,
-    required this.shop,
-    this.width,
-  });
+  const HomeFeaturedShopCard({super.key, required this.shop, this.width});
 
   String get _name => shop.businessDetails?.businessName ?? '';
 
