@@ -415,7 +415,7 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                             ? '91$cleanPhone'
                             : cleanPhone;
                         final message =
-                            "Hello, I would like to enquire about ${widget.shopName}.";
+                            "Hey, I just need to know more about this, I just viewed your shop via Setgo.";
                         final url =
                             "https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}";
                         launchURL(url);
