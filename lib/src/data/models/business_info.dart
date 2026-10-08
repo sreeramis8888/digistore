@@ -249,6 +249,18 @@ class BusinessBranch {
     this.isPrimary,
   });
 
+  /// Backend "main" branch is the shop itself, not a selectable outlet.
+  bool get isMainBranch =>
+      (branchType ?? '').trim().toLowerCase() == 'main';
+
+  /// Whether the shop-detail Branches picker should be visible.
+  /// Hide when empty, or when the only location is the main branch.
+  static bool shouldShowBranchPicker(List<BusinessBranch> branches) {
+    if (branches.isEmpty) return false;
+    if (branches.length == 1 && branches.first.isMainBranch) return false;
+    return true;
+  }
+
   BusinessBranch copyWith({
     String? id,
     String? name,

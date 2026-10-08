@@ -27,7 +27,10 @@ class ShopBranches extends ConsumerWidget {
 
     return branchesAsync.when(
       data: (branches) {
-        if (branches.isEmpty) return const SizedBox.shrink();
+        // Lone "main" branch is the shop HQ — not a user-facing branch list.
+        if (!BusinessBranch.shouldShowBranchPicker(branches)) {
+          return const SizedBox.shrink();
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
