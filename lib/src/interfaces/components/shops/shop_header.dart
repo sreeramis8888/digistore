@@ -318,7 +318,6 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
         const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
         SizedBox(height: screenSize.responsivePadding(12)),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
@@ -396,134 +395,113 @@ class _ShopHeaderState extends ConsumerState<ShopHeader> {
                 ],
               ),
             ),
-          ],
-        ),
-        SizedBox(height: screenSize.responsivePadding(12)),
-        Row(
-          children: [
-            Expanded(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    // Same source as "Connect With Us" WhatsApp.
-                    final phone = widget.shop?.businessInfo?.whatsappNumber;
-                    if (phone != null && phone.isNotEmpty) {
-                      final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
-                      if (cleanPhone.isNotEmpty) {
-                        final actualPhone = cleanPhone.length == 10
-                            ? '91$cleanPhone'
-                            : cleanPhone;
-                        final message =
-                            "Hey, I just need to know more about this, I just viewed your shop via Setgo.";
-                        final url =
-                            "https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}";
-                        launchURL(url);
-                      }
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(12),
-                      vertical: screenSize.responsivePadding(10),
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF25D366),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFF25D366,
-                          ).withValues(alpha: 0.25),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/svg/whatsapp.svg',
-                          width: 15,
-                          height: 15,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        SizedBox(width: screenSize.responsivePadding(6)),
-                        const Text(
-                          'WhatsApp',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
+            if (_hasWhatsApp) ...[
+              SizedBox(width: screenSize.responsivePadding(8)),
+              _IconActionButton(
+                size: screenSize.responsivePadding(36),
+                backgroundColor: const Color(0xFF25D366),
+                onTap: _openWhatsApp,
+                child: SvgPicture.asset(
+                  'assets/svg/whatsapp.svg',
+                  width: 18,
+                  height: 18,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
                   ),
                 ),
               ),
-            ),
-            SizedBox(width: screenSize.responsivePadding(10)),
-            Expanded(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    final phone =
-                        widget.selectedBranch?.phone ??
-                        widget.shop?.businessInfo?.contactPhone;
-                    if (phone != null && phone.isNotEmpty) {
-                      launchPhone(phone);
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenSize.responsivePadding(12),
-                      vertical: screenSize.responsivePadding(10),
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF07982C),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFF07982C,
-                          ).withValues(alpha: 0.25),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.call, size: 15, color: Colors.white),
-                        SizedBox(width: screenSize.responsivePadding(6)),
-                        const Text(
-                          'Call',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            ],
+            if (_hasCall) ...[
+              SizedBox(width: screenSize.responsivePadding(8)),
+              _IconActionButton(
+                size: screenSize.responsivePadding(36),
+                backgroundColor: const Color(0xFF07982C),
+                onTap: _makeCall,
+                child: const Icon(Icons.call, size: 18, color: Colors.white),
               ),
-            ),
+            ],
           ],
         ),
       ],
+    );
+  }
+
+  bool get _hasWhatsApp {
+    final phone = widget.shop?.businessInfo?.whatsappNumber;
+    return phone != null && phone.trim().isNotEmpty;
+  }
+
+  bool get _hasCall {
+    final phone =
+        widget.selectedBranch?.phone ??
+        widget.shop?.businessInfo?.contactPhone;
+    return phone != null && phone.trim().isNotEmpty;
+  }
+
+  void _openWhatsApp() {
+    final phone = widget.shop?.businessInfo?.whatsappNumber;
+    if (phone == null || phone.isEmpty) return;
+    final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanPhone.isEmpty) return;
+    final actualPhone = cleanPhone.length == 10
+        ? '91$cleanPhone'
+        : cleanPhone;
+    final message =
+        'Hey, I just need to know more about this, I just viewed your shop via Setgo.';
+    launchURL(
+      'https://wa.me/$actualPhone?text=${Uri.encodeComponent(message)}',
+    );
+  }
+
+  void _makeCall() {
+    final phone =
+        widget.selectedBranch?.phone ??
+        widget.shop?.businessInfo?.contactPhone;
+    if (phone != null && phone.isNotEmpty) {
+      launchPhone(phone);
+    }
+  }
+}
+
+class _IconActionButton extends StatelessWidget {
+  final double size;
+  final Color backgroundColor;
+  final VoidCallback onTap;
+  final Widget child;
+
+  const _IconActionButton({
+    required this.size,
+    required this.backgroundColor,
+    required this.onTap,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(size / 2),
+        child: Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: backgroundColor.withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
     );
   }
 }
