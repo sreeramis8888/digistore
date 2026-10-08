@@ -1,6 +1,7 @@
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:setgo/src/data/models/app_notification_model.dart';
 import 'package:setgo/src/data/router/nav_router.dart';
 import 'package:setgo/src/data/services/navigation_service.dart';
 import 'package:setgo/src/data/services/secure_storage_service.dart';
@@ -9,6 +10,7 @@ import 'package:setgo/src/data/services/notification_service/notification_contro
 import 'package:setgo/src/data/providers/offers_provider.dart';
 import 'package:setgo/src/data/providers/shops_provider.dart';
 import 'package:setgo/src/data/providers/rewards_provider.dart';
+import 'package:setgo/src/data/utils/launch_url.dart';
 
 final deepLinkServiceProvider = Provider<DeepLinkService>((ref) {
   return DeepLinkService(ref);
@@ -79,21 +81,183 @@ class DeepLinkService {
     }
   }
 
-  /// Handle notification payload map
+  /// Handle notification payload map (FCM data / flattened action fields).
   void handleNotificationData(Map<String, dynamic> data) {
     try {
       debugPrint('📩 Processing notification data: $data');
-      final screen = data['screen'] as String?;
-      final id = data['id'] as String?;
-
-      if (screen != null) {
-        final uriString = 'app://$screen${id != null ? '/$id' : ''}';
-        final uri = Uri.parse(uriString);
-        handleDeepLink(uri);
-      }
+      final notification = AppNotificationModel.fromJson(data);
+      handleNotificationAction(notification);
     } catch (e) {
       debugPrint('❌ Error handling notification data: $e');
     }
+  }
+
+  /// Navigate from an in-app / push notification using backend `action`.
+  Future<void> handleNotificationAction(AppNotificationModel notification) async {
+    try {
+      final action = notification.action;
+      final metadata = notification.metadata ?? const <String, dynamic>{};
+
+      String? meta(String key) => metadata[key]?.toString();
+
+      if (action != null && action.isNavigable) {
+        switch (action.type) {
+          case 'open_offer':
+            await _navigateToOffer(
+              action.targetId ?? meta('offerId') ?? meta('id'),
+            );
+            return;
+          case 'open_shop':
+          case 'open_branch':
+            await _navigateToShop(
+              action.targetId ??
+                  meta('partnerId') ??
+                  meta('shopId') ??
+                  meta('id'),
+            );
+            return;
+          case 'open_reward':
+            final rewardId =
+                action.targetId ?? meta('rewardId') ?? meta('id');
+            if (rewardId != null && rewardId.isNotEmpty) {
+              await _navigateToReward(rewardId);
+            } else {
+              await _openMainTab('Rewards');
+            }
+            return;
+          case 'open_url':
+            final url = action.url ?? action.targetId ?? meta('url');
+            if (url != null && url.trim().isNotEmpty) {
+              await launchURL(url.trim());
+            }
+            return;
+          case 'open_screen':
+            await _openScreen(action.screen ?? action.targetId);
+            return;
+          case 'open_profile':
+          case 'open_subscription':
+            await _navigateToProfile();
+            return;
+          case 'open_booking':
+            await _navigateToBookings();
+            return;
+          default:
+            break;
+        }
+      }
+
+      // Fallback: notification type / metadata hints.
+      final offerId = meta('offerId');
+      final shopId = meta('partnerId') ?? meta('shopId');
+      final rewardId = meta('rewardId');
+      final url = meta('url') ?? action?.url;
+      final kind = (meta('kind') ?? notification.type ?? '').toLowerCase();
+
+      if (offerId != null && offerId.isNotEmpty) {
+        await _navigateToOffer(offerId);
+      } else if (shopId != null && shopId.isNotEmpty) {
+        await _navigateToShop(shopId);
+      } else if (rewardId != null && rewardId.isNotEmpty) {
+        await _navigateToReward(rewardId);
+      } else if (url != null && url.trim().isNotEmpty) {
+        await launchURL(url.trim());
+      } else if (kind.contains('offer')) {
+        await _openMainTab('Offers');
+      } else if (kind.contains('shop') || kind.contains('partner')) {
+        await _openMainTab('Shops');
+      } else if (kind.contains('reward')) {
+        await _openMainTab('Rewards');
+      } else {
+        debugPrint('📩 No navigable action on notification ${notification.id}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error handling notification action: $e');
+      _showError('Unable to open this notification');
+    }
+  }
+
+  Future<void> _openScreen(String? screen) async {
+    if (screen == null || screen.trim().isEmpty) {
+      await _navigateToHome();
+      return;
+    }
+    final key = screen.trim().toLowerCase();
+    switch (key) {
+      case 'offers':
+      case 'offerstab':
+      case 'offer':
+        await _openMainTab('Offers');
+        break;
+      case 'shops':
+      case 'shopstab':
+      case 'partners':
+      case 'shop':
+        await _openMainTab('Shops');
+        break;
+      case 'rewards':
+      case 'rewardstab':
+      case 'reward':
+        await _openMainTab('Rewards');
+        break;
+      case 'products':
+      case 'services':
+      case 'products & services':
+        await _openMainTab('Products & Services');
+        break;
+      case 'home':
+      case 'general':
+        await _navigateToHome();
+        break;
+      case 'notifications':
+        await _navigateToNotifications();
+        break;
+      case 'profile':
+      case 'myaccount':
+        await _navigateToProfile();
+        break;
+      case 'shopdetail':
+      case 'offerdetail':
+      case 'rewarddetail':
+        await handleDeepLink(Uri.parse('app://$key'));
+        break;
+      default:
+        // Treat unknown screens as deep-link routes when possible.
+        await handleDeepLink(Uri.parse('app://$key'));
+        break;
+    }
+  }
+
+  Future<void> _openMainTab(String label) async {
+    try {
+      NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        'navbar',
+        (route) => false,
+      );
+      await Future.delayed(const Duration(milliseconds: 250));
+
+      // Customer tabs: Home, Offers, Shops, Rewards, Products & Services
+      const tabs = [
+        'Home',
+        'Offers',
+        'Shops',
+        'Rewards',
+        'Products & Services',
+      ];
+      final index = tabs.indexWhere(
+        (t) => t.toLowerCase() == label.toLowerCase(),
+      );
+      _ref
+          .read(selectedIndexProvider.notifier)
+          .updateIndex(index >= 0 ? index : 0);
+      debugPrint('✅ Opened main tab: $label');
+    } catch (e) {
+      debugPrint('Error opening tab $label: $e');
+    }
+  }
+
+  Future<void> _navigateToBookings() async {
+    // Customer bookings live under Products & Services for now.
+    await _openMainTab('Products & Services');
   }
 
   /// Main deep link handler - routes to appropriate screen
@@ -102,6 +266,15 @@ class DeepLinkService {
       debugPrint('🔗 Deep link received: ${uri.toString()}');
       debugPrint('🔗 Path segments: ${uri.pathSegments}');
       debugPrint('🔗 Query parameters: ${uri.queryParameters}');
+
+      // External http(s) URLs (notification open_url) — open in browser.
+      final isHttp = uri.scheme == 'http' || uri.scheme == 'https';
+      final isAppHttpsLink =
+          uri.host == 'setgo.in' && uri.path.contains('/app');
+      if (isHttp && !isAppHttpsLink) {
+        await launchURL(uri.toString());
+        return;
+      }
 
       // Filter out empty segments and 'app' prefix
       var pathSegments = uri.pathSegments

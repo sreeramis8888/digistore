@@ -153,13 +153,16 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
             DateTime.now().millisecondsSinceEpoch.toString();
 
         if (title.isNotEmpty || body.isNotEmpty) {
-          final newNotification = AppNotificationModel(
-            id: id,
-            title: title,
-            message: body,
-            read: false,
-            createdAt: DateTime.now(),
-          );
+          final payload = <String, dynamic>{
+            for (final entry in data.entries)
+              entry.key.toString(): entry.value,
+            '_id': id,
+            'title': title,
+            'message': body,
+            'read': false,
+            'createdAt': DateTime.now().toIso8601String(),
+          };
+          final newNotification = AppNotificationModel.fromJson(payload);
           updatedNotifications = [newNotification, ...state.notifications];
         }
       }
@@ -186,13 +189,7 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
         final updatedList = state.notifications.map((n) {
           if (n.id == id) {
             if (!n.read) wasUnread = true;
-            return AppNotificationModel(
-              id: n.id,
-              title: n.title,
-              message: n.message,
-              read: true,
-              createdAt: n.createdAt,
-            );
+            return n.copyWith(read: true);
           }
           return n;
         }).toList();
@@ -214,15 +211,9 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
       final api = ref.read(apiProvider);
       final response = await api.patch('/notifications/read-all', null);
       if (response.success) {
-        final updatedList = state.notifications.map((n) {
-          return AppNotificationModel(
-            id: n.id,
-            title: n.title,
-            message: n.message,
-            read: true,
-            createdAt: n.createdAt,
-          );
-        }).toList();
+        final updatedList = state.notifications
+            .map((n) => n.copyWith(read: true))
+            .toList();
         state = state.copyWith(notifications: updatedList, unreadCount: 0);
       }
     } catch (e) {

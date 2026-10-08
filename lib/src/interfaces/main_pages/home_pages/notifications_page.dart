@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
+import '../../../data/models/app_notification_model.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/notifications_provider.dart';
+import '../../../data/services/deep_link_service.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -36,6 +38,16 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onNotificationTap(AppNotificationModel notification) async {
+    if (!notification.read) {
+      // Fire-and-forget; don't block navigation on the read API.
+      ref.read(notificationsProvider.notifier).markAsRead(notification.id);
+    }
+    await ref
+        .read(deepLinkServiceProvider)
+        .handleNotificationAction(notification);
   }
 
   @override
@@ -108,13 +120,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   }
                   final notification = notificationsState.notifications[index];
                   return GestureDetector(
-                    onTap: () {
-                      if (!notification.read) {
-                        ref
-                            .read(notificationsProvider.notifier)
-                            .markAsRead(notification.id);
-                      }
-                    },
+                    onTap: () => _onNotificationTap(notification),
                     child: _buildNotificationItem(
                       screenSize: screenSize,
                       title: notification.title,

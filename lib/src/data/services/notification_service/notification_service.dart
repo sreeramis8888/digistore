@@ -95,12 +95,25 @@ class NotificationService {
           message.data['message'];
 
       if (title != null || body != null) {
+        final dataMap = Map<String, dynamic>.from(
+          message.data.map((k, v) => MapEntry(k.toString(), v)),
+        );
         String? deepLink;
-        String? screen = message.data['screen'] ?? message.data['actionScreen'];
-        String? id = message.data['id'] ?? message.data['actionTargetId'];
+        String? screen = dataMap['screen'] ?? dataMap['actionScreen'];
+        String? id = dataMap['id'] ?? dataMap['actionTargetId'];
+        final actionType = (dataMap['actionType'] ?? '').toString().toLowerCase();
 
         if (screen != null) {
           deepLink = _deepLinkService.generateDeepLink(screen, id: id);
+        } else if (actionType == 'open_offer') {
+          deepLink = _deepLinkService.generateDeepLink('offerdetail', id: id);
+        } else if (actionType == 'open_shop' || actionType == 'open_branch') {
+          deepLink = _deepLinkService.generateDeepLink('shopdetail', id: id);
+        } else if (actionType == 'open_reward') {
+          deepLink = _deepLinkService.generateDeepLink('rewarddetail', id: id);
+        } else if (actionType == 'open_url' &&
+            (dataMap['actionUrl'] ?? dataMap['url']) != null) {
+          deepLink = (dataMap['actionUrl'] ?? dataMap['url']).toString();
         }
 
         // ALWAYS show in-app notification overlay when app is in foreground
@@ -117,8 +130,15 @@ class NotificationService {
                 message.data['imageUrl']?.toString(),
             accentColor: const Color(0xFF1e3a81),
             onTap: () {
-              if (deepLink != null) {
+              if (deepLink != null &&
+                  (deepLink.startsWith('http://') ||
+                      deepLink.startsWith('https://')) &&
+                  !deepLink.contains('setgo.in/app')) {
+                _deepLinkService.handleNotificationData(dataMap);
+              } else if (deepLink != null) {
                 _deepLinkService.handleDeepLink(Uri.parse(deepLink));
+              } else {
+                _deepLinkService.handleNotificationData(dataMap);
               }
             },
             onTimeout: () {
@@ -193,17 +213,10 @@ class NotificationService {
       // Refresh unread count when app is opened via notification (throttled)
       _ref.read(notificationsProvider.notifier).fetchUnreadCount();
 
-      String? deepLink;
-      String? screen = message.data['screen'] ?? message.data['actionScreen'];
-      String? id = message.data['id'] ?? message.data['actionTargetId'];
-
-      if (screen != null) {
-        deepLink = _deepLinkService.generateDeepLink(screen, id: id);
-      }
-
-      if (deepLink != null) {
-        _deepLinkService.handleDeepLink(Uri.parse(deepLink));
-      }
+      final dataMap = Map<String, dynamic>.from(
+        message.data.map((k, v) => MapEntry(k.toString(), v)),
+      );
+      _deepLinkService.handleNotificationData(dataMap);
     } catch (e) {
       debugPrint('Message opened app handling error: $e');
     }
