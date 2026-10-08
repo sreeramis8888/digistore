@@ -1483,7 +1483,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                 label,
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 12,
+                  fontSize: 14,
                   height: 1.3,
                   color: const Color(0xFF6B7280),
                 ),
@@ -1493,7 +1493,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                 value,
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                   color: const Color(0xFF111827),
