@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../src/data/constants/color_constants.dart';
-import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../../../../src/data/models/shop_model.dart';
 
@@ -13,36 +11,49 @@ class ShopAbout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = ref.watch(screenSizeProvider);
-    final description =
-        shop?.businessInfo?.description ??
-        'Offering premium services in ${shop?.businessDetails?.businessType ?? 'Shop'} category.';
+    final description = shop?.businessInfo?.description?.trim() ?? '';
+    final specialties = (shop?.businessInfo?.specialties ?? [])
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final achievements = (shop?.businessInfo?.achievements ?? [])
+        .map((a) => a.trim())
+        .where((a) => a.isNotEmpty)
+        .toList();
 
-    final specialties = shop?.businessInfo?.specialties ?? [];
-    final achievements = shop?.businessInfo?.achievements ?? [];
+    final hasAbout = description.isNotEmpty;
+    final hasSpecialties = specialties.isNotEmpty;
+    final hasHighlights = achievements.isNotEmpty;
+
+    if (!hasAbout && !hasSpecialties && !hasHighlights) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'About',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
+        if (hasAbout) ...[
+          const Text(
+            'About',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF111827),
+            ),
           ),
-        ),
-        SizedBox(height: screenSize.responsivePadding(10)),
-        Text(
-          description,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: Color(0xFF6B7280),
-            height: 1.5,
+          SizedBox(height: screenSize.responsivePadding(10)),
+          Text(
+            description,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFF6B7280),
+              height: 1.5,
+            ),
           ),
-        ),
-        if (specialties.isNotEmpty) ...[
-          SizedBox(height: screenSize.responsivePadding(14)),
+        ],
+        if (hasSpecialties) ...[
+          if (hasAbout) SizedBox(height: screenSize.responsivePadding(14)),
           const Text(
             'Specialties',
             style: TextStyle(
@@ -78,8 +89,9 @@ class ShopAbout extends ConsumerWidget {
             }).toList(),
           ),
         ],
-        if (achievements.isNotEmpty) ...[
-          SizedBox(height: screenSize.responsivePadding(14)),
+        if (hasHighlights) ...[
+          if (hasAbout || hasSpecialties)
+            SizedBox(height: screenSize.responsivePadding(14)),
           const Text(
             'Highlights & Achievements',
             style: TextStyle(
@@ -125,6 +137,7 @@ class ShopAbout extends ConsumerWidget {
             }).toList(),
           ),
         ],
+        SizedBox(height: screenSize.responsivePadding(20)),
       ],
     );
   }

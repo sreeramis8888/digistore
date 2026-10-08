@@ -223,7 +223,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                           },
                         ),
                         ShopAbout(shop: currentShop),
-                        SizedBox(height: screenSize.responsivePadding(20)),
                         if (galleryMedia.length > 1) ...[
                           ShopGallery(media: galleryMedia),
                           SizedBox(height: screenSize.responsivePadding(20)),
@@ -232,7 +231,6 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                           shop: currentShop,
                           selectedBranch: _selectedBranch,
                         ),
-                        SizedBox(height: screenSize.responsivePadding(20)),
                         ShopReviews(shop: currentShop),
                         SizedBox(height: screenSize.responsivePadding(20)),
                         ShopSocials(shop: currentShop),

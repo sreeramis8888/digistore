@@ -97,6 +97,16 @@ class ShopAddress extends ConsumerWidget {
     final branchContact =
         selectedBranch?.contactPersonName ?? primaryBranch?.contactPersonName;
 
+    final hasRealAddress =
+        addressText.trim().isNotEmpty &&
+        addressText.trim().toLowerCase() != 'no address provided';
+    final hasCityState = cityStateText != null && cityStateText!.trim().isNotEmpty;
+    final hasContact = branchContact != null && branchContact.trim().isNotEmpty;
+
+    if (!hasRealAddress && !hasCityState && !hasContact) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -241,6 +251,7 @@ class ShopAddress extends ConsumerWidget {
             ),
           ),
         ),
+        SizedBox(height: screenSize.responsivePadding(20)),
       ],
     );
   }
