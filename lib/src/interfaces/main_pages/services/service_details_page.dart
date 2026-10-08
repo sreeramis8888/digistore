@@ -150,13 +150,11 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
         : (fetchedShop?.businessDetails?.address ?? '');
 
     final hasOffer = service.hasOffer && service.offerPrice != null;
-    final displayPrice = hasOffer
-        ? (service.offerPrice!.truncateToDouble() == service.offerPrice
-              ? service.offerPrice!.toStringAsFixed(0)
-              : service.offerPrice!.toStringAsFixed(2))
-        : (service.originalPrice.truncateToDouble() == service.originalPrice
-              ? service.originalPrice.toStringAsFixed(0)
-              : service.originalPrice.toStringAsFixed(2));
+    final offerPriceText = hasOffer
+        ? _formatMoney(service.offerPrice!)
+        : null;
+    final originalPriceText = _formatMoney(service.originalPrice);
+    final displayPrice = hasOffer ? offerPriceText! : originalPriceText;
 
     final showShop =
         !isPartner &&
@@ -355,15 +353,22 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                           ),
                         ),
                         SizedBox(height: screenSize.responsivePadding(6)),
-                        Text(
-                          '₹$displayPrice',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF07838C),
+                        if (hasOffer)
+                          _OfferPriceRow(
+                            offerPrice: '₹$displayPrice',
+                            originalPrice: '₹$originalPriceText',
+                            gap: screenSize.responsivePadding(8),
+                          )
+                        else
+                          Text(
+                            '₹$displayPrice',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF07838C),
+                            ),
                           ),
-                        ),
                         if (showShop) ...[
                           SizedBox(height: screenSize.responsivePadding(16)),
                           const Divider(
@@ -710,22 +715,29 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     );
   }
 
+  static String _formatMoney(double value) {
+    return value.truncateToDouble() == value
+        ? value.toStringAsFixed(0)
+        : value.toStringAsFixed(2);
+  }
+
   Widget _buildRecommendationCard(
     BuildContext context,
     ServiceModel serviceModel,
     ScreenSizeData screenSize,
   ) {
     final title = serviceModel.name;
-    final price = serviceModel.hasOffer && serviceModel.offerPrice != null
-        ? serviceModel.offerPrice!
-        : serviceModel.originalPrice;
+    final hasOffer =
+        serviceModel.hasOffer && serviceModel.offerPrice != null;
     final image = serviceModel.images.isNotEmpty
         ? serviceModel.images.first
         : null;
 
-    final formattedPrice = price.truncateToDouble() == price
-        ? '₹${price.toStringAsFixed(0)}'
-        : '₹${price.toStringAsFixed(2)}';
+    final offerText = hasOffer
+        ? '₹${_formatMoney(serviceModel.offerPrice!)}'
+        : null;
+    final originalText = '₹${_formatMoney(serviceModel.originalPrice)}';
+    final formattedPrice = hasOffer ? offerText! : originalText;
 
     return Container(
       decoration: BoxDecoration(
@@ -790,15 +802,42 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),
-                Text(
-                  formattedPrice,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF07838C),
+                if (hasOffer)
+                  Row(
+                    children: [
+                      Text(
+                        formattedPrice,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF07838C),
+                        ),
+                      ),
+                      SizedBox(width: screenSize.responsivePadding(6)),
+                      Text(
+                        originalText,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF9CA3AF),
+                          decoration: TextDecoration.lineThrough,
+                          decorationColor: const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    formattedPrice,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF07838C),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -810,4 +849,154 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
 
 extension on String {
   String ifEmpty(String fallback) => trim().isEmpty ? fallback : this;
+}
+
+/// Offer price + original price with an animated strikethrough.
+class _OfferPriceRow extends StatefulWidget {
+  final String offerPrice;
+  final String originalPrice;
+  final double gap;
+
+  const _OfferPriceRow({
+    required this.offerPrice,
+    required this.originalPrice,
+    required this.gap,
+  });
+
+  @override
+  State<_OfferPriceRow> createState() => _OfferPriceRowState();
+}
+
+class _OfferPriceRowState extends State<_OfferPriceRow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _offerFade;
+  late final Animation<Offset> _offerSlide;
+  late final Animation<double> _strike;
+  late final Animation<double> _originalFade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+
+    _offerFade = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
+    );
+    _offerSlide = Tween<Offset>(
+      begin: const Offset(-0.08, 0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic),
+      ),
+    );
+    _strike = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.28, 0.78, curve: Curves.easeInOutCubic),
+    );
+    _originalFade = Tween<double>(begin: 1, end: 0.55).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.35, 0.85, curve: Curves.easeOut),
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            SlideTransition(
+              position: _offerSlide,
+              child: FadeTransition(
+                opacity: _offerFade,
+                child: Text(
+                  widget.offerPrice,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF07838C),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: widget.gap),
+            Opacity(
+              opacity: _originalFade.value,
+              child: CustomPaint(
+                foregroundPainter: _StrikeThroughPainter(
+                  progress: _strike.value,
+                  color: const Color(0xFF9CA3AF),
+                ),
+                child: Text(
+                  widget.originalPrice,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StrikeThroughPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  const _StrikeThroughPainter({
+    required this.progress,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress <= 0) return;
+
+    final y = size.height * 0.55;
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(
+      Offset(0, y),
+      Offset(size.width * progress, y),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_StrikeThroughPainter oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.color != color;
+  }
 }
