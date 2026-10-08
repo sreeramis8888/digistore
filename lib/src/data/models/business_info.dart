@@ -2,10 +2,107 @@ import 'package:setgo/src/utils/safe_parser.dart';
 import '../utils/name_case.dart';
 import 'location_point.dart';
 
+/// Image or video entry in `businessInfo.businessImages` (and related media).
+class BusinessMediaItem {
+  final String url;
+  final String mediaType; // 'image' | 'video'
+  final String? thumbnailUrl;
+
+  const BusinessMediaItem({
+    required this.url,
+    this.mediaType = 'image',
+    this.thumbnailUrl,
+  });
+
+  bool get isVideo => mediaType.toLowerCase() == 'video';
+
+  String get displayUrl =>
+      isVideo ? (thumbnailUrl?.isNotEmpty == true ? thumbnailUrl! : url) : url;
+
+  static bool looksLikeVideo(String url) {
+    final path = url.toLowerCase().split('?').first;
+    return path.endsWith('.mp4') ||
+        path.endsWith('.mov') ||
+        path.endsWith('.webm') ||
+        path.endsWith('.m3u8') ||
+        path.endsWith('.mkv') ||
+        path.endsWith('.avi');
+  }
+
+  factory BusinessMediaItem.fromUrl(String url) {
+    final trimmed = url.trim();
+    return BusinessMediaItem(
+      url: trimmed,
+      mediaType: looksLikeVideo(trimmed) ? 'video' : 'image',
+    );
+  }
+
+  factory BusinessMediaItem.fromJson(dynamic json) {
+    if (json is String) {
+      return BusinessMediaItem.fromUrl(json);
+    }
+    if (json is Map) {
+      final map = Map<String, dynamic>.from(json);
+      final explicitType = (map['mediaType'] ?? map['type'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase();
+      final videoUrl = (map['videoUrl'] ?? '').toString().trim();
+      final imageUrl = (map['imageUrl'] ?? map['image'] ?? map['src'] ?? '')
+          .toString()
+          .trim();
+      final url = (map['url'] ?? '').toString().trim();
+
+      final resolvedUrl = url.isNotEmpty
+          ? url
+          : (videoUrl.isNotEmpty
+                ? videoUrl
+                : (imageUrl.isNotEmpty ? imageUrl : ''));
+
+      final thumb = (map['thumbnailUrl'] ?? map['thumbnail'] ?? map['poster'])
+          ?.toString()
+          .trim();
+
+      final isVideo =
+          explicitType == 'video' ||
+          (explicitType.isEmpty &&
+              (videoUrl.isNotEmpty || looksLikeVideo(resolvedUrl)));
+
+      return BusinessMediaItem(
+        url: resolvedUrl,
+        mediaType: isVideo ? 'video' : 'image',
+        thumbnailUrl: (thumb != null && thumb.isNotEmpty) ? thumb : null,
+      );
+    }
+    return BusinessMediaItem.fromUrl(json.toString());
+  }
+
+  Map<String, dynamic> toJson() {
+    if (!isVideo && thumbnailUrl == null) {
+      // Keep legacy string entries for image-only galleries.
+      return {'url': url, 'mediaType': 'image'};
+    }
+    return {
+      'url': url,
+      'mediaType': mediaType,
+      if (thumbnailUrl != null && thumbnailUrl!.isNotEmpty)
+        'thumbnailUrl': thumbnailUrl,
+    };
+  }
+
+  /// API payload value: plain URL for images, object when video metadata exists.
+  dynamic toApiValue() {
+    if (isVideo || (thumbnailUrl != null && thumbnailUrl!.isNotEmpty)) {
+      return toJson();
+    }
+    return url;
+  }
+}
+
 class BusinessInfo {
   final String? businessLogo;
   final String? coverImage;
-  final List<String>? businessImages;
+  final List<BusinessMediaItem>? businessImages;
   final String? description;
   final String? tagline;
   final List<String>? specialties;
@@ -19,6 +116,8 @@ class BusinessInfo {
   final OperatingHours? operatingHours;
   final SocialLinks? socialLinks;
   final String? videoUrl;
+  /// Shop detail banner video (API: `bannerVideoUrl`).
+  final String? bannerVideoUrl;
   final List<String>? achievements;
   final List<BusinessFAQ>? faqs;
   final List<BusinessBranch>? branches;
@@ -42,6 +141,7 @@ class BusinessInfo {
     this.operatingHours,
     this.socialLinks,
     this.videoUrl,
+    this.bannerVideoUrl,
     this.achievements,
     this.faqs,
     this.branches,
@@ -49,13 +149,85 @@ class BusinessInfo {
     this.email,
   });
 
+  String? get _resolvedBannerVideo {
+    final banner = bannerVideoUrl?.trim();
+    if (banner != null && banner.isNotEmpty) return banner;
+    final legacy = videoUrl?.trim();
+    if (legacy != null && legacy.isNotEmpty) return legacy;
+    return null;
+  }
+
+  /// Cover image + banner video for the shop-detail hero (swipeable).
+  List<BusinessMediaItem> get heroMedia {
+    final items = <BusinessMediaItem>[];
+    final seen = <String>{};
+
+    void add(BusinessMediaItem? item) {
+      if (item == null) return;
+      final url = item.url.trim();
+      if (url.isEmpty || seen.contains(url)) return;
+      seen.add(url);
+      items.add(item);
+    }
+
+    final cover = coverImage?.trim();
+    if (cover != null && cover.isNotEmpty) {
+      add(BusinessMediaItem.fromUrl(cover));
+    }
+
+    final bannerVideo = _resolvedBannerVideo;
+    if (bannerVideo != null) {
+      add(
+        BusinessMediaItem(
+          url: bannerVideo,
+          mediaType: 'video',
+          thumbnailUrl: coverImage?.trim().isNotEmpty == true
+              ? coverImage!.trim()
+              : null,
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  /// Cover + banner video + gallery, de-duplicated, for shop media UI.
+  List<BusinessMediaItem> get galleryMedia {
+    final items = <BusinessMediaItem>[];
+    final seen = <String>{};
+
+    void add(BusinessMediaItem? item) {
+      if (item == null) return;
+      final url = item.url.trim();
+      if (url.isEmpty || seen.contains(url)) return;
+      seen.add(url);
+      items.add(item);
+    }
+
+    for (final item in heroMedia) {
+      add(item);
+    }
+    for (final item in businessImages ?? const <BusinessMediaItem>[]) {
+      add(item);
+    }
+    return items;
+  }
+
   factory BusinessInfo.fromJson(Map<String, dynamic> json) {
+    List<BusinessMediaItem>? media;
+    final rawImages = json['businessImages'];
+    if (rawImages is List) {
+      media = rawImages
+          .map(BusinessMediaItem.fromJson)
+          .where((e) => e.url.trim().isNotEmpty)
+          .toList();
+      if (media.isEmpty) media = null;
+    }
+
     return BusinessInfo(
       businessLogo: json['businessLogo'] as String?,
       coverImage: json['coverImage'] as String?,
-      businessImages: json['businessImages'] != null
-          ? List<String>.from(json['businessImages'])
-          : null,
+      businessImages: media,
       description: json['description'] as String?,
       tagline: json['tagline'] as String?,
       specialties: json['specialties'] != null
@@ -77,6 +249,8 @@ class BusinessInfo {
         SocialLinks.fromJson,
       ),
       videoUrl: json['videoUrl'] as String?,
+      bannerVideoUrl:
+          (json['bannerVideoUrl'] ?? json['banner_video_url']) as String?,
       achievements: json['achievements'] != null
           ? List<String>.from(json['achievements'])
           : null,
@@ -95,7 +269,7 @@ class BusinessInfo {
     return {
       'businessLogo': businessLogo,
       'coverImage': coverImage,
-      'businessImages': businessImages,
+      'businessImages': businessImages?.map((e) => e.toApiValue()).toList(),
       'description': description,
       'tagline': tagline,
       'specialties': specialties,
@@ -109,6 +283,7 @@ class BusinessInfo {
       'operatingHours': operatingHours?.toJson(),
       'socialLinks': socialLinks?.toJson(),
       'videoUrl': videoUrl,
+      'bannerVideoUrl': bannerVideoUrl,
       'achievements': achievements,
       'faqs': faqs?.map((e) => e.toJson()).toList(),
       'branches': branches?.map((e) => e.toJson()).toList(),

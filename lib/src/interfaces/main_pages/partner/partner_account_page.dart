@@ -182,7 +182,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
       }
     });
 
-    _businessImages = List.from(partner?.businessInfo?.businessImages ?? []);
+    _businessImages = List.from(
+      partner?.businessInfo?.businessImages?.map((e) => e.url) ?? const [],
+    );
     _operatingHours = partner?.businessInfo?.operatingHours;
   }
 
@@ -2523,7 +2525,9 @@ class _PartnerAccountPageState extends ConsumerState<PartnerAccountPage> {
                             coverImage: _deletedCover
                                 ? null
                                 : currentPartner.businessInfo?.coverImage,
-                            businessImages: _businessImages,
+                            businessImages: _businessImages
+                                .map(BusinessMediaItem.fromUrl)
+                                .toList(),
                             tagline: _taglineCtrl.text,
                             description: _descriptionCtrl.text,
                             yearsOfExperience: int.tryParse(

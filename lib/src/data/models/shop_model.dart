@@ -75,11 +75,46 @@ class ShopModel {
       json['businessInfo'],
       BusinessInfo.fromJson,
     );
-    if (bInfo == null && (json['logo'] != null || json['cover'] != null)) {
+    if (bInfo == null &&
+        (json['logo'] != null ||
+            json['cover'] != null ||
+            json['bannerVideoUrl'] != null)) {
       bInfo = BusinessInfo(
         businessLogo: json['logo'] as String?,
         coverImage: json['cover'] as String?,
+        bannerVideoUrl: json['bannerVideoUrl'] as String?,
       );
+    } else if (bInfo != null) {
+      // Some payloads put bannerVideoUrl on the shop root, not inside businessInfo.
+      final rootBanner = json['bannerVideoUrl'] as String?;
+      if ((bInfo.bannerVideoUrl == null || bInfo.bannerVideoUrl!.isEmpty) &&
+          rootBanner != null &&
+          rootBanner.trim().isNotEmpty) {
+        bInfo = BusinessInfo(
+          businessLogo: bInfo.businessLogo,
+          coverImage: bInfo.coverImage,
+          businessImages: bInfo.businessImages,
+          description: bInfo.description,
+          tagline: bInfo.tagline,
+          specialties: bInfo.specialties,
+          yearsOfExperience: bInfo.yearsOfExperience,
+          rating: bInfo.rating,
+          totalReviews: bInfo.totalReviews,
+          contactPhone: bInfo.contactPhone,
+          otpPhone: bInfo.otpPhone,
+          whatsappNumber: bInfo.whatsappNumber,
+          websiteUrl: bInfo.websiteUrl,
+          operatingHours: bInfo.operatingHours,
+          socialLinks: bInfo.socialLinks,
+          videoUrl: bInfo.videoUrl,
+          bannerVideoUrl: rootBanner,
+          achievements: bInfo.achievements,
+          faqs: bInfo.faqs,
+          branches: bInfo.branches,
+          ownerName: bInfo.ownerName,
+          email: bInfo.email,
+        );
+      }
     }
 
     return ShopModel(

@@ -3,11 +3,10 @@ import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:setgo/src/data/models/shop_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../components/advanced_network_image.dart';
-import '../../components/full_screen_gallery.dart';
 import '../../components/shops/shop_header.dart';
 import '../../components/shops/shop_about.dart';
 import '../../components/shops/shop_gallery.dart';
+import '../../components/shops/shop_hero_media.dart';
 import '../../components/shops/shop_address.dart';
 import '../../components/shops/shop_reviews.dart';
 import '../../components/shops/shop_socials.dart';
@@ -37,27 +36,6 @@ class ShopDetailPage extends ConsumerStatefulWidget {
 
 class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
   BusinessBranch? _selectedBranch;
-
-  void _openGallery({
-    required List<String> images,
-    required String? initialUrl,
-  }) {
-    if (images.isEmpty) return;
-    final initialIndex = initialUrl != null
-        ? images.indexOf(initialUrl).clamp(0, images.length - 1)
-        : 0;
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return FullScreenGallery(images: images, initialIndex: initialIndex);
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
-    );
-  }
 
   @override
   void didUpdateWidget(ShopDetailPage oldWidget) {
@@ -114,24 +92,10 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
         currentShop?.businessDetails?.businessName ??
         widget.shopName ??
         'Unknown Shop';
-    final heroImage =
-        currentShop?.businessInfo?.coverImage ??
-        (currentShop?.businessInfo?.businessImages?.isNotEmpty == true
-            ? currentShop!.businessInfo!.businessImages!.first
-            : null);
-
-    final allImages = <String>[];
-    if (currentShop?.businessInfo?.coverImage != null &&
-        currentShop!.businessInfo!.coverImage!.isNotEmpty) {
-      allImages.add(currentShop.businessInfo!.coverImage!);
-    }
-    if (currentShop?.businessInfo?.businessImages != null) {
-      for (final img in currentShop!.businessInfo!.businessImages!) {
-        if (img.isNotEmpty && !allImages.contains(img)) {
-          allImages.add(img);
-        }
-      }
-    }
+    final heroMedia =
+        currentShop?.businessInfo?.heroMedia ?? const <BusinessMediaItem>[];
+    final galleryMedia =
+        currentShop?.businessInfo?.galleryMedia ?? const <BusinessMediaItem>[];
 
     final offersAsync = shopId.isNotEmpty
         ? ref.watch(shopOffersProvider(shopId))
@@ -199,28 +163,10 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        GestureDetector(
-                          onTap: allImages.isNotEmpty
-                              ? () => _openGallery(
-                                  images: allImages,
-                                  initialUrl: heroImage,
-                                )
-                              : null,
-                          child: heroImage != null
-                              ? AdvancedNetworkImage(
-                                  imageUrl: heroImage,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                  color: const Color(0xFFF3F4F6),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.storefront_outlined,
-                                      size: 56,
-                                      color: Color(0xFF9CA3AF),
-                                    ),
-                                  ),
-                                ),
+                        ShopHeroMedia(
+                          media: heroMedia,
+                          height: screenSize.responsivePadding(210) +
+                              MediaQuery.paddingOf(context).top,
                         ),
                         Positioned(
                           top: MediaQuery.paddingOf(context).top + 10,
@@ -278,12 +224,8 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                         ),
                         ShopAbout(shop: currentShop),
                         SizedBox(height: screenSize.responsivePadding(20)),
-                        if (currentShop?.businessInfo?.businessImages != null &&
-                            currentShop!.businessInfo!.businessImages!.length >
-                                1) ...[
-                          ShopGallery(
-                            images: currentShop.businessInfo!.businessImages!,
-                          ),
+                        if (galleryMedia.length > 1) ...[
+                          ShopGallery(media: galleryMedia),
                           SizedBox(height: screenSize.responsivePadding(20)),
                         ],
                         ShopAddress(

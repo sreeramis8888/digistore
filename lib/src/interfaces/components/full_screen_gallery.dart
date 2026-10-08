@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
 import '../../data/constants/style_constants.dart';
+import '../../data/models/business_info.dart';
 import '../../data/providers/screen_size_provider.dart';
 import 'advanced_network_image.dart';
+import 'home/video_banner_player.dart';
 
 class FullScreenGallery extends ConsumerStatefulWidget {
-  final List<String> images;
+  final List<BusinessMediaItem> media;
   final int initialIndex;
 
-  const FullScreenGallery({
+  FullScreenGallery({
     super.key,
-    required this.images,
+    required List<String> images,
+    required this.initialIndex,
+  }) : media = images.map(BusinessMediaItem.fromUrl).toList();
+
+  const FullScreenGallery.media({
+    super.key,
+    required this.media,
     required this.initialIndex,
   });
 
@@ -26,8 +34,11 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: widget.initialIndex);
+    _currentIndex = widget.initialIndex.clamp(
+      0,
+      widget.media.isEmpty ? 0 : widget.media.length - 1,
+    );
+    _pageController = PageController(initialPage: _currentIndex);
   }
 
   @override
@@ -36,9 +47,26 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
     super.dispose();
   }
 
+  Widget _thumbFor(BusinessMediaItem item) {
+    if (item.isVideo) {
+      final thumb = item.thumbnailUrl;
+      if (thumb != null && thumb.isNotEmpty) {
+        return AdvancedNetworkImage(imageUrl: thumb, fit: BoxFit.cover);
+      }
+      return const ColoredBox(
+        color: Color(0xFF1F2937),
+        child: Center(
+          child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
+        ),
+      );
+    }
+    return AdvancedNetworkImage(imageUrl: item.url, fit: BoxFit.cover);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = ref.watch(screenSizeProvider);
+    final items = widget.media;
 
     return Scaffold(
       backgroundColor: kBlack,
@@ -47,21 +75,35 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
           PageView.builder(
             controller: _pageController,
             physics: const BouncingScrollPhysics(),
-            itemCount: widget.images.length,
+            itemCount: items.length,
             onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+              setState(() => _currentIndex = index);
             },
             itemBuilder: (context, index) {
+              final item = items[index];
+              if (item.isVideo) {
+                return Center(
+                  child: VideoBannerPlayer(
+                    key: ValueKey('gallery_video_${item.url}_$index'),
+                    videoUrl: item.url,
+                    thumbnailUrl: item.thumbnailUrl,
+                    isActivePage: index == _currentIndex,
+                    autoplay: true,
+                    loop: true,
+                    muted: false,
+                    showControls: true,
+                  ),
+                );
+              }
+
               return InteractiveViewer(
                 minScale: 1.0,
                 maxScale: 4.0,
                 child: Hero(
-                  tag: 'gallery_image_${widget.images[index]}_$index',
+                  tag: 'gallery_image_${item.url}_$index',
                   child: Center(
                     child: AdvancedNetworkImage(
-                      imageUrl: widget.images[index],
+                      imageUrl: item.url,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -69,7 +111,6 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
               );
             },
           ),
-
           Positioned(
             top: MediaQuery.paddingOf(context).top,
             left: 0,
@@ -83,7 +124,10 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [kBlack.withOpacity(0.7), Colors.transparent],
+                  colors: [
+                    kBlack.withValues(alpha: 0.7),
+                    Colors.transparent,
+                  ],
                 ),
               ),
               child: Row(
@@ -94,7 +138,7 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Text(
-                    '${_currentIndex + 1} / ${widget.images.length}',
+                    '${_currentIndex + 1} / ${items.length}',
                     style: kBodyTitleM.copyWith(color: kWhite),
                   ),
                   const SizedBox(width: 48),
@@ -102,7 +146,6 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
               ),
             ),
           ),
-
           Positioned(
             bottom:
                 MediaQuery.paddingOf(context).bottom +
@@ -117,9 +160,10 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                 padding: EdgeInsets.symmetric(
                   horizontal: screenSize.responsivePadding(16),
                 ),
-                itemCount: widget.images.length,
+                itemCount: items.length,
                 itemBuilder: (context, index) {
                   final isSelected = _currentIndex == index;
+                  final item = items[index];
                   return GestureDetector(
                     onTap: () {
                       _pageController.animateToPage(
@@ -150,12 +194,20 @@ class _FullScreenGalleryState extends ConsumerState<FullScreenGallery> {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          AdvancedNetworkImage(
-                            imageUrl: widget.images[index],
-                            fit: BoxFit.cover,
-                          ),
+                          _thumbFor(item),
+                          if (item.isVideo)
+                            const Align(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.play_circle_fill_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
                           if (!isSelected)
-                            Container(color: kBlack.withOpacity(0.4)),
+                            Container(
+                              color: kBlack.withValues(alpha: 0.4),
+                            ),
                         ],
                       ),
                     ),

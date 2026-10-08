@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../data/models/business_info.dart';
 import '../../../data/models/shop_model.dart';
 import '../../../data/providers/rewards_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
@@ -682,7 +683,11 @@ class _RewardDetailPageState extends ConsumerState<RewardDetailPage> {
                         ],
                         if (galleryImages.isNotEmpty) ...[
                           const SizedBox(height: 12),
-                          ShopGallery(images: galleryImages),
+                          ShopGallery(
+                            media: galleryImages
+                                .map(BusinessMediaItem.fromUrl)
+                                .toList(),
+                          ),
                         ],
                       ],
                     ),

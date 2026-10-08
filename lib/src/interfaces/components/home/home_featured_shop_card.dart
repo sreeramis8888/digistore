@@ -37,7 +37,12 @@ class HomeFeaturedShopCard extends ConsumerWidget {
     if (cover != null && cover.isNotEmpty) return cover;
 
     final images = shop.businessInfo?.businessImages;
-    if (images != null && images.isNotEmpty) return images.first;
+    if (images != null) {
+      for (final item in images) {
+        if (!item.isVideo) return item.url;
+      }
+      if (images.isNotEmpty) return images.first.displayUrl;
+    }
 
     return shop.businessInfo?.businessLogo ?? '';
   }

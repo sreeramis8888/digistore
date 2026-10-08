@@ -56,6 +56,7 @@ class _PartnerFaqPageState extends ConsumerState<PartnerFaqPage> {
       operatingHours: info?.operatingHours,
       socialLinks: info?.socialLinks,
       videoUrl: info?.videoUrl,
+      bannerVideoUrl: info?.bannerVideoUrl,
       achievements: info?.achievements,
       faqs: faqs,
       branches: info?.branches,
