@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/models/category_model.dart';
+import '../safe_network_icon.dart';
 
 /// Explore category tile — rounded icon box with label underneath.
 /// Icons come from the API (`category.iconUrl`); local SVG is fallback only.
@@ -23,6 +23,7 @@ class ExploreCategoryCard extends StatelessWidget {
 
   static const _tileBg = Color(0xFFF3F4F8);
   static const _labelColor = Color(0xFF6B7280);
+  static const _iconColor = Color(0xFF9CA3AF);
 
   @override
   Widget build(BuildContext context) {
@@ -77,38 +78,56 @@ class ExploreCategoryCard extends StatelessWidget {
     );
   }
 
+  static bool _isSvgPath(String pathOrUrl) {
+    final lower = pathOrUrl.toLowerCase();
+    final path = Uri.tryParse(lower)?.path ?? lower.split('?').first;
+    return path.endsWith('.svg');
+  }
+
+  Widget _fallbackVisual() {
+    final fallback = fallbackAsset;
+    if (fallback != null && fallback.isNotEmpty) {
+      return SvgPicture.asset(
+        fallback,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Icon(
+          Icons.category_outlined,
+          size: 24,
+          color: _iconColor,
+        ),
+      );
+    }
+    return const Icon(
+      Icons.category_outlined,
+      size: 24,
+      color: _iconColor,
+    );
+  }
+
   Widget _buildVisual(String pathOrUrl) {
     final isNetwork =
         pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://');
 
     if (isNetwork) {
-      final isSvg = pathOrUrl.toLowerCase().contains('.svg');
-      if (isSvg) {
-        return SvgPicture.network(
-          pathOrUrl,
-          fit: BoxFit.contain,
-          placeholderBuilder: (_) => const SizedBox.shrink(),
-        );
-      }
-      return CachedNetworkImage(
-        imageUrl: pathOrUrl,
+      // Sniff bytes — API often serves JPEG/PNG with a .svg filename.
+      return SafeNetworkIcon(
+        url: pathOrUrl,
         fit: BoxFit.contain,
-        errorWidget: (_, _, _) {
-          final fallback = fallbackAsset;
-          if (fallback != null && fallback.isNotEmpty) {
-            return SvgPicture.asset(fallback, fit: BoxFit.contain);
-          }
-          return const Icon(
-            Icons.category_outlined,
-            size: 24,
-            color: Color(0xFF9CA3AF),
-          );
-        },
+        placeholderBuilder: (_) => const SizedBox.shrink(),
+        errorBuilder: (_) => _fallbackVisual(),
       );
     }
 
-    if (pathOrUrl.endsWith('.svg') || pathOrUrl.startsWith('assets/')) {
-      return SvgPicture.asset(pathOrUrl, fit: BoxFit.contain);
+    if (_isSvgPath(pathOrUrl) || pathOrUrl.startsWith('assets/')) {
+      return SvgPicture.asset(
+        pathOrUrl,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Icon(
+          Icons.category_outlined,
+          size: 24,
+          color: _iconColor,
+        ),
+      );
     }
 
     return Image.asset(
@@ -117,7 +136,7 @@ class ExploreCategoryCard extends StatelessWidget {
       errorBuilder: (_, _, _) => const Icon(
         Icons.category_outlined,
         size: 24,
-        color: Color(0xFF9CA3AF),
+        color: _iconColor,
       ),
     );
   }

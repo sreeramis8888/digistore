@@ -17,6 +17,13 @@ import 'src/data/services/navigation_service.dart';
 import 'src/data/services/connectivity_service.dart';
 import 'src/data/constants/style_constants.dart';
 
+bool _isBenignSvgParseError(Object error) {
+  final text = error.toString();
+  return text.contains('XmlParserException') ||
+      text.contains('SvgParser') ||
+      text.contains('vector_graphics_compiler');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ConnectivityService.instance.initialize();
@@ -36,9 +43,19 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FlutterError.onError = (errorDetails) {
+    // Mislabelled remote icons (JPEG served as .svg) can surface here via
+    // flutter_svg's cache; never treat those as fatal app crashes.
+    if (_isBenignSvgParseError(errorDetails.exception)) {
+      FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+      return;
+    }
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
   PlatformDispatcher.instance.onError = (error, stack) {
+    if (_isBenignSvgParseError(error)) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+      return true;
+    }
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };

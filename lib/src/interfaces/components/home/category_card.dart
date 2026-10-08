@@ -3,7 +3,7 @@ import 'package:setgo/src/data/providers/screen_size_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../safe_network_icon.dart';
 
 class CategoryCard extends ConsumerWidget {
   final Map<String, dynamic> category;
@@ -67,55 +67,52 @@ class CategoryCard extends ConsumerWidget {
     );
   }
 
+  static bool _isSvgPath(String pathOrUrl) {
+    final lower = pathOrUrl.toLowerCase();
+    final path = Uri.tryParse(lower)?.path ?? lower.split('?').first;
+    return path.endsWith('.svg');
+  }
+
+  Widget _placeholder() => const SizedBox(
+    width: 18,
+    height: 18,
+    child: CircularProgressIndicator(
+      strokeWidth: 1.5,
+      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
+    ),
+  );
+
+  Widget _errorIcon() =>
+      const Icon(Icons.category_outlined, size: 34, color: Colors.grey);
+
   Widget _buildIcon(String iconPathOrUrl) {
     final cleanPath = iconPathOrUrl.trim();
     if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
-      if (cleanPath.toLowerCase().endsWith('.svg') ||
-          cleanPath.toLowerCase().contains('.svg')) {
-        return SvgPicture.network(
-          cleanPath,
-          width: 34,
-          height: 34,
-          placeholderBuilder: (context) => const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 1.5,
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
-            ),
-          ),
-        );
-      } else {
-        return CachedNetworkImage(
-          imageUrl: cleanPath,
-          width: 34,
-          height: 34,
-          fit: BoxFit.contain,
-          placeholder: (context, url) => const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 1.5,
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF96D4FB)),
-            ),
-          ),
-          errorWidget: (context, url, error) =>
-              const Icon(Icons.category_outlined, size: 34, color: Colors.grey),
-        );
-      }
-    } else {
-      if (cleanPath.endsWith('.svg')) {
-        return SvgPicture.asset(cleanPath, width: 34, height: 34);
-      } else {
-        return Image.asset(
-          cleanPath,
-          width: 34,
-          height: 34,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) =>
-              const Icon(Icons.category_outlined, size: 34, color: Colors.grey),
-        );
-      }
+      return SafeNetworkIcon(
+        url: cleanPath,
+        width: 34,
+        height: 34,
+        fit: BoxFit.contain,
+        placeholderBuilder: (_) => _placeholder(),
+        errorBuilder: (_) => _errorIcon(),
+      );
     }
+
+    if (_isSvgPath(cleanPath)) {
+      return SvgPicture.asset(
+        cleanPath,
+        width: 34,
+        height: 34,
+        errorBuilder: (context, error, stackTrace) => _errorIcon(),
+      );
+    }
+
+    return Image.asset(
+      cleanPath,
+      width: 34,
+      height: 34,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => _errorIcon(),
+    );
   }
 }
