@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/constants/color_constants.dart';
@@ -33,18 +34,163 @@ class ProductsPage extends ConsumerStatefulWidget {
 
 class _ProductsPageState extends ConsumerState<ProductsPage> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _productsSearchController =
+      TextEditingController();
+  final TextEditingController _servicesSearchController =
+      TextEditingController();
+  final FocusNode _productsSearchFocusNode = FocusNode();
+  final FocusNode _servicesSearchFocusNode = FocusNode();
+  Timer? _productsSearchDebounce;
+  Timer? _servicesSearchDebounce;
   int _lastFetchedCategoryIndex = -1;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final productQuery = ref.read(partnerProductsProvider).searchQuery;
+      if (productQuery.isNotEmpty) {
+        _productsSearchController.text = productQuery;
+      }
+      final isPartner =
+          ref.read(userTypeProvider) == UserType.partner ||
+          GlobalVariables.isPartner;
+      final serviceQuery = isPartner
+          ? ref.read(partnerServicesProvider).searchQuery
+          : ref.read(servicesListProvider).searchQuery;
+      if (serviceQuery.isNotEmpty) {
+        _servicesSearchController.text = serviceQuery;
+      }
+    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _productsSearchController.dispose();
+    _servicesSearchController.dispose();
+    _productsSearchFocusNode.dispose();
+    _servicesSearchFocusNode.dispose();
+    _productsSearchDebounce?.cancel();
+    _servicesSearchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _onProductsSearchChanged(String query) {
+    if (_productsSearchDebounce?.isActive ?? false) {
+      _productsSearchDebounce!.cancel();
+    }
+    _productsSearchDebounce = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      ref.read(partnerProductsProvider.notifier).updateSearch(query.trim());
+    });
+  }
+
+  void _onServicesSearchChanged(String query) {
+    if (_servicesSearchDebounce?.isActive ?? false) {
+      _servicesSearchDebounce!.cancel();
+    }
+    _servicesSearchDebounce = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final isPartner =
+          ref.read(userTypeProvider) == UserType.partner ||
+          GlobalVariables.isPartner;
+      final trimmed = query.trim();
+      if (isPartner) {
+        ref.read(partnerServicesProvider.notifier).updateSearch(trimmed);
+      } else {
+        ref.read(servicesListProvider.notifier).updateSearch(trimmed);
+      }
+    });
+  }
+
+  void _clearProductsSearch() {
+    _productsSearchDebounce?.cancel();
+    _productsSearchController.clear();
+    ref.read(partnerProductsProvider.notifier).updateSearch('');
+    setState(() {});
+  }
+
+  void _clearServicesSearch() {
+    _servicesSearchDebounce?.cancel();
+    _servicesSearchController.clear();
+    final isPartner =
+        ref.read(userTypeProvider) == UserType.partner ||
+        GlobalVariables.isPartner;
+    if (isPartner) {
+      ref.read(partnerServicesProvider.notifier).updateSearch('');
+    } else {
+      ref.read(servicesListProvider.notifier).updateSearch('');
+    }
+    setState(() {});
+  }
+
+  Widget _buildSearchField({
+    required ScreenSizeData screenSize,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String hintText,
+    required ValueChanged<String> onChanged,
+    required VoidCallback onClear,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenSize.responsivePadding(16),
+      ),
+      child: Container(
+        height: screenSize.responsivePadding(54),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.responsivePadding(20),
+        ),
+        decoration: BoxDecoration(
+          color: kField,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: Color(0xFF7D848D), size: 24),
+            SizedBox(width: screenSize.responsivePadding(12)),
+            Expanded(
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                onTapOutside: (_) => focusNode.unfocus(),
+                onChanged: (value) {
+                  setState(() {});
+                  onChanged(value);
+                },
+                textInputAction: TextInputAction.search,
+                style: kSmallerTitleL.copyWith(color: kBlack),
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: kSmallerTitleL.copyWith(
+                    color: kBlack.withValues(alpha: .5),
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            if (controller.text.isNotEmpty)
+              GestureDetector(
+                onTap: onClear,
+                behavior: HitTestBehavior.opaque,
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: Color(0xFF7D848D),
+                    size: 20,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _onScroll() {
@@ -246,9 +392,28 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                     const ProductsServicesSegmentedTabs(),
                     SizedBox(height: screenSize.responsivePadding(16)),
                     if (selectedTab == 0) ...[
+                      _buildSearchField(
+                        screenSize: screenSize,
+                        controller: _productsSearchController,
+                        focusNode: _productsSearchFocusNode,
+                        hintText: "Search for 'products'",
+                        onChanged: _onProductsSearchChanged,
+                        onClear: _clearProductsSearch,
+                      ),
+                      SizedBox(height: screenSize.responsivePadding(16)),
                       if (!isPartner) const ProductsFilterChips(),
-                    ] else
+                    ] else ...[
+                      _buildSearchField(
+                        screenSize: screenSize,
+                        controller: _servicesSearchController,
+                        focusNode: _servicesSearchFocusNode,
+                        hintText: "Search for 'services'",
+                        onChanged: _onServicesSearchChanged,
+                        onClear: _clearServicesSearch,
+                      ),
+                      SizedBox(height: screenSize.responsivePadding(16)),
                       const ServicesFilterChips(),
+                    ],
                     SizedBox(height: screenSize.responsivePadding(16)),
                   ],
                 ),
@@ -278,11 +443,17 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
-                      child: Text(
-                        'No products found',
-                        style: kSmallTitleL.copyWith(
-                          fontSize: 14,
-                          color: const Color(0xFF6B7280),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          productsState.searchQuery.isNotEmpty
+                              ? 'No products match "${productsState.searchQuery}"'
+                              : 'No products found',
+                          style: kSmallTitleL.copyWith(
+                            fontSize: 14,
+                            color: const Color(0xFF6B7280),
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -352,7 +523,9 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32),
                           child: Text(
-                            'No services uploaded yet. Tap "+ Create Service" to add one.',
+                            partnerServicesState.searchQuery.isNotEmpty
+                                ? 'No services match "${partnerServicesState.searchQuery}"'
+                                : 'No services uploaded yet. Tap "+ Create Service" to add one.',
                             style: kSmallTitleL.copyWith(
                               fontSize: 14,
                               color: const Color(0xFF6B7280),
@@ -418,11 +591,17 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(
-                        child: Text(
-                          'No services found',
-                          style: kSmallTitleL.copyWith(
-                            fontSize: 14,
-                            color: const Color(0xFF6B7280),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            servicesState.searchQuery.isNotEmpty
+                                ? 'No services match "${servicesState.searchQuery}"'
+                                : 'No services found',
+                            style: kSmallTitleL.copyWith(
+                              fontSize: 14,
+                              color: const Color(0xFF6B7280),
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),

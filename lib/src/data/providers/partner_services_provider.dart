@@ -73,6 +73,11 @@ class PartnerServicesNotifier extends Notifier<PartnerServicesState> {
     getServices(category: category, isCategoryChange: true);
   }
 
+  void updateSearch(String query) {
+    if (state.searchQuery == query) return;
+    getServices(search: query);
+  }
+
   Future<void> getServices({
     String? category,
     String? search,
