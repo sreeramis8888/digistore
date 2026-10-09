@@ -6,7 +6,9 @@ import '../../../data/constants/color_constants.dart';
 import '../../../data/constants/style_constants.dart';
 import '../../../data/models/category_model.dart';
 import '../../../data/models/offer_model.dart';
+import '../../../data/models/redemption_rules.dart';
 import '../../../data/models/shop_model.dart';
+import '../../../data/models/user_model.dart';
 import '../../../data/providers/offers_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/providers/shops_provider.dart';
@@ -208,8 +210,10 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final String? logoText = widget.args['logoText'];
     final Color? logoColor = widget.args['logoColor'];
 
-    final priceRange = widget.args['priceRange'];
-    final discountRange = widget.args['discountRange'];
+    final priceRange =
+        widget.args['priceRange'] ?? cachedOffer?.priceRange?.toJson();
+    final discountRange =
+        widget.args['discountRange'] ?? cachedOffer?.discountRange?.toJson();
 
     final branchApplicability = widget.args['branchApplicability'];
     final branchLocationsObj = widget.args['branchLocations'];
@@ -360,15 +364,341 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
         categoryName ??
         (subcategories.isNotEmpty ? subcategories.first : null);
 
+    final validFromStr =
+        widget.args['validFrom'] ?? cachedOffer?.validFrom?.toString();
+    final validFromDate = validFromStr != null
+        ? DateTime.tryParse(validFromStr)?.toLocal()
+        : null;
+
     final validToStr =
         widget.args['validTo'] ?? cachedOffer?.validTo?.toString();
     final validToDate = validToStr != null
         ? DateTime.tryParse(validToStr)?.toLocal()
         : null;
 
-    final termsList = (widget.args['terms'] is List)
-        ? (widget.args['terms'] as List).map((e) => e.toString()).toList()
-        : <String>[];
+    final termsList = () {
+      if (widget.args['terms'] is List) {
+        return (widget.args['terms'] as List)
+            .map((e) => e.toString())
+            .where((t) => t.trim().isNotEmpty && t != 'null')
+            .toList();
+      }
+      if (cachedOffer?.terms != null) {
+        return cachedOffer!.terms!
+            .where((t) => t.trim().isNotEmpty && t != 'null')
+            .toList();
+      }
+      return <String>[];
+    }();
+
+    final String? offerTypeCode =
+        (cachedOffer?.offerTypeCode ?? widget.args['offerTypeCode'])
+            ?.toString();
+    final String? offerTypeLabel = offerTypeCode != null
+        ? (offerTypeLabels[offerTypeCode.toUpperCase()] ?? offerTypeCode)
+        : null;
+
+    Map<String, dynamic>? offerMetadata;
+    final rawMeta = cachedOffer?.offerMetadata ?? widget.args['offerMetadata'];
+    if (rawMeta is Map<String, dynamic>) {
+      offerMetadata = rawMeta;
+    } else if (rawMeta is Map) {
+      offerMetadata = Map<String, dynamic>.from(rawMeta);
+    }
+
+    final String? discountType =
+        (cachedOffer?.discountType ?? widget.args['discountType'])?.toString();
+    final num? discountValue =
+        cachedOffer?.discountValue ?? (widget.args['discountValue'] as num?);
+    final num? originalPrice =
+        cachedOffer?.originalPrice ?? (widget.args['originalPrice'] as num?);
+    final num? offerPrice =
+        cachedOffer?.offerPrice ?? (widget.args['offerPrice'] as num?);
+    final num? pointsCost = widget.args['pointsCost'] as num?;
+    final num? distanceKm =
+        cachedOffer?.distance ?? (widget.args['distance'] as num?);
+    final bool isPremium =
+        cachedOffer?.isPremium == true ||
+        widget.args['isPremium'] == true ||
+        widget.args['isPremium'] == 'true';
+
+    String? requiredTierName;
+    final rawTier = widget.args['requiredTier'] ?? cachedOffer?.requiredTier;
+    if (rawTier is TierModel) {
+      requiredTierName = rawTier.name;
+    } else if (rawTier is Map) {
+      requiredTierName =
+          (rawTier['name'] ??
+                  (rawTier['id'] is Map ? rawTier['id']['name'] : null))
+              ?.toString();
+    }
+
+    Map<String, dynamic>? redemptionRulesMap;
+    final rawRules =
+        widget.args['redemptionRules'] ?? cachedOffer?.redemptionRules;
+    if (rawRules is RedemptionRules) {
+      redemptionRulesMap = rawRules.toJson();
+    } else if (rawRules is Map<String, dynamic>) {
+      redemptionRulesMap = rawRules;
+    } else if (rawRules is Map) {
+      redemptionRulesMap = Map<String, dynamic>.from(rawRules);
+    }
+
+    final List<String> tags = [];
+    final rawTags = widget.args['tags'] ?? cachedOffer?.tags;
+    if (rawTags is List) {
+      for (final t in rawTags) {
+        final s = t.toString().trim();
+        if (s.isNotEmpty && s != 'null' && !tags.contains(s)) tags.add(s);
+      }
+    }
+
+    String formatMoney(num? value) {
+      if (value == null) return '';
+      if (value % 1 == 0) return '₹${value.toInt()}';
+      return '₹${value.toStringAsFixed(2)}';
+    }
+
+    String formatDiscountValue(num value) {
+      final isFlat =
+          discountType?.toLowerCase() == 'flat' ||
+          discountType?.toLowerCase() == 'amount' ||
+          discountType?.toLowerCase() == 'fixed';
+      final val = (value % 1 != 0)
+          ? value.toStringAsFixed(1)
+          : value.toInt().toString();
+      return isFlat ? '₹$val OFF' : '$val% OFF';
+    }
+
+    final List<MapEntry<String, String>> metadataRows = [];
+    if (offerMetadata != null) {
+      const labels = <String, String>{
+        'buyQuantity': 'Buy Quantity',
+        'getDescription': 'You Get',
+        'nextPurchaseDiscount': 'Next Purchase Discount',
+        'comboDescription': 'Combo Details',
+        'minPurchaseLimit': 'Lucky Draw Min Purchase',
+        'prizeDescription': 'Prize',
+        'purchaseCount': 'Purchases Required',
+        'freeItemDescription': 'Free Reward',
+        'clearanceDiscount': 'Clearance Discount',
+        'timeLimitedMessage': 'Limited-time Message',
+        'couponCode': 'Coupon Code',
+      };
+      for (final entry in labels.entries) {
+        final raw = offerMetadata[entry.key];
+        if (raw == null) continue;
+        final text = raw.toString().trim();
+        if (text.isEmpty || text == 'null') continue;
+        if (entry.key == 'nextPurchaseDiscount' ||
+            entry.key == 'minPurchaseLimit') {
+          final n = num.tryParse(text);
+          metadataRows.add(
+            MapEntry(entry.value, n != null ? formatMoney(n) : text),
+          );
+        } else {
+          metadataRows.add(MapEntry(entry.value, text));
+        }
+      }
+    }
+
+    final List<MapEntry<IconData, MapEntry<String, String>>> highlightRows = [];
+    if (offerTypeLabel != null && offerTypeLabel.isNotEmpty) {
+      highlightRows.add(
+        MapEntry(
+          Icons.category_outlined,
+          MapEntry('Offer Type', offerTypeLabel),
+        ),
+      );
+    }
+    if (isScratchCard) {
+      highlightRows.add(
+        MapEntry(
+          Icons.confirmation_number_outlined,
+          MapEntry(
+            'Scratch Card',
+            isScratched
+                ? (awardedDiscount != null
+                      ? 'Revealed — $awardedDiscount% OFF'
+                      : 'Revealed')
+                : 'Scratch to reveal your discount',
+          ),
+        ),
+      );
+    }
+    if (isPremium) {
+      highlightRows.add(
+        MapEntry(Icons.workspace_premium_outlined, MapEntry('Featured', 'Premium offer')),
+      );
+    }
+    if (hasPriceRange) {
+      highlightRows.add(
+        MapEntry(
+          Icons.account_balance_wallet_rounded,
+          MapEntry('Price Range', getPriceRangeText()),
+        ),
+      );
+    }
+    if (originalPrice != null && originalPrice > 0) {
+      highlightRows.add(
+        MapEntry(
+          Icons.sell_outlined,
+          MapEntry('Original Price', formatMoney(originalPrice)),
+        ),
+      );
+    }
+    if (offerPrice != null && offerPrice > 0) {
+      highlightRows.add(
+        MapEntry(
+          Icons.local_atm_outlined,
+          MapEntry('Offer Price', formatMoney(offerPrice)),
+        ),
+      );
+    }
+    if (hasDiscountRange) {
+      highlightRows.add(
+        MapEntry(
+          Icons.local_offer_rounded,
+          MapEntry('Discount', getDiscountRangeText()),
+        ),
+      );
+    } else if (discountValue != null && discountValue > 0) {
+      highlightRows.add(
+        MapEntry(
+          Icons.local_offer_rounded,
+          MapEntry('Discount', formatDiscountValue(discountValue)),
+        ),
+      );
+    }
+    if (discountType != null &&
+        discountType.trim().isNotEmpty &&
+        discountType != 'null') {
+      final pretty = discountType[0].toUpperCase() + discountType.substring(1);
+      highlightRows.add(
+        MapEntry(Icons.percent_rounded, MapEntry('Discount Type', pretty)),
+      );
+    }
+    if (pointsCost != null && pointsCost > 0) {
+      highlightRows.add(
+        MapEntry(
+          Icons.stars_rounded,
+          MapEntry('Points Required', '${pointsCost.toInt()} pts'),
+        ),
+      );
+    }
+    if (distanceKm != null && distanceKm > 0) {
+      highlightRows.add(
+        MapEntry(
+          Icons.near_me_outlined,
+          MapEntry(
+            'Distance',
+            distanceKm >= 1
+                ? '${distanceKm.toStringAsFixed(1)} km away'
+                : '${(distanceKm * 1000).round()} m away',
+          ),
+        ),
+      );
+    }
+    for (final row in metadataRows) {
+      highlightRows.add(
+        MapEntry(Icons.info_outline_rounded, MapEntry(row.key, row.value)),
+      );
+    }
+
+    final List<MapEntry<IconData, MapEntry<String, String>>> eligibilityRows =
+        [];
+    if (requiredTierName != null &&
+        requiredTierName.trim().isNotEmpty &&
+        requiredTierName != 'null') {
+      eligibilityRows.add(
+        MapEntry(
+          Icons.military_tech_outlined,
+          MapEntry('Required Tier', '$requiredTierName or above'),
+        ),
+      );
+    }
+    if (redemptionRulesMap != null) {
+      final minPurchase = redemptionRulesMap['minPurchaseAmount'];
+      if (minPurchase is num && minPurchase > 0) {
+        eligibilityRows.add(
+          MapEntry(
+            Icons.receipt_long_outlined,
+            MapEntry('Min Purchase', formatMoney(minPurchase)),
+          ),
+        );
+      }
+      final maxPerUser = redemptionRulesMap['maxPerUser'];
+      if (maxPerUser is num && maxPerUser > 0) {
+        eligibilityRows.add(
+          MapEntry(
+            Icons.person_outline_rounded,
+            MapEntry(
+              'Max Per Customer',
+              '${maxPerUser.toInt()} redemption${maxPerUser.toInt() == 1 ? '' : 's'}',
+            ),
+          ),
+        );
+      }
+      final maxTotal = redemptionRulesMap['maxTotalRedemptions'];
+      if (maxTotal is num && maxTotal > 0) {
+        eligibilityRows.add(
+          MapEntry(
+            Icons.inventory_2_outlined,
+            MapEntry(
+              'Total Redemption Limit',
+              '${maxTotal.toInt()} redemption${maxTotal.toInt() == 1 ? '' : 's'}',
+            ),
+          ),
+        );
+      }
+      final days = redemptionRulesMap['applicableDays'];
+      if (days is List && days.isNotEmpty) {
+        final dayText = days
+            .map((d) {
+              final s = d.toString().trim();
+              if (s.isEmpty) return s;
+              return s[0].toUpperCase() + s.substring(1).toLowerCase();
+            })
+            .where((s) => s.isNotEmpty)
+            .join(', ');
+        if (dayText.isNotEmpty) {
+          eligibilityRows.add(
+            MapEntry(
+              Icons.calendar_today_outlined,
+              MapEntry('Valid On', dayText),
+            ),
+          );
+        }
+      }
+      final slots = redemptionRulesMap['applicableTimeSlots'];
+      if (slots is List && slots.isNotEmpty) {
+        final slotText = slots
+            .map((s) {
+              if (s is Map) {
+                final start = s['start'] ?? s['from'] ?? '';
+                final end = s['end'] ?? s['to'] ?? '';
+                if (start.toString().isNotEmpty && end.toString().isNotEmpty) {
+                  return '$start – $end';
+                }
+              }
+              return s.toString();
+            })
+            .where((s) => s.trim().isNotEmpty && s != 'null')
+            .join(', ');
+        if (slotText.isNotEmpty) {
+          eligibilityRows.add(
+            MapEntry(
+              Icons.access_time_rounded,
+              MapEntry('Valid Hours', slotText),
+            ),
+          );
+        }
+      }
+    }
+
+    final bool hasHighlights = highlightRows.isNotEmpty;
+    final bool hasEligibility = eligibilityRows.isNotEmpty;
+    final bool hasTags = tags.isNotEmpty;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F4),
@@ -946,8 +1276,21 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   color: const Color(0xFF1C1C1C),
                                 ),
                               ),
-                              if (validToDate != null) ...[
+                              if (validFromDate != null) ...[
                                 const SizedBox(height: 14),
+                                Text(
+                                  'Valid from: ${formatOfferDate(validFromDate)}',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
+                                    color: const Color(0xFF1C1C1C),
+                                  ),
+                                ),
+                              ],
+                              if (validToDate != null) ...[
+                                SizedBox(height: validFromDate != null ? 8 : 14),
                                 Text(
                                   'Expires on: ${formatOfferDate(validToDate)}',
                                   style: TextStyle(
@@ -1172,7 +1515,7 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                         ],
 
                         // Offer Highlights
-                        if (hasPriceRange || hasDiscountRange) ...[
+                        if (hasHighlights) ...[
                           const SizedBox(
                             width: double.infinity,
                             height: 8,
@@ -1223,22 +1566,190 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
                                   ],
                                 ),
                                 const SizedBox(height: 16),
-                                if (hasPriceRange)
-                                  _buildHighlightRow(
-                                    Icons.account_balance_wallet_rounded,
-                                    'Price Range',
-                                    getPriceRangeText(),
-                                    Colors.blue.shade600,
-                                  ),
-                                if (hasPriceRange && hasDiscountRange)
-                                  const SizedBox(height: 12),
-                                if (hasDiscountRange)
-                                  _buildHighlightRow(
-                                    Icons.local_offer_rounded,
-                                    'Discount',
-                                    getDiscountRangeText(),
-                                    Colors.green.shade600,
-                                  ),
+                                ...highlightRows.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final row = entry.value;
+                                  final color = index % 2 == 0
+                                      ? Colors.blue.shade600
+                                      : Colors.green.shade600;
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: index == highlightRows.length - 1
+                                          ? 0
+                                          : 12,
+                                    ),
+                                    child: _buildHighlightRow(
+                                      row.key,
+                                      row.value.key,
+                                      row.value.value,
+                                      color,
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        // Eligibility & Redemption Rules
+                        if (hasEligibility) ...[
+                          const SizedBox(
+                            width: double.infinity,
+                            height: 8,
+                            child: ColoredBox(color: Color(0xFFF3F5F4)),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.white,
+                            padding: EdgeInsets.fromLTRB(
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF6155F5,
+                                        ).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(
+                                        Icons.rule_rounded,
+                                        color: Color(0xFF6155F5),
+                                        size: 18,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Eligibility & Rules',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: const Color(0xFF6155F5),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                ...eligibilityRows.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final row = entry.value;
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom:
+                                          index == eligibilityRows.length - 1
+                                          ? 0
+                                          : 12,
+                                    ),
+                                    child: _buildHighlightRow(
+                                      row.key,
+                                      row.value.key,
+                                      row.value.value,
+                                      const Color(0xFF6155F5),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        // Tags
+                        if (hasTags) ...[
+                          const SizedBox(
+                            width: double.infinity,
+                            height: 8,
+                            child: ColoredBox(color: Color(0xFFF3F5F4)),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.white,
+                            padding: EdgeInsets.fromLTRB(
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                              screenSize.responsivePadding(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF6155F5,
+                                        ).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(
+                                        Icons.sell_outlined,
+                                        color: Color(0xFF6155F5),
+                                        size: 18,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Tags',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: const Color(0xFF6155F5),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 14),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: tags
+                                      .map(
+                                        (tag) => Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 5,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF3F4F6),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(0xFFE5E7EB),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            tag,
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: const Color(0xFF374151),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
                               ],
                             ),
                           ),
