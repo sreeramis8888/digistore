@@ -16,6 +16,7 @@ import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/full_screen_gallery.dart';
 import '../../components/guest_login_dialog.dart';
+import '../../components/offer_price_row.dart';
 import 'create_product.dart';
 
 class ProductDetailsPage extends ConsumerStatefulWidget {
@@ -748,32 +749,22 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             if (currentPrice != null && currentPrice > 0)
-                              Text(
-                                _formatMoney(currentPrice),
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF07838C),
-                                  height: 1,
-                                ),
-                              ),
-                            if (showStrike) ...[
-                              const SizedBox(width: 10),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 2),
-                                child: Text(
-                                  _formatMoney(basePrice),
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF9CA3AF),
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                                ),
-                              ),
-                            ],
+                              showStrike
+                                  ? OfferPriceRow(
+                                      offerPrice: _formatMoney(currentPrice),
+                                      originalPrice: _formatMoney(basePrice),
+                                      gap: screenSize.responsivePadding(8),
+                                    )
+                                  : Text(
+                                      _formatMoney(currentPrice),
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w800,
+                                        color: const Color(0xFF07838C),
+                                        height: 1,
+                                      ),
+                                    ),
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -1351,33 +1342,34 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Text(
-                              currentPrice != null && currentPrice > 0
-                                  ? _formatMoney(currentPrice)
-                                  : '—',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFF07838C),
-                              ),
+                        if (currentPrice != null && currentPrice > 0)
+                          showStrike
+                              ? OfferPriceRow(
+                                  offerPrice: _formatMoney(currentPrice),
+                                  originalPrice: _formatMoney(basePrice),
+                                  gap: 8,
+                                  offerFontSize: 18,
+                                  originalFontSize: 13,
+                                )
+                              : Text(
+                                  _formatMoney(currentPrice),
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF07838C),
+                                  ),
+                                )
+                        else
+                          Text(
+                            '—',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF07838C),
                             ),
-                            if (showStrike) ...[
-                              const SizedBox(width: 8),
-                              Text(
-                                _formatMoney(basePrice),
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 13,
-                                  color: const Color(0xFF9CA3AF),
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
+                          ),
                       ],
                     ),
                   ),

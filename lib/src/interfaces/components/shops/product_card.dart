@@ -4,6 +4,7 @@ import '../../../../src/data/constants/color_constants.dart';
 import '../../../../src/data/constants/style_constants.dart';
 import '../../../../src/data/providers/screen_size_provider.dart';
 import '../advanced_network_image.dart';
+import '../offer_price_row.dart';
 import '../../main_pages/partner/product_details_page.dart';
 import '../../../../src/data/models/product_model.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
@@ -51,6 +52,71 @@ class ProductCard extends ConsumerWidget {
       }
     }
     return priceStr;
+  }
+
+  String _money(num value) {
+    final v = value.toDouble();
+    final formatted = v.truncateToDouble() == v
+        ? v.toStringAsFixed(0)
+        : v.toStringAsFixed(2);
+    return '₹$formatted';
+  }
+
+  Widget _buildPriceLabel() {
+    final product = rawProduct;
+    if (product != null) {
+      final sale = product.displayPrice;
+      final base = product.price;
+      if (sale != null && sale > 0) {
+        if (product.showStrikeThrough && base != null && base > sale) {
+          return OfferPriceRow(
+            offerPrice: _money(sale),
+            originalPrice: _money(base),
+            gap: 6,
+            offerFontSize: 13,
+            originalFontSize: 11,
+          );
+        }
+        return Text(
+          _money(sale),
+          style: kSmallerTitleM.copyWith(
+            color: const Color(0xFF07838C),
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+    }
+
+    if (_hasPrice) {
+      return Text(
+        _formattedPrice,
+        style: kSmallerTitleM.copyWith(
+          color: const Color(0xFF4E4E4E),
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    if (tags != null && tags!.isNotEmpty) {
+      return Text(
+        tags!.join(', '),
+        style: kSmallerTitleM.copyWith(
+          color: const Color(0xFF4E4E4E),
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   String? get _badgeLabel {
@@ -249,31 +315,7 @@ class ProductCard extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: _hasPrice
-                                ? Text(
-                                    _formattedPrice,
-                                    style: kSmallerTitleM.copyWith(
-                                      color: const Color(0xFF4E4E4E),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  )
-                                : (tags != null && tags!.isNotEmpty)
-                                ? Text(
-                                    tags!.join(', '),
-                                    style: kSmallerTitleM.copyWith(
-                                      color: const Color(0xFF4E4E4E),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
+                          Expanded(child: _buildPriceLabel()),
                           if (badge != null) ...[
                             const SizedBox(width: 8),
                             Flexible(

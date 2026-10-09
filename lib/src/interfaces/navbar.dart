@@ -67,7 +67,7 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
     if (GlobalVariables.isPartner) {
       return ['Home', 'Offers', 'Products & Services', 'History'];
     }
-    return ['Home', 'Offers', 'Shops', 'Rewards', 'Products & Services'];
+    return ['Home', 'Offers', 'Shops', 'Rewards', 'Services'];
   }
 
   List<String> get _currentInactiveIcons {
