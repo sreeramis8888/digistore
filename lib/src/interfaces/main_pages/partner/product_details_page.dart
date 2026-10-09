@@ -48,7 +48,29 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     if (fetched == null || fetched.isEmpty) {
       return Map<String, dynamic>.from(widget.product);
     }
-    return {...widget.product, ...fetched};
+    final merged = {...widget.product, ...fetched};
+
+    // Detail API often returns `images: []`, which would wipe images
+    // already available from the list/card payload.
+    final fetchedImages = fetched['images'];
+    final originalImages = widget.product['images'];
+    final fetchedEmpty =
+        fetchedImages is! List ||
+        fetchedImages.where((e) => e.toString().trim().isNotEmpty).isEmpty;
+    final originalHas =
+        originalImages is List &&
+        originalImages.any((e) => e.toString().trim().isNotEmpty);
+    if (fetchedEmpty && originalHas) {
+      merged['images'] = originalImages;
+    }
+
+    final fetchedImage = fetched['image']?.toString().trim() ?? '';
+    final originalImage = widget.product['image']?.toString().trim() ?? '';
+    if (fetchedImage.isEmpty && originalImage.isNotEmpty) {
+      merged['image'] = originalImage;
+    }
+
+    return merged;
   }
 
   ProductModel _asModel(Map<String, dynamic> map) => ProductModel.fromJson(map);
@@ -376,9 +398,12 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
 
     final allImages = <String>[];
     if (model.images != null) {
-      allImages.addAll(model.images!.where((s) => s.isNotEmpty));
-    } else {
-      final legacy = productMap['image']?.toString();
+      allImages.addAll(
+        model.images!.map((s) => s.trim()).where((s) => s.isNotEmpty),
+      );
+    }
+    if (allImages.isEmpty) {
+      final legacy = productMap['image']?.toString().trim();
       if (legacy != null && legacy.isNotEmpty) allImages.add(legacy);
     }
 

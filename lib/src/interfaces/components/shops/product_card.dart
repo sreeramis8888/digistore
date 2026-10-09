@@ -131,6 +131,18 @@ class ProductCard extends ConsumerWidget {
                 'tags': tags ?? [],
               },
         );
+        // Keep the card's visible image available on the detail page even if
+        // a later detail API response returns an empty `images` array.
+        if (imageUrl.trim().isNotEmpty) {
+          productData['image'] = imageUrl;
+          final existing = productData['images'];
+          final hasImages =
+              existing is List &&
+              existing.any((e) => e.toString().trim().isNotEmpty);
+          if (!hasImages) {
+            productData['images'] = [imageUrl];
+          }
+        }
         if (hideShopInfo) {
           productData['hideShopInfo'] = true;
         }
