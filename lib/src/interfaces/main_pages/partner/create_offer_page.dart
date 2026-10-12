@@ -1483,14 +1483,14 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               ),
               const SizedBox(height: 8),
               ref
-                  .watch(subcategoriesProvider)
+                  .watch(partnerBusinessSubcategoriesProvider)
                   .when(
                     data: (list) {
                       if (list.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(left: 4.0),
                           child: Text(
-                            'No subcategories found for your business type.',
+                            'No subcategories found for your business type. Set Category in Account first.',
                             style: kSmallerTitleL.copyWith(
                               color: kSecondaryTextColor,
                             ),

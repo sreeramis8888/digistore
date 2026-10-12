@@ -13,7 +13,6 @@ import '../../../data/models/business_info.dart';
 import '../../../data/models/service_model.dart';
 import '../../../data/providers/branches.dart';
 import '../../../data/providers/partner_services_provider.dart';
-import '../../../data/providers/services_provider.dart';
 import '../../../data/services/image_services.dart' as img_service;
 import '../../../data/services/toast_service.dart';
 import '../../components/advanced_network_image.dart';
@@ -117,12 +116,10 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     _selectedCategoryId =
         s?.categoryId ??
         (s?.category != null && s!.category!.length == 24 ? s.category : null);
-    if (RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(initialCat)) {
-      final cats = ref.read(serviceCategoriesProvider).value;
-      final matched = cats?.where((c) => c.id == initialCat).firstOrNull;
-      if (matched?.name != null && matched!.name!.isNotEmpty) {
-        initialCat = matched.name!;
-      }
+    // Prefer human-readable category name over raw ObjectId.
+    if (RegExp(r'^[0-9a-fA-F]{24}$').hasMatch(initialCat) &&
+        (s?.categoryName != null && s!.categoryName!.trim().isNotEmpty)) {
+      initialCat = s.categoryName!.trim();
     }
     _categoryController = TextEditingController(text: initialCat);
     _descriptionController = TextEditingController(text: s?.description ?? '');

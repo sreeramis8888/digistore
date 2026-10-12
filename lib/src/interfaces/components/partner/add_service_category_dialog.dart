@@ -150,13 +150,18 @@ class _AddServiceCategoryDialogState
                   }).toList();
 
                   if (available.isEmpty) {
+                    final noParent =
+                        widget.categoryNameOrId == null ||
+                        widget.categoryNameOrId!.trim().isEmpty;
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Text(
                           _searchQuery.isNotEmpty
                               ? 'No subcategories match "$_searchQuery".'
-                              : 'No subcategories available.',
+                              : noParent
+                              ? 'Set your business Category first to see related subcategories.'
+                              : 'No subcategories available for this category.',
                           style: kSmallTitleM.copyWith(color: kGrey),
                           textAlign: TextAlign.center,
                         ),
