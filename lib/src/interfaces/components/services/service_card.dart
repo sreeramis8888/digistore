@@ -9,6 +9,7 @@ import '../../../data/utils/interactive_feedback_button.dart';
 import '../../../data/utils/rating_label.dart';
 import '../../main_pages/services/service_details_page.dart';
 import '../advanced_network_image.dart';
+import '../offer_price_row.dart';
 
 class ServiceCard extends ConsumerWidget {
   final ServiceModel service;
@@ -21,6 +22,55 @@ class ServiceCard extends ConsumerWidget {
     this.onTap,
     this.hideShopInfo = false,
   });
+
+  String _money(num value) {
+    final v = value.toDouble();
+    final formatted = v.truncateToDouble() == v
+        ? v.toStringAsFixed(0)
+        : v.toStringAsFixed(2);
+    return '₹$formatted';
+  }
+
+  Widget _buildPriceLabel() {
+    final sale = service.displayPrice;
+    final base = service.originalPrice;
+    if (sale != null && sale > 0) {
+      if (service.showStrikeThrough && base > sale) {
+        return OfferPriceRow(
+          offerPrice: _money(sale),
+          originalPrice: _money(base),
+          gap: 6,
+          offerFontSize: 13,
+          originalFontSize: 11,
+        );
+      }
+      return Text(
+        _money(sale),
+        style: kSmallerTitleM.copyWith(
+          color: const Color(0xFF07838C),
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    if (base > 0) {
+      return Text(
+        _money(base),
+        style: kSmallerTitleM.copyWith(
+          color: const Color(0xFF07838C),
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,9 +108,6 @@ class ServiceCard extends ConsumerWidget {
       categoryName = 'Service';
     }
 
-    final priceStr = service.hasOffer && service.offerPrice != null
-        ? '₹ ${service.offerPrice!.toInt()}'
-        : '₹ ${service.originalPrice.toInt()}';
     final hasRating = RatingLabel.hasRating(
       service.rating,
       reviewCount: service.reviewsCount,
@@ -173,70 +220,58 @@ class ServiceCard extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
+                          Expanded(child: _buildPriceLabel()),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (ratingLabel.isNotEmpty) ...[
                                 Text(
-                                  priceStr,
-                                  style: kSmallerTitleM.copyWith(
+                                  ratingLabel,
+                                  style: kSmallerTitleL.copyWith(
                                     color: const Color(0xFF4E4E4E),
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: hasRating
+                                        ? FontWeight.w400
+                                        : FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      ratingLabel,
-                                      style: kSmallerTitleL.copyWith(
-                                        color: const Color(0xFF4E4E4E),
-                                        fontSize: 11,
-                                        fontWeight: hasRating
-                                            ? FontWeight.w400
-                                            : FontWeight.w600,
+                                if (hasRating) ...[
+                                  const SizedBox(width: 2),
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    size: 14,
+                                    color: Color(0xFFFFCB2B),
+                                  ),
+                                ],
+                                const SizedBox(width: 8),
+                              ],
+                              if (categoryName.isNotEmpty) ...[
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF34C759),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      categoryName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: kSmallerTitleB.copyWith(
+                                        color: kWhite,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                    if (hasRating) ...[
-                                      const SizedBox(width: 2),
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        size: 14,
-                                        color: Color(0xFFFFCB2B),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (categoryName.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF34C759),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  categoryName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: kSmallerTitleB.copyWith(
-                                    color: kWhite,
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
+                              ],
+                            ],
+                          ),
                         ],
                       ),
                     ],

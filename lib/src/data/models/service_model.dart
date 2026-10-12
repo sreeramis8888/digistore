@@ -236,6 +236,19 @@ class ServiceModel {
     this.reviewsCount = 0,
   });
 
+  /// Best display price: effectivePrice → offerPrice → originalPrice.
+  double? get displayPrice {
+    if (effectivePrice > 0) return effectivePrice;
+    if (hasOffer && offerPrice != null && offerPrice! > 0) return offerPrice;
+    return originalPrice > 0 ? originalPrice : null;
+  }
+
+  bool get showStrikeThrough {
+    final base = originalPrice;
+    final sale = displayPrice ?? 0;
+    return hasOffer && base > 0 && sale > 0 && sale < base;
+  }
+
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     final rawPartner =
         json['partner'] ??
