@@ -82,7 +82,8 @@ class _PartnerHomePageState extends ConsumerState<PartnerHomePage> {
                   ),
                 ],
               ),
-              error: (err, stack) => _buildPartnerContent(context, null, screenSize),
+              error: (err, stack) =>
+                  _buildPartnerContent(context, null, screenSize),
             ),
           ),
         ),
@@ -99,6 +100,10 @@ class _PartnerHomePageState extends ConsumerState<PartnerHomePage> {
     final partnerId = ref.watch(partnerProvider)?.id;
 
     final filteredOffers = data?.recentOffers?.where((offer) {
+      // Must be currently active and not expired
+      if (!PartnerRecentOffers.isActiveRecentOffer(offer)) {
+        return false;
+      }
       // Never show another merchant's offers on partner home.
       if (partnerId != null &&
           partnerId.isNotEmpty &&
@@ -177,4 +182,3 @@ class _PartnerHomePageState extends ConsumerState<PartnerHomePage> {
     );
   }
 }
-
