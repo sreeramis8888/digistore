@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/offer_model.dart';
+import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
@@ -14,9 +15,46 @@ class PartnerRecentOffers extends ConsumerWidget {
 
   const PartnerRecentOffers({super.key, required this.screenSize, this.offers});
 
+  /// Recent carousel should only show currently active / non-expired offers.
+  static bool isActiveRecentOffer(OfferModel offer) {
+    final status = offer.status?.toLowerCase().trim();
+    if (status != null && status.isNotEmpty && status != 'active') {
+      return false;
+    }
+    if (offer.isActive == false) return false;
+
+    final now = DateTime.now();
+    if (offer.validFrom != null && offer.validFrom!.isAfter(now)) {
+      return false;
+    }
+    if (offer.validTo != null && !offer.validTo!.isAfter(now)) {
+      return false;
+    }
+    return true;
+  }
+
+  /// Drop offers that do not belong to the logged-in partner.
+  static bool belongsToPartner(OfferModel offer, String? partnerId) {
+    if (partnerId == null || partnerId.isEmpty) return true;
+    final offerPartnerId = offer.partnerId?.id;
+    if (offerPartnerId == null || offerPartnerId.isEmpty) return true;
+    return offerPartnerId == partnerId;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (offers == null || offers!.isEmpty) {
+    final partnerId = ref.watch(partnerProvider)?.id;
+    final activeOffers =
+        offers
+            ?.where(
+              (offer) =>
+                  isActiveRecentOffer(offer) &&
+                  belongsToPartner(offer, partnerId),
+            )
+            .toList() ??
+        const <OfferModel>[];
+
+    if (activeOffers.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -70,7 +108,7 @@ class PartnerRecentOffers extends ConsumerWidget {
         ),
         SizedBox(height: screenSize.responsivePadding(16)),
         CarouselSlider.builder(
-          itemCount: offers!.length,
+          itemCount: activeOffers.length,
           options: CarouselOptions(
             height: screenSize.responsivePadding(218),
             viewportFraction: 0.62,
@@ -82,9 +120,9 @@ class PartnerRecentOffers extends ConsumerWidget {
             return Padding(
               padding: EdgeInsets.only(
                 left: index == 0 ? padding : 6,
-                right: index == offers!.length - 1 ? padding : 6,
+                right: index == activeOffers.length - 1 ? padding : 6,
               ),
-              child: _buildOfferCard(context, offers![index]),
+              child: _buildOfferCard(context, activeOffers[index]),
             );
           },
         ),

@@ -262,7 +262,7 @@ class PartnerHomeHeader extends ConsumerWidget {
                           color: const Color(0xFF111827),
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Search for offers',
+                          hintText: 'Search ',
                           hintStyle: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 14,

@@ -5,6 +5,7 @@ import '../../../data/models/home_data_model.dart';
 import '../../../data/models/partner_home_data.dart';
 import '../../../data/providers/home_provider.dart';
 import '../../../data/providers/partner_bookings_provider.dart';
+import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../components/partner/partner_booking_requests.dart';
 import '../../components/partner/partner_home_header.dart';
@@ -95,8 +96,17 @@ class _PartnerHomePageState extends ConsumerState<PartnerHomePage> {
     ScreenSizeData screenSize,
   ) {
     final q = _searchQuery.trim().toLowerCase();
+    final partnerId = ref.watch(partnerProvider)?.id;
 
     final filteredOffers = data?.recentOffers?.where((offer) {
+      // Never show another merchant's offers on partner home.
+      if (partnerId != null &&
+          partnerId.isNotEmpty &&
+          offer.partnerId?.id != null &&
+          offer.partnerId!.id!.isNotEmpty &&
+          offer.partnerId!.id != partnerId) {
+        return false;
+      }
       if (q.isEmpty) return true;
       final title = offer.title?.toLowerCase() ?? '';
       final desc = offer.description?.toLowerCase() ?? '';
