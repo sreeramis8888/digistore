@@ -552,18 +552,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                         ),
                         delegate: SliverChildBuilderDelegate((context, index) {
                           final s = partnerServicesState.services[index];
-                          return ServiceCard(
-                            service: s,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      CreateServicePage(existingService: s),
-                                ),
-                              );
-                            },
-                          );
+                          return ServiceCard(service: s);
                         }, childCount: partnerServicesState.services.length),
                       ),
                     ),
