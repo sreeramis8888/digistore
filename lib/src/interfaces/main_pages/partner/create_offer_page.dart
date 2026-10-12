@@ -26,6 +26,7 @@ import '../../../data/utils/map_utils.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/providers/offer_metadata_providers.dart';
 import '../../../data/models/business_info.dart';
+import '../../../data/utils/deal_resolver.dart';
 
 class CreateOfferPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? offer;
@@ -277,63 +278,60 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           }
         }
       } else {
-        // Check nested deals map: deal_of_day, deal_of_hour, deal_of_week, deal_of_month
-        final dealTypesKeys = [
-          {'key': 'deal_of_hour', 'alt': 'dealOfHour'},
-          {'key': 'deal_of_day', 'alt': 'dealOfDay'},
-          {'key': 'deal_of_week', 'alt': 'dealOfWeek'},
-          {'key': 'deal_of_month', 'alt': 'dealOfMonth'},
-        ];
+        // Prefer API activeDeal, else Hour > Day > Week > Month (backend rule).
+        final rawActive = widget.offer?['activeDeal'];
+        Map<String, dynamic>? rawActiveMap;
+        if (rawActive is Map<String, dynamic>) {
+          rawActiveMap = rawActive;
+        } else if (rawActive is Map) {
+          rawActiveMap = Map<String, dynamic>.from(rawActive);
+        }
+        final rawDealsMap = Map<String, dynamic>.from(rawDeal);
 
-        for (final item in dealTypesKeys) {
-          final dealData = rawDeal[item['key']] ?? rawDeal[item['alt']];
-          if (dealData != null) {
-            bool active = false;
-            dynamic sDate;
-            dynamic eDate;
+        final resolved = resolveActiveDeal(
+          rawActiveDeal: rawActiveMap,
+          rawDeals: rawDealsMap,
+        );
 
-            if (dealData is Map) {
-              sDate = dealData['startDate'];
-              eDate = dealData['expiryDate'];
-              active =
-                  dealData['isActive'] == true ||
-                  dealData['isActive'] == 'true' ||
-                  sDate != null ||
-                  eDate != null;
-            } else if (dealData is DealItemModel) {
-              active =
-                  dealData.isActive == true ||
-                  dealData.startDate != null ||
-                  dealData.expiryDate != null;
-              _dealStartDate = dealData.startDate?.toLocal();
-              if (_dealStartDate != null) {
-                _dealStartTime = TimeOfDay.fromDateTime(_dealStartDate!);
-              }
-              _dealExpiryDate = dealData.expiryDate?.toLocal();
-              if (_dealExpiryDate != null) {
-                _dealExpiryTime = TimeOfDay.fromDateTime(_dealExpiryDate!);
+        if (resolved != null) {
+          _selectedDealType = resolved.type;
+          _isDealActive = true;
+          if (resolved.startDate != null) {
+            _dealStartDate = resolved.startDate;
+            _dealStartTime = TimeOfDay.fromDateTime(resolved.startDate!);
+          }
+          if (resolved.expiryDate != null) {
+            _dealExpiryDate = resolved.expiryDate;
+            _dealExpiryTime = TimeOfDay.fromDateTime(resolved.expiryDate!);
+          }
+        } else {
+          // No currently-valid active deal — prefill from highest-priority
+          // deal that is still marked isActive (even if dates are stale).
+          for (final type in kDealPriorityOrder) {
+            final dealData = rawDeal[type];
+            if (dealData is! Map) continue;
+            final isActive =
+                dealData['isActive'] == true || dealData['isActive'] == 'true';
+            if (!isActive) continue;
+            _selectedDealType = type;
+            _isDealActive = false;
+            final sDate = dealData['startDate'];
+            final eDate = dealData['expiryDate'];
+            if (sDate != null && sDate.toString().isNotEmpty) {
+              final dt = DateTime.tryParse(sDate.toString())?.toLocal();
+              if (dt != null) {
+                _dealStartDate = dt;
+                _dealStartTime = TimeOfDay.fromDateTime(dt);
               }
             }
-
-            if (active || sDate != null || eDate != null) {
-              _selectedDealType = item['key'];
-              _isDealActive = active;
-              if (sDate != null && sDate.toString().isNotEmpty) {
-                final dt = DateTime.tryParse(sDate.toString())?.toLocal();
-                if (dt != null) {
-                  _dealStartDate = dt;
-                  _dealStartTime = TimeOfDay.fromDateTime(dt);
-                }
+            if (eDate != null && eDate.toString().isNotEmpty) {
+              final dt = DateTime.tryParse(eDate.toString())?.toLocal();
+              if (dt != null) {
+                _dealExpiryDate = dt;
+                _dealExpiryTime = TimeOfDay.fromDateTime(dt);
               }
-              if (eDate != null && eDate.toString().isNotEmpty) {
-                final dt = DateTime.tryParse(eDate.toString())?.toLocal();
-                if (dt != null) {
-                  _dealExpiryDate = dt;
-                  _dealExpiryTime = TimeOfDay.fromDateTime(dt);
-                }
-              }
-              break;
             }
+            break;
           }
         }
       }

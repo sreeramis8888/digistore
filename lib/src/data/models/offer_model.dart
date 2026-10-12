@@ -47,6 +47,8 @@ class OfferModel {
   final bool? isScratched;
   final num? awardedDiscount;
   final DealsModel? deals;
+  /// Single authoritative active promotion from API (`getOfferActiveDeal`).
+  final ActiveDealModel? activeDeal;
   final double? distance;
 
   const OfferModel({
@@ -89,6 +91,7 @@ class OfferModel {
     this.isScratched,
     this.awardedDiscount,
     this.deals,
+    this.activeDeal,
     this.distance,
   });
 
@@ -190,6 +193,10 @@ class OfferModel {
       isScratched: json['isScratched'] as bool?,
       awardedDiscount: json['awardedDiscount'] as num?,
       deals: SafeParser.parseObject(json['deals'], DealsModel.fromJson),
+      activeDeal: SafeParser.parseObject(
+        json['activeDeal'],
+        ActiveDealModel.fromJson,
+      ),
       distance: json['distance'] != null
           ? (json['distance'] as num).toDouble()
           : null,
@@ -237,6 +244,7 @@ class OfferModel {
       'isScratched': isScratched,
       'awardedDiscount': awardedDiscount,
       'deals': deals?.toJson(),
+      'activeDeal': activeDeal?.toJson(),
       'distance': distance,
     };
   }
@@ -280,6 +288,7 @@ class OfferModel {
     bool? isScratched,
     num? awardedDiscount,
     DealsModel? deals,
+    ActiveDealModel? activeDeal,
     double? distance,
   }) {
     return OfferModel(
@@ -321,6 +330,7 @@ class OfferModel {
       isScratched: isScratched ?? this.isScratched,
       awardedDiscount: awardedDiscount ?? this.awardedDiscount,
       deals: deals ?? this.deals,
+      activeDeal: activeDeal ?? this.activeDeal,
       distance: distance ?? this.distance,
     );
   }
@@ -361,6 +371,48 @@ class RangeModel {
 
   Map<String, dynamic> toJson() {
     return {if (min != null) 'min': min, if (max != null) 'max': max};
+  }
+}
+
+class ActiveDealModel {
+  final String? type;
+  final String? label;
+  final DateTime? startDate;
+  final DateTime? expiryDate;
+  final int? timeLeftMs;
+
+  const ActiveDealModel({
+    this.type,
+    this.label,
+    this.startDate,
+    this.expiryDate,
+    this.timeLeftMs,
+  });
+
+  factory ActiveDealModel.fromJson(Map<String, dynamic> json) {
+    return ActiveDealModel(
+      type: json['type']?.toString(),
+      label: json['label']?.toString(),
+      startDate: json['startDate'] != null
+          ? DateTime.tryParse(json['startDate'].toString())?.toLocal()
+          : null,
+      expiryDate: json['expiryDate'] != null
+          ? DateTime.tryParse(json['expiryDate'].toString())?.toLocal()
+          : null,
+      timeLeftMs: json['timeLeftMs'] is num
+          ? (json['timeLeftMs'] as num).toInt()
+          : int.tryParse(json['timeLeftMs']?.toString() ?? ''),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'label': label,
+      'startDate': startDate?.toIso8601String(),
+      'expiryDate': expiryDate?.toIso8601String(),
+      'timeLeftMs': timeLeftMs,
+    };
   }
 }
 

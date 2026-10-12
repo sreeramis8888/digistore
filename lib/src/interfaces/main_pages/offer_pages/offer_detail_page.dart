@@ -15,6 +15,7 @@ import '../../../data/providers/shops_provider.dart';
 import '../../../data/providers/user_type_provider.dart';
 import '../../../data/services/toast_service.dart';
 import '../../../data/utils/date_formatter.dart';
+import '../../../data/utils/deal_resolver.dart';
 import '../../../data/utils/global_variables.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
@@ -152,18 +153,26 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
       }
     }
 
-    String? activeDealText;
-    if (deals != null) {
-      if (deals.dealOfMonth?.isActive == true) {
-        activeDealText = 'Deal of the Month';
-      } else if (deals.dealOfWeek?.isActive == true) {
-        activeDealText = 'Deal of the Week';
-      } else if (deals.dealOfDay?.isActive == true) {
-        activeDealText = 'Deal of the Day';
-      } else if (deals.dealOfHour?.isActive == true) {
-        activeDealText = 'Deal of the Hour';
-      }
+    // Prefer API activeDeal; fall back to deals flags with Hour > Day > Week > Month.
+    final rawActiveDeal = widget.args['activeDeal'];
+    Map<String, dynamic>? rawActiveDealMap;
+    if (rawActiveDeal is Map<String, dynamic>) {
+      rawActiveDealMap = rawActiveDeal;
+    } else if (rawActiveDeal is Map) {
+      rawActiveDealMap = Map<String, dynamic>.from(rawActiveDeal);
     }
+    Map<String, dynamic>? rawDealsMap;
+    if (dealsJson is Map<String, dynamic>) {
+      rawDealsMap = dealsJson;
+    } else if (dealsJson is Map) {
+      rawDealsMap = Map<String, dynamic>.from(dealsJson);
+    }
+    final String? activeDealText = resolveActiveDealLabel(
+      activeDeal: cachedOffer?.activeDeal,
+      deals: deals,
+      rawActiveDeal: rawActiveDealMap,
+      rawDeals: rawDealsMap,
+    );
 
     List<String> images = [];
     if (widget.args['images'] is List &&
