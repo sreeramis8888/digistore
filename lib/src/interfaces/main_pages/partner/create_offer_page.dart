@@ -951,7 +951,8 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         );
         return;
       }
-      if (_validTo != null &&
+      // Keep offer Valid To in sync with deal expiry (picker is deal-type based).
+      if (_validTo == null ||
           _dealExpiryDate!.isAfter(
             DateTime(
               _validTo!.year,
@@ -962,12 +963,12 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               59,
             ),
           )) {
-        ToastService().showToast(
-          context,
-          'Deal expiry date cannot be after the offer expiry date (${DateFormat('dd MMM yyyy').format(_validTo!)})',
-          type: ToastType.error,
+        _validTo = DateTime(
+          _dealExpiryDate!.year,
+          _dealExpiryDate!.month,
+          _dealExpiryDate!.day,
         );
-        return;
+        _validToController.text = DateFormat('dd MMM, yyyy').format(_validTo!);
       }
       if (startDt.isBefore(
         DateTime.now().subtract(const Duration(minutes: 5)),
@@ -1481,117 +1482,101 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              ref
-                  .watch(partnerBusinessSubcategoriesProvider)
-                  .when(
-                    data: (list) {
-                      if (list.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 4.0),
-                          child: Text(
-                            'No subcategories found for your business type. Set Category in Account first.',
-                            style: kSmallerTitleL.copyWith(
-                              color: kSecondaryTextColor,
-                            ),
-                          ),
-                        );
-                      }
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE5E5E5)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Select applicable subcategories (Optional):',
-                              style: kSmallerTitleL.copyWith(
-                                color: kSecondaryTextColor,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              children: list.map((sub) {
-                                final isSelected = _selectedSubcategories
-                                    .contains(sub);
-                                return FilterChip(
-                                  label: Text(
-                                    sub,
-                                    style: kSmallerTitleM.copyWith(
-                                      color: isSelected
-                                          ? kWhite
-                                          : kSecondaryTextColor,
-                                    ),
-                                  ),
-                                  selected: isSelected,
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        if (!_selectedSubcategories.contains(
-                                          sub,
-                                        )) {
-                                          _selectedSubcategories.add(sub);
-                                        }
-                                        _selectedSubcategory = sub;
-                                      } else {
-                                        _selectedSubcategories.remove(sub);
-                                        if (_selectedSubcategories.isNotEmpty) {
-                                          _selectedSubcategory =
-                                              _selectedSubcategories.first;
-                                        } else {
-                                          _selectedSubcategory = null;
-                                        }
-                                      }
-                                    });
-                                  },
-                                  selectedColor: kPrimaryColor,
-                                  backgroundColor: kWhite,
-                                  checkmarkColor: kWhite,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    side: BorderSide(
-                                      color: isSelected
-                                          ? kPrimaryColor
-                                          : const Color(0xFFE5E5E5),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    loading: () => Container(
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: kPrimaryColor,
-                        ),
-                      ),
-                    ),
-                    error: (err, _) => Padding(
+              Builder(
+                builder: (context) {
+                  final profileList =
+                      ref.watch(partnerSelectedSubcategoriesProvider);
+                  // Keep already-selected offer subs visible when editing,
+                  // even if partner later removed them from Account.
+                  final list = <String>{
+                    ...profileList,
+                    ..._selectedSubcategories,
+                    if (_selectedSubcategory != null &&
+                        _selectedSubcategory!.trim().isNotEmpty)
+                      _selectedSubcategory!.trim(),
+                  }.toList()
+                    ..sort();
+                  if (list.isEmpty) {
+                    return Padding(
                       padding: const EdgeInsets.only(left: 4.0),
                       child: Text(
-                        'Failed to load subcategories',
-                        style: kSmallerTitleL.copyWith(color: Colors.red),
+                        'No service categories selected. Add them under Account → Service Categories first.',
+                        style: kSmallerTitleL.copyWith(
+                          color: kSecondaryTextColor,
+                        ),
                       ),
+                    );
+                  }
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE5E5E5)),
                     ),
-                  ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Select applicable subcategories (Optional):',
+                          style: kSmallerTitleL.copyWith(
+                            color: kSecondaryTextColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          children: list.map((sub) {
+                            final isSelected =
+                                _selectedSubcategories.contains(sub);
+                            return FilterChip(
+                              label: Text(
+                                sub,
+                                style: kSmallerTitleM.copyWith(
+                                  color: isSelected
+                                      ? kWhite
+                                      : kSecondaryTextColor,
+                                ),
+                              ),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    if (!_selectedSubcategories.contains(sub)) {
+                                      _selectedSubcategories.add(sub);
+                                    }
+                                    _selectedSubcategory = sub;
+                                  } else {
+                                    _selectedSubcategories.remove(sub);
+                                    if (_selectedSubcategories.isNotEmpty) {
+                                      _selectedSubcategory =
+                                          _selectedSubcategories.first;
+                                    } else {
+                                      _selectedSubcategory = null;
+                                    }
+                                  }
+                                });
+                              },
+                              selectedColor: kPrimaryColor,
+                              backgroundColor: kWhite,
+                              checkmarkColor: kWhite,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: isSelected
+                                      ? kPrimaryColor
+                                      : const Color(0xFFE5E5E5),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 20),
               Text(
                 'Required Membership Tier',
@@ -2586,13 +2571,21 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                   _selectedDealType = deal['value'] as String;
                   _isDealActive = true;
                   if (_dealStartDate != null && _dealExpiryDate != null) {
-                    int maxDays = (deal['unit'] == 'hours')
-                        ? 1
-                        : (deal['max'] as int);
-                    DateTime maxDealExpiry = _dealStartDate!.add(
-                      Duration(days: maxDays),
+                    final maxExpiry = _maxDealExpiryDateTime(
+                      _dealStartDate!,
+                      _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0),
+                      dealType: deal['value'] as String,
                     );
-                    if (_dealExpiryDate!.isAfter(maxDealExpiry)) {
+                    final expiryDt = DateTime(
+                      _dealExpiryDate!.year,
+                      _dealExpiryDate!.month,
+                      _dealExpiryDate!.day,
+                      (_dealExpiryTime ?? const TimeOfDay(hour: 23, minute: 59))
+                          .hour,
+                      (_dealExpiryTime ?? const TimeOfDay(hour: 23, minute: 59))
+                          .minute,
+                    );
+                    if (expiryDt.isAfter(maxExpiry)) {
                       _dealExpiryDate = null;
                       _dealExpiryTime = null;
                     }
@@ -2821,6 +2814,52 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     );
   }
 
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  /// Max deal duration aligned with admin: Hour 24h, Day 7d, Week 30d, Month 90d.
+  DateTime _maxDealExpiryDateTime(
+    DateTime startDate,
+    TimeOfDay startTime, {
+    String? dealType,
+  }) {
+    final type = dealType ?? _selectedDealType;
+    final start = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+      startTime.hour,
+      startTime.minute,
+    );
+    if (type == 'deal_of_hour') {
+      return start.add(const Duration(hours: 24));
+    }
+    if (type == 'deal_of_day') {
+      return start.add(const Duration(days: 7));
+    }
+    if (type == 'deal_of_week') {
+      return start.add(const Duration(days: 30));
+    }
+    if (type == 'deal_of_month') {
+      return start.add(const Duration(days: 90));
+    }
+    return start.add(const Duration(days: 365));
+  }
+
+  String _dealExpiryHelpText() {
+    switch (_selectedDealType) {
+      case 'deal_of_hour':
+        return 'SELECT EXPIRY (MAX 24 HOURS FROM START)';
+      case 'deal_of_day':
+        return 'SELECT EXPIRY (MAX 7 DAYS FROM START)';
+      case 'deal_of_week':
+        return 'SELECT EXPIRY (MAX 30 DAYS FROM START)';
+      case 'deal_of_month':
+        return 'SELECT EXPIRY (MAX 90 DAYS FROM START)';
+      default:
+        return 'SELECT EXPIRY DATE';
+    }
+  }
+
   Future<void> _selectDealDateTime(BuildContext context, bool isStart) async {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -2834,54 +2873,37 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     }
 
     final now = DateTime.now();
-    int maxDays = 365;
-    if (_selectedDealType == 'deal_of_hour') {
-      maxDays = 1;
-    } else if (_selectedDealType == 'deal_of_day') {
-      maxDays = 7;
-    } else if (_selectedDealType == 'deal_of_week') {
-      maxDays = 30;
-    } else if (_selectedDealType == 'deal_of_month') {
-      maxDays = 90;
-    }
+    final today = _dateOnly(now);
 
     DateTime firstDate;
     DateTime lastDate;
 
     if (isStart) {
-      firstDate = _validFrom ?? now;
-      lastDate = _validTo ?? now.add(const Duration(days: 365));
+      // Start can be from offer start / today — not clamped to a short Offer End.
+      final minStart = _validFrom != null ? _dateOnly(_validFrom!) : today;
+      firstDate = minStart.isBefore(today) ? today : minStart;
+      lastDate = today.add(const Duration(days: 365));
     } else {
-      firstDate = _dealStartDate!;
-      DateTime maxDealExpiry = _dealStartDate!.add(Duration(days: maxDays));
-      lastDate = (_validTo != null && _validTo!.isBefore(maxDealExpiry))
-          ? _validTo!
-          : maxDealExpiry;
-    }
-
-    if (firstDate.isAfter(lastDate)) {
-      lastDate = firstDate;
+      // Expiry range is driven ONLY by deal type (fixes "only 4 days for all").
+      final startDay = _dateOnly(_dealStartDate!);
+      final startTime =
+          _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0);
+      final maxExpiry = _maxDealExpiryDateTime(_dealStartDate!, startTime);
+      firstDate = startDay;
+      lastDate = _dateOnly(maxExpiry);
+      // Same-day expiry must remain selectable for Deal of the Hour.
+      if (lastDate.isBefore(firstDate)) {
+        lastDate = firstDate;
+      }
     }
 
     DateTime initialDate =
         (isStart ? _dealStartDate : _dealExpiryDate) ?? firstDate;
+    initialDate = _dateOnly(initialDate);
     if (initialDate.isBefore(firstDate)) initialDate = firstDate;
     if (initialDate.isAfter(lastDate)) initialDate = lastDate;
 
-    String? helpText;
-    if (!isStart) {
-      if (_selectedDealType == 'deal_of_hour') {
-        helpText = 'SELECT EXPIRY (MAX 24 HOURS)';
-      } else if (_selectedDealType == 'deal_of_day') {
-        helpText = 'SELECT EXPIRY (MAX 7 DAYS)';
-      } else if (_selectedDealType == 'deal_of_week') {
-        helpText = 'SELECT EXPIRY (MAX 30 DAYS)';
-      } else if (_selectedDealType == 'deal_of_month') {
-        helpText = 'SELECT EXPIRY (MAX 90 DAYS)';
-      }
-    } else {
-      helpText = 'SELECT DEAL START DATE';
-    }
+    final helpText = isStart ? 'SELECT DEAL START DATE' : _dealExpiryHelpText();
 
     final pickedDate = await showDatePicker(
       context: context,
@@ -2890,33 +2912,83 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
       lastDate: lastDate,
       helpText: helpText,
     );
-    if (pickedDate != null && mounted) {
-      TimeOfDay initialTime =
-          (isStart ? _dealStartTime : _dealExpiryTime) ?? TimeOfDay.now();
-      final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: initialTime,
-      );
-      if (pickedTime != null && mounted) {
-        setState(() {
-          if (isStart) {
-            _dealStartDate = pickedDate;
-            _dealStartTime = pickedTime;
-            if (_dealExpiryDate != null) {
-              DateTime maxDealExpiry = pickedDate.add(Duration(days: maxDays));
-              if (_dealExpiryDate!.isBefore(pickedDate) ||
-                  _dealExpiryDate!.isAfter(maxDealExpiry) ||
-                  (_validTo != null && _dealExpiryDate!.isAfter(_validTo!))) {
-                _dealExpiryDate = null;
-                _dealExpiryTime = null;
-              }
-            }
-          } else {
-            _dealExpiryDate = pickedDate;
-            _dealExpiryTime = pickedTime;
+    if (pickedDate == null || !mounted) return;
+
+    final initialTime =
+        (isStart ? _dealStartTime : _dealExpiryTime) ?? TimeOfDay.now();
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+    if (pickedTime == null || !mounted) return;
+
+    setState(() {
+      if (isStart) {
+        _dealStartDate = _dateOnly(pickedDate);
+        _dealStartTime = pickedTime;
+        if (_dealExpiryDate != null) {
+          final maxExpiry = _maxDealExpiryDateTime(
+            _dealStartDate!,
+            pickedTime,
+          );
+          final expiryDt = DateTime(
+            _dealExpiryDate!.year,
+            _dealExpiryDate!.month,
+            _dealExpiryDate!.day,
+            (_dealExpiryTime ?? const TimeOfDay(hour: 23, minute: 59)).hour,
+            (_dealExpiryTime ?? const TimeOfDay(hour: 23, minute: 59)).minute,
+          );
+          if (!expiryDt.isAfter(
+                DateTime(
+                  _dealStartDate!.year,
+                  _dealStartDate!.month,
+                  _dealStartDate!.day,
+                  pickedTime.hour,
+                  pickedTime.minute,
+                ),
+              ) ||
+              expiryDt.isAfter(maxExpiry)) {
+            _dealExpiryDate = null;
+            _dealExpiryTime = null;
           }
-        });
+        }
+      } else {
+        final startTime =
+            _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0);
+        final maxExpiry = _maxDealExpiryDateTime(_dealStartDate!, startTime);
+        final candidate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        final startDt = DateTime(
+          _dealStartDate!.year,
+          _dealStartDate!.month,
+          _dealStartDate!.day,
+          startTime.hour,
+          startTime.minute,
+        );
+        if (!candidate.isAfter(startDt)) {
+          ToastService().showToast(
+            context,
+            'Expiry must be after start date and time',
+            type: ToastType.error,
+          );
+          return;
+        }
+        if (candidate.isAfter(maxExpiry)) {
+          ToastService().showToast(
+            context,
+            _dealExpiryHelpText().replaceFirst('SELECT EXPIRY (', '').replaceAll(')', ''),
+            type: ToastType.error,
+          );
+          return;
+        }
+        _dealExpiryDate = _dateOnly(pickedDate);
+        _dealExpiryTime = pickedTime;
       }
-    }
+    });
   }
 }

@@ -48,13 +48,26 @@ final categorySubcategoriesProvider =
       return subs.toList()..sort();
     });
 
-/// Subcategories for the logged-in partner's main business category.
+/// Subcategories the partner has selected on their profile only.
+/// Used by Create Service / Create Offer dropdowns — never the full catalog.
+final partnerSelectedSubcategoriesProvider = Provider<List<String>>((ref) {
+  final partner = ref.watch(partnerProvider);
+  final selected = partner?.serviceCategories ?? const <String>[];
+  final cleaned = selected
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toSet()
+      .toList()
+    ..sort();
+  return cleaned;
+});
+
+/// @Deprecated Prefer [partnerSelectedSubcategoriesProvider].
+/// Kept as AsyncValue-compatible alias for existing watch sites.
 final partnerBusinessSubcategoriesProvider = FutureProvider<List<String>>((
   ref,
 ) async {
-  final partner = ref.watch(partnerProvider);
-  final businessType = partner?.businessDetails?.businessType?.trim();
-  return ref.watch(categorySubcategoriesProvider(businessType).future);
+  return ref.watch(partnerSelectedSubcategoriesProvider);
 });
 
 final membershipTiersProvider = FutureProvider<List<TierModel>>((ref) async {
