@@ -24,10 +24,11 @@ class PartnerRecentOffers extends ConsumerWidget {
     if (offer.isActive == false) return false;
 
     final now = DateTime.now();
+    // Match backend: validFrom <= now, validTo >= now (inclusive).
     if (offer.validFrom != null && offer.validFrom!.isAfter(now)) {
       return false;
     }
-    if (offer.validTo != null && !offer.validTo!.isAfter(now)) {
+    if (offer.validTo != null && offer.validTo!.isBefore(now)) {
       return false;
     }
     return true;

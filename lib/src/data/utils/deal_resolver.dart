@@ -32,10 +32,11 @@ class ResolvedActiveDeal {
 }
 
 bool _isDealCurrentlyActive(DealItemModel? deal, DateTime now) {
+  // Mirror backend getOfferActiveDeal: requires isActive + valid expiry window.
   if (deal == null || deal.isActive != true) return false;
-  final start = deal.startDate;
   final expiry = deal.expiryDate;
-  if (expiry != null && expiry.isBefore(now)) return false;
+  if (expiry == null || expiry.isBefore(now)) return false;
+  final start = deal.startDate;
   if (start != null && start.isAfter(now)) return false;
   return true;
 }
@@ -113,8 +114,14 @@ ResolvedActiveDeal? resolveActiveDeal({
     }
   }
 
-  final modelDeals = deals ??
-      (rawDeals != null ? DealsModel.fromJson(rawDeals) : null);
+  DealsModel? modelDeals = deals;
+  if (modelDeals == null && rawDeals != null) {
+    try {
+      modelDeals = DealsModel.fromJson(rawDeals);
+    } catch (_) {
+      modelDeals = null;
+    }
+  }
   if (modelDeals == null) return null;
 
   for (final type in kDealPriorityOrder) {
