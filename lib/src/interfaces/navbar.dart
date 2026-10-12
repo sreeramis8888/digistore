@@ -65,9 +65,9 @@ class _NavBarState extends ConsumerState<NavBar> with WidgetsBindingObserver {
 
   List<String> get _currentLabels {
     if (GlobalVariables.isPartner) {
-      return ['Home', 'Offers', 'Products & Services', 'History'];
+      return ['Home', 'Offers', 'Bookings', 'History'];
     }
-    return ['Home', 'Offers', 'Shops', 'Rewards', 'Services'];
+    return ['Home', 'Offers', 'Shops', 'Rewards', 'Bookings'];
   }
 
   List<String> get _currentInactiveIcons {
