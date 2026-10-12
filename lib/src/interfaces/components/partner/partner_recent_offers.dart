@@ -6,6 +6,7 @@ import '../../../data/providers/partner_provider.dart';
 import '../../../data/providers/screen_size_provider.dart';
 import '../../../data/router/nav_router.dart';
 import '../../../data/utils/interactive_feedback_button.dart';
+import '../../../data/utils/offer_status_utils.dart';
 import '../../components/advanced_network_image.dart';
 import '../offers/deal_card.dart';
 
@@ -17,21 +18,7 @@ class PartnerRecentOffers extends ConsumerWidget {
 
   /// Recent carousel should only show currently active / non-expired offers.
   static bool isActiveRecentOffer(OfferModel offer) {
-    final status = offer.status?.toLowerCase().trim();
-    if (status != null && status.isNotEmpty && status != 'active') {
-      return false;
-    }
-    if (offer.isActive == false) return false;
-
-    final now = DateTime.now();
-    // Match backend: validFrom <= now, validTo >= now (inclusive).
-    if (offer.validFrom != null && offer.validFrom!.isAfter(now)) {
-      return false;
-    }
-    if (offer.validTo != null && offer.validTo!.isBefore(now)) {
-      return false;
-    }
-    return true;
+    return OfferStatusUtils.isOfferLive(offer);
   }
 
   /// Drop offers that do not belong to the logged-in partner.

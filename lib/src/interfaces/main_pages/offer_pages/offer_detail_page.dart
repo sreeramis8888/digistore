@@ -17,6 +17,7 @@ import '../../../data/services/toast_service.dart';
 import '../../../data/utils/date_formatter.dart';
 import '../../../data/utils/deal_resolver.dart';
 import '../../../data/utils/global_variables.dart';
+import '../../../data/utils/offer_status_utils.dart';
 import '../../components/advanced_network_image.dart';
 import '../../components/confirmation_dialog.dart';
 import '../../components/full_screen_gallery.dart';
@@ -97,8 +98,41 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final screenSize = ref.watch(screenSizeProvider);
     final userType = ref.watch(userTypeProvider);
     final isPartner = userType == UserType.partner || GlobalVariables.isPartner;
-    final String offerStatus = widget.args['status'] ?? 'active';
-    final bool isOfferActive = offerStatus.toLowerCase() == 'active';
+    final offersState = ref.watch(offersProvider);
+    final currentOfferId = widget.args['_id'] ?? widget.args['id'];
+    final cachedOffer =
+        offersState.offers.where((o) => o.id == currentOfferId).firstOrNull ??
+        offersState.exploreOffers
+            .where((o) => o.id == currentOfferId)
+            .firstOrNull;
+
+    // Resolve unified status using cachedOffer or nav args.
+    // Never defaults missing status to 'active'.
+    final String offerStatus = cachedOffer != null
+        ? OfferStatusUtils.resolveOfferStatus(cachedOffer)
+        : OfferStatusUtils.resolveMapStatus(widget.args);
+
+    final bool isOfferActive = cachedOffer != null
+        ? OfferStatusUtils.isOfferLive(cachedOffer)
+        : OfferStatusUtils.isLiveForPartner(
+            status: widget.args['displayStatus'] ?? widget.args['status'],
+            isActive: widget.args['isActive'] is bool
+                ? widget.args['isActive'] as bool
+                : (widget.args['isActive'] is String
+                    ? (widget.args['isActive'] as String).toLowerCase() == 'true'
+                    : null),
+            validFrom: widget.args['validFrom'] is DateTime
+                ? widget.args['validFrom'] as DateTime
+                : (widget.args['validFrom'] is String && (widget.args['validFrom'] as String).isNotEmpty
+                    ? DateTime.tryParse(widget.args['validFrom'] as String)?.toLocal()
+                    : null),
+            validTo: widget.args['validTo'] is DateTime
+                ? widget.args['validTo'] as DateTime
+                : (widget.args['validTo'] is String && (widget.args['validTo'] as String).isNotEmpty
+                    ? DateTime.tryParse(widget.args['validTo'] as String)?.toLocal()
+                    : null),
+          );
+
     final String title = widget.args['title'] ?? '';
     final String subtitle =
         widget.args['subtitle'] ?? widget.args['description'] ?? '';
@@ -117,14 +151,6 @@ class _OfferDetailPageState extends ConsumerState<OfferDetailPage> {
     final ShopModel? fetchedShop = partnerId.isNotEmpty
         ? ref.watch(getShopByPartnerIdProvider(partnerId)).value
         : null;
-
-    final offersState = ref.watch(offersProvider);
-    final currentOfferId = widget.args['_id'] ?? widget.args['id'];
-    final cachedOffer =
-        offersState.offers.where((o) => o.id == currentOfferId).firstOrNull ??
-        offersState.exploreOffers
-            .where((o) => o.id == currentOfferId)
-            .firstOrNull;
 
     final bool isScratchCard =
         cachedOffer?.isScratchCard ??

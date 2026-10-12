@@ -27,6 +27,7 @@ import '../../../data/models/user_model.dart';
 import '../../../data/providers/offer_metadata_providers.dart';
 import '../../../data/models/business_info.dart';
 import '../../../data/utils/deal_resolver.dart';
+import '../../../data/utils/offer_status_utils.dart';
 
 class CreateOfferPage extends ConsumerStatefulWidget {
   final Map<String, dynamic>? offer;
@@ -1324,6 +1325,79 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (widget.offer != null) ...[
+                Builder(
+                  builder: (context) {
+                    final resolvedStatus = OfferStatusUtils.resolveMapStatus(
+                      widget.offer,
+                    );
+                    Color bgColor;
+                    Color textColor;
+                    switch (resolvedStatus) {
+                      case 'active':
+                        bgColor = const Color(0xFFDEF7EC);
+                        textColor = const Color(0xFF03543F);
+                        break;
+                      case 'pending_approval':
+                        bgColor = const Color(0xFFFEF3C7);
+                        textColor = const Color(0xFF92400E);
+                        break;
+                      case 'paused':
+                        bgColor = const Color(0xFFE5E7EB);
+                        textColor = const Color(0xFF374151);
+                        break;
+                      case 'expired':
+                        bgColor = const Color(0xFFFEE2E2);
+                        textColor = const Color(0xFF991B1B);
+                        break;
+                      case 'rejected':
+                        bgColor = const Color(0xFFFDE8E8);
+                        textColor = const Color(0xFF9B1C1C);
+                        break;
+                      case 'draft':
+                      default:
+                        bgColor = const Color(0xFFF3F4F6);
+                        textColor = const Color(0xFF4B5563);
+                        break;
+                    }
+                    return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            resolvedStatus == 'active'
+                                ? Icons.check_circle_outline
+                                : resolvedStatus == 'paused'
+                                ? Icons.pause_circle_outline
+                                : Icons.info_outline,
+                            color: textColor,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Status: ${resolvedStatus.replaceAll('_', ' ').toUpperCase()}',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: textColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
               PrimaryTextField(
                 controller: _titleController,
                 label: 'Offer title',
@@ -1484,8 +1558,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
               const SizedBox(height: 8),
               Builder(
                 builder: (context) {
-                  final profileList =
-                      ref.watch(partnerSelectedSubcategoriesProvider);
+                  final profileList = ref.watch(
+                    partnerSelectedSubcategoriesProvider,
+                  );
                   // Keep already-selected offer subs visible when editing,
                   // even if partner later removed them from Account.
                   final list = <String>{
@@ -1494,8 +1569,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                     if (_selectedSubcategory != null &&
                         _selectedSubcategory!.trim().isNotEmpty)
                       _selectedSubcategory!.trim(),
-                  }.toList()
-                    ..sort();
+                  }.toList()..sort();
                   if (list.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 4.0),
@@ -1528,8 +1602,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
                           spacing: 8.0,
                           runSpacing: 8.0,
                           children: list.map((sub) {
-                            final isSelected =
-                                _selectedSubcategories.contains(sub);
+                            final isSelected = _selectedSubcategories.contains(
+                              sub,
+                            );
                             return FilterChip(
                               label: Text(
                                 sub,
@@ -2886,8 +2961,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
     } else {
       // Expiry range is driven ONLY by deal type (fixes "only 4 days for all").
       final startDay = _dateOnly(_dealStartDate!);
-      final startTime =
-          _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0);
+      final startTime = _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0);
       final maxExpiry = _maxDealExpiryDateTime(_dealStartDate!, startTime);
       firstDate = startDay;
       lastDate = _dateOnly(maxExpiry);
@@ -2927,10 +3001,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         _dealStartDate = _dateOnly(pickedDate);
         _dealStartTime = pickedTime;
         if (_dealExpiryDate != null) {
-          final maxExpiry = _maxDealExpiryDateTime(
-            _dealStartDate!,
-            pickedTime,
-          );
+          final maxExpiry = _maxDealExpiryDateTime(_dealStartDate!, pickedTime);
           final expiryDt = DateTime(
             _dealExpiryDate!.year,
             _dealExpiryDate!.month,
@@ -2953,8 +3024,7 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
           }
         }
       } else {
-        final startTime =
-            _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0);
+        final startTime = _dealStartTime ?? const TimeOfDay(hour: 0, minute: 0);
         final maxExpiry = _maxDealExpiryDateTime(_dealStartDate!, startTime);
         final candidate = DateTime(
           pickedDate.year,
@@ -2981,7 +3051,9 @@ class _CreateOfferPageState extends ConsumerState<CreateOfferPage> {
         if (candidate.isAfter(maxExpiry)) {
           ToastService().showToast(
             context,
-            _dealExpiryHelpText().replaceFirst('SELECT EXPIRY (', '').replaceAll(')', ''),
+            _dealExpiryHelpText()
+                .replaceFirst('SELECT EXPIRY (', '')
+                .replaceAll(')', ''),
             type: ToastType.error,
           );
           return;
