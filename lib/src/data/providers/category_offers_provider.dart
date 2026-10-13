@@ -115,9 +115,8 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
         queryParams['category'] = categoryId!;
       }
 
-      if (user?.currentTier?.name != null) {
-        queryParams['tier'] = user!.currentTier!.name!;
-      }
+      // Do not send tier name — API expects requiredTier as ObjectId
+      // (`tier: Bronze` → INVALID_ID).
 
       final response = await api.get('/offers', queryParams: queryParams);
 
@@ -172,7 +171,6 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
 
     try {
       final api = ref.read(apiProvider);
-      final user = ref.read(userProvider);
 
       final queryParams = <String, String>{
         'page': isRefresh ? '1' : (state.explorePage + 1).toString(),
@@ -183,9 +181,7 @@ class CategoryOffersNotifier extends StateNotifier<CategoryOffersState> {
         queryParams['category'] = categoryId!;
       }
 
-      if (user?.currentTier?.name != null) {
-        queryParams['tier'] = user!.currentTier!.name!;
-      }
+      // Do not send tier name — API expects requiredTier as ObjectId.
 
       final response = await api.get('/offers', queryParams: queryParams);
 

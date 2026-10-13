@@ -173,7 +173,18 @@ class Offers extends _$Offers {
         queryParams['lng'] = lng.toString();
       } else if (currentUserType == UserType.customer &&
           !GlobalVariables.isGuest) {
-        state = const PaginatedOffers.empty();
+        // No location → skip nearby, still load Explore More Offers.
+        state = state.copyWith(
+          offers: [],
+          isLoading: false,
+          isFetchingMore: false,
+          hasMore: false,
+          error: () => null,
+          currentCategoryId: () => categoryId,
+        );
+        if (isRefresh) {
+          await fetchExploreOffers(categoryId: categoryId);
+        }
         return;
       }
 
@@ -185,29 +196,29 @@ class Offers extends _$Offers {
         queryParams['search'] = currentSearch;
       }
 
-      if (user?.currentTier?.name != null) {
-        queryParams['tier'] = user!.currentTier!.name!;
-      }
+      // Do not send tier name — API expects requiredTier as ObjectId
+      // (`tier: Bronze` → INVALID_ID). Backend can filter by auth user.
 
       final response = await api.get('/offers', queryParams: queryParams);
 
       if (response.success && response.data != null) {
         final List<dynamic> data = response.data!['data'] as List<dynamic>;
-        final pagination = response.data!['pagination'];
+        final pagination =
+            response.data!['pagination'] as Map<String, dynamic>?;
         final newOffers = data
             .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        final isHasMore =
-            pagination['hasMore'] as bool? ??
-            ((pagination['page'] as int? ?? 1) <
-                (pagination['pages'] as int? ?? 1));
+        final int currentPage = pagination?['page'] as int? ?? 1;
+        final int totalPages = pagination?['pages'] as int? ?? 1;
+        final bool isHasMore =
+            pagination?['hasMore'] as bool? ?? (currentPage < totalPages);
 
         state = state.copyWith(
           offers: isRefresh ? newOffers : [...state.offers, ...newOffers],
-          page: pagination['page'] as int? ?? 1,
-          totalPages: pagination['pages'] as int? ?? 1,
-          totalCount: pagination['total'] as int? ?? 0,
+          page: currentPage,
+          totalPages: totalPages,
+          totalCount: pagination?['total'] as int? ?? newOffers.length,
           hasMore: isHasMore,
           isLoading: false,
           isFetchingMore: false,
@@ -254,7 +265,6 @@ class Offers extends _$Offers {
 
     try {
       final api = ref.read(apiProvider);
-      final user = ref.read(userProvider);
 
       // No lat/lng — fetch all offers regardless of location
       final queryParams = <String, String>{
@@ -270,15 +280,14 @@ class Offers extends _$Offers {
         queryParams['search'] = state.searchQuery;
       }
 
-      if (user?.currentTier?.name != null) {
-        queryParams['tier'] = user!.currentTier!.name!;
-      }
+      // Do not send tier name — API expects requiredTier as ObjectId.
 
       final response = await api.get('/offers', queryParams: queryParams);
 
       if (response.success && response.data != null) {
         final List<dynamic> data = response.data!['data'] as List<dynamic>;
-        final pagination = response.data!['pagination'];
+        final pagination =
+            response.data!['pagination'] as Map<String, dynamic>?;
         final newOffers = data
             .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -289,17 +298,18 @@ class Offers extends _$Offers {
             .where((o) => !nearbyIds.contains(o.id))
             .toList();
 
-        final isExploreHasMore =
-            pagination['hasMore'] as bool? ??
-            ((pagination['page'] as int? ?? 1) <
-                (pagination['pages'] as int? ?? 1));
+        final int explorePage = pagination?['page'] as int? ?? 1;
+        final int exploreTotalPages = pagination?['pages'] as int? ?? 1;
+        final bool isExploreHasMore =
+            pagination?['hasMore'] as bool? ??
+            (explorePage < exploreTotalPages);
 
         state = state.copyWith(
           exploreOffers: isRefresh
               ? filteredOffers
               : [...state.exploreOffers, ...filteredOffers],
-          explorePage: pagination['page'] as int? ?? 1,
-          exploreTotalPages: pagination['pages'] as int? ?? 1,
+          explorePage: explorePage,
+          exploreTotalPages: exploreTotalPages,
           exploreHasMore: isExploreHasMore,
           isExploreLoading: false,
           isExploreFetchingMore: false,

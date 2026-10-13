@@ -525,7 +525,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage> {
                           child: Text(
                             partnerServicesState.searchQuery.isNotEmpty
                                 ? 'No services match "${partnerServicesState.searchQuery}"'
-                                : 'No services uploaded yet. Tap "+ Create Service" to add one.',
+                                : 'No services uploaded yet. Click on +Add New to add one',
                             style: kSmallTitleL.copyWith(
                               fontSize: 14,
                               color: const Color(0xFF6B7280),
