@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/constants/color_constants.dart';
@@ -46,6 +47,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   List<File> _pickedImages = [];
   bool _isLoading = false;
   bool _isActive = true;
+  bool _inStock = true;
 
   static const int _maxImages = 5;
 
@@ -90,7 +92,19 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       if (_existingImageUrls[i] != initialUrls[i]) return true;
     }
 
-    if (_isActive != (widget.product?['isActive'] ?? true)) return true;
+    final origActive = widget.product?['isActive'];
+    final origActiveVal = origActive is bool
+        ? origActive
+        : (origActive?.toString().toLowerCase() == 'true');
+    if (_isActive != origActiveVal) return true;
+
+    final origStock = widget.product?['inStock'];
+    final origStockVal = origStock is bool
+        ? origStock
+        : (origStock == null
+              ? true
+              : origStock.toString().toLowerCase() == 'true');
+    if (_inStock != origStockVal) return true;
 
     return false;
   }
@@ -126,7 +140,16 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       _tags = initialTags.map((e) => e.toString()).toList();
     }
     _selectedCategoryId = widget.product?['category']?['_id'];
-    _isActive = widget.product?['isActive'] ?? true;
+    final rawActive = widget.product?['isActive'];
+    _isActive = rawActive is bool
+        ? rawActive
+        : (rawActive?.toString().toLowerCase() != 'false');
+    final rawStock = widget.product?['inStock'];
+    _inStock = rawStock is bool
+        ? rawStock
+        : (rawStock == null
+              ? true
+              : rawStock.toString().toLowerCase() != 'false');
     _existingImageUrls = List<String>.from(_initialImageUrls);
   }
 
@@ -248,6 +271,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
         'price': _priceController.text.trim(),
         'tags': _tags.isNotEmpty ? jsonEncode(_tags) : null,
         'isActive': _isActive.toString(),
+        'inStock': _inStock.toString(),
       };
 
       if (_selectedCategoryId != null) {
@@ -468,6 +492,54 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              const Divider(color: Color(0xFFF3F4F6), height: 1),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Active Status',
+                    style: kSmallTitleM.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: kBlack,
+                    ),
+                  ),
+                  CupertinoSwitch(
+                    value: _isActive,
+                    onChanged: (val) {
+                      setState(() {
+                        _isActive = val;
+                      });
+                    },
+                    activeTrackColor: kPrimaryColor,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'In Stock',
+                    style: kSmallTitleM.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: kBlack,
+                    ),
+                  ),
+                  CupertinoSwitch(
+                    value: _inStock,
+                    onChanged: (val) {
+                      setState(() {
+                        _inStock = val;
+                      });
+                    },
+                    activeTrackColor: kPrimaryColor,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: Color(0xFFF3F4F6), height: 1),
               const SizedBox(height: 20),
               Text(
                 'Product Images',
