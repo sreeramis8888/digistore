@@ -37,7 +37,11 @@ class CreateProductPage extends ConsumerStatefulWidget {
 class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   late TextEditingController _nameController;
   late TextEditingController _descController;
+  late TextEditingController _brandController;
   late TextEditingController _priceController;
+  late TextEditingController _skuController;
+  late TextEditingController _unitController;
+  late TextEditingController _weightController;
   late TextEditingController _categoryController;
   late TextEditingController _tagsController;
   List<String> _tags = [];
@@ -68,8 +72,22 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       return true;
     if (_descController.text.trim() != (widget.product?['description'] ?? ''))
       return true;
+    if (_brandController.text.trim() !=
+        (widget.product?['brand']?.toString() ?? ''))
+      return true;
     if (_priceController.text.trim() !=
         (widget.product?['price']?.toString() ?? ''))
+      return true;
+    if (_skuController.text.trim() !=
+        (widget.product?['sku']?.toString() ?? ''))
+      return true;
+    if (_unitController.text.trim() !=
+        (widget.product?['unit']?.toString().isNotEmpty == true
+            ? widget.product!['unit'].toString()
+            : 'piece'))
+      return true;
+    if (_weightController.text.trim() !=
+        (widget.product?['weight']?.toString() ?? ''))
       return true;
 
     final oldCategoryId = widget.product?['category'] is Map
@@ -95,7 +113,9 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     final origActive = widget.product?['isActive'];
     final origActiveVal = origActive is bool
         ? origActive
-        : (origActive?.toString().toLowerCase() == 'true');
+        : (origActive == null
+              ? true
+              : origActive.toString().toLowerCase() != 'false');
     if (_isActive != origActiveVal) return true;
 
     final origStock = widget.product?['inStock'];
@@ -122,8 +142,20 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     _descController = TextEditingController(
       text: widget.product?['description'] ?? '',
     );
+    _brandController = TextEditingController(
+      text: widget.product?['brand']?.toString() ?? '',
+    );
     _priceController = TextEditingController(
       text: widget.product?['price']?.toString() ?? '',
+    );
+    _skuController = TextEditingController(
+      text: widget.product?['sku']?.toString() ?? '',
+    );
+    _unitController = TextEditingController(
+      text: widget.product?['unit']?.toString() ?? 'piece',
+    );
+    _weightController = TextEditingController(
+      text: widget.product?['weight']?.toString() ?? '',
     );
 
     final cat = widget.product?['category'];
@@ -133,7 +165,11 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
 
     _nameController.addListener(_onFieldChanged);
     _descController.addListener(_onFieldChanged);
+    _brandController.addListener(_onFieldChanged);
     _priceController.addListener(_onFieldChanged);
+    _skuController.addListener(_onFieldChanged);
+    _unitController.addListener(_onFieldChanged);
+    _weightController.addListener(_onFieldChanged);
     _tagsController = TextEditingController();
     final initialTags = widget.product?['tags'];
     if (initialTags is List) {
@@ -157,11 +193,20 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   void dispose() {
     _nameController.removeListener(_onFieldChanged);
     _descController.removeListener(_onFieldChanged);
+    _brandController.removeListener(_onFieldChanged);
     _priceController.removeListener(_onFieldChanged);
+    _skuController.removeListener(_onFieldChanged);
+    _unitController.removeListener(_onFieldChanged);
+    _weightController.removeListener(_onFieldChanged);
     _nameController.dispose();
     _descController.dispose();
+    _brandController.dispose();
     _priceController.dispose();
+    _skuController.dispose();
+    _unitController.dispose();
+    _weightController.dispose();
     _categoryController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
@@ -261,17 +306,37 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       return;
     }
 
+    final priceStr = _priceController.text.trim();
+    final priceVal = double.tryParse(priceStr);
+    if (priceStr.isEmpty || priceVal == null || priceVal <= 0) {
+      ToastService().showToast(
+        context,
+        'Base price is required and must be greater than 0',
+        type: ToastType.error,
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final api = ref.read(apiProvider);
 
+      final brand = _brandController.text.trim();
+      final sku = _skuController.text.trim();
+      final unit = _unitController.text.trim();
+      final weight = _weightController.text.trim();
+
       final rawBody = <String, dynamic>{
         'title': title,
         'description': _descController.text.trim(),
-        'price': _priceController.text.trim(),
+        'price': priceStr,
         'tags': _tags.isNotEmpty ? jsonEncode(_tags) : null,
         'isActive': _isActive.toString(),
         'inStock': _inStock.toString(),
+        if (brand.isNotEmpty) 'brand': brand,
+        if (sku.isNotEmpty) 'sku': sku,
+        if (unit.isNotEmpty) 'unit': unit,
+        if (weight.isNotEmpty) 'weight': weight,
       };
 
       if (_selectedCategoryId != null) {
@@ -418,10 +483,43 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
               ),
               const SizedBox(height: 20),
               PrimaryTextField(
+                controller: _brandController,
+                label: 'Brand / Manufacturer',
+                hint: "e.g. L'Oréal, Nike, Apple",
+              ),
+              const SizedBox(height: 20),
+              PrimaryTextField(
                 controller: _priceController,
-                label: 'Product Price',
-                hint: 'Enter product price',
+                label: 'Base Price (₹)',
+                hint: 'Enter base price',
+                isRequired: true,
                 type: TextFieldType.number,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _skuController,
+                      label: 'SKU / Code',
+                      hint: 'e.g. PRD-1029',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: PrimaryTextField(
+                      controller: _unitController,
+                      label: 'Unit / Packaging',
+                      hint: 'e.g. piece, pack, ml',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              PrimaryTextField(
+                controller: _weightController,
+                label: 'Net Weight / Vol',
+                hint: 'e.g. 500g, 1.2 kg',
               ),
               const SizedBox(height: 20),
               Column(
