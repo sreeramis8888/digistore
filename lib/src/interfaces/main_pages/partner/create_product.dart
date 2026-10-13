@@ -42,11 +42,21 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
   List<String> _tags = [];
   String? _selectedCategoryId;
 
-  File? _pickedImage;
-  String? _existingImageUrl;
-  bool _isImageRemoved = false;
+  List<String> _existingImageUrls = [];
+  List<File> _pickedImages = [];
   bool _isLoading = false;
   bool _isActive = true;
+
+  static const int _maxImages = 5;
+
+  List<String> get _initialImageUrls {
+    final imgs = widget.product?['images'];
+    if (imgs is! List) return const [];
+    return imgs
+        .map((e) => e?.toString().trim() ?? '')
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
 
   bool get _isModified {
     if (widget.product == null) return true;
@@ -73,8 +83,12 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       if (_tags[i] != oldTags[i]) return true;
     }
 
-    if (_pickedImage != null) return true;
-    if (_isImageRemoved) return true;
+    if (_pickedImages.isNotEmpty) return true;
+    final initialUrls = _initialImageUrls;
+    if (_existingImageUrls.length != initialUrls.length) return true;
+    for (int i = 0; i < _existingImageUrls.length; i++) {
+      if (_existingImageUrls[i] != initialUrls[i]) return true;
+    }
 
     if (_isActive != (widget.product?['isActive'] ?? true)) return true;
 
@@ -113,10 +127,7 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     }
     _selectedCategoryId = widget.product?['category']?['_id'];
     _isActive = widget.product?['isActive'] ?? true;
-    final imgs = widget.product?['images'];
-    if (imgs is List && imgs.isNotEmpty) {
-      _existingImageUrl = imgs[0]?.toString();
-    }
+    _existingImageUrls = List<String>.from(_initialImageUrls);
   }
 
   @override
@@ -131,22 +142,51 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImages() async {
     FocusManager.instance.primaryFocus?.unfocus();
+    final totalCount = _existingImageUrls.length + _pickedImages.length;
+    if (totalCount >= _maxImages) {
+      ToastService().showToast(
+        context,
+        'Maximum limit of $_maxImages images reached',
+        type: ToastType.warning,
+      );
+      return;
+    }
+
     final result = await img_service.pickMedia(
       context: context,
+      allowMultiple: true,
       enableCrop: true,
       cropRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
       showDocument: false,
     );
 
-    if (result is XFile) {
-      File compressedFile = await img_service.compressImageIfNeeded(
+    final remaining =
+        _maxImages - (_existingImageUrls.length + _pickedImages.length);
+
+    if (result is List<XFile>) {
+      if (result.length > remaining) {
+        ToastService().showToast(
+          context,
+          'Only $remaining more image(s) can be added',
+          type: ToastType.warning,
+        );
+      }
+
+      final newFiles = result.take(remaining).map((e) => File(e.path)).toList();
+      for (int i = 0; i < newFiles.length; i++) {
+        newFiles[i] = await img_service.compressImageIfNeeded(newFiles[i]);
+      }
+      setState(() {
+        _pickedImages.addAll(newFiles);
+      });
+    } else if (result is XFile && remaining > 0) {
+      final compressedFile = await img_service.compressImageIfNeeded(
         File(result.path),
       );
       setState(() {
-        _pickedImage = compressedFile;
-        _isImageRemoved = false;
+        _pickedImages.add(compressedFile);
       });
     }
   }
@@ -236,21 +276,28 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
         }
       }
 
+      final isEdit = widget.product != null;
+      if (isEdit) {
+        // Always send remaining existing URLs so multi-image edit keeps them.
+        rawBody['images'] = jsonEncode(_existingImageUrls);
+        rawBody['existingImages'] = jsonEncode(_existingImageUrls);
+      } else if (_existingImageUrls.isNotEmpty) {
+        rawBody['images'] = jsonEncode(_existingImageUrls);
+      }
+
       List<http.MultipartFile>? files;
-      if (_pickedImage != null) {
-        files = [
-          await http.MultipartFile.fromPath(
-            'images',
-            _pickedImage!.path,
-            contentType: MediaType.parse(
-              lookupMimeType(_pickedImage!.path) ?? 'image/jpeg',
+      if (_pickedImages.isNotEmpty) {
+        files = await Future.wait(
+          _pickedImages.map(
+            (f) => http.MultipartFile.fromPath(
+              'images',
+              f.path,
+              contentType: MediaType.parse(
+                lookupMimeType(f.path) ?? 'image/jpeg',
+              ),
             ),
           ),
-        ];
-      } else if (_existingImageUrl != null) {
-        rawBody['images'] = jsonEncode([_existingImageUrl]);
-      } else if (_isImageRemoved) {
-        rawBody['images'] = jsonEncode([]);
+        );
       }
 
       final cleanedBody = cleanMap(rawBody);
@@ -259,7 +306,6 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
       );
       log('body: $body');
 
-      final isEdit = widget.product != null;
       final response = isEdit
           ? await api.putMultipart(
               '/products/${widget.product!['_id'] ?? widget.product!['id']}',
@@ -423,87 +469,136 @@ class _CreateProductPageState extends ConsumerState<CreateProductPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              const SizedBox(height: 20),
               Text(
-                'Product Image',
+                'Product Images',
                 style: kSmallTitleM.copyWith(
                   color: const Color(0xFF0A0A0A),
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  width: double.infinity,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(10),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  GestureDetector(
+                    onTap: _pickImages,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE5E5E5)),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.add_a_photo_outlined,
+                            color: Color(0xFF808080),
+                            size: 24,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${_existingImageUrls.length + _pickedImages.length}/$_maxImages',
+                            style: kSmallTitleL.copyWith(
+                              color: const Color(0xFF808080),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child:
-                      (_pickedImage != null ||
-                          (_existingImageUrl != null && !_isImageRemoved))
-                      ? Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            GestureDetector(
-                              onTap: _pickImage,
-                              child: _pickedImage != null
-                                  ? Image.file(_pickedImage!, fit: BoxFit.cover)
-                                  : AdvancedNetworkImage(
-                                      imageUrl: _existingImageUrl!,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _pickedImage = null;
-                                    _existingImageUrl = null;
-                                    _isImageRemoved = true;
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : GestureDetector(
-                          onTap: _pickImage,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.add_photo_alternate_outlined,
-                                color: Color(0xFF808080),
-                                size: 30,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Add Image',
-                                style: kSmallTitleL.copyWith(
-                                  color: const Color(0xFF808080),
-                                ),
-                              ),
-                            ],
+                  ...List.generate(_existingImageUrls.length, (index) {
+                    return Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: AdvancedNetworkImage(
+                            imageUrl: _existingImageUrls[index],
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 100,
                           ),
                         ),
-                ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _existingImageUrls.removeAt(index);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                  ...List.generate(_pickedImages.length, (index) {
+                    return Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Image.file(
+                            _pickedImages[index],
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 100,
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _pickedImages.removeAt(index);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ],
               ),
             ],
           ),
