@@ -27,8 +27,7 @@ class SupportTicketMessage {
               .toList() ??
           [],
       createdAt:
-          DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
-          DateTime.now(),
+          DateTime.tryParse((json['createdAt'] ?? '').toString())?.toLocal() ?? DateTime.now(),
     );
   }
 
@@ -83,10 +82,10 @@ class SupportTicketModel {
               .toList() ??
           [],
       createdAt:
-          DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
+          DateTime.tryParse((json['createdAt'] ?? '').toString())?.toLocal() ??
           DateTime.now(),
       updatedAt:
-          DateTime.tryParse((json['updatedAt'] ?? '').toString()) ??
+          DateTime.tryParse((json['updatedAt'] ?? '').toString())?.toLocal() ??
           DateTime.now(),
     );
   }
