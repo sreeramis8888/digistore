@@ -193,6 +193,13 @@ class ServiceModel {
   final double rating;
   final int reviewsCount;
 
+  /// Portions & size variants (mirrors product variants).
+  final bool hasVariants;
+  final List<Map<String, dynamic>> variants;
+
+  /// Per-day custom schedule used when hasCustomHours + daily mode.
+  final List<Map<String, dynamic>> dailyCustomSlots;
+
   const ServiceModel({
     this.id,
     this.partnerId,
@@ -234,6 +241,9 @@ class ServiceModel {
     this.isActive = true,
     this.rating = 0,
     this.reviewsCount = 0,
+    this.hasVariants = false,
+    this.variants = const [],
+    this.dailyCustomSlots = const [],
   });
 
   /// Best display price: effectivePrice → offerPrice → originalPrice.
@@ -392,6 +402,29 @@ class ServiceModel {
       0,
     );
 
+    // Variants
+    bool hasVars = json['hasVariants'] == true;
+    List<Map<String, dynamic>> variantsList = [];
+    final rawVars = json['variants'];
+    if (rawVars is List) {
+      for (final v in rawVars) {
+        if (v is Map) {
+          variantsList.add(Map<String, dynamic>.from(v));
+        }
+      }
+    }
+
+    // Per-day custom slots
+    List<Map<String, dynamic>> dailySlotsList = [];
+    final rawSlots = json['dailyCustomSlots'];
+    if (rawSlots is List) {
+      for (final s in rawSlots) {
+        if (s is Map) {
+          dailySlotsList.add(Map<String, dynamic>.from(s));
+        }
+      }
+    }
+
     return ServiceModel(
       id: (json['_id'] ?? json['id'])?.toString(),
       partnerId: partnerIdStr,
@@ -433,6 +466,9 @@ class ServiceModel {
       isActive: json['isActive'] != false,
       rating: parseDouble(json['rating'] ?? json['avgRating'] ?? 0, 0),
       reviewsCount: parseInt(json['reviewsCount'] ?? json['totalReviews'], 0),
+      hasVariants: hasVars,
+      variants: variantsList,
+      dailyCustomSlots: dailySlotsList,
     );
   }
 
@@ -467,6 +503,9 @@ class ServiceModel {
       'images': images,
       'addOns': addOns.map((e) => e.toJson()).toList(),
       'isActive': isActive,
+      'hasVariants': hasVariants,
+      'variants': variants,
+      'dailyCustomSlots': dailyCustomSlots,
     };
   }
 }

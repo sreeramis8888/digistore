@@ -69,7 +69,9 @@ class _ServicesFilterChipsState extends ConsumerState<ServicesFilterChips> {
                 onPressed: () {
                   ref.read(selectedServicesCategoryProvider.notifier).state =
                       index;
-                  final categoryToFetch = index == 0 ? null : (cat.id ?? cat.name);
+                  // Partner services filter by category name (stored as string in DB).
+                  // Prefer name over id so the backend regex match works directly.
+                  final categoryToFetch = index == 0 ? null : (cat.name ?? cat.id);
                   final isPartner = ref.read(userTypeProvider) == UserType.partner ||
                       GlobalVariables.isPartner;
                   if (isPartner) {
