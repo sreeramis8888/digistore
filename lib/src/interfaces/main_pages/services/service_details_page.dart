@@ -151,11 +151,10 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
         : (fetchedShop?.businessDetails?.address ?? '');
 
     final hasOffer = service.hasOffer && service.offerPrice != null;
-    final offerPriceText = hasOffer
-        ? _formatMoney(service.offerPrice!)
-        : null;
-    final originalPriceText = _formatMoney(service.originalPrice);
-    final displayPrice = hasOffer ? offerPriceText! : originalPriceText;
+    final effectiveExGst = service.taxableAmount;
+    final gstAmt = service.totalGstAmount;
+    final payable = service.payablePrice;
+    final originalPayable = service.originalPayablePrice;
 
     final showShop =
         !isPartner &&
@@ -354,22 +353,124 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                           ),
                         ),
                         SizedBox(height: screenSize.responsivePadding(6)),
-                        if (hasOffer)
-                          OfferPriceRow(
-                            offerPrice: '₹$displayPrice',
-                            originalPrice: '₹$originalPriceText',
-                            gap: screenSize.responsivePadding(8),
-                          )
-                        else
-                          Text(
-                            '₹$displayPrice',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF07838C),
+                        // Effective (ex-GST) +GST hint, then full GST breakdown below
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Flexible(
+                              child: hasOffer &&
+                                      service.originalPrice > effectiveExGst
+                                  ? OfferPriceRow(
+                                      offerPrice:
+                                          '₹${_formatMoney(effectiveExGst)}',
+                                      originalPrice:
+                                          '₹${_formatMoney(service.originalPrice)}',
+                                      gap: screenSize.responsivePadding(8),
+                                    )
+                                  : Text(
+                                      '₹${_formatMoney(effectiveExGst)}',
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF07838C),
+                                      ),
+                                    ),
+                            ),
+                            const SizedBox(width: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                '+GST',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF9CA3AF),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (payable > 0) ...[
+                          SizedBox(height: screenSize.responsivePadding(10)),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(
+                              screenSize.responsivePadding(12),
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F5F4),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFFE5E7EB),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                _gstLine(
+                                  'Service amount',
+                                  '₹${_formatMoney(effectiveExGst)}',
+                                ),
+                                const SizedBox(height: 6),
+                                _gstLine(
+                                  'GST (${_formatMoney(service.gstPercent)}%)',
+                                  '+ ₹${_formatMoney(gstAmt)}',
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8),
+                                  child: Divider(
+                                    height: 1,
+                                    color: Color(0xFFE5E7EB),
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Total incl. GST',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF111827),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        if (service.showGstStrikeThrough &&
+                                            originalPayable > payable) ...[
+                                          Text(
+                                            '₹${_formatMoney(originalPayable)}',
+                                            style: const TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFF9CA3AF),
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                        ],
+                                        Text(
+                                          '₹${_formatMoney(payable)}',
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF07838C),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
+                        ],
                         if (showShop) ...[
                           SizedBox(height: screenSize.responsivePadding(16)),
                           const Divider(
@@ -596,8 +697,9 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                             .where((s) => s.id != null && s.id != service.id)
                             .toList();
 
-                        if (relatedServices.isEmpty)
+                        if (relatedServices.isEmpty) {
                           return const SizedBox.shrink();
+                        }
 
                         return Padding(
                           padding: EdgeInsets.fromLTRB(
@@ -656,7 +758,7 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
             ),
           ),
 
-          // Sticky Bottom Bar with Book Now button
+          // Sticky bottom: pay GST-inclusive amount
           if (!isPartner)
             Container(
               width: double.infinity,
@@ -699,8 +801,10 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                       ),
                     ),
                     child: Text(
-                      'Book Now',
-                      style: TextStyle(
+                      payable > 0
+                          ? 'Pay ₹${_formatMoney(payable)}'
+                          : 'Book Now',
+                      style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -716,6 +820,32 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     );
   }
 
+  Widget _gstLine(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF6B7280),
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF111827),
+          ),
+        ),
+      ],
+    );
+  }
+
   static String _formatMoney(double value) {
     return value.truncateToDouble() == value
         ? value.toStringAsFixed(0)
@@ -728,17 +858,13 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
     ScreenSizeData screenSize,
   ) {
     final title = serviceModel.name;
-    final hasOffer =
-        serviceModel.hasOffer && serviceModel.offerPrice != null;
+    final hasOffer = serviceModel.showStrikeThrough;
     final image = serviceModel.images.isNotEmpty
         ? serviceModel.images.first
         : null;
 
-    final offerText = hasOffer
-        ? '₹${_formatMoney(serviceModel.offerPrice!)}'
-        : null;
+    final formattedPrice = '₹${_formatMoney(serviceModel.taxableAmount)}';
     final originalText = '₹${_formatMoney(serviceModel.originalPrice)}';
-    final formattedPrice = hasOffer ? offerText! : originalText;
 
     return Container(
       decoration: BoxDecoration(
@@ -803,42 +929,52 @@ class _ServiceDetailsPageState extends ConsumerState<ServiceDetailsPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: screenSize.responsivePadding(4)),
-                if (hasOffer)
-                  Row(
-                    children: [
+                Row(
+                  children: [
+                    if (hasOffer) ...[
                       Text(
                         formattedPrice,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF07838C),
+                          color: Color(0xFF07838C),
                         ),
                       ),
                       SizedBox(width: screenSize.responsivePadding(6)),
                       Text(
                         originalText,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF9CA3AF),
+                          color: Color(0xFF9CA3AF),
                           decoration: TextDecoration.lineThrough,
-                          decorationColor: const Color(0xFF9CA3AF),
+                          decorationColor: Color(0xFF9CA3AF),
                         ),
                       ),
-                    ],
-                  )
-                else
-                  Text(
-                    formattedPrice,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF07838C),
+                    ] else
+                      Text(
+                        formattedPrice,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF07838C),
+                        ),
+                      ),
+                    const SizedBox(width: 4),
+                    const Text(
+                      '+GST',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF9CA3AF),
+                      ),
                     ),
-                  ),
+                  ],
+                ),
               ],
             ),
           ),

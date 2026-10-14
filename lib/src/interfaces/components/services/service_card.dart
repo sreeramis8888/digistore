@@ -32,40 +32,71 @@ class ServiceCard extends ConsumerWidget {
   }
 
   Widget _buildPriceLabel() {
+    // Card shows effective price ex-GST, with a clear +GST hint.
     final sale = service.displayPrice;
     final base = service.originalPrice;
     if (sale != null && sale > 0) {
-      if (service.showStrikeThrough && base > sale) {
-        return OfferPriceRow(
-          offerPrice: _money(sale),
-          originalPrice: _money(base),
-          gap: 6,
-          offerFontSize: 13,
-          originalFontSize: 11,
-        );
-      }
-      return Text(
-        _money(sale),
-        style: kSmallerTitleM.copyWith(
-          color: const Color(0xFF07838C),
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Flexible(
+            child: service.showStrikeThrough && base > sale
+                ? OfferPriceRow(
+                    offerPrice: _money(sale),
+                    originalPrice: _money(base),
+                    gap: 6,
+                    offerFontSize: 13,
+                    originalFontSize: 11,
+                  )
+                : Text(
+                    _money(sale),
+                    style: kSmallerTitleM.copyWith(
+                      color: const Color(0xFF07838C),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '+GST',
+            style: kSmallerTitleL.copyWith(
+              color: const Color(0xFF9CA3AF),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       );
     }
 
     if (base > 0) {
-      return Text(
-        _money(base),
-        style: kSmallerTitleM.copyWith(
-          color: const Color(0xFF07838C),
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _money(base),
+            style: kSmallerTitleM.copyWith(
+              color: const Color(0xFF07838C),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '+GST',
+            style: kSmallerTitleL.copyWith(
+              color: const Color(0xFF9CA3AF),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       );
     }
 

@@ -53,6 +53,22 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
     return (widget.quantities[id] ?? 1).clamp(1, 99);
   }
 
+  double get _subtotalExGst => widget.services.fold(
+    0.0,
+    (sum, s) => sum + (s.taxableAmount * _qtyFor(s)),
+  );
+
+  double get _totalGst => widget.services.fold(
+    0.0,
+    (sum, s) => sum + (s.totalGstAmount * _qtyFor(s)),
+  );
+
+  String _money(double value) {
+    return value.truncateToDouble() == value
+        ? value.toStringAsFixed(0)
+        : value.toStringAsFixed(2);
+  }
+
   Future<void> _handleConfirmBooking() async {
     if (_isSubmitting) return;
     setState(() => _isSubmitting = true);
@@ -458,11 +474,11 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
             child: Container(height: 1, color: const Color(0xFFEDEDED)),
           ),
 
-          // Section 2: Pricing & Payment
+          // Section 2: Pricing & Payment (GST-inclusive total)
           _buildDetailRow(
-            label: 'Service Fee',
-            value: '₹${widget.totalPrice.toInt()}',
-            isValueBold: true,
+            label: 'Service amount',
+            value:
+                '₹${_money(_subtotalExGst)}',
           ),
           if (savings > 0) ...[
             const SizedBox(height: 10),
@@ -473,6 +489,17 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
               isValueBold: true,
             ),
           ],
+          const SizedBox(height: 10),
+          _buildDetailRow(
+            label: 'GST',
+            value: '+ ₹${_money(_totalGst)}',
+          ),
+          const SizedBox(height: 10),
+          _buildDetailRow(
+            label: 'Total (incl. GST)',
+            value: '₹${_money(widget.totalPrice)}',
+            isValueBold: true,
+          ),
           const SizedBox(height: 10),
           _buildDetailRow(
             label: 'Payment Mode',
@@ -589,7 +616,9 @@ class _BookingSummaryPageState extends ConsumerState<BookingSummaryPage> {
             child: _isSubmitting
                 ? const LoadingAnimation(size: 24, loadingColor: Colors.white)
                 : Text(
-                    widget.totalPrice > 0 ? 'Confirm & Pay' : 'Confirm Booking',
+                    widget.totalPrice > 0
+                        ? 'Pay ₹${_money(widget.totalPrice)}'
+                        : 'Confirm Booking',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 16,

@@ -96,6 +96,9 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
   // Booking type
   String _bookingType = 'appointment';
 
+  // GST slab (%) — mirrors admin ServiceFormModal
+  double _gstPercent = 5.0;
+
   // Variants
   bool _hasVariants = false;
   final List<_ServiceVariantDraft> _variants = [];
@@ -137,6 +140,46 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     {'value': 'table_booking', 'label': 'Table / Seating Booking'},
   ];
 
+  /// Admin-aligned GST slabs shown to partners.
+  static const List<Map<String, dynamic>> _gstSlabs = [
+    {
+      'value': 5.0,
+      'label': '5% (Standard — CGST 2.5% + SGST 2.5%)',
+    },
+    {
+      'value': 18.0,
+      'label': '18% (Commercial — CGST 9% + SGST 9%)',
+    },
+    {
+      'value': 12.0,
+      'label': '12% (Intermediate — CGST 6% + SGST 6%)',
+    },
+    {
+      'value': 28.0,
+      'label': '28% (Luxury — CGST 14% + SGST 14%)',
+    },
+    {'value': 0.0, 'label': '0% (Nil / Exempted)'},
+  ];
+
+  /// Taxable amount used for GST preview (offer price when offer is on).
+  double get _taxablePreview {
+    final base = double.tryParse(_priceController.text.trim()) ?? 0;
+    if (!_hasOffer) return base;
+    final offerVal = double.tryParse(_offerValueController.text.trim()) ?? 0;
+    if (_offerType == 'amount') {
+      return (base - offerVal).clamp(0, double.infinity);
+    }
+    return (base * (1 - offerVal / 100)).clamp(0, double.infinity);
+  }
+
+  double get _cgstPreview =>
+      double.parse(((_taxablePreview * (_gstPercent / 2)) / 100).toStringAsFixed(2));
+
+  double get _sgstPreview => _cgstPreview;
+
+  double get _totalWithGstPreview =>
+      double.parse((_taxablePreview + _cgstPreview + _sgstPreview).toStringAsFixed(2));
+
   void _onFieldChanged() => setState(() {});
 
   bool _asBool(dynamic raw, {bool fallback = true}) {
@@ -173,6 +216,7 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
     if (_maxGuestsController.text.trim() != s.maxConcurrentGuests.toString()) return true;
     if (_spaceLabelController.text.trim() != (s.spaceLabel)) return true;
     if (_bookingType != s.bookingType) return true;
+    if (_gstPercent != s.gstPercent) return true;
 
     // Variants
     if (_hasVariants != s.hasVariants) return true;
@@ -281,6 +325,9 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
 
     // Booking type
     _bookingType = s?.bookingType ?? 'appointment';
+
+    // GST
+    _gstPercent = s?.gstPercent ?? 5.0;
 
     // Active
     _isActive = s?.isActive ?? true;
@@ -596,6 +643,7 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
         if (_hasOffer) 'offerType': _offerType,
         if (_hasOffer && offerVal != null) 'offerValue': offerVal,
         'bookingType': _bookingType,
+        'gstPercent': _gstPercent,
         'durationMinutes': duration,
         'bufferMinutes': buffer,
         'maxConcurrentGuests': maxGuests,
@@ -1045,6 +1093,128 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
                             : 'Discount Percentage (%)',
                         hint: _offerType == 'amount' ? 'e.g. 100' : 'e.g. 20',
                         type: TextFieldType.number,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // ── GST Configuration ────────────────────────────────────────
+              _sectionCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.receipt_long_outlined,
+                            size: 18, color: kPrimaryColor),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'GST Configuration',
+                                style: kSmallTitleM.copyWith(
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                'Select the GST slab applied on this service',
+                                style: kSmallTitleL.copyWith(
+                                  fontSize: 11,
+                                  color: const Color(0xFF808080),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: kPrimaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: kPrimaryColor.withValues(alpha: 0.25),
+                            ),
+                          ),
+                          child: Text(
+                            '${_gstPercent.toStringAsFixed(_gstPercent % 1 == 0 ? 0 : 1)}% GST',
+                            style: kSmallTitleM.copyWith(
+                              fontSize: 11,
+                              color: kPrimaryColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      height: 52,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<double>(
+                          value: _gstSlabs.any((s) => s['value'] == _gstPercent)
+                              ? _gstPercent
+                              : 5.0,
+                          isExpanded: true,
+                          icon: const Icon(Icons.keyboard_arrow_down,
+                              color: Color(0xFF808080)),
+                          style: kSmallTitleL.copyWith(
+                              color: const Color(0xFF111827), fontSize: 13),
+                          dropdownColor: kWhite,
+                          items: _gstSlabs
+                              .map(
+                                (s) => DropdownMenuItem<double>(
+                                  value: s['value'] as double,
+                                  child: Text(s['label'] as String),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) =>
+                              setState(() => _gstPercent = v ?? 5.0),
+                        ),
+                      ),
+                    ),
+                    if (_taxablePreview > 0) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: Column(
+                          children: [
+                            _gstPreviewRow(
+                              'CGST (${(_gstPercent / 2).toStringAsFixed(1)}%)',
+                              '₹${_cgstPreview.toStringAsFixed(2)}',
+                            ),
+                            const SizedBox(height: 6),
+                            _gstPreviewRow(
+                              'SGST (${(_gstPercent / 2).toStringAsFixed(1)}%)',
+                              '₹${_sgstPreview.toStringAsFixed(2)}',
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Divider(height: 1, color: Color(0xFFE5E7EB)),
+                            ),
+                            _gstPreviewRow(
+                              'Total with GST',
+                              '₹${_totalWithGstPreview.toStringAsFixed(2)}',
+                              bold: true,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ],
@@ -1526,6 +1696,30 @@ class _CreateServicePageState extends ConsumerState<CreateServicePage> {
   }
 
   // ─── small UI helpers ────────────────────────────────────────────────────
+
+  Widget _gstPreviewRow(String label, String value, {bool bold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: kSmallTitleL.copyWith(
+            fontSize: 12,
+            color: const Color(0xFF6B7280),
+            fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+        Text(
+          value,
+          style: kSmallTitleM.copyWith(
+            fontSize: 12,
+            fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+            color: bold ? const Color(0xFF111827) : const Color(0xFF374151),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _offerChip({
     required String label,

@@ -193,6 +193,15 @@ class ServiceModel {
   final double rating;
   final int reviewsCount;
 
+  /// GST slab % applied on the taxable (effective) amount. Backend default: 5.
+  final double gstPercent;
+
+  /// Optional server-computed GST breakdown (preferred when present).
+  final double? gstAmount;
+  final double? priceWithGst;
+  final double? gstAddedOriginalPrice;
+  final double? gstAddedOfferPrice;
+
   /// Portions & size variants (mirrors product variants).
   final bool hasVariants;
   final List<Map<String, dynamic>> variants;
@@ -241,12 +250,17 @@ class ServiceModel {
     this.isActive = true,
     this.rating = 0,
     this.reviewsCount = 0,
+    this.gstPercent = 5.0,
+    this.gstAmount,
+    this.priceWithGst,
+    this.gstAddedOriginalPrice,
+    this.gstAddedOfferPrice,
     this.hasVariants = false,
     this.variants = const [],
     this.dailyCustomSlots = const [],
   });
 
-  /// Best display price: effectivePrice → offerPrice → originalPrice.
+  /// Best display price (ex-GST): effectivePrice → offerPrice → originalPrice.
   double? get displayPrice {
     if (effectivePrice > 0) return effectivePrice;
     if (hasOffer && offerPrice != null && offerPrice! > 0) return offerPrice;
@@ -256,6 +270,51 @@ class ServiceModel {
   bool get showStrikeThrough {
     final base = originalPrice;
     final sale = displayPrice ?? 0;
+    return hasOffer && base > 0 && sale > 0 && sale < base;
+  }
+
+  double get taxableAmount => displayPrice ?? 0;
+
+  double get cgstRate => double.parse((gstPercent / 2).toStringAsFixed(2));
+
+  double get sgstRate => cgstRate;
+
+  double get computedCgstAmount =>
+      double.parse(((taxableAmount * cgstRate) / 100).toStringAsFixed(2));
+
+  double get computedSgstAmount =>
+      double.parse(((taxableAmount * sgstRate) / 100).toStringAsFixed(2));
+
+  /// Total GST on the taxable amount (server value when available).
+  double get totalGstAmount {
+    if (gstAmount != null) return gstAmount!;
+    return double.parse(
+      (computedCgstAmount + computedSgstAmount).toStringAsFixed(2),
+    );
+  }
+
+  /// Customer-facing payable amount (effective + GST).
+  double get payablePrice {
+    if (priceWithGst != null && priceWithGst! > 0) return priceWithGst!;
+    return double.parse(
+      (taxableAmount + totalGstAmount).toStringAsFixed(2),
+    );
+  }
+
+  /// Original (MRP) with GST — used for strike-through on GST-inclusive UI.
+  double get originalPayablePrice {
+    if (gstAddedOriginalPrice != null && gstAddedOriginalPrice! > 0) {
+      return gstAddedOriginalPrice!;
+    }
+    if (originalPrice <= 0) return 0;
+    return double.parse(
+      (originalPrice * (1 + gstPercent / 100)).toStringAsFixed(2),
+    );
+  }
+
+  bool get showGstStrikeThrough {
+    final sale = payablePrice;
+    final base = originalPayablePrice;
     return hasOffer && base > 0 && sale > 0 && sale < base;
   }
 
@@ -425,6 +484,30 @@ class ServiceModel {
       }
     }
 
+    final gstPct = parseDouble(
+      json['gstPercent'] ?? json['gstRate'] ?? 5.0,
+      5.0,
+    ).clamp(0.0, 28.0);
+
+    final parsedGstAmount = json['gstAmount'] != null
+        ? parseDouble(json['gstAmount'] ?? json['totalGstAmount'])
+        : (json['totalGstAmount'] != null
+              ? parseDouble(json['totalGstAmount'])
+              : null);
+
+    final parsedPriceWithGst = json['priceWithGst'] != null
+        ? parseDouble(
+            json['priceWithGst'] ??
+                json['totalWithGst'] ??
+                json['gstAddedPrice'] ??
+                json['taxInclusivePrice'],
+          )
+        : (json['gstAddedPrice'] != null
+              ? parseDouble(json['gstAddedPrice'])
+              : (json['totalWithGst'] != null
+                    ? parseDouble(json['totalWithGst'])
+                    : null));
+
     return ServiceModel(
       id: (json['_id'] ?? json['id'])?.toString(),
       partnerId: partnerIdStr,
@@ -466,6 +549,15 @@ class ServiceModel {
       isActive: json['isActive'] != false,
       rating: parseDouble(json['rating'] ?? json['avgRating'] ?? 0, 0),
       reviewsCount: parseInt(json['reviewsCount'] ?? json['totalReviews'], 0),
+      gstPercent: gstPct.toDouble(),
+      gstAmount: parsedGstAmount,
+      priceWithGst: parsedPriceWithGst,
+      gstAddedOriginalPrice: json['gstAddedOriginalPrice'] != null
+          ? parseDouble(json['gstAddedOriginalPrice'])
+          : null,
+      gstAddedOfferPrice: json['gstAddedOfferPrice'] != null
+          ? parseDouble(json['gstAddedOfferPrice'])
+          : null,
       hasVariants: hasVars,
       variants: variantsList,
       dailyCustomSlots: dailySlotsList,
@@ -503,6 +595,10 @@ class ServiceModel {
       'images': images,
       'addOns': addOns.map((e) => e.toJson()).toList(),
       'isActive': isActive,
+      'gstPercent': gstPercent,
+      'gstAmount': totalGstAmount,
+      'priceWithGst': payablePrice,
+      'gstAddedOriginalPrice': originalPayablePrice,
       'hasVariants': hasVariants,
       'variants': variants,
       'dailyCustomSlots': dailyCustomSlots,

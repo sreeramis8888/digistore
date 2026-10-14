@@ -65,14 +65,15 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
   int get _totalDuration =>
       _selectedServices.fold(0, (sum, s) => sum + s.totalTimeMinutes);
 
+  /// Payable total including GST (matches backend booking charge).
   double get _totalPrice => _selectedServices.fold(
     0.0,
-    (sum, s) => sum + (s.effectivePrice * _qtyFor(s)),
+    (sum, s) => sum + (s.payablePrice * _qtyFor(s)),
   );
 
   double get _originalPrice => _selectedServices.fold(
     0.0,
-    (sum, s) => sum + (s.originalPrice * _qtyFor(s)),
+    (sum, s) => sum + (s.originalPayablePrice * _qtyFor(s)),
   );
 
   void _onPrevMonth() {
@@ -248,13 +249,10 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
     required String partnerAddress,
   }) {
     final service = widget.service;
-    final displayPrice = service.hasOffer && service.offerPrice != null
-        ? (service.offerPrice!.truncateToDouble() == service.offerPrice
-              ? service.offerPrice!.toStringAsFixed(0)
-              : service.offerPrice!.toStringAsFixed(2))
-        : (service.originalPrice.truncateToDouble() == service.originalPrice
-              ? service.originalPrice.toStringAsFixed(0)
-              : service.originalPrice.toStringAsFixed(2));
+    final payable = service.payablePrice;
+    final displayPrice = payable.truncateToDouble() == payable
+        ? payable.toStringAsFixed(0)
+        : payable.toStringAsFixed(2);
 
     return Container(
       width: double.infinity,
@@ -821,7 +819,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 final id = s.id ?? '';
                 final isChecked = _selectedServiceIds.contains(id);
                 final qty = _qtyFor(s);
-                final linePrice = s.effectivePrice * qty;
+                final linePrice = s.payablePrice * qty;
 
                 void selectService() {
                   if (id.isEmpty) return;
@@ -926,7 +924,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                                 if (isChecked && qty > 1) ...[
                                   const SizedBox(height: 2),
                                   Text(
-                                    '₹${s.effectivePrice.toInt()} each',
+                                    '₹${s.payablePrice.toStringAsFixed(s.payablePrice % 1 == 0 ? 0 : 2)} each incl. GST',
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
                                       fontSize: 11,
@@ -947,7 +945,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                             const SizedBox(width: 10),
                           ],
                           Text(
-                            '₹${(isChecked ? linePrice : s.effectivePrice).toInt()}',
+                            '₹${(isChecked ? linePrice : s.payablePrice).toStringAsFixed((isChecked ? linePrice : s.payablePrice) % 1 == 0 ? 0 : 2)}',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 15,
@@ -1061,7 +1059,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '₹${_totalPrice.toInt()}',
+                    '₹${_totalPrice.toStringAsFixed(_totalPrice % 1 == 0 ? 0 : 2)}',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 20,
@@ -1070,7 +1068,7 @@ class _BookServicePageState extends ConsumerState<BookServicePage> {
                     ),
                   ),
                   Text(
-                    '$_totalDuration mins total',
+                    'incl. GST · $_totalDuration mins',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 12,
