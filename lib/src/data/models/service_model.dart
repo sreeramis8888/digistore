@@ -296,9 +296,7 @@ class ServiceModel {
   /// Customer-facing payable amount (effective + GST).
   double get payablePrice {
     if (priceWithGst != null && priceWithGst! > 0) return priceWithGst!;
-    return double.parse(
-      (taxableAmount + totalGstAmount).toStringAsFixed(2),
-    );
+    return double.parse((taxableAmount + totalGstAmount).toStringAsFixed(2));
   }
 
   /// Original (MRP) with GST — used for strike-through on GST-inclusive UI.

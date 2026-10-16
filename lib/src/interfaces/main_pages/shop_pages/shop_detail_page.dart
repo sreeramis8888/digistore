@@ -404,47 +404,33 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                                   SizedBox(
                                     height: screenSize.responsivePadding(12),
                                   ),
-                                  SizedBox(
-                                    // Image (16:9) + compact details (no shop row).
-                                    height:
-                                        screenSize.responsivePadding(180) *
-                                            9 /
-                                            16 +
-                                        screenSize.responsivePadding(70),
-                                    child: ListView.separated(
-                                      clipBehavior: Clip.none,
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: displayProducts.length,
-                                      separatorBuilder: (context, index) =>
-                                          SizedBox(
-                                            width: screenSize.responsivePadding(
-                                              12,
-                                            ),
-                                          ),
-                                      itemBuilder: (context, index) {
-                                        final product = displayProducts[index];
-                                        return SizedBox(
-                                          width: screenSize.responsivePadding(
-                                            180,
-                                          ),
-                                          child: ProductCard(
-                                            index: index,
-                                            name: product.title,
-                                            image:
-                                                product.images?.isNotEmpty ==
-                                                    true
-                                                ? product.images!.first
-                                                : null,
-                                            description: product.description,
-                                            price:
-                                                '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
-                                            tags: product.tags,
-                                            rawProduct: product,
-                                            hideShopInfo: true,
-                                          ),
-                                        );
-                                      },
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: displayProducts.length,
+                                    separatorBuilder: (context, index) =>
+                                        SizedBox(
+                                      height:
+                                          screenSize.responsivePadding(12),
                                     ),
+                                    itemBuilder: (context, index) {
+                                      final product = displayProducts[index];
+                                      return ProductCard(
+                                        index: index,
+                                        name: product.title,
+                                        image: product.images?.isNotEmpty ==
+                                                true
+                                            ? product.images!.first
+                                            : null,
+                                        description: product.description,
+                                        price:
+                                            '₹${product.price?.toStringAsFixed(2) ?? "0.0"}',
+                                        tags: product.tags,
+                                        rawProduct: product,
+                                        hideShopInfo: true,
+                                      );
+                                    },
                                   ),
                                   SizedBox(
                                     height: screenSize.responsivePadding(32),
